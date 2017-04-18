@@ -6,6 +6,7 @@
 namespace App\Repositories;
 
 use App\Models\AttributionLevel;
+use App\Models\MT1Models\User as MT1Feed;
 use App\Repositories\AttributionModelRepo;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,13 +14,18 @@ use DB;
 
 class AttributionLevelRepo {
     protected $levels;
+    protected $modelRepo;
+    protected $mt1Feeds;
 
-    public function __construct ( $attributionModelId = null ) {
+    public function __construct ( $attributionModelId = null , AttributionModelRepo $modelRepo , MT1Feed $mt1Feeds ) {
         if ( !is_null( $attributionModelId ) && is_numeric( $attributionModelId ) ) {
             $this->levels = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $attributionModelId );
         } else {
             $this->levels = new AttributionLevel();
         }
+
+        $this->modelRepo = $modelRepo;
+        $this->mt1Feeds = $mt1Feeds;
     }
 
     public function setLevel ( $feedId , $level ) {
@@ -79,29 +85,21 @@ class AttributionLevelRepo {
     }
 
     public function syncLevelsWithMT1 () {
-        $mt1Levels = DB::connection( 'mt1_data' )->table( 'user' )
-                    ->select( 'user_id as feedId' , 'AttributeLevel as level' )
-                    ->where( [
-                        [ 'status' , 'A' ] ,
-                        [ 'OrangeClient' , 'Y' ] ,
-                        [ 'AttributeLevel' , '<>' , 255 ]
-                    ] )->get();
+        $mt1Levels = $this->mt1Feeds
+                        ->select( 'user_id as feed_id' , 'AttributeLevel as level' , \DB::raw( 'NOW() as `created_at`' ) , \DB::raw( 'NOW() as `updated_at`' ) )
+                        ->where( [
+                            [ 'status' , 'A' ] ,
+                            [ 'OrangeClient' , 'Y' ] ,
+                            [ 'AttributeLevel' , '<>' , 255 ]
+                        ] )->get()->keyBy( 'level' )->toArray();
 
-        $liveModelId = AttributionModelRepo::getLiveModelId();
+        \Log::info( $mt1Levels );
 
-        if ( !is_null( $liveModelId ) ) {
-            DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $liveModelId )->truncate();
-        }
+        $liveModelId = $this->modelRepo->getLiveModelId();
 
-        DB::connection( 'attribution' )->table( AttributionLevel::LIVE_TABLE_NAME )->truncate();
+        $this->modelRepo->copyLevels( $liveModelId , 0 , false , $mt1Levels );
 
-        foreach ( $mt1Levels as $current ) {
-            if ( !is_null( $liveModelId ) ) {
-                $this->updateFeedLevel( $current->feedId , $current->level , $liveModelId );
-            }
-
-            $this->updateFeedLevel( $current->feedId , $current->level );
-        }
+        $this->modelRepo->setLive( $liveModelId );
 
         return true;
     }

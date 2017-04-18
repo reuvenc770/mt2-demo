@@ -13,7 +13,7 @@ use App\Models\AttributionLevel;
 use App\Models\AttributionModel;
 use App\Models\Feed;
 use Maknz\Slack\Facades\Slack;
-
+use Carbon\Carbon;
 use Log;
 
 class AttributionModelRepo {
@@ -110,20 +110,46 @@ class AttributionModelRepo {
             ->get();
     }
 
-    public function copyLevels ( $currentModelId , $templateModelId ) {
-        $templateModelLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $templateModelId );
+    public function copyLevels ( $destinationModelId , $templateModelId , $copyToLive = false , $newLevelList = [] ) {
+        $currentModelLevel = ( $copyToLive ? new AttributionLevel() : new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $destinationModelId ) );
+        $currentLevels = $currentModelLevel->get()->keyBy( 'level' )->toArray();
 
-        DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $currentModelId )->truncate();
+        if ( count( $newLevelList ) > 0 ) {
+            $templateLevels = $newLevelList;
+        } else {
+            $templateModelLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $templateModelId );
+            $templateLevels = $templateModelLevel->get()->keyBy( 'level' )->toArray();
+        }
 
-        $templateModelLevel->get()->each( function ( $item , $key ) use ( $currentModelId ) {
-            $newLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $currentModelId );
+        $currentDatetime = Carbon::now()->toDateTimeString();
 
-            $newLevel->feed_id = $item->feed_id;
-            $newLevel->level = $item->level;
+        foreach ( $currentLevels as $level => $details ) {
+            if ( $details[ 'feed_id' ] == $templateLevels[ $level ][ 'feed_id' ] ) {
+                $templateLevels[ $level ][ 'created_at' ] = $details[ 'created_at' ];
+                $templateLevels[ $level ][ 'updated_at' ] = $currentDatetime;
+            } else {
+                $templateLevels[ $level ][ 'created_at' ] = $currentDatetime; 
+                $templateLevels[ $level ][ 'updated_at' ] = $currentDatetime; 
+            }
+        }
+
+        if ( $copyToLive ) {
+            $currentModelLevel->truncate();
+        } else {
+            DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $destinationModelId )->truncate();
+        }
+
+        foreach ( $templateLevels as $item ) {
+            $newLevel = ( $copyToLive ? new AttributionLevel() : new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $destinationModelId ) );
+
+            $newLevel->feed_id = $item[ 'feed_id' ];
+            $newLevel->level = $item[ 'level' ];
+            $newLevel->created_at = $item[ 'created_at' ];
+            $newLevel->updated_at = $item[ 'updated_at' ];
             $newLevel->save();
 
             unset( $newLevel );
-        } );
+        }
 
         return true;
     }
@@ -147,19 +173,7 @@ class AttributionModelRepo {
                 ->where( 'id' , $modelId )
                 ->update( [ 'live' => 1 ] );
 
-            DB::connection( 'attribution' )->table( 'attribution_levels' )->truncate();
-
-            $templateModelLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
-
-            $templateModelLevel->get()->each( function ( $item , $key ) {
-                $newLevel = new AttributionLevel();
-
-                $newLevel->feed_id = $item->feed_id;
-                $newLevel->level = $item->level;
-                $newLevel->save();
-
-                unset( $newLevel );
-            } );
+            $this->copyLevels( 0 , $modelId , true );
 
             return true;
         } catch ( \Exception $e ) {
@@ -174,17 +188,19 @@ class AttributionModelRepo {
         $currentModel->name = $currentModelName;
         $currentModel->save();
 
-        DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $currentModelId )->truncate();
-        
-        foreach ( $levels as $current ) {
-            $newLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $currentModelId );
+        $newLevels = [];
+        $currentDateTime = Carbon::now()->toDateTimeString();
 
-            $newLevel->feed_id = $current[ 'id' ];
-            $newLevel->level = $current[ 'level' ];
-            $newLevel->save();
-
-            unset( $newLevel );
+        foreach ( $levels as $index => $current ) {
+            $currentLevelNumber = $index + 1;
+            $newLevels[ $currentLevelNumber ][ 'feed_id' ] = $current[ 'id' ];
+            $newLevels[ $currentLevelNumber ][ 'level' ] = $currentLevelNumber;
+            $newLevels[ $currentLevelNumber ][ 'created_at' ] = $currentDateTime;
+            $newLevels[ $currentLevelNumber ][ 'updated_at' ] = $currentDateTime;
         }
+
+        $this->copyLevels( $currentModelId , 0 , false , $newLevels );
+
         return true;
     }
 
