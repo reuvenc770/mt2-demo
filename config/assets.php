@@ -23,7 +23,7 @@ return [
     // Enable the pipeline and filter functions.
     // --------------------------------------------------------------------------
     // You may want to disable this for development, to make debugging easier.
-    'enabled' => true,
+    'enabled' => false,
 
     // --------------------------------------------------------------------------
     // Where do we find the application's original assets?

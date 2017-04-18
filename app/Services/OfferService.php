@@ -24,6 +24,10 @@ class OfferService
         return $this->offerRepo->all();
     }
 
+    public function autoCompleteCpmSearch ( $term ) {
+        return $this->offerRepo->fuzzyCpmSearchBack( $term );
+    } 
+
     public function autoCompleteSearch($day, $term){
         return $this->offerRepo->fuzzySearchBack($day, $term);
     }

@@ -37,6 +37,14 @@ class OfferRepo {
         }
     }
 
+    public function fuzzyCpmSearchBack ( $term ) {
+        return $this->offer->where( 'name' , 'LIKE' , "%{$term}%" )
+            ->where( 'name' , 'NOT LIKE' , "PAUSED%" )
+            ->where( 'name' , 'NOT LIKE' , "%INACTIVE%" )
+            ->where( 'offer_payout_type_id' , 1 )
+            ->select( "id" , "name" )->get();
+    }
+
     public function fuzzySearchBack($day,$term){
         return $this->offer->where('name', 'like', $term . '%')
             ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'N')

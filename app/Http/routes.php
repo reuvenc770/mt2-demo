@@ -776,6 +776,19 @@ Route::group(
     }
 );
 
+Route::group(
+    [
+        'prefix' => 'cpm' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'cpm.list' ,
+            'uses' => 'CpmPricingController@listAll'
+        ] );
+    }
+);
+
 
 
 /**
@@ -1362,6 +1375,14 @@ Route::group(
             'MailingTemplateController',
             [ 'except' => ['create', 'edit']]
         );
+
+        Route::resource(
+            'cpm',
+            'CpmPricingController',
+            [ 'except' => ['create', 'edit', 'show' , 'destroy']]
+        );
+
+
 
         /**
          * Admin Level API Group
