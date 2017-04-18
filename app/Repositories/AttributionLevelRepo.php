@@ -93,8 +93,6 @@ class AttributionLevelRepo {
                             [ 'AttributeLevel' , '<>' , 255 ]
                         ] )->get()->keyBy( 'level' )->toArray();
 
-        \Log::info( $mt1Levels );
-
         $liveModelId = $this->modelRepo->getLiveModelId();
 
         $this->modelRepo->copyLevels( $liveModelId , 0 , false , $mt1Levels );
