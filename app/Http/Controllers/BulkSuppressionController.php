@@ -15,6 +15,7 @@ use App\Services\MT1ApiService;
 use App\Services\SuppressionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
+use Artisan;
 
 class BulkSuppressionController extends Controller
 {
@@ -74,6 +75,11 @@ class BulkSuppressionController extends Controller
                 ));
             }
         }
+
+        Artisan::queue( 'mt1Import' , [
+            'type' => 'globalSuppression' ,
+            '--delay' => 10 
+        ] );
 
         return $failed;
     }
