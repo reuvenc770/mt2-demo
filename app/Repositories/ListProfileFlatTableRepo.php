@@ -49,9 +49,9 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 offer_id = offer_id,
                 cake_vertical_id = cake_vertical_id,
                 has_esp_open = IF(VALUES(has_esp_open) > 0, VALUES(has_esp_open), has_esp_open),
-                has_open = IF(VALUES(has_esp_open) > 0 OR has_cs_open > 0, 1, 0),
+                has_open = IF(VALUES(has_esp_open) > 0 OR has_cs_open > 0, 1, has_open),
                 has_esp_click = IF(VALUES(has_esp_click) > 0, VALUES(has_esp_click), has_esp_click),
-                has_click = IF(VALUES(has_esp_click) > 0 OR has_cs_click > 0 OR has_tracking_click > 0, 1, 0),
+                has_click = IF(VALUES(has_esp_click) > 0, 1, has_click),
                 has_cs_open = has_cs_open,
                 has_cs_click = has_cs_click,
                 has_tracking_click = has_tracking_click,
@@ -174,10 +174,10 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             lower_case_md5 = VALUES(lower_case_md5),
             upper_case_md5 = VALUES(upper_case_md5),
             email_domain_id = email_domain_id,
-            has_cs_open = IF(VALUES(has_cs_open) > 0, 1, 0),
-            has_open = IF(VALUES(has_cs_open) > 0 OR has_esp_open > 0, 1, 0),
-            has_cs_click = IF(VALUES(has_cs_click) > 0, 1, 0),
-            has_click = IF(VALUES(has_cs_click) > 0 OR has_esp_click > 0, 1, 0),
+            has_cs_open = IF(VALUES(has_cs_open) > 0, 1, has_cs_open),
+            has_open = IF(VALUES(has_cs_open) > 0, 1, has_open),
+            has_cs_click = IF(VALUES(has_cs_click) > 0, 1, has_cs_click),
+            has_click = IF(VALUES(has_cs_click) > 0, 1, has_click),
             updated_at = NOW()");
         }
     }
