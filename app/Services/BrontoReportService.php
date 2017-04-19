@@ -243,14 +243,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return $this->currentPageData;
     }
 
-    public function pageHasData()
+    public function pageHasData( $processState )
     {
 
         if ($this->pageNumber != 1) {
             return false;
         }
         $filter = array(
-            "start" => Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "start" => Carbon::parse( $processState[ 'date' ] )->toAtomString() , #Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "deliveryId" => $processState[ 'campaign' ]->internal_id ,
             "size" => "5000",
             "types" => $this->pageType,
             "readDirection" => $this->getPageNumber(),
@@ -423,5 +424,9 @@ class BrontoReportService extends AbstractReportService implements IDataService
     public function getRawReportsForSplit($campaignName, $epsAccountId)
     {
         return $this->reportRepo->getRawCampaignsFromName($campaignName, $epsAccountId);
+    }
+
+    public function getRawCampaigns ( $processState ) {
+        return $this->reportRepo->getRawCampaignsFromDate( $processState[ 'date' ] );
     }
 }
