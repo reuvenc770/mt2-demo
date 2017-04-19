@@ -173,7 +173,7 @@ class SuppressionService implements IFeedSuppression
                     'totalUnsubs' => $espTotals->unsubs];
             }
             else {
-                $output[$espName][$espAccountName] = ['hardbounces' => $row->hardbounces, 'unsubs' => $row->unsubs];
+                $output['esps'][$espName][$espAccountName] = ['hardbounces' => $row->hardbounces, 'unsubs' => $row->unsubs];
             }
         }
 
