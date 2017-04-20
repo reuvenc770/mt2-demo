@@ -12,6 +12,7 @@ use App\Models\EspAccount;
 use App\Models\EspAccountCustomIdHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+use Carbon\Carbon;
 
 //TODO ADD CACHING ONCE ESP SECTION IS DONE
 
@@ -141,8 +142,7 @@ class EspApiAccountRepo
 
     public function getTemplatesByEspId($id){
         $data = $this->espAccount->with('mailingTemplate')->find($id);
-       return $data->mailingTemplate;
-
+        return $data->mailingTemplate;
     }
 
     public function getImageLinkFormat($id) {
@@ -150,15 +150,26 @@ class EspApiAccountRepo
     }
 
     public function toggleRow($id, $direction){
-        return $this->espAccount->find($id)->update(['status'=> $direction]);
+        if (2 === (int)$direction) {
+            $deactivationDate = Carbon::today()->addDays(30)->toDateString();
+        }
+        elseif (1 === (int)$direction) {
+            $deactivationDate = null;
+        }
+        else {
+            echo "direction is $direction" . PHP_EOL;
+        }
+
+        return $this->espAccount->find($id)->update(['status'=> $direction, 'deactivation_date' => $deactivationDate]);
     }
 
     public function toggleSuppression($id, $bool){
-        return $this->espAccount->find($id)->update(['enable_suppression' => $bool]);
+        $deactivationDate = $bool ? null : Carbon::today()->toDateString();
+        return $this->espAccount->find($id)->update(['enable_suppression' => $bool, 'deactivation_date' => $deactivationDate, 'status' => $bool]);
     }
 
     public function getAccountWithOAuth($id) {
-     return $this->espAccount->with('OAuthTokens')->find($id);
+        return $this->espAccount->with('OAuthTokens')->find($id);
     }
 
     public function backFuzzySearch($search){

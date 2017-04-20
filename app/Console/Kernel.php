@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
     const MT1_SYNC_TIME = '23:00';
     const REDSHIFT_UPLOAD_TIME = '09:00';
     const AWEBER_TIME = '19:00';
+    const MIDNIGHT = '00:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -205,7 +206,7 @@ class Kernel extends ConsoleKernel
         /**
          *  Deactivation jobs
          */
-        $schedule->command('deactivate:espAccounts')->dailyAt(self::REPORT_TIME);
+        $schedule->command('deactivate:espAccounts')->dailyAt(self::MIDNIGHT);
 
 
         /**
