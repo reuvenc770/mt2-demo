@@ -165,4 +165,28 @@ class SuppressionRepo
             ->selectRaw('SUM(IF(type_id = 1, 1, 0)) as unsubs, SUM(IF(type_id = 2, 1, 0)) as hardbounces')
             ->first();
     }
+
+    public function getMinIdForDate($date) {
+        return $this->suppressionModel->where('created_at', '>=', $date)->min('id');
+    }
+
+    public function getMaxId() {
+        return $this->suppressionModel->max('id');
+    }
+
+    public function nextNRows($startPoint, $offset) {
+        return $this->suppressionModel
+            ->where('id', '>=', $startPoint)
+            ->orderBy('id')
+            ->skip($offset)
+            ->first()['id'];
+    }
+
+    public function pullSuppressionsBetweenIds($start, $end) {
+        return $this->suppressionModel->selectRaw("distinct email_address")->whereRaw("id between $start AND $end")->get();
+    }
+
+    public function getTotalSinceDate($date) {
+        return $this->suppressionModel->where('date', '>=', $date)->count();
+    }
 }

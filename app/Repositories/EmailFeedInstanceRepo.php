@@ -124,6 +124,15 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
         return $this->model->whereBetween( 'subscribe_date' , [ $startDate , $endDate ] );
     }
 
+    public function getSourceUrlCountsForDates($startDate, $endDate) {
+        return $this->model
+                    ->selectRaw("feed_id, source_url, subscribe_date, count(*) as count")
+                    ->whereBetween('subscribe_date', [$startDate, $endDate])
+                    ->groupBy('feed_id', 'source_url', 'subscribe_date')
+                    ->get()
+                    ->toArray();
+    }
+
     public function getRecordsFromFeedStartingAt($feedId, $startingId) {
         return $this->model
                     ->selectRaw("email_feed_instances.*, e.email_address")

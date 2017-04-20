@@ -127,13 +127,13 @@ class Kernel extends ConsoleKernel
         /**
          * Suppression Jobs
          */
-        $schedule->command('suppression:downloadESP BlueHornet 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Maro 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Campaigner 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP EmailDirect 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Publicators 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP AWeber 1')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP BlueHornet 5')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Maro 5')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Campaigner 5')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP EmailDirect 5')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Publicators 5')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Bronto 5')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP AWeber 5')->dailyAt(self::UNSUB_TIME);
 
         $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
@@ -141,7 +141,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
         $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
+        $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath ); //FTPSuppressionsToMT1
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
         
         /**

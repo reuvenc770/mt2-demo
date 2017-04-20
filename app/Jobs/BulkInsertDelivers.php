@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
+use Carbon\Carbon;
 
 class BulkInsertDelivers extends Job implements ShouldQueue
 {
@@ -19,6 +20,7 @@ class BulkInsertDelivers extends Job implements ShouldQueue
     private $tracking;
     private $lookBack;
     private $name;
+    const SEGMENT_SIZE = 10000;
     
     /**
      * Create a new job instance.
@@ -44,17 +46,24 @@ class BulkInsertDelivers extends Job implements ShouldQueue
                 $this->createLock($this->name);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->name} running" . PHP_EOL;
-     
-                $grabbedRecords = $rawRepo->pullModelSince($this->lookBack);
 
-                $grabbedRecords->chunk(10000, function($records) use ($actionsRepo) {
+                $date = Carbon::today()->subDays($this->lookBack)->toDateTimeString();
+                $minId = $rawRepo->getMinIdForDate($date);
+                $maxId = $rawRepo->getMaxIdForDate($date);
+
+                while($minId <= $maxId) {
+                    $segmentEnd = $minId + self::SEGMENT_SIZE;
+
+                    $records = $rawRepo->getSegmentBetweenIds($minId, $segmentEnd);
                     $recordsToInsert = [];
+
                     foreach($records as $row) {
                         $recordsToInsert[] = '(' . $row->email_id .','. $row->deploy_id .','. $row->esp_account_id .','. $row->esp_internal_id .',4,"'. $row->datetime .'", now())';
                     }
 
                     $actionsRepo->upsertDelivered($recordsToInsert);
-                });
+                    $minId = $segmentEnd;
+                }
 
                 $rawRepo->clearOutPast($this->lookBack + 5);
 
@@ -62,7 +71,6 @@ class BulkInsertDelivers extends Job implements ShouldQueue
             }
             catch (\Exception $e) {
                 echo "{$this->name} failed with {$e->getMessage()}" . PHP_EOL;
-                $this->failed();
             }
             finally {
                 $this->unlock($this->name);
