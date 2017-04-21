@@ -60,7 +60,7 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
             $data = $service->pullSuppressionsBetweenIds($startPoint, $segmentEnd);
 
             if ($data) {
-                $filePath = "/MT2/{$this->date}-{$this->tracking}{$this->count}.csv";
+                $filePath = "/MT2/{$this->date}-{$this->tracking}{$count}.csv";
                 $writer = Writer::createFromFileObject(new \SplTempFileObject());
 
                 $writer->insertAll($data->toArray());
