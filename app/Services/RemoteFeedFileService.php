@@ -13,9 +13,12 @@ use App\Repositories\RawFeedEmailRepo;
 use App\Facades\SlackLevel;
 
 use Carbon\Carbon;
+use Mail;
 
 class RemoteFeedFileService {
     const SLACK_CHANNEL = "#mt2team";
+    const DEV_TEAM_EMAIL = 'tech.team.mt2@zetaglobal.com';
+    const STAKEHOLDERS_EMAIL = 'orangeac@zetaglobal.com';
 
     protected $feedService;
     protected $systemService;
@@ -31,6 +34,9 @@ class RemoteFeedFileService {
     protected $currentFileLineCount = null;
     protected $currentLines = null;
 
+    protected $processedFileCount = 0;
+    protected $notificationCollection = [];
+
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         $this->feedService = $feedService;
         $this->systemService = $systemService;
@@ -45,6 +51,18 @@ class RemoteFeedFileService {
             $recordSqlList = $this->getNewRecords();
 
             $this->rawRepo->massInsert( $recordSqlList );
+
+            $this->processedFileCount++;
+        }
+
+        if ( $this->processedFileCount > 0 ) {
+            Mail::raw( implode( PHP_EOL , $this->notificationCollection )  , function ( $message ) {
+                $message->to( self::DEV_TEAM_EMAIL );
+                #$message->to( self::STAKEHOLDERS_EMAIL );
+                
+                $message->subject( 'Feed Files Processed - ' . Carbon::now()->toCookieString() );
+                $message->priority(1);
+            } );
         }
     }
 
@@ -213,6 +231,11 @@ class RemoteFeedFileService {
             'feed_id' => $this->currentFile[ 'feedId' ] ,
             'line_count' => $this->currentFileLineCount
         ] );
+
+        $this->notificationCollection []= "File {$this->currentFile[ 'path' ]} from '"
+            . $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
+            . "' ({$this->currentFile[ 'feedId' ]}) was processed at "
+            . Carbon::now()->toCookieString() . " with {$this->currentFileLineCount} records.";
     }
 
     protected function resetCursor () {
