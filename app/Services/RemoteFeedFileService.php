@@ -47,6 +47,10 @@ class RemoteFeedFileService {
     public function processNewFiles () {
         $this->loadNewFilePaths();
 
+        if ( !$this->newFilesPresent() ) {
+            \Log::info( 'RemoteFeedFileService: No new files to process....' );
+        }
+
         while ( $this->newFilesPresent() ) {
             $recordSqlList = $this->getNewRecords();
 
@@ -119,7 +123,7 @@ class RemoteFeedFileService {
 
         while ( $this->getBufferSize () < $chunkSize ) {
             if ( count( $this->newFileList ) <= 0 ) {
-                \Log::info( 'RemoteFeedFileService: No files to process....' );
+                \Log::info( 'RemoteFeedFileService: No more files to process....' );
                 break;
             }
 
@@ -236,6 +240,9 @@ class RemoteFeedFileService {
             . $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
             . "' ({$this->currentFile[ 'feedId' ]}) was processed at "
             . Carbon::now()->toCookieString() . " with {$this->currentFileLineCount} records.";
+
+
+        \Log::info( 'RemoteFeedFileService: processed ' . $this->currentFile[ 'path' ] );
     }
 
     protected function resetCursor () {

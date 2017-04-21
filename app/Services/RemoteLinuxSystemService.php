@@ -11,7 +11,7 @@ class RemoteLinuxSystemService {
     const CREATE_DIR_COMMAND = "sudo mkdir %s";
     const CHANGE_DIR_OWNER_COMMAND = "sudo chown -R %s:sftponly %s";
     const CHANGE_DIR_PERMS_COMMAND = "sudo chmod 755 %s";
-    const FIND_RECENT_FILES_COMMAND = "find %s -type f -mtime -1 -print";
+    const FIND_RECENT_FILES_COMMAND = "find %s -type f -mtime -1 -mmin +10 -print";
     const LIST_DIRECTORIES_COMMAND = "find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
     const GET_CONTENT_SLICE_COMMAND = "sed -n %d,%dp %s";
