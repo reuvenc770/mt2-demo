@@ -13,6 +13,7 @@ use App\Repositories\ListProfileRepo;
 use App\Builders\ListProfileQueryBuilder;
 use Cache;
 use App\Repositories\FeedRepo;
+use App\Repositories\ListProfileFlatTableRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
 use App\Services\ListProfileBaseTableCreationService;
 use App\Services\ServiceTraits\PaginateList;
@@ -22,6 +23,7 @@ class ListProfileService
     use PaginateList;
 
     protected $profileRepo;
+    protected $flatTableRepo;
     protected $builder;
     private $rows = [];
     private $rowCount = 0;
@@ -64,10 +66,16 @@ class ListProfileService
     // set up unique column. 'email_id' will always be in place so we can hardcode this
     private $uniqueColumn = 'email_id';
 
-    public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableCreationService $baseTableService) {
+    public function __construct(
+        ListProfileRepo $profileRepo,
+        ListProfileQueryBuilder $builder,
+        ListProfileBaseTableCreationService $baseTableService,
+        ListProfileFlatTableRepo $flatTableRepo
+    ) {
         $this->profileRepo = $profileRepo;
         $this->builder = $builder;
         $this->baseTableService = $baseTableService;
+        $this->flatTableRepo = $flatTableRepo;
     }
 
     public function getModel ( $options = [] ) {
@@ -410,5 +418,9 @@ class ListProfileService
         $copyProfile->save();
 
         return $copyProfile->id;
+    }
+
+    public function getLatestRecordCountForFlatTable () {
+        return $this->flatTableRepo->getLatestRecordCount();
     }
 }

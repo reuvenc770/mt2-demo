@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Factories\ServiceFactory;
+use App\Services\ListProfileService;
 use Cache;
 use Mail;
 
@@ -22,6 +23,8 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
     private $jobName;
     private $version;
     private $extraData;
+
+    private $listProfileService;
 
     public function __construct($entity, $version, $tracking, $extraData = null) {
         if ($version < 0 || $version > 2) {
@@ -47,12 +50,14 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handle() {
+    public function handle( ListProfileService $listProfileService ) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
+
+                $this->listProfileService = $listProfileService;
 
                 $service = ServiceFactory::createAwsExportService($this->entity);
                 $rows = 0;
@@ -114,7 +119,7 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
 
         $allJobsCompleted = ( 0 === (int)Cache::get( self::TALLY_KEY ) );
         if ( $allJobsCompleted ) {
-            Mail::raw( 'List Profile Preprocessing Finished.' , function ($message) {
+            Mail::raw( "List Profile Preprocessing Finished.\nRecord Count is " . $this->listProfileService->getLatestRecordCountForFlatTable() . '.' , function ($message) {
                 $message->to( 'GTDDev@zetaglobal.com' );
                 $message->to( 'orangeac@zetaglobal.com' );
 

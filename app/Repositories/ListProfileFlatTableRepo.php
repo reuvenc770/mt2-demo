@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Models\ThirdPartyEmailStatus;
+use App\Models\JobEntry;
 
 /**
  *
@@ -14,12 +15,14 @@ use App\Models\ThirdPartyEmailStatus;
 class ListProfileFlatTableRepo implements IAwsRepo {
   
     private $flatTable;
+    private $jobs;
     private $batchData = [];
     private $batchDataSize;
     const MAX_INSERT_SIZE = 10000;
 
-    public function __construct(ListProfileFlatTable $flatTable) {
+    public function __construct( ListProfileFlatTable $flatTable , JobEntry $jobs ) {
         $this->flatTable = $flatTable;
+        $this->jobs = $jobs;
     } 
 
     public function massInsertActions($massData) {
@@ -334,4 +337,16 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                     ->first();
     }
     
+    public function getLatestRecordCount () {
+        $records = $this->jobs->select( 'rows_impacted as count' )->where( [ 
+            [ 'job_name'  , '=' , 'ListProfileFlatTable-s3' ] , 
+            [ 'time_finished' , '>=' , \DB::raw( 'CURDATE()' ) ]
+        ] )->orderBy( 'time_finished' , 'desc' )->first();
+
+        if ( count( $records ) <= 0 ) {
+            return 0;
+        }
+
+        return $records->count;
+    }
 }
