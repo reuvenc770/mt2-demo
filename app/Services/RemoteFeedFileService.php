@@ -176,7 +176,7 @@ class RemoteFeedFileService {
         $lineNumber = $this->lastLineNumber + 1;
 
         foreach( $this->currentLines as $currentLine ) {
-            $lineColumns = explode( ',' , $currentLine );
+            $lineColumns = explode( ',' , trim( $currentLine ) );
 
             if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
                 SlackLevel::to(self::SLACK_CHANNEL)->send( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
