@@ -142,7 +142,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
         $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        $schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *');->sendOutputTo( $unsubFilePath ); //FTPSuppressionsToMT1
+        $schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *'); //FTPSuppressionsToMT1
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
         
         /**
