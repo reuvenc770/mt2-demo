@@ -281,4 +281,14 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
         return $map;
     }
+
+    public function getFeedNameFromId ( $id ) {
+        $feedResult = $this->feed->where( 'id' , $id )->first();
+
+        if ( count( $feedResult ) !== 1 ) {
+            return null;
+        }
+
+        return $feedResult->name;
+    }
 }
