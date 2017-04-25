@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
     const MT1_SYNC_TIME = '23:00';
     const REDSHIFT_UPLOAD_TIME = '09:00';
     const AWEBER_TIME = '19:00';
+    const MIDNIGHT = '00:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -127,13 +128,13 @@ class Kernel extends ConsoleKernel
         /**
          * Suppression Jobs
          */
-        $schedule->command('suppression:downloadESP BlueHornet 5')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Maro 5')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Campaigner 5')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP EmailDirect 5')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Publicators 5')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Bronto 5')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP AWeber 5')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP BlueHornet 5')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Maro 5')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Campaigner 5')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP EmailDirect 5')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Publicators 5')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Bronto 5')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP AWeber 5')->cron('0 */4 * * * *');
 
         $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
@@ -141,7 +142,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
         $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath ); //FTPSuppressionsToMT1
+        $schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *'); //FTPSuppressionsToMT1
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
         
         /**
@@ -205,7 +206,7 @@ class Kernel extends ConsoleKernel
         /**
          *  Deactivation jobs
          */
-        $schedule->command('deactivate:espAccounts')->dailyAt(self::REPORT_TIME);
+        $schedule->command('deactivate:espAccounts')->dailyAt(self::MIDNIGHT);
 
 
         /**
@@ -244,7 +245,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import client')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import vendorSuppressionInfo')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import globalSuppression')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import globalSuppression')->cron('45 */4 * * * *');
 
         /**
          * Attribution Jobs
