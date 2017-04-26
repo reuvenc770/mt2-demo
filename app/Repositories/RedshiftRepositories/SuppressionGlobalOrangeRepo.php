@@ -52,10 +52,9 @@ SQL;
     }
 
     public function getCount($maxLookback) {
-        return DB::connection('redshift')
-                ->table('suppression_global_orange')
-                ->whereRaw("created_at <= current_date - interval '$maxLookback DAY'")
-                ->count();
+        return $this->model
+                    ->whereRaw("created_at <= current_date - interval '$maxLookback DAY'")
+                    ->count();
     }
 
     public function insertIfNotNew(array $row) {

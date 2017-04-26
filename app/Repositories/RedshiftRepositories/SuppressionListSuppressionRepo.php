@@ -1,17 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: codedestroyer
- * Date: 2/27/17
- * Time: 3:02 PM
- */
 
 namespace App\Repositories\RedshiftRepositories;
 
-
-use App\Models\SuppressionListSuppression;
+use App\Models\RedshiftModels\SuppressionListSuppression;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
+
 class SuppressionListSuppressionRepo implements IRedshiftRepo
 {
     private $model;
