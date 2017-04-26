@@ -58,6 +58,6 @@ SQL;
     }
 
     public function insertIfNotNew(array $row) {
-        $this->model->updateOrCreate(['email_address' => $row['email_address']], $row);
+        $this->model->firstOrCreate(['email_address' => $row['email_address']], $row);
     }
 }
