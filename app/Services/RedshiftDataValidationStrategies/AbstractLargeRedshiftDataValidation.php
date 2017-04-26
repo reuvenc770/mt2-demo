@@ -45,7 +45,7 @@ abstract class AbstractLargeRedshiftDataValidation {
         $redshiftTime = 0;
 
         $redshiftStart = microtime(true);
-        $results = $this->getRandomSample(self::SAMPLE_SIZE);
+        $results = $this->redshiftRepo->getRandomSample(self::SAMPLE_SIZE);
         $redshiftEnd = microtime(true);
 
         $cmpStart = microtime(true);
