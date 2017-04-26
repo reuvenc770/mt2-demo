@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Services\Interfaces\IEtl;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\ListProfileFlatTableRepo;
-use App\Repositories\CakeConversionRepo;
+use App\Repositories\TrackingRepo;
 use App\Repositories\EtlPickupRepo;
 use DB;
 
@@ -18,7 +18,7 @@ class ListProfileActionAggregationService implements IEtl {
     private $etlPickupRepo;
     const JOB_NAME = 'PopulateListProfileFlatTable';
     
-    public function __construct(EmailActionsRepo $actionsRepo, CakeConversionRepo $cakeRepo,  ListProfileFlatTableRepo $flatTableRepo, EtlPickupRepo $etlPickupRepo) {
+    public function __construct(EmailActionsRepo $actionsRepo, TrackingRepo $cakeRepo,  ListProfileFlatTableRepo $flatTableRepo, EtlPickupRepo $etlPickupRepo) {
         $this->actionsRepo = $actionsRepo;
         $this->flatTableRepo = $flatTableRepo;
         $this->cakeRepo = $cakeRepo;
@@ -65,7 +65,7 @@ class ListProfileActionAggregationService implements IEtl {
 
 
         // Part 2: Conversions
-        $conversions = $this->cakeRepo->getConversionsByEmailId();
+        $conversions = $this->cakeRepo->getCakeDataForListProfiles();
 
         $conversions->each(function($data, $id) {
             $this->flatTableRepo->insertBatchConversions($data);

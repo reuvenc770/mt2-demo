@@ -474,4 +474,19 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         }
     }
 
+    public function matches($obj) {
+        $result = $this->model->where('email_id', $obj->email_id)
+                    ->join('third_party_email_statuses as tpes', 'email_attributable_feed_latest_data.email_id', '=', 'tpes.email_id')
+                    ->first();
+
+        if ($result) {
+            $isDeliverable = $result->last_action_type === 'None';
+            return ($isDeliverable === $obj->is_deliverable)
+                && ($result->subscribe_date === $obj->subscribe_date);
+        }
+        else {
+            return false;
+        }
+    }
+
 }

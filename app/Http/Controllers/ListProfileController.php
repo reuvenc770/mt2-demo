@@ -24,9 +24,12 @@ use App\Http\Requests\SubmitListCombineRequest;
 use Laracasts\Flash\Flash;
 use App\Services\ListProfileCombineService;
 use Cache;
+use App\Services\EntityCacheService;
+
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
+
     protected $listProfile;
     protected $states;
     protected $ispService;
@@ -130,7 +133,7 @@ class ListProfileController extends Controller
     {
         return response()->view(
             'pages.listprofile.list-profile-edit' ,
-            $this->getFormFieldOptions( [ 'id' => $id , 'prepop' => $this->listProfile->getFullProfileJson( $id ) ] )
+            $this->getFormFieldOptions( $id )
         );
     }
 
@@ -184,20 +187,25 @@ class ListProfileController extends Controller
         );
     }
 
-    protected function getFormFieldOptions ( $addOptions = [] ) {
+    protected function getFormFieldOptions ( $id = 0 , $addOptions = [] ) {
+        if ( $id > 0 ) {
+            $addOptions[ 'id' ] = $id;
+            $addOptions[ 'prepop' ] = $this->listProfile->getFullProfileJson( $id );
+        }
 
-        return array_merge( [
-            'feeds' => $this->feedService->getAllFeedsArray() ,
-            'feedGroups' => $this->feedGroupService->getAllFeedGroupsArray(),
-            'clients' => $this->clientService->getAllClientsArray() ,
-            'clientFeedMap' => $this->clientService->getClientFeedMap() ,
-            'partyFeedMap' => $this->feedService->getPartyFeedMap(),
-            'countryFeedMap' => $this->feedService->getCountryFeedMap(),
-            'countries' => $this->mt1CountryService->getAll() ,
+        $formFields = array_merge( [
+            'feeds' => EntityCacheService::get( \App\Repositories\FeedRepo::class , 'array' ) ,
+            'feedGroups' => EntityCacheService::get( \App\Repositories\FeedGroupRepo::class , 'array' ) ,
+            'clients' => EntityCacheService::get( \App\Repositories\ClientRepo::class , 'array' ) ,
+            'clientFeedMap' => EntityCacheService::get( \App\Repositories\ClientRepo::class , 'feedMap' ) ,
+            'partyFeedMap' => EntityCacheService::get( \App\Repositories\FeedRepo::class , 'partyMap' ) ,
+            'countryFeedMap' =>  EntityCacheService::get( \App\Repositories\FeedRepo::class , 'countryMap' ) ,
             'states' => $this->states->all() ,
             'isps' => $this->ispService->getAllActive() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
+
+        return $formFields;
     }
 
 

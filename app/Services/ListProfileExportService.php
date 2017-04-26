@@ -166,21 +166,20 @@ class ListProfileExportService
             $fileName = 'DeployTemp/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
             Storage::delete($fileName); // clear the file currently saved
 
-
-                $recordEntry = $deployProgress['reportEntry'];
-                $recordEntry->addToOriginalTotal(count($resource));
+            $recordEntry = $deployProgress['reportEntry'];
+            $recordEntry->addToOriginalTotal(count($resource));
             //GrabOffersSuppressedAgainst and store for to place in record
-                if($reportCardName) {
-                    $offerSuppressionLists = OfferSuppressionList::find($offerId)->all();
-                    $offersPlucked = $offerSuppressionLists->pluck('id');
-                    $reportCard->addOffersSuppressedAgainst($offersPlucked);
-                }
+            if($reportCardName) {
+                $offerSuppressionLists = OfferSuppressionList::find($offerId)->all();
+                $offersPlucked = $offerSuppressionLists->pluck('id');
+                $reportCard->addOffersSuppressedAgainst($offersPlucked);
+            }
 
-             foreach ($resource as $row) {
+            foreach ($resource as $row) {
                 if($row->globally_suppressed){
                      $this->batchSuppression($fileName, $row);
                     $recordEntry->increaseGlobalSuppressionCount();
-                 }
+                }
                 elseif ($this->mt1SuppServ->isSuppressed($row->email_id)){
                     $this->batchSuppression($fileName, $row);
                     $recordEntry->increaseListSuppressionCount();
@@ -188,18 +187,18 @@ class ListProfileExportService
                  elseif(!$row->suppression_status){
                      $this->batchSuppression($fileName, $row);
                      $recordEntry->increaseListSuppressionCount();
-                 } else {
+                }
+                else {
                      $row = $this->mapRow($header, $row);
                      $this->batch($fileName, $row, "local");
                      $recordEntry->increaseFinalRecordCount();
-                 };
-             }
+                }
+            }
 
             $this->writeBatch($fileName, "local");
             $this->writeBatchSuppression($fileName);
 
             //either get the deploy cache or build it
-
 
             $deployProgress['totalPieces']--;
 

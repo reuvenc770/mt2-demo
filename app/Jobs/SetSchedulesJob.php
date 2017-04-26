@@ -21,7 +21,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
     private $emails;
     private $eventType;
     private $tracking;
-    const ATTRIBUTION_SHIELD = 3; // to be 15 normally
+    const NEXT_FREE_DAY = 4; // to be 16 normally
 
     public function __construct($jobName, $emails, $eventType, $tracking) {
         $this->jobName = $jobName;
@@ -82,7 +82,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
     private function handleNewRecords($scheduledFilterService, $truthService, $assignmentService, $emails) {
         $truthService->insertBulkRecords($emails);
         $assignmentService->insertBulkRecords($emails);
-        $scheduledFilterService->insertScheduleFilterBulk($emails, self::ATTRIBUTION_SHIELD);
+        $scheduledFilterService->insertScheduleFilterBulk($emails, self::NEXT_FREE_DAY);
     }
 
 

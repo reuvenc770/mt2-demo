@@ -19,6 +19,13 @@ class UserAgentProcessingService extends AbstractEtlService {
         $this->data = $this->sourceRepo->pullUserAgents($lookback);
     }
 
+    public function load() {
+        foreach ($this->data->cursor() as $row) {
+            $row = $this->transform($row);
+            $this->targetRepo->loadData($row);
+        }
+    }
+
     protected function transform($row) {
         $uas = $row['user_agent'];
         

@@ -5,7 +5,6 @@ namespace App\Repositories\RedshiftRepositories;
 use App\Models\RedshiftModels\EmailFeedAssignment;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
-use App\Models\EmailFeedAssignment as CmpEmailFeedAssignment;
 
 class EmailFeedAssignmentRepo implements IRedshiftRepo {
     
@@ -45,17 +44,6 @@ SQL;
         $this->loadEntity($entity);
     }
 
-    public function matches(CmpEmailFeedAssignment $obj) {
-        $result = $this->model->find($obj->email_id);
-
-        if ($result) {
-            return $result->feed_id === $obj->feed_id;
-        }
-        else {
-            return false;
-        }
-    }
-
     public function getAttributionDist() {
         $output = [];
 
@@ -69,5 +57,10 @@ SQL;
         }
 
         return $output;
+    }
+
+    public function getRandomSample($number) {
+        // So this is actually quite efficient and fast in redshift
+        return $this->model->inRandomOrder()->take($number)->get();
     }
 }

@@ -52,4 +52,8 @@ class FeedGroupRepo {
     public function getAllFeedGroups(){
         return $this->feedGroups->all();
     }
+
+    public function getAllFeedGroupsArray(){
+        return $this->getAllFeedGroups()->toArray();
+    }
 }

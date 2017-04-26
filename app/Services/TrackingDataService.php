@@ -6,21 +6,23 @@
 namespace App\Services;
 use App\Repositories\TrackingRepo;
 use App\Services\Interfaces\IDataService;
+use App\Services\Interfaces\IApi;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use Carbon\Carbon;
+use App\Repositories\EspApiAccountRepo;
 
 class TrackingDataService implements IDataService
 {
 
   protected $repo;
   protected $api;
-  protected $source;
+  private $espAccountRepo;
 
-  public function __construct($source, TrackingRepo $repo, $api) {
+  public function __construct(TrackingRepo $repo, IApi $api, EspApiAccountRepo $espAccountRepo) {
     $this->repo = $repo;
     $this->api = $api;
-    $this->source = $source;
+    $this->espAccountRepo = $espAccountRepo;
   }
 
   public function retrieveApiStats($data = null) {
@@ -31,22 +33,22 @@ class TrackingDataService implements IDataService
     return $out;
   }
 
-  public function insertApiRawStats( $data , $recordLevel = false) {
-      if ( $recordLevel ) {
-            $this->insertApiRawRecordStats( $data , \App::make( \App\Repositories\Attribution\RecordReportRepo::class ) );
+  public function insertApiRawStats( $data , $conversions = false) {
+      if ( $conversions ) {
+          $this->insertApiRawRecordStats( $data , \App::make( \App\Repositories\Attribution\RecordReportRepo::class ) );
       } else {
-            $this->insertApiRawAggregateStats( $data );
+          $this->insertTrackingActions( $data );
       }
   }
 
-  protected function insertApiRawAggregateStats ( $data ) {
+  protected function insertTrackingActions($data) {
     foreach ($data as $row) {
-      $convertedRow = $this->mapToRawReport($row);
-      $this->repo->insertAggregateStats($convertedRow);
+      $convertedRow = $this->mapToActions($row);
+      $this->repo->insertAction($convertedRow);
     }
 
     // need to get data at a different level of aggregation for std report
-    $convertedRows = $this->repo->getRecentInsertedStats($this->api->startDate);
+    $convertedRows = $this->repo->getRecentInsertedStats();
     Event::fire(new RawReportDataWasInserted($this, $convertedRows));
   }
 
@@ -95,7 +97,7 @@ class TrackingDataService implements IDataService
 
           $this->insertApiRawRecordStats( $slice , $recordRepo );
       } else {
-          $this->insertApiRawAggregateStats( $slice );
+          $this->insertTrackingActions( $slice );
       }
 
       $start = $end;
@@ -108,26 +110,36 @@ class TrackingDataService implements IDataService
       return json_decode($data, true);
   }
 
-  protected function mapToRawReport($row) {
-    return [
-      'subid_1' => $row['subid_1'],
-      'subid_2' => $row['subid_2'],
-      'subid_4' => $row['subid_4'],
-      'subid_5' => $row['subid_5'],
-      'email_id' => $this->extractEidFromS2($row['subid_2']),
-      'user_agent_string' => urldecode($row['user_agent_string']),
-      'affiliate_id' => $row['affiliateID'],
-      'clicks' => $row['clicks'],
-      'conversions' => $row['conversions'],
-      'revenue' => $row['revenue'],
-      'clickDate' => $row['clickDate'],
-      'campaignDate' => $row['campaignDate'],
-    ];
+  protected function mapToActions($row) {
+      return [
+          'email_id' => $this->extractEidFromS2($row['s2']),
+          'deploy_id' => (int)$row['s1'],
+          'action_id' => $row['conversion_id'] ? 3 : 2,
+          'datetime' => $row['datetime'],
+          'esp_account_id' => $this->convertToEspAccountId($row['s4']),
+
+          'subid_1' => $row['s1'],
+          'subid_2' => $row['s2'],
+          'subid_4' => $row['s4'],
+          'subid_5' => $row['s5'],
+          'click_id' => $row['click_id'],
+          'conversion_id' => $row['conversion_id'],
+          'cake_affiliate_id' => $row['affiliate_id'],
+          'cake_advertiser_id' => $row['advertiser_id'],
+          'cake_offer_id' => $row['offer_id'],
+          'cake_creative_id' => $row['creative_id'],
+          'cake_campaign_id' => $row['campaign_id'],
+          'ip_address' => $row['ip_address'],
+          'request_session_id' => $row['request_session_id'],
+          'user_agent_string' => urldecode($row['user_agent']),
+          'revenue' => $row['price_received'],
+          'carrier' => $row['carrier'],
+      ];
   }
 
   public function mapToStandardReport($data) {
     return [
-      'external_deploy_id' => $data['subid_1'],
+      'external_deploy_id' => $data['deploy_id'],
       't_clicks' => $data['clicks'],
       'conversions' => $data['conversions'],
       'revenue' => $data['revenue'],
@@ -155,4 +167,10 @@ class TrackingDataService implements IDataService
   }
   
   public function setRetrieveApiLimit ($limit) {}
+
+    private function convertToEspAccountId($name) {
+        $result = $this->espAccountRepo->getIdFromName($name);
+
+        return $result ? $result->id : 0;
+    }
 }

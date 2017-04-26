@@ -6,53 +6,30 @@
 namespace App\Services;
 
 use App\Repositories\EmailFeedInstanceRepo;
+use App\Repositories\SourceUrlCountRepo;
 
 class EmailFeedInstanceService {
     protected $repo;
+    private $countRepo;
 
-    public function __construct ( EmailFeedInstanceRepo $repo ) {
+    public function __construct ( EmailFeedInstanceRepo $repo, SourceUrlCountRepo $countRepo ) {
         $this->repo = $repo;
-    }
-
-    public function getMt1UniqueCountForFeedAndDate ( $feedId , $date ) {
-        return $this->repo->getMt1UniqueCountForFeedAndDate( $feedId , $date );
-    }
-
-    public function getMt2UniqueCountForFeedAndDate ( $feedId , $date ) {
-        return $this->repo->getMt2UniqueCountForFeedAndDate( $feedId , $date );
+        $this->countRepo = $countRepo;
     }
 
     public function getRecordCountForSource ( $search ) {
-        return $this->repo->getRecordCountForSource( $search );
+        return $this->countRepo->getRecordCountForSource( $search );
     } 
 
     public function updateSourceUrlCounts ( $startDate , $endDate ) {
+        $totalCount = 0;
+
         try {
-            $this->repo->clearCountForDateRange( $startDate , $endDate );
-
-            $records = $this->repo->getInstancesForDateRange( $startDate , $endDate );
-
-            $totalCount = 0;
-
-            $countList = [];
-            foreach ($records->cursor() as $currentRecord) {
-                $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'capture_date' ]}";
-                if (!array_key_exists($index, $countList)) {
-                    $countList[$index] = [
-                        'feed_id' => $currentRecord['feed_id'],
-                        'source_url' => $currentRecord['source_url'],
-                        'capture_date' => $currentRecord['capture_date'],
-                        'count' => 0
-                    ];
-                }
-
-                $totalCount++;
-                $countList[$index]['count']++;
-            }
-
-            $this->repo->saveSourceCounts($countList);
+            $records = $this->repo->getSourceUrlCountsForDates($startDate, $endDate);
+            $totalCount = count($records);
+            $this->countRepo->saveSourceCounts($records);
         } catch (\Exception $e){
-            throw $e;//lets get it up to the job so it can be properly tracked
+            throw $e; //let's get it up to the job so it can be properly tracked
         }
 
         return $totalCount;

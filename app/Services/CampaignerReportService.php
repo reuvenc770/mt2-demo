@@ -40,6 +40,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 {
     const RUN_DELIVERED = 'delivered';
     const RUN_ACTIONS = 'actions';
+    const RUN_RERUN = 'rerun';
 
     const OPERATOR_TYPE_DELIVERED = 'Sent';
     const OPERATOR_TYPE_OPEN = 'Open';
@@ -256,6 +257,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     public function splitTypes ( $processState ) {
         if ( $processState['pipe'] == self::RUN_DELIVERED ) {
             return [ self::OPERATOR_TYPE_DELIVERED ];
+        } elseif ( $processState['pipe'] == self::RUN_RERUN ) {
+            return [ self::OPERATOR_TYPE_DELIVERED , self::OPERATOR_TYPE_OPEN , self::OPERATOR_TYPE_CLICK ];
         } elseif ( $processState['pipe'] == self::RUN_ACTIONS) {
             return [ self::OPERATOR_TYPE_OPEN , self::OPERATOR_TYPE_CLICK ];
         }

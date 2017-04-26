@@ -58,8 +58,7 @@ class ContentServerStatsRawRepo {
     public function pullUserAgents($lookback) {
         return $this->model
                     ->select('user_agent')
-                    ->where('action_datetime', '>=', DB::raw("CURDATE() - INTERVAL $lookback MINUTE"))
-                    ->get();
+                    ->where('action_datetime', '>=', DB::raw("now() - INTERVAL $lookback MINUTE"));
     }
 
     public function pullEmailUserAgents($lookback) {

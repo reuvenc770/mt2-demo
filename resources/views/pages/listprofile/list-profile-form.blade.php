@@ -841,7 +841,7 @@
 <div class="row">
     <div class="col-md-2">
         <md-checkbox ng-click="listProfile.toggleExportOption( 'Immediately' )" ng-checked="listProfile.isSelectedExportOption( 'Immediately' )">Immediately
-            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Selecting this will pull data and drop the CSV file in FTP immediately. This is a one-time event. After saving, this box will become unchecked. To manually pull again, check 'Immediately' and save again.">help</md-icon>
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Selecting this will pull data and drop the CSV file in FTP immediately. This is a one-time event. To manually pull again, edit a list profile and save again.">help</md-icon>
         </md-checkbox>
     </div>
 
