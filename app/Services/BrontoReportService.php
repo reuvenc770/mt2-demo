@@ -250,7 +250,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
             return false;
         }
         $filter = array(
-            "start" => Carbon::parse( $processState[ 'date' ] )->toAtomString() , #Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "start" => Carbon::parse( $processState[ 'date' ] )->toAtomString() ,
             "deliveryId" => $processState[ 'campaign' ]->internal_id ,
             "size" => "5000",
             "types" => $this->pageType,
