@@ -109,7 +109,7 @@ class S3RedshiftExportService {
             do {
                 try {
                     $result = $uploader->upload();
-                    echo "Multi-part upload for $entity complete" . PHP_EOL;
+                    echo "Multi-part upload for {$this->entity} complete" . PHP_EOL;
                 } 
                 catch (MultipartUploadException $e) {
                     if ($this->tries <= self::MAX_TRIES) {

@@ -52,8 +52,9 @@ class ThirdPartyEmailStatusRepo {
                                                         'Click',
                                                         IF(values(last_action_type) = 'Open', 'Click', 'Click'))),
                                                 values(last_action_type)))))),
-            last_action_datetime = values(last_action_datetime),
-            last_action_esp_account_id = values(last_action_esp_account_id),
+            last_action_datetime = GREATEST(last_action_datetime, values(last_action_datetime)),
+            last_action_esp_account_id = IF(last_action_datetime < values(last_action_datetime),    
+                                values(last_action_esp_account_id), last_action_esp_account_id),
             last_action_offer_id = values(last_action_offer_id),
             created_at = created_at,
             updated_at = values(updated_at)";

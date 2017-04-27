@@ -78,7 +78,8 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
         $uploadMiscount = $greatTotal > $segmentedTotal;
 
         Mail::send('emails.SuppressionReport', $mailAssoc, function ($message) use ($mailAssoc, $yesterday) {
-            $message->to('rbertorelli@zetaglobal.com');
+            $message->to('tech.team.mt2@zetaglobal.com');
+            $message->to('espken@zetaglobal.com');
             $message->subject('ESP Suppressions uploaded to MT1 for ' . $yesterday);
         });
 

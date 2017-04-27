@@ -21,7 +21,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
     private $emails;
     private $eventType;
     private $tracking;
-    const NEXT_FREE_DAY = 4; // to be 16 normally
+    const NEXT_FREE_DAY = 3; // to be 15 normally
 
     public function __construct($jobName, $emails, $eventType, $tracking) {
         $this->jobName = $jobName;
