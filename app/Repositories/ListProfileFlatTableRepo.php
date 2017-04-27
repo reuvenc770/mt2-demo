@@ -23,7 +23,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     } 
 
     public function massInsertActions($massData) {
-        echo "Preparing to insert at " . microtime(true) . PHP_EOL;
+        echo "Preparing to insert into flat table at " . microtime(true) . PHP_EOL;
         $insertList = [];
 
         $insertString = implode(',', $massData);
@@ -39,15 +39,24 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 deploy_id = deploy_id,
-                email_address = email_address,
-                email_domain_id = email_domain_id,
-                email_domain_group_id = email_domain_group_id,
-                offer_id = offer_id,
-                cake_vertical_id = cake_vertical_id,
+                date = date,
+                esp_account_id = VALUES(esp_account_id),
+                email_address = VALUES(email_address),
+                lower_case_md5 = VALUES(lower_case_md5),
+                upper_case_md5 = VALUES(upper_case_md5),
+                email_domain_id = VALUES(email_domain_id),
+                email_domain_group_id = VALUES(email_domain_group_id),
+                offer_id = VALUES(offer_id),
+                cake_vertical_id = VALUES(cake_vertical_id),
                 has_esp_open = IF(VALUES(has_esp_open) > 0, VALUES(has_esp_open), has_esp_open),
-                has_open = IF(VALUES(has_esp_open) > 0 OR has_cs_open > 0, 1, 0),
+                has_open = IF(VALUES(has_esp_open) > 0 OR has_cs_open > 0, 1, has_open),
                 has_esp_click = IF(VALUES(has_esp_click) > 0, VALUES(has_esp_click), has_esp_click),
-                has_click = IF(VALUES(has_esp_click) > 0 OR has_cs_click > 0 OR has_tracking_click > 0, 1, 0),
+                has_click = IF(VALUES(has_esp_click) > 0, 1, has_click),
+                has_cs_open = has_cs_open,
+                has_cs_click = has_cs_click,
+                has_tracking_click = has_tracking_click,
+                has_tracking_conversion = has_tracking_conversion,
+                has_conversion = has_conversion,
                 deliveries = deliveries + VALUES(deliveries),
                 opens = opens + VALUES(opens),
                 clicks = clicks + VALUES(clicks),
@@ -99,12 +108,18 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 deploy_id = deploy_id,
+                esp_account_id = esp_account_id,
                 date = date,
                 email_address = email_address,
                 email_domain_id = email_domain_id,
                 email_domain_group_id = email_domain_group_id,
                 offer_id = offer_id,
                 cake_vertical_id = cake_vertical_id,
+                has_esp_open = has_esp_open,
+                has_cs_open = has_cs_open,
+                has_open = has_open,
+                has_esp_click = has_esp_click,
+                has_cs_click = has_cs_click,
                 has_tracking_click = IF(VALUES(has_tracking_click) > 0, VALUES(has_tracking_click), has_tracking_click),
                 has_click = IF(VALUES(has_click) > 0, VALUES(has_click), has_click),
                 has_tracking_conversion = IF(VALUES(has_tracking_conversion) > 0, VALUES(has_tracking_conversion), has_tracking_conversion),
@@ -113,6 +128,11 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 opens = opens,
                 clicks = VALUES(clicks),
                 conversions = VALUES(conversions),
+                created_at = created_at,
+                email_domain_group_id = email_domain_group_id,
+                has_esp_open = has_esp_open,
+                has_esp_click = has_esp_click,
+                has_conversion = has_conversion,
                 created_at = created_at,
                 updated_at = NOW()");
 
@@ -135,14 +155,29 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             email_id = email_id,
             deploy_id = deploy_id,
             date = date,
+            esp_account_id = esp_account_id,
+            offer_id = offer_id,
+            cake_vertical_id = cake_vertical_id,
+            deliveries = deliveries,
+            opens = opens,
+            clicks = clicks,
+            conversions = conversions,
+            created_at = created_at,
+            email_domain_group_id = email_domain_group_id,
+            has_esp_open = has_esp_open,
+            has_esp_click = has_esp_click,
+            has_tracking_click = has_tracking_click,
+            has_tracking_conversion = has_tracking_conversion,
+            has_conversion = has_conversion,
+
             email_address = VALUES(email_address),
             lower_case_md5 = VALUES(lower_case_md5),
             upper_case_md5 = VALUES(upper_case_md5),
             email_domain_id = email_domain_id,
-            has_cs_open = IF(VALUES(has_cs_open) > 0, 1, 0),
-            has_open = IF(VALUES(has_cs_open) > 0 OR has_esp_open > 0, 1, 0),
-            has_cs_click = IF(VALUES(has_cs_click) > 0, 1, 0),
-            has_click = IF(VALUES(has_cs_click) > 0 OR has_esp_click > 0, 1, 0),
+            has_cs_open = IF(VALUES(has_cs_open) > 0, 1, has_cs_open),
+            has_open = IF(VALUES(has_cs_open) > 0, 1, has_open),
+            has_cs_click = IF(VALUES(has_cs_click) > 0, 1, has_cs_click),
+            has_click = IF(VALUES(has_cs_click) > 0, 1, has_click),
             updated_at = NOW()");
         }
     }

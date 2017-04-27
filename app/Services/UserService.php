@@ -7,8 +7,10 @@
  */
 
 namespace App\Services;
-use Cartalyst\Sentinel\Sentinel;
 
+use Cartalyst\Sentinel\Sentinel;
+use App\Models\User;
+use Hash;
 
 /**
  * Class UserService
@@ -20,6 +22,9 @@ class UserService
      * @var \Cartalyst\Sentinel\Users\UserRepositoryInterface
      */
     protected $userRepo;
+
+    protected $reminderRepo;
+
     /**
      * @var Sentinel
      */
@@ -33,6 +38,7 @@ class UserService
     {
         $this->authObject = $authObject;
         $this->userRepo = $authObject->getUserRepository();  //dumb but needed
+        $this->reminderRepo = $authObject->getReminderRepository();
     }
 
 
@@ -131,5 +137,45 @@ class UserService
 
     public function checkifUserExists($id){
         return !is_null($this->userRepo->findById($id));
+    }
+
+    public function findByUsername ( $username ) {
+        return $this->userRepo->findByCredentials( [ 'username' => $username ] );
+    }
+
+    public function findById ( $id ) {
+        return $this->userRepo->findById( $id );
+    }
+
+    public function findByEmail ( $email ) {
+        return $this->userRepo->findByCredentials( [ 'email' => $email ] );
+    }
+
+    public function resetPassword ( User $user , $password ) {
+        $response = [ "status" => true , "errorMessages" => [] ];
+        $isSamePassword = Hash::check( $password , $user->getUserPassword() );
+
+        if ( $isSamePassword ) {
+            $response[ 'status' ] = false;
+            $response[ 'errorMessages' ] []= "New password is the same.";
+
+            return $response;
+        }
+
+        $reminder = $this->reminderRepo->create( $user );
+        
+        if ( !$this->reminderRepo->complete( $user , $reminder[ 'code' ] , $password ) ) {
+            $response[ 'status' ] = false;
+            $response[ 'errorMessages' ] []= "Failed to reset password.";
+
+            return $response;
+        }
+        
+        if ( !$this->authObject->activate( $user ) ) {
+            $response[ 'status' ] = false;
+            $response[ 'errorMessages' ] []= "Failed to activate user.";
+        }
+
+        return $response;
     }
 }

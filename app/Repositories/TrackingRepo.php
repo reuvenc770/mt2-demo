@@ -21,10 +21,10 @@ class TrackingRepo
           (email_id, deploy_id, action_id, datetime, esp_account_id, subid_1, subid_2,
            subid_4, subid_5, click_id, conversion_id, cake_affiliate_id, cake_advertiser_id, 
            cake_offer_id, cake_creative_id, cake_campaign_id, ip_address, request_session_id,
-            user_agent, revenue, created_at, updated_at)
+            user_agent, carrier, revenue, created_at, updated_at)
           VALUES
 
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 
           ON DUPLICATE KEY UPDATE
             email_id = email_id,
@@ -47,6 +47,7 @@ class TrackingRepo
             ip_address = ip_address,
             request_session_id = request_session_id,
             user_agent = user_agent,
+            carrier = carrier,
             revenue = VALUES(revenue),
             created_at = created_at,
             updated_at = NOW()", 
@@ -70,6 +71,7 @@ class TrackingRepo
               $data['ip_address'],
               $data['request_session_id'],
               $data['user_agent_string'],
+              $data['carrier'],
               $data['revenue']
             ]
         );
@@ -176,7 +178,7 @@ class TrackingRepo
     public function getCakeDataForListProfiles() {
         $daysBack = 5;
 
-        return $this->model
+        return $this->report
             ->select( "email_id" , "deploy_id", 
                 DB::raw('DATE(datetime) as date'), 
                 DB::raw('COUNT(IF(action_id = 2, 1, 0)) as clicks'), 

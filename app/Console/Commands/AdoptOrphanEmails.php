@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\OrphanEmail;
+use App\Repositories\OrphanEmailRepo;
 use Illuminate\Console\Command;
 use DB;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -41,13 +41,23 @@ class AdoptOrphanEmails extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(OrphanEmailRepo $repo)
     {
-        OrphanEmail::chunk(5000, function ($orphans) {
+        $start = $repo->getMinId();
+        $end = $repo->getMaxId();
+
+        while ($start < $end) {
+            $segmentSize = 5000;
+            $segmentEnd = $repo->nextNRows($start, $segmentSize);
+            $segmentEnd = $segmentEnd ?: $end;
+
+            $orphans = $repo->getOrphansBetweenIds($start, $segmentEnd);
             $job = new Orphanage($orphans, str_random(16));
             $job->onQueue('orphanage');
-            $this->dispatch( $job );
-        });
+            $this->dispatch($job);
+
+            $start = $segmentEnd;
+        }
 
     }
 }

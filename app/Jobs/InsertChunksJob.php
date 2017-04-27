@@ -47,7 +47,7 @@ class InsertChunksJob extends Job implements ShouldQueue
             $this->createLock(self::JOB_NAME);
             $this->initJobEntry();
 
-            Log::info( "Beginning job from {$this->from} to {$this->to}" );
+            Log::info("Beginning job from {$this->from} to {$this->to}");
 
             // get schemas
 
@@ -58,7 +58,7 @@ class InsertChunksJob extends Job implements ShouldQueue
             while ($currentId < $maxId) {
                 $segmentEnd = $this->getSegmentEnd($this->from, $currentId, $this->size);
                 $segmentEnd = $segmentEnd !== null ? $segmentEnd : $maxId;
-                echo "Would start at $currentId and end at $segmentEnd" . PHP_EOL;
+                echo "Would start segment util at $currentId and end at $segmentEnd" . PHP_EOL;
 
                 DB::statement("INSERT INTO {$this->to}
                     (email_id, deploy_id, esp_account_id, esp_internal_id, action_id, datetime, created_at, updated_at)
@@ -68,7 +68,17 @@ class InsertChunksJob extends Job implements ShouldQueue
                     FROM
                         {$this->from}
                     WHERE
-                        {$this->from}.id BETWEEN $currentId AND $segmentEnd");
+                        {$this->from}.id BETWEEN $currentId AND $segmentEnd
+
+                    ON DUPLICATE KEY UPDATE
+                    email_id = {$this->to}.email_id,
+                    deploy_id = {$this->to}.deploy_id,
+                    esp_account_id = {$this->to}.esp_account_id,
+                    esp_internal_id = {$this->to}.esp_internal_id,
+                    action_id = {$this->to}.action_id,
+                    datetime = {$this->to}.datetime,
+                    created_at = {$this->to}.created_at,
+                    updated_at = {$this->to}.updated_at");
 
                 $currentId = ++$segmentEnd;
             }

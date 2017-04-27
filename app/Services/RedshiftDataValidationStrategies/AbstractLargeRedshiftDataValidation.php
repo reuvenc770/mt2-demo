@@ -9,8 +9,8 @@ abstract class AbstractLargeRedshiftDataValidation {
     protected $cmpRepo;
     protected $redshiftRepo;
     const IDEAL_CORRECT_RATE = 0.999;
-    const TEST_COUNT = 10000;
     const ACCEPTABLE_DIFF_RATE = 0.00001;
+    const SAMPLE_SIZE = 10000;
     
 
     public function __construct($cmpRepo, $redshiftRepo) {
@@ -44,37 +44,33 @@ abstract class AbstractLargeRedshiftDataValidation {
         $cmpTime = 0;
         $redshiftTime = 0;
 
-        while ($i < self::TEST_COUNT) {
-            // 1. Get a random email id from the source
-            $testEmailId = mt_rand($minEmailId, $maxEmailId);
-            $cmpStart = microtime(true);
-            $cmpObj = $this->cmpRepo->get($testEmailId);
-            $cmpEnd = microtime(true);
-            $cmpTime = $cmpTime + ($cmpEnd - $cmpStart);
+        $redshiftStart = microtime(true);
+        $results = $this->redshiftRepo->getRandomSample(self::SAMPLE_SIZE);
+        $redshiftEnd = microtime(true);
 
-            if ($cmpObj !== null) {
-                $redshiftStart = microtime(true);
-                if ($this->redshiftRepo->matches($cmpObj)) {
-                    $matches++;
-                }
-                $redshiftEnd = microtime(true);
-                $redshiftTime = $redshiftTime + ($redshiftEnd - $redshiftStart);
-                $i++;
+        $cmpStart = microtime(true);
+        foreach($results as $redshiftObj) {
+            if ($this->cmpRepo->matches($redshiftObj)) {
+                $matches++;
             }
         }
+        
+        $cmpEnd = microtime(true);
 
+        $redshiftTime = ($redshiftEnd - $redshiftStart);
+        $cmpTime = ($cmpEnd - $cmpStart);
         $testEnd = microtime(true);
         $testTime = $testEnd - $testStart;
         $cmpClass = explode('\\', get_class($this->cmpRepo))[2];
         $entity = str_replace('Repo', '', $cmpClass);
         
         // sn = sqrt(np(1-p)). se is sn / sqrt(sample_size).
-        $sampleStdDev = sqrt(self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT) );
+        $sampleStdDev = sqrt(self::SAMPLE_SIZE * ($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE) );
         
-        Log::info("$entity has $matches matches out of " . self::TEST_COUNT . " with a standard deviation of $sampleStdDev.");
+        Log::info("$entity has $matches matches out of " . self::SAMPLE_SIZE . " with a standard deviation of $sampleStdDev.");
         Log::info("$entity took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
-        return ($matches / self::TEST_COUNT) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::TEST_COUNT))));
+        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::SAMPLE_SIZE))));
     }  
 
     protected function isEqual($cmpCount, $redshiftCount) {

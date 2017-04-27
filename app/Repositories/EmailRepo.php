@@ -10,6 +10,7 @@ use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 use App\Models\AttributionRecordTruth;
+use App\Models\RedshiftModels\Email as RedshiftModel;
 
 /**
  *
@@ -507,5 +508,10 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         }
 
         return $output;
+    }
+
+    public function matches(RedshiftModel $obj) {
+        $result = $this->emailModel->find($obj->id);
+        return $result !== null;
     }
 }

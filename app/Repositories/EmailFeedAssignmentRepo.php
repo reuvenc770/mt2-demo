@@ -13,6 +13,7 @@ use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
+use App\Models\RedshiftModels\EmailFeedAssignment as RedshiftModel;
 
 use DB;
 
@@ -165,9 +166,9 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
                         $join->on('email_feed_assignments.email_id', '=', "tbl.email_id");
                         $join->on('email_feed_assignments.feed_id', '=', "tbl.feed_id");
                     })
-                    ->whereRaw("email_feed_assignments.email_id BETWEEN {$startPoint} AND {$segmentEnd}")
-                    ->whereRaw('email_feed_assignments.updated_at >= CURDATE() - INTERVAL 1 DAY')
-                    ->whereRaw("tbl.email_id IS NULL OR email_feed_assignments.subscribe_date <> tbl.subscribe_date")
+                    ->whereRaw("email_feed_assignments.email_id BETWEEN {$startPoint} AND {$segmentEnd} 
+                        AND email_feed_assignments.updated_at >= CURDATE() - INTERVAL 1 DAY AND 
+                        (tbl.email_id IS NULL OR email_feed_assignments.subscribe_date <> tbl.subscribe_date)")
                     ->selectRaw('email_feed_assignments.email_id, email_feed_assignments.feed_id, email_feed_assignments.subscribe_date')
                     ->get()
                     ->toArray();
@@ -221,6 +222,17 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         }
 
         return $output;
+    }
+
+    public function matches(RedshiftModel $obj) {
+        $result = $this->model->find($obj->email_id);
+
+        if ($result) {
+            return $result->feed_id === $obj->feed_id;
+        }
+        else {
+            return false;
+        }
     }
 
 }

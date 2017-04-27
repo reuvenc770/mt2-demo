@@ -494,6 +494,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
         });
 
+        self.dateNotPicked = false;
         self.launchFormModal();
         self.formHeader = "Edit Deploy # " + response.data.id;
     };
@@ -504,8 +505,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.updateSelects(function () {
             var deployData = response.data;
             self.reloadCFS(response.data.offer_id.id, function () {
-                var pieces = deployData.send_date.split('-');
-                self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
+                self.currentDeploy.send_date = moment().toDate();
                 self.currentDeploy.notes = deployData.notes;
                 self.currentDeploy.list_profile_combine_id = deployData.list_profile_combine_id;
                 self.currentDeploy.template_id = deployData.template_id.toString();
@@ -518,6 +518,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
         });
 
+        self.dateNotPicked = false;
         self.launchFormModal();
     };
 
@@ -742,6 +743,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.resetAccount = function () {
+        self.dateNotPicked = true;
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         formValidationService.resetFieldErrors( self );
         return {

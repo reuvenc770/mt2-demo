@@ -47,7 +47,6 @@ class SetDeviceService {
         }
 
         foreach($this->data->cursor() as $row) {
-
             $carrier = isset($this->emailCarrierCache[$row->email_id]) ? $this->emailCarrierCache[$row->email_id] : '';
             $row = $this->mapToRow($row, $carrier);
             $this->emailFeedDataRepo->batchUpdateDeviceData($row);

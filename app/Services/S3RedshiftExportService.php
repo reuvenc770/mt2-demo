@@ -1,8 +1,8 @@
 <?php
 namespace App\Services;
 use Aws\S3\S3Client;
-use Aws\Common\Exception\MultipartUploadException;
-use Aws\S3\Model\MultipartUpload\UploadBuilder;
+use Aws\S3\MultipartUploader;
+use Aws\Exception\MultipartUploadException;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use App\Repositories\EtlPickupRepo;
@@ -100,33 +100,32 @@ class S3RedshiftExportService {
     public function loadAll() {
         if (filesize($this->filePath) > self::SINGLE_UPLOAD_MAX_SIZE_BYTES) {
 
-            $uploader = UploadBuilder::newInstance()
-                ->setClient($this->s3Client)
-                ->setSource($this->filePath)
-                ->setBucket(config('aws.s3.fileUploadBucket'))
-                ->setKey("{$this->entity}.csv")
-                ->setMinPartSize(25 * 1024 * 1024)
-                ->setOption('ACL', 'public-read')
-                ->setConcurrency(3)
-                ->build();
+            $uploader = new MultipartUploader($this->s3Client, $this->filePath, [
+                'key' => "{$this->entity}.csv",
+                'bucket' => config('aws.s3.fileUploadBucket'),
+                'acl' => 'public-read'
+            ]);
 
-            try {
-                $uploader->upload();
-                echo "Multi-part upload for $entity complete" . PHP_EOL;
-            } 
-            catch (MultipartUploadException $e) {
-                // Going to try a few attempts here before giving up.
-                $uploader->abort();
+            do {
+                try {
+                    $result = $uploader->upload();
+                    echo "Multi-part upload for {$this->entity} complete" . PHP_EOL;
+                } 
+                catch (MultipartUploadException $e) {
+                    if ($this->tries <= self::MAX_TRIES) {
+                        $this->tries++;
 
-                if ($this->tries <= self::MAX_TRIES) {
-                    $this->tries++;
-                    echo "Upload for $entity failed with {$e->getMessage()}. Retrying {$this->tries}." . PHP_EOL;
-                    return $this->loadAll();
+                        echo "Upload for $entity failed with {$e->getMessage()}. Retrying {$this->tries}." . PHP_EOL;
+                        $uploader = new MultipartUploader($s3Client, $source, [
+                            'state' => $e->getState(),
+                        ]);
+                    }
+                    else {
+                        throw new Exception("Multi-part upload for $entity failed completely with {$e->getMessage()}.");
+                    }
                 }
-                else {
-                    throw new Exception("Multi-part upload for $entity failed completely with {$e->getMessage()}.");
-                }
-            }
+            } while (!isset($result));
+
         }
         else {
             $result = $this->s3Client->putObject([

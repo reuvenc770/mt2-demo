@@ -256,5 +256,32 @@ class EmailActionsRepo {
                     ->whereIn('action_id', [1,2])
                     ->groupBy('email_id');
     }
+
+    public function upsertDelivered($records) {
+        if (sizeof($records) > 0) {
+            $inserts = implode(',', $records);
+
+            DB::connection('reporting_data')->statement("INSERT INTO email_actions
+                (email_id, deploy_id, esp_account_id, esp_internal_id, action_id, datetime, created_at)
+
+                VALUES
+
+                $inserts
+
+                ON DUPLICATE KEY UPDATE
+
+                email_id = email_id,
+                deploy_id = deploy_id,
+                esp_account_id = esp_account_id,
+                esp_internal_id = esp_internal_id,
+                action_id = action_id,
+                datetime = datetime,
+                created_at = created_at,
+                updated_at = now()
+            ");
+        }
+
+
+    }
     
 }

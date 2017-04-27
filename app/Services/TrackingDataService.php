@@ -35,9 +35,9 @@ class TrackingDataService implements IDataService
 
   public function insertApiRawStats( $data , $conversions = false) {
       if ( $conversions ) {
-            $this->insertApiRawRecordStats( $data , \App::make( \App\Repositories\Attribution\RecordReportRepo::class ) );
+          $this->insertApiRawRecordStats( $data , \App::make( \App\Repositories\Attribution\RecordReportRepo::class ) );
       } else {
-            $this->insertTrackingActions( $data );
+          $this->insertTrackingActions( $data );
       }
   }
 
@@ -132,16 +132,17 @@ class TrackingDataService implements IDataService
           'ip_address' => $row['ip_address'],
           'request_session_id' => $row['request_session_id'],
           'user_agent_string' => urldecode($row['user_agent']),
-          'revenue' => $row['price_received']
+          'revenue' => $row['price_received'],
+          'carrier' => $row['carrier'],
       ];
   }
 
   public function mapToStandardReport($data) {
     return [
-      'external_deploy_id' => $data['deploy_id'],
-      't_clicks' => $data['clicks'],
-      'conversions' => $data['conversions'],
-      'revenue' => $data['revenue'],
+      'external_deploy_id' => $data->deploy_id,
+      't_clicks' => $data->clicks,
+      'conversions' => $data->conversions,
+      'revenue' => $data->revenue,
     ];
   }
 
