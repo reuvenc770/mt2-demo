@@ -14,7 +14,6 @@ use App\Factories\APIFactory;
 //commands to be tested
 use \App\Console\Commands\DownloadSuppressionFromESPCommand;
 
-
 class CommandsTest extends TestCase
 {
 
@@ -22,6 +21,9 @@ class CommandsTest extends TestCase
 
     protected function setUp(){
         parent::setUp();
+
+        $this->clearCache();
+
         //$this->markTestSkipped('off');
     }
 
@@ -33,6 +35,11 @@ class CommandsTest extends TestCase
      */
     public function testDownloadSuppressionFromESPCommand()
     {
+        echo "\n\nAPP_ENV:\n";
+        echo env( 'APP_ENV' );
+        echo "\n";
+
+        $this->expectsJobs( \App\Jobs\DownloadSuppressionFromESP::class ); 
 
         $max_runtime = 60;
         $espRepo = APIFactory::createESPAPiAccountRepo();
@@ -69,12 +76,25 @@ class CommandsTest extends TestCase
 
         $command->run( $input,$output);
 
+        $stream = $output->getStream();
+        fseek( $stream , 0 );
+        $outputString = fread( $stream , 1024 );
+
+        echo "\n\nCommand Output String\n";
+        echo $outputString;
+        echo "\n";
+
         $max_tries = floor($runtime_threshold/$this->frequency);
         $tries = 0;
 
         do{
             sleep($this->frequency);
-            $job = JobTracking::getJobProfile($command->getJobId());
+
+            echo "\n\n";
+            echo "Tracking ID:" . $command->getTrackingId();
+            echo "\n";
+
+            $job = JobTracking::getJobProfile($command->getTrackingId());
             print "\njob status: ".$job->status."\n";
             ob_flush();
             $tries++;
@@ -83,5 +103,14 @@ class CommandsTest extends TestCase
 
         return $job->status;
 
+    }
+
+    protected function clearCache()
+    {
+        $commands = ['clear-compiled', 'cache:clear', 'view:clear', 'config:clear', 'route:clear'];
+
+        foreach ($commands as $command) {
+            \Illuminate\Support\Facades\Artisan::call($command);
+        }
     }
 }

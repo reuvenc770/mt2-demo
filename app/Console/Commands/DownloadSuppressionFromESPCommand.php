@@ -6,9 +6,11 @@ use Illuminate\Console\Command;
 use App\Jobs\DownloadSuppressionFromESP;
 use App\Repositories\EspApiAccountRepo;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Console\Commands\Traits\UseTracking;
+
 class DownloadSuppressionFromESPCommand extends Command
 {
-    use DispatchesJobs;
+    use DispatchesJobs, UseTracking;
     /**
      * The name and signature of the console command.
      *
@@ -17,7 +19,6 @@ class DownloadSuppressionFromESPCommand extends Command
     protected $signature = 'suppression:downloadESP {espName} {lookBack} {queueName?}';
     protected $espRepo;
     protected $lookBack;
-    protected $job_id;
 
     /**
      * The console command description.
@@ -52,16 +53,21 @@ class DownloadSuppressionFromESPCommand extends Command
 
         foreach ($espAccounts as $account){
             if($account->enable_suppression) {
-                $this->job_id = str_random(16);
-                $espLogLine = "{$account->name}::{$account->account_name}::$this->job_id";
-                $this->info($espLogLine);
-                $job = (new DownloadSuppressionFromESP($account->name, $account->id, $this->lookBack, $this->job_id))->onQueue($queue);
-                $this->dispatch($job);
+                $espLogLine = "{$account->name}::{$account->account_name}::" . $this->getTrackingId();
+                $this->info( $espLogLine );
+
+                $job = ( new DownloadSuppressionFromESP(
+                    $account->name ,
+                    $account->id ,
+                    $this->lookBack ,
+                    $this->getTrackingId()
+                ) )->onQueue( $queue );
+
+                \Log::info( $job );
+                \Log::info( 'Dispatching Job.' );
+
+                $this->dispatch( $job );
             }
         }
-    }
-
-    public function getJobId(){
-        return $this->job_id;
     }
 }
