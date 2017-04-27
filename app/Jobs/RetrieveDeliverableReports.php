@@ -235,6 +235,23 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
+    protected function getRawCampaigns () {
+        $rawCampaigns = $this->reportService->getRawCampaigns( $this->processState );
+
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $rawCampaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        });
+
+        $rowCount = count( $rawCampaigns );
+
+        $this->changeJobEntry( JobEntry::SUCCESS , $rowCount );
+    }
+
     protected function getBrontoRerunCampaigns() {
 
         $deploys = DB::table('deploy_record_reruns AS drr')
@@ -279,7 +296,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
-        if ( $this->reportService->pageHasData() ) {
+        if ( $this->reportService->pageHasData( $this->processState ) ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
             $this->reportService->savePage( $this->processState, $map );
             $rowCount = count($this->processState[ 'currentPageData' ]);

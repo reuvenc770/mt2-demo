@@ -78,4 +78,7 @@ class ReportRepo
         return $this->report->where(["message_name" => $campaignName, "esp_account_id" => $espAccountId])->get();
     }
 
+    public function getRawCampaignsFromDate ( $date ) {
+        return $this->report->where( "created_at" , ">=" , $date )->get();
+    }
 }
