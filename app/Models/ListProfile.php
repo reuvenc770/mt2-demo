@@ -136,7 +136,7 @@ class ListProfile extends Model
     }
 
     public function canModelBeDeleted () {
-        return $this->deploys()->isEmpty();
+        return ( $this->deploys()->count() <= 0 );
     }
 
 
