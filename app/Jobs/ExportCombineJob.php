@@ -3,21 +3,21 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
-use App\Repositories\ListProfileCombineRepo;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
+use App\Models\Deploy;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
 
-class ExportListProfileJob extends Job implements ShouldQueue
-{
+class ExportCombineJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-    const BASE_NAME = 'ListProfileExport-';
+    const BASE_NAME = 'ListProfileCombineExport-';
     private $jobName;
-    private $listProfileId;
+    private $deploy;
+    private $reportCard;
     private $tracking;
 
     /**
@@ -25,11 +25,12 @@ class ExportListProfileJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($listProfileId, $tracking) {
-        $this->listProfileId = $listProfileId;
+    public function __construct(Deploy $deploy, $reportCard, $tracking) {
+        $this->deploy = $deploy;
+        $this->reportCard = $reportCard;
         $this->tracking = $tracking;
 
-        $this->jobName = self::BASE_NAME . $listProfileId;
+        $this->jobName = self::BASE_NAME . $deploy->id;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -43,7 +44,9 @@ class ExportListProfileJob extends Job implements ShouldQueue
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $service->exportListProfile($this->listProfileId);
+
+                $service->createDeployExport($this->deploy);
+                
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
@@ -63,4 +66,5 @@ class ExportListProfileJob extends Job implements ShouldQueue
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
+
 }

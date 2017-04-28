@@ -19,13 +19,13 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
     private $tracking;
     private $profileId;
     private $jobName;
-    private $offers;
+    private $cacheTagName;
 
-    public function __construct($profileId, $tracking, $offers = null) {
+    public function __construct($profileId, $cacheTagName, $tracking) {
         $this->profileId = $profileId;
         $this->tracking = $tracking;
-        $this->jobName = 'ListProfileExport-' . $profileId;
-        $this->offers = $offers;
+        $this->jobName = 'ListProfileGeneration-' . $profileId;
+        $this->cacheTagName = $cacheTagName;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -40,19 +40,26 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $service->buildProfileTable($this->profileId);
-                $schedule->updateSuccess($this->profileId);
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
 
-                if($this->offers === null){
-                    $this->dispatch(new ExportListProfileJob($this->profileId, $this->offers, str_random(16)));
-                } else {
-                    $offers = explode(',', $this->offers);
-                    foreach ($offers as $offer) {
-                        $this->dispatch(new ExportListProfileJob($this->profileId, $offer, str_random(16)));
+                $service->buildProfileTable($this->profileId);
+                $this->dispatch(new ExportListProfileJob($this->profileId, str_random(16)));
+                $schedule->updateSuccess($this->profileId); // These might not just be scheduled ... 
+
+                Cache::decrement($this->cacheTagName, 1);
+
+                if ((int)Cache::get($this->cacheTagName) <= 0) {
+                    $deploys = $this->getAllCombines();
+                    foreach($deploys as $deploy) {
+                        /**
+                            This is obviously not working now.
+                        */
+                        $runId = str_random(10);
+                        $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$ran}");
+                        $this->dispatch(new ExportCombineJob($deploy, $reportCard, str_random(16)));
                     }
                 }
-
+ 
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;

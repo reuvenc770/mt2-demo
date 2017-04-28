@@ -172,4 +172,43 @@ class ListProfileRepo
             $this->isp->insert( [ 'list_profile_id' => $id , 'domain_group_id' => $currentIsp ] );
         }
     }
+
+    public function getFeedIdsForProfile($id) {
+        // Feeds can belong to a list profile one of three ways:
+        // 1. Directly attached to the list profile (list_profile_feeds)
+        // 2. Indirectly attached via a feed group (list_profile_feed_groups)
+        // 3. Indirectly attached via a client (list_profile_clients)
+        // We need to return all of these and dedupe
+
+        $output = [];
+
+        $directFeeds = $this->feed->where('list_profile_id', $id)->pluck('feed_id')->all();
+
+        $data = config('database.connections.mysql.database');
+        $feedGroupFeeds = $this->feedGroup
+            ->join("$data.feedgroup_feed as fgf", 'list_profile_feed_groups.feed_group_id', '=', 'fgf.feedgroup_id')
+            ->where('list_profile_id', $id)
+            ->pluck('feed_id')->all();
+
+        $clientFeeds = $this->client
+                            ->join("$data.clients as c", 'list_profile_clients.client_id', '=', 'c.id')
+                            ->join("$data.feeds as f", 'c.id', '=', 'f.client_id')
+                            ->where('list_profile_id', $id)
+                            ->pluck('f.id')->all();
+
+        $output = array_merge($feedGroupFeeds, $directFeeds);
+        $output = array_merge($output, $clientFeeds);
+
+        return array_unique($output);
+    }
+
+    public function getSuppressionListIds($id) {
+        $feeds = $this->getFeedIdsForProfile($id);
+
+        $data = config('database.connections.mysql.database');
+        $list = $this->feed->join("$data.feeds as f", 'list_profile_feeds.feed_id', '=', 'f.id')
+                    ->pluck('suppression_list_id')->all();
+
+        return array_unique($list);
+    }
 }
