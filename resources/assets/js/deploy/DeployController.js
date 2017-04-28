@@ -352,7 +352,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy.offer_id = '';
         self.dateNotPicked = false;
         //die in a fire iso 8601
-        self.selectedDay = ((this.currentDeploy.send_date.getDay() + 6) % 7) + 1;
+        self.selectedDay = ((self.currentDeploy.send_date.getDay() + 6) % 7) + 1;
     };
 
     self.previewDeploys = function (){
@@ -489,6 +489,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 self.currentDeploy.encrypt_cake = deployData.encrypt_cake.toString();
                 self.currentDeploy.offer_id = deployData.offer_id.id;
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
+                self.updateDate();
                 self.offerLoading = false;
             });
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
@@ -506,6 +507,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             var deployData = response.data;
             self.reloadCFS(response.data.offer_id.id, function () {
                 self.currentDeploy.send_date = moment().toDate();
+                self.updateDate();
                 self.currentDeploy.notes = deployData.notes;
                 self.currentDeploy.list_profile_combine_id = deployData.list_profile_combine_id;
                 self.currentDeploy.template_id = deployData.template_id.toString();

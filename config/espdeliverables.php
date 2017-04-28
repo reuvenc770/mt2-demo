@@ -139,6 +139,8 @@ return [
     "Bronto" => [
         "pipes" => [
             "actions" => [
+                'jobSetup' ,
+                'getRawCampaigns' ,
                 'splitTypes' ,
                 'savePaginatedRecords'
             ] ,
