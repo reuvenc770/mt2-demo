@@ -15,7 +15,7 @@
         <script>
             var searchDomains = {!! $domains !!};
         </script>
-        <h3 class="text-center">Search Results</h3>
+        <h3 class="text-center">@{{ domain.domains.length }} Results</h3>
         @include( 'pages.domain.domain-list-table' )
         @stop
     </div>
