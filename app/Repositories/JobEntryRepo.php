@@ -12,6 +12,7 @@ namespace App\Repositories;
 use App\Models\JobEntry;
 
 use Illuminate\Support\Facades\Log;
+
 class JobEntryRepo
 {
     /**

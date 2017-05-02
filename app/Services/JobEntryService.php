@@ -107,4 +107,8 @@ class JobEntryService
         return $this->repo->isRerunJobAlreadyQueued($name, $campaignId);
     }
 
+    public function getJobProfile($tracking){
+        return $this->repo->getJobByTracking($tracking);
+    }
+
 }

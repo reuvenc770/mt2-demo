@@ -11,6 +11,7 @@ Homestead.json
 .env
 .env.testing
 .idea
+composer.lock
 /.ideas
 /public/bower_components
 *.phar

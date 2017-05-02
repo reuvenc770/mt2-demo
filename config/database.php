@@ -72,7 +72,7 @@ return [
         'dima_data' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', 'localhost'),
-            'database'  => 'dima_data',
+            'database'  => env('DIMA_DATABASE', ''),
             'username'  => env('DB_USERNAME', 'forge'),
             'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8mb4',
