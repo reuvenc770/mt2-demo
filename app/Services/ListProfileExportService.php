@@ -4,34 +4,28 @@ namespace App\Services;
 
 use App\DataModels\CacheReportCard;
 use App\DataModels\ReportEntry;
-use App\Facades\EspApiAccount;
 use App\Jobs\BuildAndSendReportCard;
 use App\Models\ListProfileBaseTable;
 use App\Models\OfferSuppressionList;
-use App\Models\SuppressionListSuppression;
 use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
-use App\Repositories\OfferRepo;
-use App\Repositories\OfferSuppressionListRepo;
+use App\Repositories\SuppressionListSuppressionRepo;
 use Carbon\Carbon;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use League\Flysystem\Adapter\Ftp;
 use League\Flysystem\Filesystem;
 use Storage;
-use Cache;
-use Log;
+use File;
 use App\Models\Deploy;
 
-class ListProfileExportService
-{
-    use DispatchesJobs;
+class ListProfileExportService {
 
     private $listProfileRepo;
-    private $offerRepo;
     private $tableRepo;
     private $combineRepo;
     private $mt1SuppServ;
+    private $miscSuppressionRepo;
+
     const BASE_TABLE_NAME = 'list_profile_export_';
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
@@ -39,19 +33,16 @@ class ListProfileExportService
     private $suppressedRows = [];
     private $suppressedRowCount = 0;
 
-    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo, MT1SuppressionService $mt1SuppServ ) {
+    public function __construct(ListProfileRepo $listProfileRepo, 
+        ListProfileCombineRepo $combineRepo, 
+        MT1SuppressionService $mt1SuppServ, 
+        SuppressionListSuppressionRepo $miscSuppressionRepo) {
+
         $this->listProfileRepo = $listProfileRepo;
-        $this->offerRepo = $offerRepo;
         $this->combineRepo = $combineRepo;
         $this->mt1SuppServ = $mt1SuppServ;
+        $this->miscSuppressionRepo = $miscSuppressionRepo;
     }
-
-    /**
-     *  Create a file export for this particular ListProfile.
-     *  1. Take the results of the list profile base table just prepared
-     *  2. Run this table against the indicated offer suppression
-     *  3. Output the surviving email addresses to a file determined by the name.
-     */
 
     public function exportListProfile($listProfileId, $replacementHeader = array()) {
 
@@ -73,6 +64,10 @@ class ListProfileExportService
 
         $listIds = $this->listProfileRepo->getSuppressionListIds($offerId);
         $result = $this->tableRepo->suppressWithListIds($listIds);
+
+/**
+    We need to add advertiser suppression here if it's ever separate from deploys?
+*/
 
         $resource = $result->cursor();
 
@@ -111,14 +106,14 @@ class ListProfileExportService
         }
     }
 
-    private function writeBatch($fileName, $disk = 'espdata' ) {
+    private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows);
-        Storage::disk($disk)->append($fileName, $string);
+        File::append($fileName, $string);
     }
 
     private function writeBatchSuppression($fileName) {
         $string = implode(PHP_EOL, $this->suppressedRows);
-        Storage::append($fileName.'-dnm', $string);
+        File::append($fileName.'-dnm', $string);
     }
 
     private function mapRow($columns, $row) {
@@ -130,64 +125,181 @@ class ListProfileExportService
         return implode(',', $output);
     }
 
-    public function createDeployExport(Deploy $deploy) {
-        /*
-            So, what are we doing here?
-            1. Get the combine used by this particular deploy
-            2. Generate the result for this set (deduped and made generic).
-                - Two complications:
-                    i. We don't know how many tables to UNION together
-                    ii. The different tables might have different results
-            3. Run each item against advertiser suppression.
-            4. Based on result, write to mailing file or suppressed file
-            5. Export file to FTP
+    private function generateCombineQuery($combineId) {
+        $combine = $this->listProfileCombineRepo->getRowWithListProfiles($combineId);
+        $listProfiles = $repo->getRowWithListProfiles($combineId)->listProfiles->all();
+        $queryObj = null;
 
-            6. Do all that report card stuff
-        */
+        if (count($listProfiles) === 1) {
+            // True for combines that consist of just one lp
+            $listProfileId = $listProfiles[0]->id;
+            $tableName = self::BASE_TABLE_NAME . $listProfileId;
+            $queryObj = new ListProfileBaseTable($tableName);
+        }
+        else {
+            /*
+                A bit more complicated. We built up a query of the form:
 
+                select
+                    email_id, max(email_address) as email_address, ..., first_name, ...
+                from
+                    (select
+                        email_id, email_address, .... , first_name (for example), ...
+                    from
+                        list_profile_export_a
+
+                    UNION
+                    
+                    select
+                        email_id, email_address, ..., '' as first_name, ...
+                    from
+                        list_profile_export_b
+                    ) x
+                group by
+                    email_id
+            */
+
+            $header = [];
+
+            $fromQuery = null;
+
+            foreach($listProfiles as $listProfile) {
+                $header = array_unique(array_merge($header, json_decode($listProfile->columns)));
+            }
+
+            foreach($listProfiles as $listProfile) {
+                $lpId = $listProfile->id;
+                $tableName = self::BASE_TABLE_NAME . $listProfileId;
+
+                // Not all tables have the same fields - the empty ones have to be blank
+                $lpColumns = json_decode($listProfile->columns);
+                $emptyColumns = array_diff($header, $lpColumns);
+                $headerColumns = [];
+
+                // Build up select for each query within the UNION-ed subquery
+                foreach ($header as $column) {
+                    if (in_array($column, $emptyColumns)) {
+                        // default values for empty columns that need to exist
+                        $headerColumns[] = "'' as $column";
+                    }
+                    else {
+                        $headerColumns[] = $column;
+                    }
+                }
+
+                $selectStatement = implode(',', $headerColumns);
+
+                if ($fromQuery === null) {
+                    $fromQuery = new ListProfileBaseTable($tableName);
+                    $fromQuery->selectRaw($selectStatement);
+                }
+                else {
+                    $unionObj = new ListProfileBaseTable($tableName);
+                    $unionObj->selectRaw($selectStatement);
+                    $query->union($unionObj);
+                }
+            }
+
+            // Now, to dedupe. Unfortunately, the existence of different columns means that we can't dedupe automatically.
+            // To get around this, we use MAX() which is safe because it always returns a value and the metadata should not differ for the same record
+            $subQuery = $fromQuery->toSql();
+            $aggregateHeader = [];
+
+            foreach($header as $column) {
+                // Building up the raw header for the aggregate query (see removal of duplicates below)
+                if('email_id' === $column) {
+                    $aggregateHeader[] = $column;
+                }
+                else {
+                    // see reasoning for MAX() below
+                    $aggregateHeader[] = "max($column) as $column";
+                }
+            }
+
+            $rawSelectString = implode(',', $aggregateHeader);
+            $queryObj = DB::table(DB::raw('(' . $subQuery . ') x'))->selectRaw($rawSelectString)->groupBy('email_id');
+        }
+
+        return $queryObj->toSql();
+    }
+
+    public function createDeployExport(Deploy $deploy, $reportCard) {
         $combineId = $deploy->list_profile_combine_id;
-        $fileName = '';
+        $offerName = $deploy->offer->name;
+        $espAccountName = $deploy->espAccount->account_name;
+        $ftpFolder = $deploy->listProfileCombine->ftp_folder;
+        $combineName = $deploy->listProfileCombine->name;
 
-        //$fileName = 'DeployTemp/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
-        //Storage::delete($fileName); // clear the file currently saved
+        $combineFileName = "{$ftpFolder}/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+        $combineFileNameDNM = "{$ftpFolder}/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+        
         // need list of offers suppressed against
-        // $offerSuppressionLists = OfferSuppressionList::find($offerId)->all();
-        // $offersPlucked = $offerSuppressionLists->pluck('id');
-        // $reportCard->addOffersSuppressedAgainst($offersPlucked);
+        $reportCard->addOffersSuppressedAgainst([$deploy->offer_id]);
 
-        $result = $this->listProfileCombineRepo->generateCombine($combineId);
+        // Getting list
+        $offerSuppressionLists = OfferSuppressionList::find($deploy->offer_id)->all();
+        $miscLists = $offerSuppressionLists->pluck('suppression_list_id');
+        $miscListCount = count($miscLists);     
 
-        foreach ($result as $row) {
+        // Generate the query for this set (deduped and made generic).
+        $query = $this->generateCombineQuery($combineId);
+
+        $pdo = \DB::connection('list_profile')->getPdo();
+        $pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+
+        $statement = $pdo->prepare($query);
+        $statement->execute();
+        // Run each item against various suppression checks - global, feed, advertiser - and write to file.
+
+        while ($row = $statement->fetch(\PDO::FETCH_OBJ)) {
             if($row->globally_suppressed){
-                $this->batchSuppression($fileName, $row);
+                $this->batchSuppression($combineFileNameDNM, $row);
                 $recordEntry->increaseGlobalSuppressionCount();
             }
-            elseif ($this->mt1SuppServ->isSuppressed($row->email_id)){
-                $this->batchSuppression($fileName, $row);
+            elseif ($this->mt1SuppServ->isSuppressed($row->email_id, $deploy->offer_id)){
+                $this->batchSuppression($combineFileNameDNM, $row);
                 $recordEntry->increaseListSuppressionCount();
             }
-             elseif(!$row->suppression_status){
-                $this->batchSuppression($fileName, $row);
+            elseif(1 === (int)$row->feed_suppressed){
+                $this->batchSuppression($combineFileNameDNM, $row);
                 $recordEntry->increaseListSuppressionCount();
+            }
+            elseif($miscListCount > 0 && $this->miscSuppressionRepo->isSuppressedInLists($row->email_address, $miscLists)) {
+                $this->batchSuppression($combineFileNameDNM, $row);
+                /**
+                    This needs to be created. And maybe switch out report entries?
+                */
+                $recordEntry->increaseMiscSuppressionCount();
             }
             else {
                 $row = $this->mapRow($header, $row);
                 // all these files should be local
-                $this->batch($fileName, $row, "local");
+                $this->batch($combineFileName, $row);
                 $recordEntry->increaseFinalRecordCount();
             }
         }
 
-        $this->writeBatch($fileName, "local");
-        $this->writeBatchSuppression($fileName);
+        $this->writeBatch($combineFileName);
+        $this->writeBatchSuppression($combineFileNameDNM);
 
-        /*
-        if($reportCard){
-      $reportCard->nextEntry();
-        if($reportCard->isReportCardFinished()){
-           $this->dispatch(new BuildAndSendReportCard($reportCard));
-        }
-        */
+        Storage::disk('espdata')->delete($combineFileName);
+        Storage::disk('espdata')->delete($combineFileNameDNM);
+
+        // And then move this to FTP
+        // clear the files currently saved
+        $mailStream = fopen(storage_path() . '/' . $combineFileName, 'r+');
+        $dnmStream = fopen(storage_path() . '/' . $combineFileNameDNM, 'r+');
+
+        $this->flysystem->connection('espdata')->writeStream($combineFileName, $mailStream);
+        $this->flysystem->connection('espdata')->writeStream($combineFileName, $dnmStream);
+
+        fclose($mailStream);
+        fclose($dnmStream);
+
+        Storage::delete($combineFileName);
+        Storage::delete($combineFileNameDNM);
+
+        $this->dispatch(new BuildAndSendReportCard($reportCard));
     }
 
 }

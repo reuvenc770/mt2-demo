@@ -21,7 +21,7 @@ class SendSuppressionsToMT1 extends Command
      *
      * @var string
      */
-    protected $description = 'Grabs all suppressions for  X Days and places them on the MT1 FTP';
+    protected $description = 'Grabs all suppressions for X Days and places them on the MT1 FTP';
 
     /**
      * Create a new command instance.

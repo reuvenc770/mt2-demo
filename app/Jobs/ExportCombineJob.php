@@ -45,7 +45,7 @@ class ExportCombineJob extends Job implements ShouldQueue {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
-                $service->createDeployExport($this->deploy);
+                $service->createDeployExport($this->deploy, $this->reportCard);
                 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }

@@ -48,13 +48,15 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 Cache::decrement($this->cacheTagName, 1);
 
                 if ((int)Cache::get($this->cacheTagName) <= 0) {
+
+                    /**
+                        Implement
+                    */
                     $deploys = $this->getAllCombines();
+
                     foreach($deploys as $deploy) {
-                        /**
-                            This is obviously not working now.
-                        */
                         $runId = str_random(10);
-                        $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$ran}");
+                        $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$runId}");
                         $this->dispatch(new ExportCombineJob($deploy, $reportCard, str_random(16)));
                     }
                 }

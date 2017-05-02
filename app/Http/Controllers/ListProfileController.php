@@ -227,6 +227,11 @@ class ListProfileController extends Controller
     }
 
     public function exportListCombine(Request $request){
+
+        /**
+            So we need to find a way to export a single combine by itself
+            We also need a way to export multiple combines at once and handle these in one email
+        */
         $id = $request->input("id");
         $this->dispatch(new ListProfileCombineExportJob($id, str_random(16)));
     }

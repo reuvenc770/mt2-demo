@@ -222,6 +222,8 @@ class DeployController extends Controller
         $ran = str_random(10);
         $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$ran}");
         $reportCard->setOwner($username);
+
+
         //Only one package is selected return the filepath and make it a download response
         if (count($data) == 1) {
             $reportCard->setNumberOfEntries(1);
@@ -256,8 +258,9 @@ class DeployController extends Controller
                     );
                 }
             }
-            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
+            Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",",$data), 'username' => $username]);
         }
+        
         //Update deploy status to pending
         $this->deployService->deployPackages($data);
 

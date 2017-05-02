@@ -31,7 +31,7 @@ class ListProfileBaseTableRepo {
             $listIds = '(' . implode(',', $listIds) . ')';
 
             $query = $this->model
-                    ->selectRaw("$table.*, sls.email_address as suppression_status")
+                    ->selectRaw("$table.*, (sls.email_address IS NOT NULL) as feed_suppressed")
                     ->leftJoin("$suppDb.suppression_list_suppressions as sls", function($join) use($table, $listIds) {
                         $join->on("$table.email_address", '=', 'sls.email_address');
                         $join->on('sls.suppression_list_id', 'in', DB::raw($listIds));
