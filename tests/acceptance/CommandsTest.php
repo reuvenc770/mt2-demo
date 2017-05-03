@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+#use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 use Tests\TestCase; 
@@ -35,10 +35,6 @@ class CommandsTest extends TestCase
      */
     public function testDownloadSuppressionFromESPCommand()
     {
-        echo "\n\nAPP_ENV:\n";
-        echo env( 'APP_ENV' );
-        echo "\n";
-
         $this->expectsJobs( \App\Jobs\DownloadSuppressionFromESP::class ); 
 
         $max_runtime = 60;
@@ -67,7 +63,9 @@ class CommandsTest extends TestCase
      * @param $runtime_threshold
      * @return integer
      */
-    public function runCommandReturnStatus($command,$input,$runtime_threshold){
+    public function runCommandReturnStatus(&$command,$input,$runtime_threshold){
+
+        JobTracking::shouldReceive( 'getJobProfile' );
 
         $command->setLaravel( $this->app );
 
@@ -95,11 +93,14 @@ class CommandsTest extends TestCase
             echo "\n";
 
             $job = JobTracking::getJobProfile($command->getTrackingId());
-            print "\njob status: ".$job->status."\n";
+
+            if ( count( $job ) > 0 ) {
+                print "\njob status: ".$job->status."\n";
+            }
             ob_flush();
             $tries++;
         }
-        while($job->status!=2 && $tries <= $max_tries);
+        while( ( count( $job ) <= 0 || $job->status!=2 ) && $tries <= $max_tries);
 
         return $job->status;
 

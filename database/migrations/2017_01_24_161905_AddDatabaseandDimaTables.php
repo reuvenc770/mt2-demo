@@ -5,6 +5,8 @@ use Illuminate\Database\Migrations\Migration;
 
 class AddDatabaseandDimaTables extends Migration
 {
+    const DIMA_DB_CREATE_STATEMENT = 'CREATE DATABASE %s /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */';
+
     /**
      * Run the migrations.
      *
@@ -12,15 +14,9 @@ class AddDatabaseandDimaTables extends Migration
      */
     public function up()
     {
-        $createStatement = 'CREATE DATABASE dima_data';
+        DB::statement( sprintf( self::DIMA_DB_CREATE_STATEMENT , $this->getDbName() ) );
 
-        if ( env( 'APP_ENV' ) == 'testing' ) {
-            $createStatement .= '_test';
-        }
-
-        DB::statement( $createStatement );
-
-        Schema::connection("dima_data")->create('maro_raw_actions', function (Blueprint $table) {
+        Schema::connection( 'dima_data' )->create('maro_raw_actions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('account_id');
             $table->integer('campaign_id');
@@ -44,12 +40,16 @@ class AddDatabaseandDimaTables extends Migration
      */
     public function down()
     {
-        $dropStatement = 'Drop DATABASE dima_data';
+        DB::statement( 'Drop DATABASE ' . $this->getDbName() );
+    }
+
+    protected function getDbName () {
+        $tableName = 'dima_data';
 
         if ( env( 'APP_ENV' ) == 'testing' ) {
-            $dropStatement .= '_test';
+            $tableName .= '_test';
         }
 
-        DB::statement( $dropStatement );
+        return $tableName;
     }
 }
