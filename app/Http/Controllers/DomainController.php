@@ -91,7 +91,7 @@ class DomainController extends Controller
                         list($domainName,$mainSite,$expires) = array_map( 'trim' , $mailDomainValues );
 
                         try {
-                            Carbon::parse( $expires );
+                            Carbon::createFromFormat( 'Y-m-d' , $expires );
                         } catch ( \Exception $e ) {
                             return response()->json( ['domains' => ["This domain's expiration date is invalid."] ] , 422 );
                         }
@@ -113,7 +113,7 @@ class DomainController extends Controller
                         list($domainName,$expires) = array_map( 'trim' , $contentDomainValues );
 
                         try {
-                            Carbon::parse( $expires );
+                            Carbon::createFromFormat( 'Y-m-d' , $expires );
                         } catch ( \Exception $e ) {
                             return response()->json( ['domains' => ["This domain's expiration date is invalid."] ] , 422 );
                         }
