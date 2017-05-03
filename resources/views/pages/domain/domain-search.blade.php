@@ -90,7 +90,7 @@
 
         <div class="pull-right">
             <input class="btn mt2-theme-btn-secondary btn-sm" ng-click="domain.resetSearch()" type="submit" value="Reset">
-            <input class="btn mt2-theme-btn-primary btn-sm" ng-click="domain.searchDomains()" type="submit" value="Search">
+            <input class="btn mt2-theme-btn-primary btn-sm" ng-click="domain.searchDomains()" type="submit" value="Search" ng-disabled="domain.updatingAccounts">
         </div>
     </div>
 </div>
