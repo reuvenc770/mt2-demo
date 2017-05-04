@@ -56,4 +56,6 @@ class MailingTemplateRepo
     public function getTemplateIdFromName($templateName){
         return $this->mailingTemplate->select('id')->where('template_name',$templateName)->first();
     }
+
+    public function prepareTableForSync() {}
 }

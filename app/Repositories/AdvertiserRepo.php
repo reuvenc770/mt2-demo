@@ -18,4 +18,6 @@ class AdvertiserRepo {
         $this->advertiser->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
 }

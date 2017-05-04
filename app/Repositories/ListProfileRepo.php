@@ -71,6 +71,8 @@ class ListProfileRepo
         $this->listProfile->updateOrCreate(['id' => $listProfileId ], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function canBeDeleted ( $id ) {
         return $this->listProfile->find( $id )->canModelBeDeleted();
     }

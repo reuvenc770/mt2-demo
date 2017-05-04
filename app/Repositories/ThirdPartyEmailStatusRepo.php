@@ -37,25 +37,47 @@ class ThirdPartyEmailStatusRepo {
 
             ON DUPLICATE KEY UPDATE
             email_id = email_id,
-            last_action_type = IF(last_action_datetime < values(last_action_datetime),    
-                                values(last_action_type),
-                                IF(last_action_datetime > values(last_action_datetime),
-                                    last_action_type,
-                                    IF(last_action_type IS NULL OR last_action_type = 'None',
-                                        values(last_action_type),
-                                        IF(last_action_type = 'Conversion',
-                                            last_action_type,
-                                            IF(last_action_type = 'Click',
-                                                IF(values(last_action_type) = 'Conversion',
-                                                    'Conversion',
-                                                    IF(values(last_action_type) = 'Click',
-                                                        'Click',
-                                                        IF(values(last_action_type) = 'Open', 'Click', 'Click'))),
-                                                values(last_action_type)))))),
-            last_action_datetime = GREATEST(last_action_datetime, values(last_action_datetime)),
-            last_action_esp_account_id = IF(last_action_datetime < values(last_action_datetime),    
-                                values(last_action_esp_account_id), last_action_esp_account_id),
-            last_action_offer_id = values(last_action_offer_id),
+            last_action_type = CASE 
+                                    WHEN (last_action_type IS NULL OR last_action_type = 'None') THEN values(last_action_type)
+                                    WHEN (last_action_datetime < values(last_action_datetime) OR last_action_datetime IS NULL) THEN values(last_action_type)
+                                    WHEN (last_action_datetime > values(last_action_datetime)) THEN last_action_type
+                                    WHEN (last_action_type = 'Conversion' OR values(last_action_type) = 'Conversion') THEN 'Conversion'
+                                    WHEN (last_action_type = 'Click' OR values(last_action_type) = 'Click') THEN 'Click' # conversions handled above
+                                    ELSE 'Open' # already handled conversions and clicks above
+                                END,
+                                
+            last_action_datetime = CASE
+                                        WHEN (last_action_datetime IS NULL) THEN values(last_action_datetime)
+                                        ELSE GREATEST(last_action_datetime, values(last_action_datetime))
+                                    END,
+
+            last_action_esp_account_id = CASE
+                                            WHEN (last_action_esp_account_id IS NULL or last_action_esp_account_id = 0) THEN values(last_action_esp_account_id)
+                                            ELSE
+                                                CASE 
+                                                    WHEN (last_action_datetime < values(last_action_datetime) OR last_action_datetime IS NULL) THEN values(last_action_esp_account_id)
+                                                    WHEN (last_action_datetime > values(last_action_datetime)) THEN last_action_esp_account_id
+                                                    WHEN (last_action_type = 'Conversion') THEN last_action_esp_account_id
+                                                    WHEN (values(last_action_type) = 'Conversion') THEN values(last_action_esp_account_id)
+                                                    WHEN (last_action_type = 'Click') THEN last_action_esp_account_id
+                                                    WHEN values(last_action_type) = 'Click' THEN values(last_action_esp_account_id)
+                                                    ELSE last_action_esp_account_id
+                                                END
+                                        END,
+
+            last_action_offer_id = CASE
+                                        WHEN (last_action_offer_id IS NULL or last_action_offer_id = 0) THEN values(last_action_offer_id)
+                                        ELSE
+                                            CASE 
+                                                WHEN (last_action_datetime < values(last_action_datetime) OR last_action_datetime IS NULL) THEN values(last_action_offer_id)
+                                                WHEN (last_action_datetime > values(last_action_datetime)) THEN last_action_offer_id
+                                                WHEN (last_action_type = 'Conversion') THEN last_action_offer_id
+                                                WHEN (values(last_action_type) = 'Conversion') THEN values(last_action_offer_id)
+                                                WHEN (last_action_type = 'Click') THEN last_action_offer_id
+                                                WHEN values(last_action_type) = 'Click' THEN values(last_action_offer_id)
+                                                ELSE last_action_offer_id
+                                            END
+                                    END,
             created_at = created_at,
             updated_at = values(updated_at)";
     }
