@@ -17,6 +17,7 @@ class CustomRuleValidatorProvider extends ServiceProvider
     public function boot()
     {
         \Validator::extend( 'euroDate' , '\\App\\Http\\Validators\\CustomValidatorHelper@europeanDate' );
+        \Validator::extend( 'euroDateNotFuture' , '\\App\\Http\\Validators\\CustomValidatorHelper@europeanDateNotFuture' );
         \Validator::extend( 'hash' , '\\App\\Http\\Validators\\CustomValidatorHelper@hash' );
     }
 
