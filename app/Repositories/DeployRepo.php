@@ -88,6 +88,8 @@ class DeployRepo implements Mt2Export
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function update($data, $id)
     {
         return $this->deploy->find($id)->update($data);

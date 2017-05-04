@@ -31,4 +31,6 @@ class OfferTrackingLinkRepo {
 
         return $url ? $url->url : '';
     }
+
+    public function prepareTableForSync() {}
 }
