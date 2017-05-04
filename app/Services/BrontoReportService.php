@@ -20,6 +20,7 @@ use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Events\RawReportDataWasInserted;
 use Event;
+use Log;
 
 class BrontoReportService extends AbstractReportService implements IDataService
 {
@@ -394,8 +395,14 @@ class BrontoReportService extends AbstractReportService implements IDataService
     public function insertUnsubs($data, $espAccountId)
     {
         foreach ($data as $entry) {
-            $espInternalId = $this->parseInternalId($entry->getDeliveryId());
-            Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, $entry->getCreatedDate()->format('Y-m-d H:i:s'));
+            if ($entry->getDeliveryId()) {
+                $espInternalId = $this->parseInternalId($entry->getDeliveryId());
+                Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, $entry->getCreatedDate()->format('Y-m-d H:i:s'));
+            }
+            else {
+                Log::info($entry->getDeliveryId() . ', ' . $entry->getEmailAddress() . ' not found for Bronto');
+            }
+            
         }
     }
 
