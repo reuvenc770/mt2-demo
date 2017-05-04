@@ -23,6 +23,8 @@ class OfferRepo {
         $this->offer->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function getAdvertiserName($offerId) {
         $result = $this->offer
              ->join('advertisers as a', 'offers.advertiser_id', '=', 'a.id')

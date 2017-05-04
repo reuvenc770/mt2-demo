@@ -20,4 +20,6 @@ class SuppressionListRepo {
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
 }

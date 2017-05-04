@@ -20,6 +20,8 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
         $this->model->updateOrCreate( [ 'email_address' => $data[ 'email_address' ] ] , $data );
     }
 
+    public function prepareTableForSync() {}
+
     public function extractForS3Upload($startPoint) {
         return $this->model->whereRaw("id > $startPoint");
     }
