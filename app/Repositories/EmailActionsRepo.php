@@ -134,7 +134,7 @@ class EmailActionsRepo {
         return DB::select("SELECT
             ea.email_id,
             ea.deploy_id,
-            d.esp_account_id,
+            ea.esp_account_id,
             ea.date,
             e.email_address,
             e.lower_case_md5,
@@ -157,7 +157,7 @@ class EmailActionsRepo {
                 email_id,
                 deploy_id,
                 DATE(datetime) as date,
-                
+                MAX(esp_account_id) as esp_account_id,
                 SUM(IF(action_id = 4, 1, 0)) as deliveries,
                 SUM(IF(action_id = 1, 1, 0)) as opens,
                 SUM(IF(action_id = 2, 1, 0)) as clicks,
