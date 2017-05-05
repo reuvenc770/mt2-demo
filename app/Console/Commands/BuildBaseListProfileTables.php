@@ -45,7 +45,7 @@ class BuildBaseListProfileTables extends Command
     public function handle(ListProfileScheduleRepo $repo) {
         $profiles = $repo->getListProfilesForToday();
 
-        $cacheTagName = '';
+        $cacheTagName = 'ListProfileBaseTable';
         Cache::forget($cacheTagName);
         Cache::forever($cacheTagName, count($profiles));
 

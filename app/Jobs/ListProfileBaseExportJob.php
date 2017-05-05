@@ -48,16 +48,19 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 $this->dispatch(new ExportListProfileJob($this->profileId, str_random(16)));
                 $schedule->updateSuccess($this->profileId); // These might not just be scheduled ... 
 
-                Cache::decrement($this->cacheTagName, 1);
+                if (null !== $this->cacheTagName) {
+                    // make this optional
+                    Cache::decrement($this->cacheTagName, 1);
 
-                if ((int)Cache::get($this->cacheTagName) <= 0) {
-                    $date = Carbon::today()->toDateString();
-                    $deploys = $deployRepo->getDeploysForToday($date);
+                    if ((int)Cache::get($this->cacheTagName) <= 0) {
+                        $date = Carbon::today()->toDateString();
+                        $deploys = $deployRepo->getDeploysForToday($date);
 
-                    foreach($deploys as $deploy) {
-                        $runId = str_random(10);
-                        $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$deploy->id}-{$runId}");
-                        $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16)));
+                        foreach($deploys as $deploy) {
+                            $runId = str_random(10);
+                            $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$deploy->id}-{$runId}");
+                            $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16)));
+                        }
                     }
                 }
  
