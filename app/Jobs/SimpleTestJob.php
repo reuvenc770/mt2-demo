@@ -40,10 +40,15 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     private function acceptanceTest(){
 
         $phpunit = new PHPUnit_TextUI_TestRunner;
-        $test = new SimpleTest();
+
+        $testSuite = new \PHPUnit_Framework_TestSuite();
+        $testSuite->addTest( new SimpleTest() );
 
         try {
-            $test_results = $phpunit->dorun($test);
+            $test_results = $phpunit->dorun($testSuite);
+
+            $errors = $test_results->errorCount();
+            $failures = $test_results->failureCount();
         } catch (PHPUnit_Framework_Exception $e) {
             print $e->getMessage() . "\n";
             die ("Unit tests failed.");
