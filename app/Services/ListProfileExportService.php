@@ -26,7 +26,7 @@ class ListProfileExportService {
     private $mt1SuppServ;
     private $miscSuppressionRepo;
 
-    const BASE_TABLE_NAME = 'list_profile_export_';
+    const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
     private $rowCount = 0;

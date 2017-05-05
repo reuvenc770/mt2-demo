@@ -30,7 +30,6 @@ class ListProfileController extends Controller
     protected $states;
     protected $ispService;
     protected $combineService;
-    protected $feedGroupService;
 
     public function __construct (
         ListProfileService $listProfileService ,
