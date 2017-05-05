@@ -11,7 +11,10 @@ use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileService;
 use App\Services\ListProfileScheduleService;
-use App\Events\ListProfileCompleted;
+use App\Repositories\DeployRepo;
+use App\Jobs\ExportDeployCombineJob;
+use Carbon\Carbon;
+use App\DataModels\CacheReportCard;
 
 class ListProfileBaseExportJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
@@ -35,7 +38,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
      * @param ListProfileService $service
      * @param ListProfileScheduleService $schedule
      */
-    public function handle(ListProfileService $service, ListProfileScheduleService $schedule) {
+    public function handle(ListProfileService $service, ListProfileScheduleService $schedule, DeployRepo $deployRepo) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
@@ -48,16 +51,13 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 Cache::decrement($this->cacheTagName, 1);
 
                 if ((int)Cache::get($this->cacheTagName) <= 0) {
-
-                    /**
-                        Implement
-                    */
-                    $deploys = $this->getAllCombines();
+                    $date = Carbon::today()->toDateString();
+                    $deploys = $deployRepo->getDeploysForToday($date);
 
                     foreach($deploys as $deploy) {
                         $runId = str_random(10);
-                        $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$runId}");
-                        $this->dispatch(new ExportCombineJob($deploy, $reportCard, str_random(16)));
+                        $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$deploy->id}-{$runId}");
+                        $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16)));
                     }
                 }
  

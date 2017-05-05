@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\DataModels\CacheReportCard;
 use App\DataModels\ReportEntry;
-use App\Jobs\BuildAndSendReportCard;
 use App\Models\ListProfileBaseTable;
 use App\Models\OfferSuppressionList;
 use App\Repositories\ListProfileBaseTableRepo;
@@ -46,7 +45,6 @@ class ListProfileExportService {
     }
 
     public function exportListProfile($listProfileId, $replacementHeader = array()) {
-
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
@@ -66,14 +64,12 @@ class ListProfileExportService {
         $listIds = $this->listProfileRepo->getSuppressionListIds($offerId);
         $result = $this->tableRepo->suppressWithListIds($listIds);
 
-        /**
-            We also need to set up report card stuff here
-        */
-        $reportCard = (object)[];
         $runId = str_random(10);
         $reportCard = CacheReportCard::makeNewReportCard("LP::{$listProfileId}-{$runId}");
+        $entry = new ReportEntry("List Profile $listProfileId");
 
         $resource = $result->cursor();
+        $count = 0;
 
         foreach ($resource as $row) {
             if ($row->globally_suppressed) {
@@ -86,7 +82,7 @@ class ListProfileExportService {
                     // handle advertiser suppression here
                     if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
                         $suppressed = true;
-                        $reportCard->incrementOfferSuppression($offer->id);
+                        $entry->incrementOfferSuppression();
                         break;
                     }
                 }
@@ -94,14 +90,18 @@ class ListProfileExportService {
                 if (!$suppressed) {
                     $row = $this->mapRow($columns, $row);
                     $this->batch($fileName, $row);
-                    $reportCard->incrementMailable();
+                    $entry->increaseFinalRecordCount();
                 }
-                
             }
+
+            $count++;
         }
 
         $this->writeBatch($fileName);
-        $reportCard->send();
+
+        $entry->addOriginalTotal($count);
+        $reportCard->addEntry($entry);
+        $reportCard->mail();
 
         return $fileName;
     }
@@ -262,8 +262,7 @@ class ListProfileExportService {
         Storage::delete($dnmFile);
     }
 
-    private function createFileName(Deploy $deploy, $version = 'mailable') {
-        $combineId = $deploy->list_profile_combine_id;
+    private function createDeployFileName(Deploy $deploy, $version = 'mailable') {
         $offerName = $deploy->offer->name;
         $espAccountName = $deploy->espAccount->account_name;
         $ftpFolder = $deploy->listProfileCombine->ftp_folder;
@@ -277,65 +276,90 @@ class ListProfileExportService {
         }
     }
 
-    public function createDeployExport(Deploy $deploy, $reportCard) {
+    private function createSimpleCombineFileName(Combine $combine, $version = 'mailable') {
+        if ('mailable' === $version) {
+            return storage_path('app') . "/{$combine->ftp_folder}/{$combine->name}.csv";
+        }
+        elseif ('donotmail' === $version) {
+            return storage_path('app') . "/{$combine->ftp_folder}/DONOTMAIL_{$combine->name}.csv";
+        }
+    }
+
+    public function createSimpleCombineExport(Combine $combine, ReportEntry $reportEntry) {
+        $listProfiles = $this->combineRepo
+                            ->getRowWithListProfiles($combine->id)
+                            ->listProfiles->all();
+
+        $combineFileName = $this->createSimpleCombineFileName($combine, 'mailable');
+        $combineFileNameDNM = $this->createSimpleCombineFileName($combine, 'donotmail'); 
+
+        // Without a deploy, these lists are currently empty
+        $miscLists = [];
+        $offersSuppressed = [];
+
+        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM);
+    }
+
+    public function createDeployExport(Deploy $deploy, ReportEntry $reportEntry) {
         $listProfiles = $this->combineRepo
                             ->getRowWithListProfiles($deploy->list_profile_combine_id)
                             ->listProfiles->all();
 
         $combineFileName = $this->createFileName($deploy, 'mailable');
-        $combineFileNameDNM = $this->createFileName($deploy, 'donotmail');
-        // need list of offers suppressed against
-        #$reportCard->addOffersSuppressedAgainst([$deploy->offer_id]);
+        $combineFileNameDNM = $this->createFileName($deploy, 'donotmail'); 
 
         // Getting lists
         $miscLists = OfferSuppressionList::where('offer_id', $deploy->offer_id)->pluck('suppression_list_id')->all();
-        $miscListCount = count($miscLists);
         $offersSuppressed = [(int)$deploy->offer_id];
 
-        $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields should always be available
+        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM);
+    }
 
+    private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM) {
+        $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields must always be available
         $writeHeaderCount = 0;
 
         foreach ($listProfiles as $listProfile) {
-            $offersSuppressed = array_unique(array_merge($offersSuppressed, $listProfile->offers->pluck('id')->all()));
+            $lpOffers = $listProfile->offers->pluck('id')->all();
+            $lpLists = OfferSuppressionList::whereIn('offer_id', $lpOffers)->pluck('suppression_list_id')->all();
+            
+            $offersSuppressed = array_unique(array_merge($offersSuppressed, $lpOffers));
+            $miscLists = array_unique(array_merge($miscLists, $lpLists));
             $header = array_unique(array_merge($header, json_decode($listProfile->columns)));
             $writeHeaderCount += $listProfile->insert_header;
         }
 
+        $miscListCount = count($miscLists);
+
+        $reportEntry->addOffersSuppressedAgainst($offersSuppressed);
+
         // Generate the query for this set (deduped and made generic).
         $query = $this->generateCombineQuery($listProfiles, $header);
-echo $query . PHP_EOL;
         $pdo = \DB::connection('list_profile_export_tables')->getPdo();
         $pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
         $statement = $pdo->prepare($query);
         $statement->execute();
 
-        /**
-            Need recordEntry
-        */
-
         if ($writeHeaderCount > 0) {
             $this->batch($combineFileName, implode(',', $header));
         }
 
+        $count = 0;
+
         // Run each item against various suppression checks - global, feed, advertiser - and write to file.
         while ($row = $statement->fetch(\PDO::FETCH_OBJ)) {
-echo $row->email_address;
             if($row->globally_suppressed){
                 $this->batchSuppression($combineFileNameDNM, $row);
-                #$recordEntry->increaseGlobalSuppressionCount();
-echo " globally suppressed" . PHP_EOL;
+                $recordEntry->increaseGlobalSuppressionCount();
             }
             elseif(1 === (int)$row->feed_suppressed){
                 $this->batchSuppression($combineFileNameDNM, $row);
-                #$recordEntry->increaseListSuppressionCount();
-echo " feed suppressed" . PHP_EOL;
+                $recordEntry->increaseListSuppressionCount();
             }
             elseif($miscListCount > 0 && $this->miscSuppressionRepo->isSuppressedInLists($row->email_address, $miscLists)) {
                 $this->batchSuppression($combineFileNameDNM, $row);
-                #$recordEntry->increaseMiscSuppressionCount();
-echo " misc suppressed" . PHP_EOL;
+                $recordEntry->increaseMiscSuppressionCount();
             }
             else {
                 $suppressed = false;
@@ -343,29 +367,31 @@ echo " misc suppressed" . PHP_EOL;
                 foreach ($offersSuppressed as $offerId) {
                     // handle advertiser suppression here
                     #if ($this->mt1SuppServ->isSuppressed($row, $offerId)) {
-echo " attempting offer id $offerId ... ";
+
                     if (false) { 
                         $suppressed = true;
-                        #$reportCard->incrementOfferSuppression($offerId);
-echo " offer suppressed" . PHP_EOL;
+                        $reportCard->incrementOfferSuppression($offerId);
                         break;
                     }
                 }
 
                 if (!$suppressed) {
-echo " NOT suppressed" . PHP_EOL;
                     $row = $this->mapRow($header, $row);
                     $this->batch($combineFileName, $row);
-                    #$recordEntry->increaseFinalRecordCount();
+                    $recordEntry->increaseFinalRecordCount();
                 }
             }
+
+            $count++;
         }
+
+        $recordEntry->addOriginalTotal($count);
 
         $this->writeBatch($combineFileName);
         $this->writeBatchSuppression($combineFileNameDNM);
 
         #$this->uploadFiles($combineFileName, $combineFileNameDNM);
-        #$this->dispatch(new BuildAndSendReportCard($reportCard));
+        return $reportEntry;
     }
 
 }

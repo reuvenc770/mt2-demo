@@ -11,6 +11,7 @@ use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
+use App\DataModels\ReportEntry;
 
 class ExportListProfileJob extends Job implements ShouldQueue
 {
