@@ -47,7 +47,7 @@ class ExportDeployCombineJob extends Job implements ShouldQueue {
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
                 foreach ($this->deploys as $deploy) {
-                    $entry = new ReportEntry($deploy->name)
+                    $entry = new ReportEntry($deploy->name);
                     $entry = $service->createDeployExport($deploy, $entry);
                     $this->reportCard->addEntry($entry);
                 }
