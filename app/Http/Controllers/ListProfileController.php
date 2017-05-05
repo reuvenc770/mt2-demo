@@ -2,29 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ListProfileCombineExportJob;
-use App\Services\FeedGroupService;
-use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use App\Services\MT1Services\CountryService;
+use Laracasts\Flash\Flash;
+use Cache;
 use AdrianMejias\States\States;
-use App\Services\DomainGroupService;
-use App\Models\CakeVertical;
-use App\Services\OfferService;
-use App\Services\ClientService;
-use App\Jobs\ListProfileBaseExportJob;
-use App\Services\FeedService;
+
 use App\Http\Requests\SubmitListProfileRequest;
 use App\Http\Requests\SubmitListCombineRequest;
-use Laracasts\Flash\Flash;
-use App\Services\ListProfileCombineService;
-use Cache;
+
+use App\DataModels\CacheReportCard;
+use App\Models\CakeVertical;
+
+use App\Jobs\ExportSimpleCombineJob;
+use App\Jobs\ListProfileBaseExportJob;
+
+use App\Services\ListProfileService;
 use App\Services\EntityCacheService;
+use App\Services\DomainGroupService;
+use App\Services\ListProfileCombineService;
 
 class ListProfileController extends Controller
 {
@@ -33,32 +29,19 @@ class ListProfileController extends Controller
     protected $listProfile;
     protected $states;
     protected $ispService;
-    protected $offerService;
-    protected $clientService;
-    protected $feedService;
     protected $combineService;
     protected $feedGroupService;
 
     public function __construct (
         ListProfileService $listProfileService ,
-        CountryService $mt1CountryService ,
         States $states ,
-        DomainGroupService $ispService ,
-        OfferService $offerService,
-        ClientService $clientService,
-        FeedService $feedService,
-        FeedGroupService $feedGroupService,
+        DomainGroupService $ispService,
         ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
-        $this->mt1CountryService = $mt1CountryService;
         $this->states = $states;
         $this->ispService = $ispService;
-        $this->offerService = $offerService;
-        $this->clientService = $clientService;
-        $this->feedService = $feedService;
         $this->combineService = $combineService;
-        $this->feedGroupService = $feedGroupService;
     }
 
     /**
@@ -227,13 +210,10 @@ class ListProfileController extends Controller
     }
 
     public function exportListCombine(Request $request){
-
-        /**
-            So we need to find a way to export a single combine by itself
-            We also need a way to export multiple combines at once and handle these in one email
-        */
-        $id = $request->input("id");
-        $this->dispatch(new ListProfileCombineExportJob($id, str_random(16)));
+        $combineId = $request->input("id");
+        $ran = str_random(10);
+        $reportCard = CacheReportCard::makeNewReportCard("Combine-{$combineId}-{$ran}");
+        $this->dispatch(new ExportSimpleCombineJob($combineId, $reportCard, str_random(16)));
     }
 
     public function editListCombine( $id ) {
@@ -250,7 +230,7 @@ class ListProfileController extends Controller
             'ftpFolder' => $combineData->ftp_folder ,
             'combineParty' => $combineData->party,
             'listProfileIds' => $listProfileIds
-            ]);
+        ]);
     }
 
     public function updateListCombine( SubmitListCombineRequest $request ) {
