@@ -63,9 +63,6 @@ class DownloadSuppressionFromESPCommand extends Command
                     $this->getTrackingId()
                 ) )->onQueue( $queue );
 
-                \Log::info( $job );
-                \Log::info( 'Dispatching Job.' );
-
                 $this->dispatch( $job );
             }
         }

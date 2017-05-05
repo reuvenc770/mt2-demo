@@ -41,14 +41,15 @@ class CommandsTest extends TestCase
 
         $this->expectsJobs( \App\Jobs\DownloadSuppressionFromESP::class ); 
 
-        $max_runtime = 60;
+        $max_runtime = 10;
         $espRepo = APIFactory::createESPAPiAccountRepo();
 
         $command = new DownloadSuppressionFromESPCommand( $espRepo );
 
         $input = new ArrayInput( [
             'espName' => 'Campaigner' ,
-            'lookBack' => 1
+            'lookBack' => 1,
+            'queueName' => 'default'
         ] );
 
         //PASS if Job Status == 2, otherwise FAIL

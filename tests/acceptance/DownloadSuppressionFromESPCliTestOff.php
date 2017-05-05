@@ -12,7 +12,7 @@ class DownloadSuppressionFromESPCliTest extends TestCase
 
     protected function setUp(){
        parent::setUp();
-       $this->markTestSkipped('off');
+       //$this->markTestSkipped('off');
     }
 
     public function testCommandOutput()
@@ -22,7 +22,7 @@ class DownloadSuppressionFromESPCliTest extends TestCase
 
         Artisan::call('suppression:downloadESP', [
             'espName' => $esp,
-            'lookBack' => '3',
+            'lookBack' => '1',
         ]);
 
 
@@ -30,7 +30,6 @@ class DownloadSuppressionFromESPCliTest extends TestCase
         //$this->expectOutputRegex("/$esp/");
         $this->getActualOutput();
         print Artisan::output();
-        var_dump(JobTracking::getJobByTracking('mFWEP3U7lLtZPvJe'));
 
     }
 

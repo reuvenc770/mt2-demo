@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $tracking
  * @property string $status
  * @property string $time_fired
+ * @property mediumint $runtime_seconds_threshold
+ * @property string $acceptance_test
+ * @property json $diagnostics
  * @method static \Illuminate\Database\Query\Builder|\App\Models\JobEntry whereAccountName($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\JobEntry whereAccountNumber($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\JobEntry whereAttempts($value)
@@ -41,6 +44,9 @@ class JobEntry extends Model
     CONST WAITING = 4;
     CONST ONQUEUE = 5;
     CONST SKIPPED = 6;
+    CONST RUNTIME_WARNING = 7;
+    CONST RUNTIME_FAILED = 8;
+    CONST ACCEPTANCE_TEST_FAILED = 9;
     protected $guarded = ['id'];
     public $timestamps = false;
 
@@ -54,6 +60,9 @@ class JobEntry extends Model
             self::FAILED  => "Failed",
             self::WAITING  => "Waiting",
             self::SKIPPED  => "Lock Skip",
+            self::RUNTIME_WARNING => 'Running - Possibly Hanging',
+            self::RUNTIME_FAILED => 'Runtime Threshold Exceeded - Non-fatal Error',
+            self::ACCEPTANCE_TEST_FAILED => 'Completed - Failed Acceptance Test'
         );
     }
 
