@@ -8,15 +8,16 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
-use App\Models\Deploy;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
+use App\DataModels\ReportEntry;
+use App\DataModels\CacheReportCard;
 
-class ExportCombineJob extends Job implements ShouldQueue {
+class ExportDeployCombineJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-    const BASE_NAME = 'ListProfileCombineExport-';
+    const BASE_NAME = 'ExportDeployCombine-';
     private $jobName;
-    private $deploy;
+    private $deploys;
     private $reportCard;
     private $tracking;
 
@@ -25,8 +26,8 @@ class ExportCombineJob extends Job implements ShouldQueue {
      *
      * @return void
      */
-    public function __construct(Deploy $deploy, $reportCard, $tracking) {
-        $this->deploy = $deploy;
+    public function __construct(array $deploys, CacheReportCard $reportCard, $tracking) {
+        $this->deploys = $deploys;
         $this->reportCard = $reportCard;
         $this->tracking = $tracking;
 
@@ -45,8 +46,13 @@ class ExportCombineJob extends Job implements ShouldQueue {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
-                $service->createDeployExport($this->deploy, $this->reportCard);
-                
+                foreach ($this->deploys as $deploy) {
+                    $entry = new ReportEntry($deploy->name)
+                    $entry = $service->createDeployExport($deploy, $entry);
+                    $this->reportCard->addEntry($entry);
+                }
+
+                $this->reportCard->mail();
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
