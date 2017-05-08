@@ -31,7 +31,9 @@ class ExportDeployCombineJob extends Job implements ShouldQueue {
         $this->reportCard = $reportCard;
         $this->tracking = $tracking;
 
-        $this->jobName = self::BASE_NAME . $deploy->id;
+        $deployNames = 
+
+        $this->jobName = self::BASE_NAME . $deployNames;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -71,6 +73,16 @@ class ExportDeployCombineJob extends Job implements ShouldQueue {
 
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
+    }
+
+    private function getDeployNames(array $deploys) {
+        $deployIds = [];
+
+        foreach ($deploys as $deploy) {
+            $deployIds[] = $deploy->id;
+        }
+
+        return '[' . implode(',', $deployIds) . ']';
     }
 
 }

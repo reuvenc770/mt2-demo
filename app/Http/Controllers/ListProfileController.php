@@ -8,8 +8,7 @@ use Laracasts\Flash\Flash;
 use Cache;
 use AdrianMejias\States\States;
 
-use App\Http\Requests\SubmitListProfileRequest;
-use App\Http\Requests\SubmitListCombineRequest;
+use App\Http\Requests;
 
 use App\DataModels\CacheReportCard;
 use App\Models\CakeVertical;
