@@ -20,7 +20,6 @@ use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Events\RawReportDataWasInserted;
 use Event;
-use Log;
 
 class BrontoReportService extends AbstractReportService implements IDataService
 {
@@ -36,8 +35,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
     public function retrieveApiStats($data)
     {
-        $filter = array('start' =>
-            array('operator' => 'After', 'value' => $data),
+        $filter = array(
+            'start' => array('operator' => 'After', 'value' => Carbon::parse( $data )->toAtomString() ),
             'status' => 'sent'
         );
 
@@ -293,7 +292,20 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
     public function getUniqueJobId(&$processState)
     {
-        $jobId = isset($processState['campaign']) ? ":!:{$processState['campaign']['external_deploy_id']} - {$processState['campaign']['esp_internal_id']}" : '';
+        $jobId = '';
+        
+        if( isset($processState['campaign']) ){
+            $jobId .= "::{$processState['campaign']->message_name}";
+
+            if ( isset( $processState['campaign']->internal_id ) ) {
+                $jobId .= "[{$processState['campaign']->internal_id}]" ;
+            }
+
+            if ( isset( $processState['campaign']->esp_internal_id ) ) {
+                $jobId .= "[{$processState['campaign']->esp_internal_id}]" ;
+            }
+        }
+
         return $jobId;
     }
 
@@ -402,7 +414,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
             else {
                 Log::info($entry->getDeliveryId() . ', ' . $entry->getEmailAddress() . ' not found for Bronto');
             }
-            
         }
     }
 

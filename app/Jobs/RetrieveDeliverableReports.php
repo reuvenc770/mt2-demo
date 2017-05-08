@@ -264,12 +264,28 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
-            $generatedId = $deploy->esp_internal_id;
-            $deploy->esp_internal_id = BrontoMapping::makeDumbInternalId($generatedId,$this->espAccountId);
+            $missingDeliveryId = false;
+            
+            #$generatedId = $deploy->esp_internal_id;
+            #$deploy->esp_internal_id = BrontoMapping::makeDumbInternalId($generatedId,$this->espAccountId);
+            $raws = \DB::connection( 'reporting_data' )
+                ->table( 'bronto_reports as br' )
+                ->where( 'message_name' , 'LIKE' , $deploy->external_deploy_id . '%' );
+
+            if ( $raws->count() > 0 ) {
+                $deploy->esp_internal_id = $raws->first()[ 'internal_id' ];
+            } else {
+                $missingDeliveryId = true;
+            }
+
             $this->processState[ 'campaign' ] = $deploy;
             $this->processState[ 'espId' ] = $this->espAccountId;
 
-            $this->queueNextJob( $this->defaultQueue );
+            if ( $missingDeliveryId ) {
+                \Log::error( 'Missing Delivery ID for Bronto Rerun using Deploy ID ' . $deploy->external_deploy_id );
+            } else {
+                $this->queueNextJob( $this->defaultQueue );
+            }
         });
         $rowCount = count($deploys);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
