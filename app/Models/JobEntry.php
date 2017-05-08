@@ -44,9 +44,10 @@ class JobEntry extends Model
     CONST WAITING = 4;
     CONST ONQUEUE = 5;
     CONST SKIPPED = 6;
-    CONST RUNTIME_WARNING = 7;
-    CONST RUNTIME_FAILED = 8;
-    CONST ACCEPTANCE_TEST_FAILED = 9;
+    CONST RUNNING_ACCEPTANCE_TEST = 7;
+    CONST ACCEPTANCE_TEST_FAILED = 8;
+    CONST RUNTIME_WARNING = 9;
+    CONST RUNTIME_FAILED = 10;
     protected $guarded = ['id'];
     public $timestamps = false;
 
@@ -60,9 +61,10 @@ class JobEntry extends Model
             self::FAILED  => "Failed",
             self::WAITING  => "Waiting",
             self::SKIPPED  => "Lock Skip",
-            self::RUNTIME_WARNING => 'Running - Possibly Hanging',
+            self::RUNNING_ACCEPTANCE_TEST => 'Accept Test Execution in  Progress',
+            self::ACCEPTANCE_TEST_FAILED => 'Job Completed But Failed Acceptance Test',
+            self::RUNTIME_WARNING => 'Runtime Longer Than Expected - Possibly Hung',
             self::RUNTIME_FAILED => 'Runtime Threshold Exceeded - Non-fatal Error',
-            self::ACCEPTANCE_TEST_FAILED => 'Completed - Failed Acceptance Test'
         );
     }
 

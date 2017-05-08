@@ -98,4 +98,16 @@ class JobEntryRepo
         return $count > 0;
     }
 
+    /**
+     * general purpose job_entries creator/updater
+     * @param string $tracking
+     * @param array $params
+     */
+    public function saveJob(string $tracking, array $params){
+        $this->entry->updateOrCreate(
+            array('tracking' => $tracking),
+            $params
+        );
+    }
+
 }

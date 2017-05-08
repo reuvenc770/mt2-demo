@@ -67,13 +67,17 @@ class JobEntryService
             $job->time_started = Carbon::now();
             $job->attempts = $job->attempts + 1;
             $job->save();
-        } else if ($state == JobEntry::SKIPPED){
+        } else if($state == JobEntry::SKIPPED || $state == JobEntry::RUNNING_ACCEPTANCE_TEST){
                 $job->save();
         }
 
         if($state == JobEntry::FAILED){
             $job->save();
             Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
+        }else if($state == JobEntry::ACCEPTANCE_TEST_FAILED){
+            $job->time_finished = Carbon::now();
+            $job->save();
+            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed acceptance test");
         }
     }
 
@@ -109,6 +113,38 @@ class JobEntryService
 
     public function getJobProfile($tracking){
         return $this->repo->getJobByTracking($tracking);
+    }
+
+    public function addDiagnostic(array $diagnostic,$tracking){
+        $job = $this->repo->getJobByTracking($tracking);
+        $job->diagnostics = json_encode(array_merge(json_decode($job->diagnostics),$diagnostic));
+        $job->save();
+    }
+
+    /**
+     * expects job_name and runtime_seconds_threshold in params
+     * @param $tracking
+     * @param $params
+     */
+    public function initiateNewJob($tracking,$params){
+        if(!isset($params['job_name']) || !isset($params['runtime_seconds_threshold'])){
+            Log::critical('missing required parameters');
+            return;
+        }
+        $params['time_fired'] = Carbon::now();
+        $params['attempts'] = 0;
+        $params['status'] = JobEntry::ONQUEUE;
+        $params['diagnostics'] = json_encode(array());
+        $this->saveJob($tracking,$params);
+    }
+
+    /**
+     * general purpose create/update job
+     * @param $tracking
+     * @param $params
+     */
+    public function saveJob($tracking,$params){
+        $this->repo->saveJob($tracking,$params);
     }
 
 }
