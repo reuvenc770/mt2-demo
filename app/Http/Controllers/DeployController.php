@@ -205,6 +205,31 @@ class DeployController extends Controller
     public function massupload(Request $request)
     {
         $data = $request->all();
+        $dataCopy = $data;
+
+        foreach ( $dataCopy as $index => $current ) {
+            try {
+                $data[ $index ][ 'send_date' ] = \Carbon\Carbon::parse( $current[ 'send_date' ] )->toDateString();
+            } catch ( \Exception $e ) {
+                $data[ $index ][ 'send_date' ] = \Carbon\Carbon::now()->toDateString();
+            }
+
+            if ( !is_numeric( $current['esp_account_id'] ) ){
+                $data[ $index ]['esp_account_id'] = $this->espApiService->getEspAccountIdFromName( $current['esp_account_id'] );
+            }
+
+            if ( !is_numeric( $current['template_id'] ) ){
+                $data[ $index ]['template_id'] = $this->mailingTemplateService->getTemplateIdFromName( $current['template_id'] );
+            }
+
+            if ( !is_numeric( $current['mailing_domain_id'] ) ){
+                $data[ $index ]['mailing_domain_id'] = $this->domainService->getDomainIdByTypeAndName( 1 , $current['mailing_domain_id'] );
+            }
+
+            if ( !is_numeric( $current['content_domain_id'] ) ){
+                $data[ $index ]['content_domain_id'] = $this->domainService->getDomainIdByTypeAndName( 2 , $current['content_domain_id'] );
+            }
+        }
 
         return response()->json(['success' => $this->deployService->massUpload($data)]);
     }
