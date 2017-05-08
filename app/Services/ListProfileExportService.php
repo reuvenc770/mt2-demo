@@ -207,7 +207,6 @@ class ListProfileExportService {
                     $aggregateHeader[] = $column;
                 }
                 else {
-                    // see reasoning for MAX() below
                     $aggregateHeader[] = "max($column) as $column";
                 }
             }
