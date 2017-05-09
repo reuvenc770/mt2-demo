@@ -11,6 +11,7 @@ use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileService;
 use App\Services\ListProfileScheduleService;
+use App\Services\ListProfileExportService;
 use App\DataModels\ReportEntry;
 use App\DataModels\CacheReportCard;
 
@@ -20,7 +21,7 @@ class ExportSimpleCombineJob extends Job implements ShouldQueue {
     private $tracking;
     private $combineId;
     private $jobName;
-
+    private $reportCard;
 
     public function __construct($combineId, CacheReportCard $reportCard, $tracking) {
         $this->combineId = $combineId;
@@ -36,7 +37,11 @@ class ExportSimpleCombineJob extends Job implements ShouldQueue {
      * @param ListProfileService $service
      * @param ListProfileScheduleService $schedule
      */
-    public function handle(ListProfileService $service, ListProfileScheduleService $schedule, ListProfileCombineService $combineService) {
+    public function handle(ListProfileService $service, 
+        ListProfileScheduleService $schedule, 
+        ListProfileCombineService $combineService, 
+        ListProfileExportService $exportService) {
+
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
@@ -55,7 +60,7 @@ class ExportSimpleCombineJob extends Job implements ShouldQueue {
                 $entry = new ReportEntry($combine->name);
 
                 $entry = $exportService->createSimpleCombineExport($combine, $entry);
-                $reportCard->addEntry($entry);
+                $this->reportCard->addEntry($entry);
 
                 $this->reportCard->mail();
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
