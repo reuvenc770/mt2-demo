@@ -18,11 +18,9 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     protected $runtime_seconds_threshold = 20;
 
     /**
-     * Create a new job instance.
-     *
-     * @return void
+     * @param  boolean $foo - acceptanceTest result sent for testing
      */
-    public function __construct(string $foo)
+    public function __construct($foo)
     {
         parent::__construct(self::JOB_NAME);
 
@@ -32,15 +30,16 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
+     * @return boolean
      */
-    public function handle()
+    public function handleJob()
     {
-        parent::handle();
 
-        echo $this->foo;
+        //do job specific stuff, then call the parent handleJob to run the acceptance test
 
-        $this->runAcceptanceTest();
+        parent::handleJob();
+
+        return 1;
     }
 
     /**
@@ -49,10 +48,11 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
      */
     protected function acceptanceTest(){
 
-        sleep(10);
+        sleep(5); //to observe status ACCEPTANCE_TEST_RUNNING
         try{
-            $result = true;
-            JobTracking::addDiagnostic(array('acceptance_test' => $result),$this->tracking);
+            $result = $this->foo;
+            //example of how to add a diagnostic
+            JobTracking::addDiagnostic(array('acceptance_test' => (integer) $result),$this->tracking);
             return $result;
         }catch (Exception $e){
             return $e;

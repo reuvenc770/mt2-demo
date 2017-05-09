@@ -81,6 +81,10 @@ class JobEntryService
         }
     }
 
+    public function getJobState($tracking){
+        return $this->repo->getJobByTracking($tracking)->status;
+    }
+
     public function startTrackingJob($jobName, $startDate, $endDate, $tracking)
     {
         $this->jobName = $jobName;
@@ -115,9 +119,12 @@ class JobEntryService
         return $this->repo->getJobByTracking($tracking);
     }
 
-    public function addDiagnostic(array $diagnostic,$tracking){
+    public function addDiagnostic($diagnostic,$tracking){
+        if(is_object($diagnostic)){
+            $diagnostic = (array) $diagnostic;
+        }
         $job = $this->repo->getJobByTracking($tracking);
-        $job->diagnostics = json_encode(array_merge(json_decode($job->diagnostics),$diagnostic));
+        $job->diagnostics = json_encode(array_merge_recursive(json_decode($job->diagnostics,TRUE),$diagnostic));
         $job->save();
     }
 
@@ -126,7 +133,7 @@ class JobEntryService
      * @param $tracking
      * @param $params
      */
-    public function initiateNewJob($tracking,$params){
+    public function initiateNewMonitoredJob($tracking,$params){
         if(!isset($params['job_name']) || !isset($params['runtime_seconds_threshold'])){
             Log::critical('missing required parameters');
             return;
