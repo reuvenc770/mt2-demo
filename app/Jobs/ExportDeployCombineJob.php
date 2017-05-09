@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
-use App\Repositories\DeployRepo;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,13 +10,15 @@ use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
+use App\DataModels\ReportEntry;
+use App\DataModels\CacheReportCard;
 
-class ExportListProfileCombineJob extends Job implements ShouldQueue
-{
+class ExportDeployCombineJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-    const BASE_NAME = 'ListProfileCombineExport-';
+    const BASE_NAME = 'ExportDeployCombine-';
     private $jobName;
-    private $combineId;
+    private $deploys;
+    private $reportCard;
     private $tracking;
 
     /**
@@ -25,11 +26,14 @@ class ExportListProfileCombineJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($listProfileCombineId, $tracking) {
-        $this->combineId = $listProfileCombineId;
+    public function __construct(array $deploys, CacheReportCard $reportCard, $tracking) {
+        $this->deploys = $deploys;
+        $this->reportCard = $reportCard;
         $this->tracking = $tracking;
 
-        $this->jobName = self::BASE_NAME . $listProfileCombineId;
+        $deployNames = 
+
+        $this->jobName = self::BASE_NAME . $deployNames;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -38,12 +42,19 @@ class ExportListProfileCombineJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(ListProfileExportService $service, DeployRepo $deployRepo) {
+    public function handle(ListProfileExportService $service) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $service->exportListProfileCombine($this->combineId);
+
+                foreach ($this->deploys as $deploy) {
+                    $entry = new ReportEntry($deploy->name);
+                    $entry = $service->createDeployExport($deploy, $entry);
+                    $this->reportCard->addEntry($entry);
+                }
+
+                $this->reportCard->mail();
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
@@ -62,6 +73,16 @@ class ExportListProfileCombineJob extends Job implements ShouldQueue
 
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
+    }
+
+    private function getDeployNames(array $deploys) {
+        $deployIds = [];
+
+        foreach ($deploys as $deploy) {
+            $deployIds[] = $deploy->id;
+        }
+
+        return '[' . implode(',', $deployIds) . ']';
     }
 
 }

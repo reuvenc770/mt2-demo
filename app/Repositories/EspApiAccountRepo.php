@@ -86,7 +86,7 @@ class EspApiAccountRepo
             ->select('esp_accounts.*')
             ->addSelect('esps.name')
             ->where('esps.name',$espName)
-            ->whereIn('status', [1, 2])
+            ->whereRaw('enable_suppression = 1')
             ->get();
     }
 

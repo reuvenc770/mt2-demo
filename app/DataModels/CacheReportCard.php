@@ -9,6 +9,8 @@
 namespace App\DataModels;
 use Cache;
 use Carbon\Carbon;
+use Mail;
+
 class CacheReportCard
 {
 
@@ -23,12 +25,15 @@ class CacheReportCard
     /**
      * @var
      */
-    protected $numberOfEntries;
+    protected $numberOfEntries = 0;
     /**
      * @var array
      */
     protected $entries = [];
 
+    CONST DEFAULT_MAIL = "alphateam@zetainteractive.com";
+    CONST EMERGENCY_MAIL = "espken@zetaglobal.com";
+    const TECH_EMAIL = "tech.team.mt2@zetaglobal.com";
 
     /**
      * @param $name
@@ -37,7 +42,7 @@ class CacheReportCard
     static function makeNewReportCard($name){
         $obj = new self;
         $obj->name = $name.str_random(10);
-        Cache::put($name, $obj, Carbon::now()->addMinutes(30));
+        Cache::put($name, $obj, Carbon::now()->addMinutes(60));
         return $obj;
     }
 
@@ -118,5 +123,40 @@ class CacheReportCard
      */
     public function getOwner(){
         return $this->owner;
+    }
+
+    /**
+     * @return IO void
+     */
+    public function mail() {
+        $mailObject = [
+            "date" => Carbon::today()->toDateString(),
+            "owner" => $this->owner,
+            "warning" => false,
+            "entries" =>[]
+        ];
+
+        foreach ($this->entries as $entry) {
+            if(!$mailObject['warning']){
+                $mailObject['warning'] = ($entry->getOriginalTotal() - $entry->getFinalTotal()) <= 10;
+            }
+            $mailObject["entries"][] = [
+                "fileName" => $entry->getFileName(),
+                "originalTotal" => $entry->getOriginalTotal(),
+                "finalTotal" => $entry->getFinalTotal(),
+                "globallySuppressed" => $entry->getGloballySuppressed(),
+                "listOfferSuppressed" => $entry->getListOfferSuppressed(),
+                "offersSuppressedAgainst" => $entry->getOffersSuppressedAgainst(),
+            ];
+        }
+
+        Mail::send('emails.deploySuppression', $mailObject, function ($message) use ($mailObject) {
+            $toEmail = $mailObject['warning'] ? self::EMERGENCY_MAIL : self::DEFAULT_MAIL;
+            $message->to($toEmail);
+            $message->to(self::TECH_EMAIL);
+            $subject = $mailObject['warning'] ? "ALERT " : "";
+            $subject = "{$subject} Deploy Suppression Report for {$mailObject['owner']}";
+            $message->subject($subject);
+        });
     }
 }
