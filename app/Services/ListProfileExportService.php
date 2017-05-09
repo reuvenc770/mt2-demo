@@ -61,7 +61,7 @@ class ListProfileExportService {
             Storage::disk('espdata')->append($fileName, implode(',', $columns));
         }
 
-        $listIds = $this->listProfileRepo->getSuppressionListIds($offerId);
+        $listIds = $this->listProfileRepo->getSuppressionListIds($listProfileId);
         $result = $this->tableRepo->suppressWithListIds($listIds);
 
         $runId = str_random(10);
