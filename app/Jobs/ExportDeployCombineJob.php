@@ -30,9 +30,13 @@ class ExportDeployCombineJob extends Job implements ShouldQueue {
         $this->deploys = $deploys;
         $this->reportCard = $reportCard;
         $this->tracking = $tracking;
+        $deployIds = [];
 
-        $deployNames = 
+        foreach($deploys as $d) {
+            $deployIds[] = $d->id;
+        }
 
+        $deployNames = implode(',', $deployIds);
         $this->jobName = self::BASE_NAME . $deployNames;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }

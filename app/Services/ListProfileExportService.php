@@ -11,6 +11,7 @@ use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\SuppressionListSuppressionRepo;
+use App\Repositories\OfferRepo;
 use Carbon\Carbon;
 use League\Flysystem\Adapter\Ftp;
 use League\Flysystem\Filesystem;
@@ -26,6 +27,7 @@ class ListProfileExportService {
     private $combineRepo;
     private $mt1SuppServ;
     private $miscSuppressionRepo;
+    private $offerRepo;
 
     const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
@@ -37,12 +39,14 @@ class ListProfileExportService {
     public function __construct(ListProfileRepo $listProfileRepo, 
         ListProfileCombineRepo $combineRepo, 
         MT1SuppressionService $mt1SuppServ, 
-        SuppressionListSuppressionRepo $miscSuppressionRepo) {
+        SuppressionListSuppressionRepo $miscSuppressionRepo,
+        OfferRepo $offerRepo) {
 
         $this->listProfileRepo = $listProfileRepo;
         $this->combineRepo = $combineRepo;
         $this->mt1SuppServ = $mt1SuppServ;
         $this->miscSuppressionRepo = $miscSuppressionRepo;
+        $this->offerRepo = $offerRepo;
     }
 
     public function exportListProfile($listProfileId, $replacementHeader = array()) {
@@ -70,20 +74,27 @@ class ListProfileExportService {
         $entry = new ReportEntry("List Profile $listProfileId");
         $entry->setFileName($fileName);
 
+        $offerNames = [];
+
+        foreach ($listProfile->offers->all() as $offer) {
+            $offerNames[] = $this->offerRepo->getOfferName($offer->id);
+        }
+
+        $entry->addOffersSuppressedAgainst($offerNames);
+
         $resource = $result->cursor();
         $count = 0;
 
         foreach ($resource as $row) {
             if ($row->globally_suppressed) {
-                $reportCard->incrementGlobalSuppression();
+                $entry->increaseGlobalSuppressionCount();
             }
             elseif ($row->feed_suppressed) {
-                $reportCard->incrementOfferSuppression();
+                $entry->incrementOfferSuppression();
             }
             else {
                 $suppressed = false;
                 foreach ($listProfile->offers as $offer) {
-
                     // handle advertiser suppression here
                     if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
                         $suppressed = true;
@@ -190,14 +201,14 @@ class ListProfileExportService {
                     (select
                         email_id, email_address, .... , first_name (for example), ...
                     from
-                        list_profile_export_a
+                        export_a
 
                     UNION ALL
                     
                     select
                         email_id, email_address, ..., '' as first_name, ...
                     from
-                        list_profile_export_b) x
+                        export_b) x
                 group by
                     email_id
             */
@@ -313,6 +324,7 @@ class ListProfileExportService {
 
         $combineFileName = $this->createSimpleCombineFileName($combine, 'mailable');
         $combineFileNameDNM = $this->createSimpleCombineFileName($combine, 'donotmail'); 
+        $reportEntry->setFileName($combineFileName);
 
         // Without a deploy, these lists are currently empty
         $miscLists = [];
@@ -328,6 +340,7 @@ class ListProfileExportService {
 
         $combineFileName = $this->createDeployFileName($deploy, 'mailable');
         $combineFileNameDNM = $this->createDeployFileName($deploy, 'donotmail'); 
+        $reportEntry->setFileName($combineFileName);
 
         // Getting lists
         $miscLists = OfferSuppressionList::where('offer_id', $deploy->offer_id)->pluck('suppression_list_id')->all();
@@ -352,7 +365,13 @@ class ListProfileExportService {
 
         $miscListCount = count($miscLists);
 
-        $reportEntry->addOffersSuppressedAgainst($offersSuppressed);
+        $offerNames = [];
+
+        foreach ($offersSuppressed as $oId) {
+            $offerNames[] = $this->offerRepo->getOfferName($oId);
+        }
+
+        $reportEntry->addOffersSuppressedAgainst($offerNames);
 
         // Generate the query for this set (deduped and made generic).
         $query = $this->generateCombineQuery($listProfiles, $header);

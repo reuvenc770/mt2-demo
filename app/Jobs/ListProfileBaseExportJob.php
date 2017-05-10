@@ -15,6 +15,7 @@ use App\Repositories\DeployRepo;
 use App\Jobs\ExportDeployCombineJob;
 use Carbon\Carbon;
 use App\DataModels\CacheReportCard;
+use Cache;
 
 class ListProfileBaseExportJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
