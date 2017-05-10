@@ -82,7 +82,11 @@ class BrontoApi extends EspBaseAPI
             if ($e->getMessage() == "116: End of result set.") {
                 //nothing to see here, besides a exception to get out of a while loop.
             } else {
-                throw new JobException($e->getMessage());
+                if ( strpos( $e->getMessage() , 'Delivery does not exist' ) !== false ) {
+                    \Log::warning( $e );
+                } else {
+                    throw new JobException($e->getMessage());
+                }
             }
         } finally {
             if(!isset($firstSet)){
