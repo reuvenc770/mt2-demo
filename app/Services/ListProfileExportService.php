@@ -275,29 +275,30 @@ class ListProfileExportService {
         return implode(',', $headerColumns);
     }
 
-    private function uploadFiles($mailableFile, $dnmFile, $directory) {
+    private function uploadFiles($mailableFile, $dnmFile) {
+        $localMailableFile = $this->getLocalFileName($mailableFile);
+        $localDnmFile = $this->getLocalFileName($dnmFile);
+
         Storage::disk('espdata')->delete($mailableFile);
-        Storage::disk('espdata')->delete($dnmFile);
+        Storage::disk('espdata')->delete($ftpDnmFile);
 
         // And then move this to FTP
         // clear the files currently saved
-        $mailStream = fopen($mailableFile, 'r+');
-        $dnmStream = fopen($dnmFile, 'r+');
+        $mailStream = fopen($localMailableFile, 'r+');
+        $dnmStream = fopen($localDnmFile, 'r+');
 
-        // Create the new location
-        $mailableArr = explode('/', $mailableFile);
-        $dnmArr = explode('/', $dnmFile);
-        $mailFileLocation = $directory . '/' . array_pop($mailableArr);
-        $doNotMailFileLocation = $directory . '/' . array_pop($dnmArr);
-
-        Storage::disk('espdata')->writeStream($mailFileLocation, $mailStream);
-        Storage::disk('espdata')->writeStream($doNotMailFileLocation, $dnmStream);
+        Storage::disk('espdata')->writeStream($mailableFile, $mailStream);
+        Storage::disk('espdata')->writeStream($dnmFile, $dnmStream);
 
         fclose($mailStream);
         fclose($dnmStream);
 
-        Storage::delete($mailableFile);
-        Storage::delete($dnmFile);
+        Storage::delete($localMailableFile);
+        Storage::delete($localDnmFile);
+    }
+
+    private function getLocalFileName($fileName) {
+        return storage_path('app') . '/' . $fileName;
     }
 
     private function createDeployFileName(Deploy $deploy, $version = 'mailable') {
@@ -307,19 +308,19 @@ class ListProfileExportService {
         $combineName = $deploy->listProfileCombine->name;
 
         if ('mailable' === $version) {
-            return storage_path('app') . "/{$ftpFolder}/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
         elseif ('donotmail' === $version) {
-            return storage_path('app') . "/{$ftpFolder}/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
     }
 
     private function createSimpleCombineFileName(ListProfileCombine $combine, $version = 'mailable') {
         if ('mailable' === $version) {
-            return storage_path('app') . "/{$combine->ftp_folder}/{$combine->name}.csv";
+            return "{$combine->ftp_folder}/{$combine->name}.csv";
         }
         elseif ('donotmail' === $version) {
-            return storage_path('app') . "/{$combine->ftp_folder}/DONOTMAIL_{$combine->name}.csv";
+            return "{$combine->ftp_folder}/DONOTMAIL_{$combine->name}.csv";
         }
     }
 
@@ -358,6 +359,8 @@ class ListProfileExportService {
     private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM, $ftpDirectory) {
         $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields must always be available
         $writeHeaderCount = 0;
+        $localCombineFileName = $this->getLocalFileName($combineFileName);
+        $localCombineFileNameDNM = $this->getLocalFileName($combineFileNameDNM);
 
         foreach ($listProfiles as $listProfile) {
             $lpOffers = $listProfile->offers->pluck('id')->all();
@@ -388,7 +391,7 @@ class ListProfileExportService {
         $statement->execute();
 
         if ($writeHeaderCount > 0) {
-            $this->batch($combineFileName, implode(',', $header));
+            $this->batch($localCombineFileName, implode(',', $header));
         }
 
         $count = 0;
@@ -396,15 +399,15 @@ class ListProfileExportService {
         // Run each item against various suppression checks - global, feed, advertiser - and write to file.
         while ($row = $statement->fetch(\PDO::FETCH_OBJ)) {
             if($row->globally_suppressed){
-                $this->batchSuppression($combineFileNameDNM, $row);
+                $this->batchSuppression($localCombineFileNameDNM, $row);
                 $reportEntry->increaseGlobalSuppressionCount();
             }
             elseif(1 === (int)$row->feed_suppressed){
-                $this->batchSuppression($combineFileNameDNM, $row);
+                $this->batchSuppression($localCombineFileNameDNM, $row);
                 $reportEntry->increaseListSuppressionCount();
             }
             elseif($miscListCount > 0 && $this->miscSuppressionRepo->isSuppressedInLists($row->email_address, $miscLists)) {
-                $this->batchSuppression($combineFileNameDNM, $row);
+                $this->batchSuppression($localCombineFileNameDNM, $row);
                 $reportEntry->increaseMiscSuppressionCount();
             }
             else {
@@ -421,7 +424,7 @@ class ListProfileExportService {
 
                 if (!$suppressed) {
                     $row = $this->mapRow($header, $row);
-                    $this->batch($combineFileName, $row);
+                    $this->batch($localCombineFileName, $row);
                     $reportEntry->increaseFinalRecordCount();
                 }
             }
@@ -431,10 +434,10 @@ class ListProfileExportService {
 
         $recordEntry->addOriginalTotal($count);
 
-        $this->writeBatch($combineFileName);
-        $this->writeBatchSuppression($combineFileNameDNM);
+        $this->writeBatch($localCombineFileName);
+        $this->writeBatchSuppression($localCombineFileNameDNM);
 
-        $this->uploadFiles($combineFileName, $combineFileNameDNM, $ftpDirectory);
+        $this->uploadFiles($combineFileName, $combineFileNameDNM);
         return $reportEntry;
     }
 
