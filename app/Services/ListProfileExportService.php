@@ -275,7 +275,7 @@ class ListProfileExportService {
         return implode(',', $headerColumns);
     }
 
-    private function uploadFiles($mailableFile, $dnmFile) {
+    private function uploadFiles($mailableFile, $dnmFile, $directory) {
         Storage::disk('espdata')->delete($mailableFile);
         Storage::disk('espdata')->delete($dnmFile);
 
@@ -284,8 +284,14 @@ class ListProfileExportService {
         $mailStream = fopen($mailableFile, 'r+');
         $dnmStream = fopen($dnmFile, 'r+');
 
-        Storage::disk('espdata')->writeStream($mailableFile, $mailStream);
-        Storage::disk('espdata')->writeStream($dnmFile, $dnmStream);
+        // Create the new location
+        $mailableArr = explode('/', $mailableFile);
+        $dnmArr = explode('/', $dnmFile);
+        $mailFileLocation = $directory . '/' . array_pop($mailableArr);
+        $doNotMailFileLocation = $directory . '/' . array_pop($dnmArr);
+
+        Storage::disk('espdata')->writeStream($mailFileLocation, $mailStream);
+        Storage::disk('espdata')->writeStream($doNotMailFileLocation, $dnmStream);
 
         fclose($mailStream);
         fclose($dnmStream);
@@ -330,7 +336,7 @@ class ListProfileExportService {
         $miscLists = [];
         $offersSuppressed = [];
 
-        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM);
+        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM, $combine->ftp_folder);
     }
 
     public function createDeployExport(Deploy $deploy, ReportEntry $reportEntry) {
@@ -346,10 +352,10 @@ class ListProfileExportService {
         $miscLists = OfferSuppressionList::where('offer_id', $deploy->offer_id)->pluck('suppression_list_id')->all();
         $offersSuppressed = [(int)$deploy->offer_id];
 
-        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM);
+        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM, $deploy->listProfileCombine->ftp_folder);
     }
 
-    private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM) {
+    private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM, $ftpDirectory) {
         $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields must always be available
         $writeHeaderCount = 0;
 
@@ -428,7 +434,7 @@ class ListProfileExportService {
         $this->writeBatch($combineFileName);
         $this->writeBatchSuppression($combineFileNameDNM);
 
-        $this->uploadFiles($combineFileName, $combineFileNameDNM);
+        $this->uploadFiles($combineFileName, $combineFileNameDNM, $ftpDirectory);
         return $reportEntry;
     }
 
