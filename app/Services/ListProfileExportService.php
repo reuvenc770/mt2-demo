@@ -177,7 +177,9 @@ class ListProfileExportService {
         $output = [];
 
         foreach ($columns as $column) {
+            if ($column !== 'globally_suppressed' && $column !== 'feed_suppressed') {
                 $output[$column] = isset($row->$column) ? $row->$column : "";
+            }
         }
         return implode(',', $output);
     }
@@ -357,7 +359,7 @@ class ListProfileExportService {
     }
 
     private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM) {
-        $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields must always be available
+        $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields must always be available in the query
         $writeHeaderCount = 0;
         $localCombineFileName = $this->getLocalFileName($combineFileName);
         $localCombineFileNameDNM = $this->getLocalFileName($combineFileNameDNM);
@@ -391,7 +393,8 @@ class ListProfileExportService {
         $statement->execute();
 
         if ($writeHeaderCount > 0) {
-            $this->batch($localCombineFileName, implode(',', $header));
+            // Remove fields from the actual file header
+            $this->batch($localCombineFileName, implode(',', array_diff($header, ['globally_suppressed', 'feed_suppressed'])));
         }
 
         $count = 0;
