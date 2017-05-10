@@ -432,7 +432,7 @@ class ListProfileExportService {
             $count++;
         }
 
-        $recordEntry->addOriginalTotal($count);
+        $reportEntry->addOriginalTotal($count);
 
         $this->writeBatch($localCombineFileName);
         $this->writeBatchSuppression($localCombineFileNameDNM);
