@@ -293,8 +293,8 @@ class ListProfileExportService {
         fclose($mailStream);
         fclose($dnmStream);
 
-        Storage::delete($localMailableFile);
-        Storage::delete($localDnmFile);
+        File::delete($localMailableFile);
+        File::delete($localDnmFile);
     }
 
     private function getLocalFileName($fileName) {
