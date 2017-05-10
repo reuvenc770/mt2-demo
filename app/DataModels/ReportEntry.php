@@ -94,4 +94,11 @@ class ReportEntry
     {
         return $this->offersSuppressedAgainst;
     }
+
+    /**
+     * @return string
+     */
+    public function getOffersSuppressedString() {
+        return implode(',', $this->offersSuppressedAgainst);
+    }
 }

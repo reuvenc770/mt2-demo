@@ -6,10 +6,12 @@ use App\DataModels\CacheReportCard;
 use App\DataModels\ReportEntry;
 use App\Models\ListProfileBaseTable;
 use App\Models\OfferSuppressionList;
+use App\Models\ListProfileCombine;
 use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\SuppressionListSuppressionRepo;
+use App\Repositories\OfferRepo;
 use Carbon\Carbon;
 use League\Flysystem\Adapter\Ftp;
 use League\Flysystem\Filesystem;
@@ -25,6 +27,7 @@ class ListProfileExportService {
     private $combineRepo;
     private $mt1SuppServ;
     private $miscSuppressionRepo;
+    private $offerRepo;
 
     const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
@@ -36,12 +39,14 @@ class ListProfileExportService {
     public function __construct(ListProfileRepo $listProfileRepo, 
         ListProfileCombineRepo $combineRepo, 
         MT1SuppressionService $mt1SuppServ, 
-        SuppressionListSuppressionRepo $miscSuppressionRepo) {
+        SuppressionListSuppressionRepo $miscSuppressionRepo,
+        OfferRepo $offerRepo) {
 
         $this->listProfileRepo = $listProfileRepo;
         $this->combineRepo = $combineRepo;
         $this->mt1SuppServ = $mt1SuppServ;
         $this->miscSuppressionRepo = $miscSuppressionRepo;
+        $this->offerRepo = $offerRepo;
     }
 
     public function exportListProfile($listProfileId, $replacementHeader = array()) {
@@ -61,24 +66,35 @@ class ListProfileExportService {
             Storage::disk('espdata')->append($fileName, implode(',', $columns));
         }
 
-        $listIds = $this->listProfileRepo->getSuppressionListIds($listProfileId);
-        $result = $this->tableRepo->suppressWithListIds($listIds);
+        $result = $this->tableRepo->getModel();
 
         $runId = str_random(10);
         $reportCard = CacheReportCard::makeNewReportCard("LP::{$listProfileId}-{$runId}");
+        $reportCard->setOwner('');
         $entry = new ReportEntry("List Profile $listProfileId");
+        $entry->setFileName($fileName);
+
+        $offerNames = [];
+
+        foreach ($listProfile->offers->all() as $offer) {
+            $offerNames[] = $this->offerRepo->getOfferName($offer->id);
+        }
+
+        $entry->addOffersSuppressedAgainst($offerNames);
 
         $resource = $result->cursor();
         $count = 0;
 
         foreach ($resource as $row) {
-            if ($row->globally_suppressed) {
-                $reportCard->incrementGlobalSuppression();
+            if ($row->isGloballySuppressed()) {
+                $entry->increaseGlobalSuppressionCount();
+            }
+            elseif ($row->isFeedSuppressed()) {
+                $entry->increaseListSuppressionCount();
             }
             else {
                 $suppressed = false;
                 foreach ($listProfile->offers as $offer) {
-
                     // handle advertiser suppression here
                     if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
                         $suppressed = true;
@@ -89,7 +105,7 @@ class ListProfileExportService {
 
                 if (!$suppressed) {
                     $row = $this->mapRow($columns, $row);
-                    $this->batch($fileName, $row);
+                    $this->remoteBatch($fileName, $row);
                     $entry->increaseFinalRecordCount();
                 }
             }
@@ -97,13 +113,30 @@ class ListProfileExportService {
             $count++;
         }
 
-        $this->writeBatch($fileName);
+        $this->writeRemoteBatch($fileName);
 
         $entry->addOriginalTotal($count);
         $reportCard->addEntry($entry);
         $reportCard->mail();
 
         return $fileName;
+    }
+
+    private function remoteBatch($fileName, $row, $disk = 'espdata') {
+        if ($this->rowCount >= self::WRITE_THRESHOLD) {
+            $this->writeRemoteBatch($fileName, $disk);
+
+            $this->rows = [$row];
+            $this->rowCount = 1;
+        } else {
+            $this->rows[] = $row;
+            $this->rowCount++;
+        }
+    }
+
+    private function writeRemoteBatch($fileName, $disk = 'espdata') {
+        $string = implode(PHP_EOL, $this->rows);
+        Storage::disk($disk)->append($fileName, $string);
     }
 
     private function batch($fileName, $row, $disk = 'espdata') {
@@ -137,7 +170,7 @@ class ListProfileExportService {
 
     private function writeBatchSuppression($fileName) {
         $string = implode(PHP_EOL, $this->suppressedRows);
-        File::append($fileName.'-dnm', $string);
+        File::append($fileName, $string);
     }
 
     private function mapRow($columns, $row) {
@@ -168,14 +201,14 @@ class ListProfileExportService {
                     (select
                         email_id, email_address, .... , first_name (for example), ...
                     from
-                        list_profile_export_a
+                        export_a
 
                     UNION ALL
                     
                     select
                         email_id, email_address, ..., '' as first_name, ...
                     from
-                        list_profile_export_b) x
+                        export_b) x
                 group by
                     email_id
             */
@@ -243,22 +276,29 @@ class ListProfileExportService {
     }
 
     private function uploadFiles($mailableFile, $dnmFile) {
+        $localMailableFile = $this->getLocalFileName($mailableFile);
+        $localDnmFile = $this->getLocalFileName($dnmFile);
+
         Storage::disk('espdata')->delete($mailableFile);
         Storage::disk('espdata')->delete($dnmFile);
 
         // And then move this to FTP
         // clear the files currently saved
-        $mailStream = fopen($mailableFile, 'r+');
-        $dnmStream = fopen($dnmFile, 'r+');
+        $mailStream = fopen($localMailableFile, 'r+');
+        $dnmStream = fopen($localDnmFile, 'r+');
 
-        $this->flysystem->connection('espdata')->writeStream($mailableFile, $mailStream);
-        $this->flysystem->connection('espdata')->writeStream($dnmFile, $dnmStream);
+        Storage::disk('espdata')->writeStream($mailableFile, $mailStream);
+        Storage::disk('espdata')->writeStream($dnmFile, $dnmStream);
 
         fclose($mailStream);
         fclose($dnmStream);
 
-        Storage::delete($mailableFile);
-        Storage::delete($dnmFile);
+        Storage::delete($localMailableFile);
+        Storage::delete($localDnmFile);
+    }
+
+    private function getLocalFileName($fileName) {
+        return storage_path('app') . '/' . $fileName;
     }
 
     private function createDeployFileName(Deploy $deploy, $version = 'mailable') {
@@ -268,29 +308,30 @@ class ListProfileExportService {
         $combineName = $deploy->listProfileCombine->name;
 
         if ('mailable' === $version) {
-            return storage_path('app') . "/{$ftpFolder}/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
         elseif ('donotmail' === $version) {
-            return storage_path('app') . "/{$ftpFolder}/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
     }
 
-    private function createSimpleCombineFileName(Combine $combine, $version = 'mailable') {
+    private function createSimpleCombineFileName(ListProfileCombine $combine, $version = 'mailable') {
         if ('mailable' === $version) {
-            return storage_path('app') . "/{$combine->ftp_folder}/{$combine->name}.csv";
+            return "{$combine->ftp_folder}/{$combine->name}.csv";
         }
         elseif ('donotmail' === $version) {
-            return storage_path('app') . "/{$combine->ftp_folder}/DONOTMAIL_{$combine->name}.csv";
+            return "{$combine->ftp_folder}/DONOTMAIL_{$combine->name}.csv";
         }
     }
 
-    public function createSimpleCombineExport(Combine $combine, ReportEntry $reportEntry) {
+    public function createSimpleCombineExport(ListProfileCombine $combine, ReportEntry $reportEntry) {
         $listProfiles = $this->combineRepo
                             ->getRowWithListProfiles($combine->id)
                             ->listProfiles->all();
 
         $combineFileName = $this->createSimpleCombineFileName($combine, 'mailable');
         $combineFileNameDNM = $this->createSimpleCombineFileName($combine, 'donotmail'); 
+        $reportEntry->setFileName($combineFileName);
 
         // Without a deploy, these lists are currently empty
         $miscLists = [];
@@ -304,8 +345,9 @@ class ListProfileExportService {
                             ->getRowWithListProfiles($deploy->list_profile_combine_id)
                             ->listProfiles->all();
 
-        $combineFileName = $this->createFileName($deploy, 'mailable');
-        $combineFileNameDNM = $this->createFileName($deploy, 'donotmail'); 
+        $combineFileName = $this->createDeployFileName($deploy, 'mailable');
+        $combineFileNameDNM = $this->createDeployFileName($deploy, 'donotmail'); 
+        $reportEntry->setFileName($combineFileName);
 
         // Getting lists
         $miscLists = OfferSuppressionList::where('offer_id', $deploy->offer_id)->pluck('suppression_list_id')->all();
@@ -317,6 +359,8 @@ class ListProfileExportService {
     private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM) {
         $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields must always be available
         $writeHeaderCount = 0;
+        $localCombineFileName = $this->getLocalFileName($combineFileName);
+        $localCombineFileNameDNM = $this->getLocalFileName($combineFileNameDNM);
 
         foreach ($listProfiles as $listProfile) {
             $lpOffers = $listProfile->offers->pluck('id')->all();
@@ -330,7 +374,13 @@ class ListProfileExportService {
 
         $miscListCount = count($miscLists);
 
-        $reportEntry->addOffersSuppressedAgainst($offersSuppressed);
+        $offerNames = [];
+
+        foreach ($offersSuppressed as $oId) {
+            $offerNames[] = $this->offerRepo->getOfferName($oId);
+        }
+
+        $reportEntry->addOffersSuppressedAgainst($offerNames);
 
         // Generate the query for this set (deduped and made generic).
         $query = $this->generateCombineQuery($listProfiles, $header);
@@ -341,43 +391,41 @@ class ListProfileExportService {
         $statement->execute();
 
         if ($writeHeaderCount > 0) {
-            $this->batch($combineFileName, implode(',', $header));
+            $this->batch($localCombineFileName, implode(',', $header));
         }
 
         $count = 0;
 
         // Run each item against various suppression checks - global, feed, advertiser - and write to file.
         while ($row = $statement->fetch(\PDO::FETCH_OBJ)) {
-            if($row->globally_suppressed){
-                $this->batchSuppression($combineFileNameDNM, $row);
-                $recordEntry->increaseGlobalSuppressionCount();
+            if($row->isGloballySuppressed()){
+                $this->batchSuppression($localCombineFileNameDNM, $row);
+                $reportEntry->increaseGlobalSuppressionCount();
             }
-            elseif(1 === (int)$row->feed_suppressed){
-                $this->batchSuppression($combineFileNameDNM, $row);
-                $recordEntry->increaseListSuppressionCount();
+            elseif($row->isFeedSuppressed()){
+                $this->batchSuppression($localCombineFileNameDNM, $row);
+                $reportEntry->increaseListSuppressionCount();
             }
             elseif($miscListCount > 0 && $this->miscSuppressionRepo->isSuppressedInLists($row->email_address, $miscLists)) {
-                $this->batchSuppression($combineFileNameDNM, $row);
-                $recordEntry->increaseMiscSuppressionCount();
+                $this->batchSuppression($localCombineFileNameDNM, $row);
+                $reportEntry->increaseMiscSuppressionCount();
             }
             else {
                 $suppressed = false;
 
                 foreach ($offersSuppressed as $offerId) {
                     // handle advertiser suppression here
-                    #if ($this->mt1SuppServ->isSuppressed($row, $offerId)) {
-
-                    if (false) { 
+                    if ($this->mt1SuppServ->isSuppressed($row, $offerId)) {
                         $suppressed = true;
-                        $reportCard->incrementOfferSuppression($offerId);
+                        $reportEntry->incrementOfferSuppression();
                         break;
                     }
                 }
 
                 if (!$suppressed) {
                     $row = $this->mapRow($header, $row);
-                    $this->batch($combineFileName, $row);
-                    $recordEntry->increaseFinalRecordCount();
+                    $this->batch($localCombineFileName, $row);
+                    $reportEntry->increaseFinalRecordCount();
                 }
             }
 
@@ -386,10 +434,10 @@ class ListProfileExportService {
 
         $recordEntry->addOriginalTotal($count);
 
-        $this->writeBatch($combineFileName);
-        $this->writeBatchSuppression($combineFileNameDNM);
+        $this->writeBatch($localCombineFileName);
+        $this->writeBatchSuppression($localCombineFileNameDNM);
 
-        #$this->uploadFiles($combineFileName, $combineFileNameDNM);
+        $this->uploadFiles($combineFileName, $combineFileNameDNM);
         return $reportEntry;
     }
 

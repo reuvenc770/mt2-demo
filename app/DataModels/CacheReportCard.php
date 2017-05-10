@@ -146,7 +146,7 @@ class CacheReportCard
                 "finalTotal" => $entry->getFinalTotal(),
                 "globallySuppressed" => $entry->getGloballySuppressed(),
                 "listOfferSuppressed" => $entry->getListOfferSuppressed(),
-                "offersSuppressedAgainst" => $entry->getOffersSuppressedAgainst(),
+                "offersSuppressedAgainst" => $entry->getOffersSuppressedString(),
             ];
         }
 
