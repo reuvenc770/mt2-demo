@@ -280,7 +280,7 @@ class ListProfileExportService {
         $localDnmFile = $this->getLocalFileName($dnmFile);
 
         Storage::disk('espdata')->delete($mailableFile);
-        Storage::disk('espdata')->delete($ftpDnmFile);
+        Storage::disk('espdata')->delete($dnmFile);
 
         // And then move this to FTP
         // clear the files currently saved
