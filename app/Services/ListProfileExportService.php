@@ -86,11 +86,11 @@ class ListProfileExportService {
         $count = 0;
 
         foreach ($resource as $row) {
-            if ($row->globally_suppressed) {
+            if ($row->isGloballySuppressed()) {
                 $entry->increaseGlobalSuppressionCount();
             }
-            elseif ($row->feed_suppressed) {
-                $entry->incrementOfferSuppression();
+            elseif ($row->isFeedSuppressed()) {
+                $entry->increaseListSuppressionCount();
             }
             else {
                 $suppressed = false;
@@ -398,11 +398,11 @@ class ListProfileExportService {
 
         // Run each item against various suppression checks - global, feed, advertiser - and write to file.
         while ($row = $statement->fetch(\PDO::FETCH_OBJ)) {
-            if($row->globally_suppressed){
+            if($row->isGloballySuppressed()){
                 $this->batchSuppression($localCombineFileNameDNM, $row);
                 $reportEntry->increaseGlobalSuppressionCount();
             }
-            elseif(1 === (int)$row->feed_suppressed){
+            elseif($row->isFeedSuppressed()){
                 $this->batchSuppression($localCombineFileNameDNM, $row);
                 $reportEntry->increaseListSuppressionCount();
             }
