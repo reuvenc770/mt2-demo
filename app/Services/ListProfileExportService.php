@@ -337,7 +337,7 @@ class ListProfileExportService {
         $miscLists = [];
         $offersSuppressed = [];
 
-        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM, $combine->ftp_folder);
+        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM);
     }
 
     public function createDeployExport(Deploy $deploy, ReportEntry $reportEntry) {
@@ -353,10 +353,10 @@ class ListProfileExportService {
         $miscLists = OfferSuppressionList::where('offer_id', $deploy->offer_id)->pluck('suppression_list_id')->all();
         $offersSuppressed = [(int)$deploy->offer_id];
 
-        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM, $deploy->listProfileCombine->ftp_folder);
+        return $this->createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM);
     }
 
-    private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM, $ftpDirectory) {
+    private function createCombineExport($listProfiles, $reportEntry, $miscLists, $offersSuppressed, $combineFileName, $combineFileNameDNM) {
         $header = ['email_id', 'email_address', 'globally_suppressed', 'feed_suppressed']; // these fields must always be available
         $writeHeaderCount = 0;
         $localCombineFileName = $this->getLocalFileName($combineFileName);
