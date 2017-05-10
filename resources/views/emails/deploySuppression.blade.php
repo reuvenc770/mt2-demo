@@ -268,15 +268,12 @@
                                         <td>
                                             <p>
                                                 <b>FileName: </b>{{$entry['fileName']}}<br>
-                                            <b>Original Total: </b>{{$entry['originalTotal']}}<br>
-                                            <b>Final Total: </b>{{$entry['finalTotal']}}<br>
-                                            <b>Globally Suppressed: </b>{{$entry['globallySuppressed']}}<br>
-                                            <b>Offer Suppressed: </b>{{$entry['listOfferSuppressed']}}<br>
-                                            <b>Offers Suppressed Against: </b>
-                                                @foreach($entry['offersSuppressedAgainst'] as $offer)
-                                            {{$offer}},
-                                                @endforeach
-                                                </p>
+                                                <b>Original Total: </b>{{$entry['originalTotal']}}<br>
+                                                <b>Final Total: </b>{{$entry['finalTotal']}}<br>
+                                                <b>Globally Suppressed: </b>{{$entry['globallySuppressed']}}<br>
+                                                <b>Offer Suppressed: </b>{{$entry['listOfferSuppressed']}}<br>
+                                                <b>Offers Suppressed Against: </b> {{$entry['offersSuppressedAgainst']}}
+                                            </p>
                                         </td>
                                     </tr>
                                     <tr>
