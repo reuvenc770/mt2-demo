@@ -24,46 +24,20 @@ Feed Processing - Missing Column Mapping
                             <th>Files</th>
                           </tr>
                         
-@foreach ( $fileList as $feedName => $files )
-    {{ $first = true }}
-    @foreach ( $files as $file )
-        <tr>
-            <td>
-                @if ( $first )
-                    {{ $feedName }}
-                @endif
-            </td>
-            <td>{{ $file }}</td>
-        </tr>
-        {{ $first = false }}
-    @endforeach 
-@endforeach
-<!--
-                          <tr>
-                            <td>FD1</td>
-                            <td>/home/FD1/upload/notification_test_file11.csv</td>
-                          </tr>
-                          <tr>
-                            <td></td>
-                            <td>/home/FD1/upload/notification_test_file12.csv</td>
-                          </tr>
-                          <tr>
-                            <td>FD2</td>
-                            <td>/home/FD2/upload/notification_test_file13.csv</td>
-                          </tr>
-                          <tr>
-                            <td></td>
-                            <td>/home/FD2/upload/notification_test_file14.csv</td>
-                          </tr>
-                          <tr>
-                            <td></td>
-                            <td>/home/FD2/upload/notification_test_file15.csv</td>
-                          </tr>
-                          <tr>
-                            <td></td>
-                            <td>/home/FD2/upload/notification_test_file16.csv</td>
-                          </tr>
--->
+                            @foreach ( $fileList as $feedName => $files )
+                                {{ $first = true }}
+                                @foreach ( $files as $file )
+                                    <tr>
+                                        <td>
+                                            @if ( $first )
+                                                {{ $feedName }}
+                                            @endif
+                                        </td>
+                                        <td>{{ $file }}</td>
+                                    </tr>
+                                    {{ $first = false }}
+                                @endforeach 
+                            @endforeach
                         </table>
                       </td>
                     </tr>
