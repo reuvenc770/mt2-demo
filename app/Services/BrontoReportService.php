@@ -192,10 +192,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
                     foreach ($processState['currentPageData'] as $opener) {
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
                         $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
-
+                        
+                        if ( empty( $deployId ) ) {
+                                continue;
+                        }
+                        
                         if ($opener->getDeliveryType() != 'bulk') {
                             continue;
                         }
+                        
                         $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_OPENER,
                             $opener->getEmailAddress(),
@@ -213,8 +218,14 @@ class BrontoReportService extends AbstractReportService implements IDataService
                         if ($opener->getDeliveryType() != 'bulk') {
                             continue;
                         }
+                        
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
                         $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
+                        
+                        if ( empty( $deployId ) ) {
+                                continue;
+                        }
+                        
                         $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_CLICKER,
                             $opener->getEmailAddress(),
