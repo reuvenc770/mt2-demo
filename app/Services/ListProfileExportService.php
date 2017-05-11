@@ -417,6 +417,7 @@ class ListProfileExportService {
                     // handle advertiser suppression here
                     if ($this->mt1SuppServ->isSuppressed($row, $offerId)) {
                         $suppressed = true;
+                        $this->batchSuppression($localCombineFileNameDNM, $row);
                         $reportEntry->incrementOfferSuppression();
                         break;
                     }
