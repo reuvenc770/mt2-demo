@@ -247,12 +247,12 @@ class ListProfileExportService {
             }
 
             $rawSelectString = implode(',', $aggregateHeader);
-            $queryObj = DB::table(DB::raw('(' . $subQuery . ') x'))
+            $queryObj = DB::connection('list_profile_export_tables')->table(DB::raw('(' . $subQuery . ') x'))
                             ->selectRaw($rawSelectString)
                             ->groupBy('email_id');
         }
 
-        return $queryObj->toSql();
+        return $queryObj;
     }
 
     private function createSelectStatement(array $totalFields, array $availableFields) {
@@ -386,11 +386,6 @@ class ListProfileExportService {
 
         // Generate the query for this set (deduped and made generic).
         $query = $this->generateCombineQuery($listProfiles, $header);
-        $pdo = \DB::connection('list_profile_export_tables')->getPdo();
-        $pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-
-        $statement = $pdo->prepare($query);
-        $statement->execute();
 
         if ($writeHeaderCount > 0) {
             // Remove fields from the actual file header
@@ -400,7 +395,9 @@ class ListProfileExportService {
         $count = 0;
 
         // Run each item against various suppression checks - global, feed, advertiser - and write to file.
-        while ($row = $statement->fetch(\PDO::FETCH_OBJ)) {
+        // I've seen cursor() fail on relatively small result sets b/c of memory issues
+        // but then succeed on much larger result sets. Using it here because it seems to work.
+        foreach ($query->cursor() as $row) {
             if(1 === (int)$row->globally_suppressed){
                 $this->batchSuppression($localCombineFileNameDNM, $row);
                 $reportEntry->increaseGlobalSuppressionCount();
