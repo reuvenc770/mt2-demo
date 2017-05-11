@@ -173,7 +173,11 @@ class FeedService implements IFtpAdmin
         $row = RecordProcessingFileField::find( $feedId );
 
         if ( is_null( $row ) ) {
-            return json_encode( [] );
+            if ( $simpleArray ) {
+                return [];
+            } else {
+                return json_encode( [] );
+            }
         }
 
         $row = $row->toArray();
