@@ -72,7 +72,7 @@ class EspApiAccountRepo
     }
 
     public function getAllActiveAccounts(){
-        return $this->espAccount->where("status",1)->orWhere('status',2)->with( 'esp' )->orderBy('account_name')->get();
+        return $this->espAccount->where([ [ "enable_suppression" , '=' , 1 ] , [ 'enable_stats' , '=' , 1 ]] )->with( 'esp' )->orderBy('account_name')->get();
     }
 
     /**
@@ -86,9 +86,16 @@ class EspApiAccountRepo
             ->select('esp_accounts.*')
             ->addSelect('esps.name')
             ->where('esps.name',$espName)
-            ->whereRaw('enable_suppression = 1')
             ->get();
     }
+
+    public function suppressionEnabledForAccount ( $accountId ) {
+        return (bool)$this->espAccount->where( [ [ 'id' , '=' , $accountId ] , [ 'enable_suppression' , '=' , '1' ] ] )->count();
+    } 
+
+    public function statsEnabledForAccount ( $accountId ) {
+        return (bool)$this->espAccount->where( [ [ 'id' , '=' , $accountId ] , [ 'enable_stats' , '=' , '1' ] ] )->count();
+    } 
 
 
     /**
