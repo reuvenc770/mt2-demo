@@ -29,7 +29,7 @@
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.open_email_id_field }">
-        <label class="col-sm-2 control-label">Open Pixel Email ID Field <md-icon ng-if="esp.currentAccount.id === 1" md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Note: The Blue Hornet EID token shown includes a dash ( - ) for technical reasons. The actual token in Blue Hornet and used in templates will not include the dash.">error</md-icon></label>
+        <label class="col-sm-2 control-label">Open Pixel Email ID Field <md-icon ng-if="(esp.currentAccount.name).toLowerCase() === 'bluehornet'" md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Note: The Blue Hornet EID token shown includes a dash ( - ) for technical reasons. The actual token in Blue Hornet and used in templates will not include the dash.">error</md-icon></label>
         <div class="col-sm-10">
             <div class="input-group">
                 <input type="text" placeholder="Open Pixel Email ID Field" id="open_email_id_field" class="form-control" required="required"
@@ -71,7 +71,7 @@
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.email_id_field }">
-        <label class="col-sm-2 control-label">Link Email ID Field <md-icon ng-if="esp.currentAccount.id === 1" md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Note: The Blue Hornet EID token shown includes a dash ( - ) for technical reasons. The actual token in Blue Hornet and used in templates will not include the dash.">error</md-icon></label>
+        <label class="col-sm-2 control-label">Link Email ID Field <md-icon ng-if="(esp.currentAccount.name).toLowerCase() === 'bluehornet'" md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Note: The Blue Hornet EID token shown includes a dash ( - ) for technical reasons. The actual token in Blue Hornet and used in templates will not include the dash.">error</md-icon></label>
         <div class="col-sm-10">
             <div class="input-group">
                 <input type="text" placeholder="Email ID Field" id="email_id_field" class="form-control" required="required"
