@@ -59,9 +59,9 @@
                     <td md-cell ng-bind="record.id"></td>
                     <td md-cell ng-bind="record.name"></td>
                     <td md-cell ng-bind="record.nickname"></td>
-                    <td md-cell ng-bind="record.field_options.open_email_id_field"></td>
+                    <td md-cell>@{{ record.field_options.open_email_id_field }} <md-icon ng-if="record.id === 1" md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Note: The Blue Hornet EID token shown includes a dash ( - ) for technical reasons. The actual token in Blue Hornet and used in templates will not include the dash.">error</md-icon></td>
                     <td md-cell ng-bind="record.field_options.open_email_address_field"></td>
-                    <td md-cell ng-bind="record.field_options.email_id_field"></td>
+                    <td md-cell>@{{ record.field_options.email_id_field }} <md-icon ng-if="record.id === 1" md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Note: The Blue Hornet EID token shown includes a dash ( - ) for technical reasons. The actual token in Blue Hornet and used in templates will not include the dash.">error</md-icon></td>
                     <td md-cell ng-bind="record.field_options.email_address_field"></td>
                     <td md-cell ng-bind="::app.formatDate( record.updated_at )" nowrap></td>
                 </tr>
