@@ -163,9 +163,6 @@ class EspApiAccountService
         return $this->espRepo->toggleRow($id, $direction);
     }
 
-    public function toggleSuppression($id, $enableSuppression){
-        return $this->espRepo->toggleSuppression($id, $enableSuppression);
-    }
     public function getEspAccountIdFromCampaignName($name)
     {
         $espAccountName = explode('_', $name)[1];
@@ -214,5 +211,21 @@ class EspApiAccountService
 
     public function getCustomIdHistoryByEsp( $espAccountId ){
         return $this->espRepo->getCustomIdHistoryByEsp( $espAccountId );
+    }
+
+    public function toggleStats ( $accountId , $currentStatus ) {
+        return $this->espRepo->toggleStats( $accountId , $currentStatus );
+    }
+
+    public function toggleSuppression ( $accountId , $currentStatus ) {
+        return $this->espRepo->toggleSuppression( $accountId , $currentStatus );
+    }
+
+    public function activate ( $accountId ) {
+        return $this->espRepo->activate( $accountId );
+    }
+
+    public function deactivate ( $accountId ) {
+        return $this->espRepo->deactivate( $accountId );
     }
 }

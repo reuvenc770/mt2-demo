@@ -41,7 +41,7 @@
                                 </a>
 
                                 <md-icon    ng-if="!record.enable_stats && !record.enable_suppression"
-                                            ng-click="esp.toggle( record.id , 2 )"
+                                            ng-click="esp.activate( record.id )"
                                             aria-label="Activate Account"
                                             md-font-set="material-icons"
                                             class="mt2-icon-black"
@@ -50,7 +50,7 @@
                                             title="Activate Account">play_circle_filled</md-icon>
 
                                 <md-icon    ng-if="record.enable_stats && record.enable_suppression"
-                                            ng-click="esp.toggle( record.id , 2 )"
+                                            ng-click="esp.deactivate( record.id )"
                                             aria-label="Deactivate 30 Days from now"
                                             md-font-set="material-icons"
                                             class="mt2-icon-black"
@@ -59,7 +59,7 @@
                                             title="Deactivate 30 Days from now">pause_circle_filled</md-icon>
 
                                 <md-icon    ng-if="!record.enable_stats"
-                                            ng-click="esp.toggle( record.id , 2 )"
+                                            ng-click="esp.toggleStats( record.id , record.enable_stats )"
                                             aria-label="Enable Actions"
                                             md-font-set="material-icons"
                                             class="text-success"
@@ -68,7 +68,7 @@
                                             title="Enable Actions">insert_chart</md-icon>
 
                                 <md-icon    ng-if="record.enable_stats"
-                                            ng-click="esp.toggle( record.id , 2 )"
+                                            ng-click="esp.toggleStats( record.id , record.enable_stats )"
                                             aria-label="Disable Actions"
                                             md-font-set="material-icons"
                                             class="text-danger"
@@ -77,7 +77,7 @@
                                             title="Disable Actions">insert_chart</md-icon>
 
                                 <md-icon    ng-if="!record.enable_suppression"
-                                            ng-click="esp.toggle( record.id , 2 )"
+                                            ng-click="esp.toggleSuppression( record.id , record.enable_suppression )"
                                             aria-label="Enable Suppression"
                                             md-font-set="material-icons"
                                             class="text-success"
@@ -86,31 +86,13 @@
                                             title="Enable Suppression">airplanemode_inactive</md-icon>
 
                                 <md-icon    ng-if="record.enable_suppression"
-                                            ng-click="esp.toggle( record.id , 2 )"
+                                            ng-click="esp.toggleSuppression( record.id , record.enable_suppression )"
                                             aria-label="Disable Suppression"
                                             md-font-set="material-icons"
                                             class="text-danger"
                                             data-toggle="tooltip"
                                             data-placement="bottom"
                                             title="Disable Suppression">airplanemode_inactive</md-icon>
-
-<!--
-                                <md-icon ng-if="record.status == 1" ng-click="esp.toggle( record.id , 2 )" aria-label="Deactivate 30 Days from now"
-                                         md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Deactivate 30 Days from now">stop</md-icon>
-                                <md-icon ng-if="record.status == 0" ng-click="esp.toggle( record.id , 2 )" aria-label="Disable Stats"
-                                         md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Deactivate 30 Days from now">insert_chart</md-icon>
-                                <md-icon ng-if="record.status == 0" ng-click="esp.toggle(record.id, 1 )" aria-label="Activate"
-                                         md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Activate">play_arrow</md-icon>
-                                <md-icon ng-if="record.enable_suppression" ng-click="esp.toggleSuppression(record.id, 0 )" aria-label="Disable Suppression"
-                                         md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Pause">pause_circle_outline</md-icon>
-                                <md-icon ng-if="!record.enable_suppression" ng-click="esp.toggleSuppression(record.id, 1 )" aria-label="Enable Suppression"
-                                         md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Unpause">play_circle_outline</md-icon>
--->
                             </div>
                             </div>
                         </td>

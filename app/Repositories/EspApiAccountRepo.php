@@ -13,6 +13,7 @@ use App\Models\EspAccountCustomIdHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
+use App\Repositories\Traits\ToggleBooleanColumn;
 
 //TODO ADD CACHING ONCE ESP SECTION IS DONE
 
@@ -22,6 +23,10 @@ use Carbon\Carbon;
  */
 class EspApiAccountRepo
 {
+    use ToggleBooleanColumn;
+
+    const DEACTIVATION_PERIOD_DAYS = 30;
+
     /**
      * @var EspAccount
      */
@@ -97,6 +102,62 @@ class EspApiAccountRepo
         return (bool)$this->espAccount->where( [ [ 'id' , '=' , $accountId ] , [ 'enable_stats' , '=' , '1' ] ] )->count();
     } 
 
+    public function toggleStats ( $accountId , $currentStatus ) {
+        return $this->toggleBooleanColumn(
+            $this->espAccount ,
+            $accountId ,
+            'enable_stats' ,
+            $currentStatus
+        );
+    }
+
+    public function toggleSuppression ( $accountId , $currentStatus ) {
+        $this->toggleBooleanColumn(
+            $this->espAccount ,
+            $accountId ,
+            'enable_suppression' ,
+            $currentStatus
+        );
+
+        if ( $currentStatus == 1 ) {
+            $this->removeDeactivationDate( $accountId );
+        }
+
+        return true;
+    }
+
+    public function setDeactivationDateFromToday ( $accountId ) {
+        $account = $this->espAccount->find( $accountId );
+
+        $date = Carbon::now()->addDays( self::DEACTIVATION_PERIOD_DAYS )->toDateString();
+
+        $account->deactivation_date = $date;
+
+        $account->save(); 
+    }
+
+    public function removeDeactivationDate ( $accountId ) {
+        $account = $this->espAccount->find( $accountId );
+
+        $account->deactivation_date = null;
+
+        $account->save(); 
+    }
+
+    public function activate ( $accountId ) {
+        $this->toggleStats( $accountId , false );
+        $this->toggleSuppression( $accountId , false );
+        $this->removeDeactivationDate( $accountId );
+
+        return true;
+    }
+
+    public function deactivate ( $accountId ) {
+        $this->toggleStats( $accountId , true );
+        $this->setDeactivationDateFromToday( $accountId );
+
+        return true;
+    }
 
     /**
      * @param array $newAccount The collection of account details to save.
@@ -168,11 +229,6 @@ class EspApiAccountRepo
         }
 
         return $this->espAccount->find($id)->update(['status'=> $direction, 'deactivation_date' => $deactivationDate]);
-    }
-
-    public function toggleSuppression($id, $bool){
-        $deactivationDate = $bool ? null : Carbon::today()->toDateString();
-        return $this->espAccount->find($id)->update(['enable_suppression' => $bool, 'deactivation_date' => $deactivationDate, 'status' => $bool]);
     }
 
     public function getAccountWithOAuth($id) {
