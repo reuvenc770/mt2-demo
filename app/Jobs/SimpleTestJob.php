@@ -36,10 +36,8 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     {
 
         //do job specific stuff, then call the parent handleJob to run the acceptance test
-
-        parent::handleJob();
-
-        return 1;
+        echo $this->foo ? 'simulating successful acceptance test' : 'simulating failed acceptance test';
+        return 0;
     }
 
     /**

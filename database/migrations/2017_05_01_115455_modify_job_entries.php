@@ -15,9 +15,8 @@ class ModifyJobEntries extends Migration
         Schema::table('job_entries', function ($table) {
 
             $table->mediumInteger('runtime_seconds_threshold')->default(0);
-            $table->string('acceptance_test')->nullable();
             $table->json('diagnostics')->nullable();
-
+            $table->index(['time_fired', 'status']);
             $table->index(['time_started', 'status']);
             $table->index('status');
 
@@ -39,11 +38,10 @@ class ModifyJobEntries extends Migration
         Schema::table('job_entries', function ($table) {
 
             $table->dropColumn('runtime_seconds_threshold');
-            $table->dropColumn('acceptance_test');
             $table->dropColumn('diagnostics');
-
             $table->dropIndex('job_entries_status_index');
             $table->dropIndex('job_entries_time_started_status_index');
+            $table->dropIndex('job_entries_time_fired_status_index');
 
         });
 

@@ -72,6 +72,7 @@ class JobEntryService
         }
 
         if($state == JobEntry::FAILED){
+            $job->time_finished = Carbon::now();
             $job->save();
             Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
         }else if($state == JobEntry::ACCEPTANCE_TEST_FAILED){
@@ -124,7 +125,8 @@ class JobEntryService
             $diagnostic = (array) $diagnostic;
         }
         $job = $this->repo->getJobByTracking($tracking);
-        $job->diagnostics = json_encode(array_merge_recursive(json_decode($job->diagnostics,TRUE),$diagnostic));
+        $current_diagnostics = $job->diagnostics!=null ? $job->diagnostics : '{}';
+        $job->diagnostics = json_encode(array_merge_recursive(json_decode($current_diagnostics,TRUE),$diagnostic),JSON_PRETTY_PRINT);
         $job->save();
     }
 
@@ -141,7 +143,9 @@ class JobEntryService
         $params['time_fired'] = Carbon::now();
         $params['attempts'] = 0;
         $params['status'] = JobEntry::ONQUEUE;
-        $params['diagnostics'] = json_encode(array());
+        if(isset($params['diagnostics'])){
+            $params['diagnostics'] = json_encode($params['diagnostics']);
+        }
         $this->saveJob($tracking,$params);
     }
 
@@ -153,5 +157,7 @@ class JobEntryService
     public function saveJob($tracking,$params){
         $this->repo->saveJob($tracking,$params);
     }
+
+
 
 }
