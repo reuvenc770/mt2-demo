@@ -30,9 +30,17 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
     public function __construct($mode=null,$date1=null,$date2=null)
     {
 
+        parent::__construct(self::JOB_NAME.'_'.Carbon::now());
+
         //valid modes are 'monitor' and 'resolve'
         $this->mode = $mode==null ? 'monitor' : $mode;
-        #TODO, validate mode
+        if(!preg_match("/^(monitor|resolve)$/",$this->mode)){
+            JobTracking::addDiagnostic(array('errors'=>array('invalid mode '.$mode)),$this->tracking);
+            JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
+            throw new Exception("invalid mode: $mode");
+        }
+        JobTracking::addDiagnostic(array('notices'=>array('mode = '.$mode)),$this->tracking);
+
 
         //report structure
         $this->report = array(
@@ -44,15 +52,16 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 
         //build datetime snippet
         $date1 = $date1==null ? 3 : $date1;
-        if(preg_match("/[0-9]{1,}$/",$date1)){
-            $this->date_range = "NOW() - INTERVAL $date1 DAY";
-        }elseif(false){
-            #TODO, add support for start and end datetimes
+        if(preg_match("/^[0-9]{14}$/",$date1) && preg_match("/^[0-9]{14}$/",$date2)){
+            $this->date_range = "BETWEEN $date1 AND $date2";
+        }elseif(preg_match("/^[0-9]{1,3}$/",$date1)){
+                $this->date_range = "> NOW() - INTERVAL $date1 DAY";
         }else{
-            #TODO, fail, invalid date range
+            JobTracking::addDiagnostic(array('errors'=>array("invalid date_range: $date1 $date2")),$this->tracking);
+            JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
+            throw new Exception("invalid date_range: $date1 $date2");
         }
-
-        parent::__construct(self::JOB_NAME.'_'.Carbon::now());
+        JobTracking::addDiagnostic(array('notices'=>array('date_range = '.$this->date_range)),$this->tracking);
 
     }
 
@@ -82,8 +91,8 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
                                     WHEN time_started < NOW() - INTERVAL TRUNCATE(IFNULL(runtime_seconds_threshold,3600)*0.75,0) SECOND THEN 9
                                 ELSE status
                                 END
-                                WHERE status IN(1,7) AND time_fired > ".$this->date_range."
-                                #AND runtime_seconds_threshold IS NOT NULL
+                                WHERE status IN(1,7) AND time_fired ".$this->date_range."
+                                AND runtime_seconds_threshold IS NOT NULL
                                 ");
         JobTracking::addDiagnostic(array('notices' => $affected . ' jobs statuses were updated'),$this->tracking);
 
@@ -106,7 +115,8 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
                                 END as `status `,
                                 COUNT(status) AS count
                                 FROM job_entries
-                                WHERE time_fired > ".$this->date_range."
+                                WHERE time_fired ".$this->date_range."
+                                AND runtime_seconds_threshold IS NOT NULL
                                 GROUP BY `status `
                                 ORDER BY `status `
                               ");
@@ -121,7 +131,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         }
 
 
-        JobTracking::addDiagnostic(array('notices' => $this->report['summary']),$this->tracking);
+        JobTracking::addDiagnostic(array('summary' => $this->report['summary']),$this->tracking);
 
         $badjobs = DB::select("SELECT
                                 CASE
@@ -143,8 +153,9 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
                                 attempts,
                                 status
                                 FROM job_entries
-                                WHERE time_fired > ".$this->date_range."
+                                WHERE time_fired ".$this->date_range."
                                 AND status IN(3,8,9,10)
+                                AND runtime_seconds_threshold IS NOT NULL
                               ");
 
         foreach($badjobs AS $job){
@@ -154,7 +165,18 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
     }
 
     private function resolveJobs(){
-        #TODO, update failed jobs to status RESOLVED for specified date range
+
+        $affected = DB::update("UPDATE job_entries
+                                SET status=11
+                                WHERE status IN(3,8) AND time_fired ".$this->date_range."
+                                AND runtime_seconds_threshold IS NOT NULL
+                                ");
+
+        $this->report['summary'] = array('Specified Jobs RESOLVED, executed at '.Carbon::now());
+        $this->report['summary'] = array('Date Range RESOLVED: '.$this->date_range);
+        $this->report['summary'][] = "Number of Jobs RESOLVED: $affected";
+
+        JobTracking::addDiagnostic(array('notices' => $affected . ' jobs statuses were updated to RESOLVED'),$this->tracking);
     }
 
     private function sendReport(){

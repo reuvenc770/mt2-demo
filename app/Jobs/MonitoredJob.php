@@ -73,6 +73,7 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     }
 
     public function failed() {
+        echo 'running failed';
         if(JobTracking::getJobState($this->tracking)!=JobEntry::ACCEPTANCE_TEST_FAILED){
             JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
         }
