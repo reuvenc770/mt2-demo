@@ -66,7 +66,8 @@ class EspApiAccountRepo
     }
 
     public function getEspInfoByAccountName($accountName){
-        return $this->espAccount->where("account_name", $accountName)->whereIn('status', [1,2])->with('esp')->first();
+        #Changed this to check enable_stats. It is only used in ReportFactory. The Report doesn't seem to be active but adding here just in case.
+        return $this->espAccount->where("account_name", $accountName)->where( 'enable_stats', '=' , 1 )->with('esp')->first();
     }
 
     /**
@@ -192,10 +193,9 @@ class EspApiAccountRepo
             ->first();
     }
 
-    public function getAccountsbyEsp($esp){
+    public function getAccountsbyEspWithSuppression($esp){
         return $this->espAccount->where('esp_id', $esp)->where(function ($query) {
-            $query->where('status',1)
-                ->orWhere('status',2);
+            $query->where('enable_suppression',1);
         })->get();
     }
 
@@ -215,20 +215,6 @@ class EspApiAccountRepo
 
     public function getImageLinkFormat($id) {
         return $this->espAccount->find($id)->imageLinkFormat;
-    }
-
-    public function toggleRow($id, $direction){
-        if (2 === (int)$direction) {
-            $deactivationDate = Carbon::today()->addDays(30)->toDateString();
-        }
-        elseif (1 === (int)$direction) {
-            $deactivationDate = null;
-        }
-        else {
-            echo "direction is $direction" . PHP_EOL;
-        }
-
-        return $this->espAccount->find($id)->update(['status'=> $direction, 'deactivation_date' => $deactivationDate]);
     }
 
     public function getAccountWithOAuth($id) {

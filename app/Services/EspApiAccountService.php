@@ -159,10 +159,6 @@ class EspApiAccountService
         return $this->espRepo->getTemplatesByEspId($id);
     }
 
-    public function toggleRow($id, $direction){
-        return $this->espRepo->toggleRow($id, $direction);
-    }
-
     public function getEspAccountIdFromCampaignName($name)
     {
         $espAccountName = explode('_', $name)[1];

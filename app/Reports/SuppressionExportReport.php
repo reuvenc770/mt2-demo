@@ -24,7 +24,7 @@ class SuppressionExportReport {
         $unsubCountArray = array();
         $esps = $this->espRepo->getAllEsps();
         foreach($esps as $esp){
-         $espAccounts = $this->espAccountRepo->getAccountsbyEsp($esp->id);
+         $espAccounts = $this->espAccountRepo->getAccountsbyEspWithSuppression($esp->id);
             $unsubCountArray[$esp->name]["totalHardbounces"] = 0;
             $unsubCountArray[$esp->name]["totalUnsubs"] = 0;
             $unsubCount = 0;
