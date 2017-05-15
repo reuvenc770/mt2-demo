@@ -154,7 +154,6 @@ class EspApiAccountRepo
     }
 
     public function deactivate ( $accountId ) {
-        $this->toggleStats( $accountId , true );
         $this->setDeactivationDateFromToday( $accountId );
 
         return true;
