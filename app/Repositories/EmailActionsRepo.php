@@ -206,6 +206,7 @@ class EmailActionsRepo {
                 action_id IN (1, 2, 4)
                 AND
                 std.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 5 DAY
+                AND deploy_id <> 0
               GROUP BY
                 deploy_id) ea ON ea.deploy_id = sr.external_deploy_id
                

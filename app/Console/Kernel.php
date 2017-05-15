@@ -115,7 +115,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        #$schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
 
         /**
          * Orphan Adoption

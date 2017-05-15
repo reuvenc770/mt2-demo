@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\JobEntry;
 use App\Services\ListProfileCombineService;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,20 +11,23 @@ use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileService;
 use App\Services\ListProfileScheduleService;
-use App\Events\ListProfileCompleted;
+use App\Services\ListProfileExportService;
+use App\DataModels\ReportEntry;
+use App\DataModels\CacheReportCard;
 
-class ListProfileCombineExportJob extends Job implements ShouldQueue {
-    use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
+class ExportSimpleCombineJob extends Job implements ShouldQueue {
+    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     private $tracking;
     private $combineId;
     private $jobName;
+    private $reportCard;
 
-
-    public function __construct($combineId, $tracking) {
+    public function __construct($combineId, CacheReportCard $reportCard, $tracking) {
         $this->combineId = $combineId;
+        $this->reportCard = $reportCard;
         $this->tracking = $tracking;
-        $this->jobName = 'ListProfileCombineExport-' . $combineId;
+        $this->jobName = 'ExportCombine-' . $combineId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -35,21 +37,33 @@ class ListProfileCombineExportJob extends Job implements ShouldQueue {
      * @param ListProfileService $service
      * @param ListProfileScheduleService $schedule
      */
-    public function handle(ListProfileService $service, ListProfileScheduleService $schedule, ListProfileCombineService $combineService) {
+    public function handle(ListProfileService $service, 
+        ListProfileScheduleService $schedule, 
+        ListProfileCombineService $combineService, 
+        ListProfileExportService $exportService) {
+
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
                 $combine = $combineService->getCombineById($this->combineId);
+
+                // This might not be strictly necessary
+                // The only case where it might be is if this combine 
+                // uses a list profile that is not updated daily
                 foreach($combine->listProfiles as $listProfile) {
                     $service->buildProfileTable($listProfile->id);
                     $schedule->updateSuccess($listProfile->id);
                 }
 
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+                $entry = new ReportEntry($combine->name);
 
-                $this->dispatch(new ExportListProfileCombineJob($this->combineId, str_random(16)));
+                $entry = $exportService->createSimpleCombineExport($combine, $entry);
+                $this->reportCard->addEntry($entry);
+
+                $this->reportCard->mail();
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
 
             }
             catch (\Exception $e) {

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataModels\CacheReportCard;
-use App\Jobs\ExportListProfileJob;
+use App\Jobs\ExportDeployCombineJob;
 use App\Services\DeployService;
 use App\Services\EspService;
 use App\Services\ListProfileCombineService;
@@ -17,6 +17,8 @@ use App\Http\Requests;
 use Illuminate\Support\Facades\Response;
 use League\Csv\Reader;
 use Artisan;
+use App\Models\Deploy;
+
 class DeployController extends Controller
 {
     protected $deployService;
@@ -205,6 +207,31 @@ class DeployController extends Controller
     public function massupload(Request $request)
     {
         $data = $request->all();
+        $dataCopy = $data;
+
+        foreach ( $dataCopy as $index => $current ) {
+            try {
+                $data[ $index ][ 'send_date' ] = \Carbon\Carbon::parse( $current[ 'send_date' ] )->toDateString();
+            } catch ( \Exception $e ) {
+                $data[ $index ][ 'send_date' ] = \Carbon\Carbon::now()->toDateString();
+            }
+
+            if ( !is_numeric( $current['esp_account_id'] ) ){
+                $data[ $index ]['esp_account_id'] = $this->espApiService->getEspAccountIdFromName( $current['esp_account_id'] );
+            }
+
+            if ( !is_numeric( $current['template_id'] ) ){
+                $data[ $index ]['template_id'] = $this->mailingTemplateService->getTemplateIdFromName( $current['template_id'] );
+            }
+
+            if ( !is_numeric( $current['mailing_domain_id'] ) ){
+                $data[ $index ]['mailing_domain_id'] = $this->domainService->getDomainIdByTypeAndName( 1 , $current['mailing_domain_id'] );
+            }
+
+            if ( !is_numeric( $current['content_domain_id'] ) ){
+                $data[ $index ]['content_domain_id'] = $this->domainService->getDomainIdByTypeAndName( 2 , $current['content_domain_id'] );
+            }
+        }
 
         return response()->json(['success' => $this->deployService->massUpload($data)]);
     }
@@ -220,44 +247,30 @@ class DeployController extends Controller
         $data = $request->except("username");
         $filePath = false;
         $ran = str_random(10);
-        $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$ran}");
+        $reportCard = CacheReportCard::makeNewReportCard("Deploys-{$username}-{$ran}");
+        $deploys = [];
+
         $reportCard->setOwner($username);
-        //Only one package is selected return the filepath and make it a download response
-        if (count($data) == 1) {
-            $reportCard->setNumberOfEntries(1);
-            $filePath = $this->packageService->createPackage($data);
-            $deploy = $this->deployService->getDeploy($data);
-            $combines = $this->combineService->getCombineById($data);
-            foreach($combines as $listProfile) {
-                $this->dispatch(
-                    new ExportListProfileJob(
-                        $listProfile->id,
-                        $deploy->offer_id,
-                        str_random(16),
-                        $reportCard->getName()
-                    )
-                );
-            }
-        } else {
-            //more then 1 package selection create the packages on the FTP and kick off the OPS file job
-            foreach ($data as $id) {
-                $reportCard->setNumberOfEntries(count($data));
-                $this->packageService->uploadPackage($id);
-                $deploy = $this->deployService->getDeploy($id);
-                $combines = $this->combineService->getCombineById($id);
-                foreach($combines as $listProfile) {
-                    $this->dispatch(
-                        new ExportListProfileJob(
-                            $listProfile->id,
-                            $deploy->offer_id,
-                            str_random(16),
-                            $reportCard->getName()
-                        )
-                    );
-                }
-            }
-            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
+
+        foreach($data as $deployId) {
+            $deploys[] = Deploy::find($deployId);
         }
+
+        //Only one package is selected return the filepath and make it a download response
+        if (count($deploys) === 1) {
+            $filePath = $this->packageService->createPackage($data);
+        }
+        else {
+            //more then 1 package selection create the packages on the FTP and kick off the OPS file job
+            foreach ($deploys as $deploy) {
+                $this->packageService->uploadPackage($deploy->id);
+            }
+
+            Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
+        }
+
+        $this->dispatch(new ExportDeployCombineJob($deploys, $reportCard, str_random(16)));
+        
         //Update deploy status to pending
         $this->deployService->deployPackages($data);
 

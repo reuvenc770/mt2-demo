@@ -78,7 +78,7 @@ class MT1SuppressionService implements IFeedSuppression {
             $this->setAdvertiser( $advertiserId );
         }
 
-        if ( $this->list->isMD5 ) {
+        if ( (int)$this->list->md5 === 1 ) {
             return $this->md5Repo->isSuppressed( $record , $this->list->id );
         } else {
             return $this->plaintextRepo->isSuppressed( $record , $this->list->id );

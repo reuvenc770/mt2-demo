@@ -314,10 +314,8 @@ class PackageZipCreationService {
             $fullHtml = $this->parseImageLinks($fullHtml);
 
             // Unfortunately, BH's email id token includes an entity (%cf) that gets converted
-            // We've placed another html entity (a zero-width joiner) between the % and cf
-            // to prevent this from happening during the call to parseImageLinks()
-            // additionally, when this gets decoded or displayed, the &zwj; - true to its name - disappears
-            $fullHtml = str_replace('%%&zwj;cf', '%%cf', $fullHtml);
+            // We've placed some text between the two to break this up.
+            $fullHtml = str_replace('%-cf', '%cf', $fullHtml);
             return $fullHtml;
         }
         catch (UrlValidationException $e) {
