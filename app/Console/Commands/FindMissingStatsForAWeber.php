@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Services\EspApiAccountService;
 
 class FindMissingStatsForAWeber extends Command
 {
@@ -45,16 +46,20 @@ class FindMissingStatsForAWeber extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle( EspApiAccountService $espServ )
     {
         $lookBack = $this->argument('lookback') ?: 15;
         $date = Carbon::today()->subDay($lookBack)->toDateString();
         $rows = $this->report->where("datetime", '>=', $date)->get();
         foreach($rows as $row){
-            $job = (new ProcessAweberUniques($row->id,$row->esp_account_id,$row->info_url,AWeberReport::UNIQUE_OPENS, str_random(16)))->onQueue("AWeber");
-            $this->dispatch($job);
-            $job = (new ProcessAweberUniques($row->id,$row->esp_account_id,$row->info_url,AWeberReport::UNIQUE_CLICKS, str_random(16)))->onQueue("AWeber");
-            $this->dispatch($job);
+            if ( $espServ->statsEnabledForAccount( $row->esp_account_id ) ) {
+                $job = (new ProcessAweberUniques($row->id,$row->esp_account_id,$row->info_url,AWeberReport::UNIQUE_OPENS, str_random(16)))->onQueue("AWeber");
+                $this->dispatch($job);
+                $job = (new ProcessAweberUniques($row->id,$row->esp_account_id,$row->info_url,AWeberReport::UNIQUE_CLICKS, str_random(16)))->onQueue("AWeber");
+                $this->dispatch($job);
+            } else {
+                $this->info( 'Stats disabled for account ID ' . $row->esp_account_id );
+            }
         }
 
     }

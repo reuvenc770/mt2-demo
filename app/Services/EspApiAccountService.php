@@ -213,6 +213,14 @@ class EspApiAccountService
         return $this->espRepo->getCustomIdHistoryByEsp( $espAccountId );
     }
 
+    public function statsEnabledForAccount ( $accountId ) {
+        return $this->espRepo->statsEnabledForAccount( $accountId );
+    }
+
+    public function suppressionEnabledForAccount ( $accountId ) {
+        return $this->espRepo->suppressionEnabledForAccount( $accountId );
+    }
+
     public function toggleStats ( $accountId , $currentStatus ) {
         return $this->espRepo->toggleStats( $accountId , $currentStatus );
     }
