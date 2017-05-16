@@ -8,7 +8,6 @@
 
 namespace App\Services;
 
-use App\Facades\BrontoMapping;
 use App\Services\AbstractReportService;
 use App\Repositories\ReportRepo;
 use App\Services\API\BrontoApi;
@@ -19,7 +18,9 @@ use App\Exceptions\JobException;
 use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Events\RawReportDataWasInserted;
+use App\Models\BrontoReport;
 use Event;
+use Log;
 
 class BrontoReportService extends AbstractReportService implements IDataService
 {
@@ -49,7 +50,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $espAccountId = $this->api->getEspAccountId();
         foreach ($data as $report) {
             $convertedReport = $this->mapToRawReport($report);
-            $this->insertStats($espAccountId, $convertedReport);
+            $rawRecord = $this->insertStats($espAccountId, $convertedReport);
+            $convertedReport[ 'internal_id' ] = $rawRecord->id;
             $arrayReportList[] = $convertedReport;
         }
         Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
@@ -329,14 +331,13 @@ class BrontoReportService extends AbstractReportService implements IDataService
     public function mapToStandardReport($data)
     {
         $deployId = $this->parseSubID($data['message_name']);
-        $espInternalId = $this->parseInternalId($data['internal_id']);
 
         return array(
             'campaign_name' => $data['message_name'],
             'external_deploy_id' => $deployId,
             'm_deploy_id' => $deployId,
             'esp_account_id' => $data['esp_account_id'],
-            'esp_internal_id' => $espInternalId,
+            'esp_internal_id' => $data[ 'internal_id' ],
             'datetime' => $data['start'],
             //'subject' => $data['subject'],
             'from' => $data['from_name'],
@@ -355,24 +356,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
     //I am not sure how to make this generic could use regex maybe. 
     public function parseInternalId($id)
     {
-        $pos = 0;
-        if (strrpos($id, '0001')) {
-            $pos = strrpos($id, '0001');
-            $hexId = substr($id, $pos + 3);
-            $id = base_convert($hexId, 16, 10);
-        } elseif (strrpos($id, '0002')) {
-            $pos = strrpos($id, '0002');
-            $hexId = substr($id, $pos + 3);
-            $id = base_convert($hexId, 16, 10);
-        } else {
-            $id = BrontoMapping::returnOrGenerateID($id, $this->api->getId());
-        }
-        if (empty($id)) {
-            throw new JobException("ID cannot be parsed");
-        } else {
-            return $id;
-        }
-
+        return BrontoReport::where( 'internal_id' , $id )->count() ? BrontoReport::where( 'internal_id' , $id )->first()->id : 0;
     }
 
     public function pageHasCampaignData($processState)
@@ -461,6 +445,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
     }
 
     public function getRawCampaigns ( $processState ) {
-        return $this->reportRepo->getRawCampaignsFromDate( $processState[ 'date' ] );
+        return $this->reportRepo->getRawCampaignsFromDate( $processState[ 'date' ] , [ [ 'type' , '<>' , 'triggered' ] , [ 'type' , '<>' , 'test' ]] );
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Facades\BrontoMapping;
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -18,6 +17,7 @@ use App\Exceptions\JobException;
 use App\Exceptions\JobAlreadyQueuedException;
 use Carbon\Carbon;
 use App\Models\StandardReport;
+use App\Models\BrontoReport;
 use App\Repositories\StandardApiReportRepo;
 use Storage;
 use App\Exceptions\JobCompletedException;
@@ -255,7 +255,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function getBrontoRerunCampaigns() {
 
         $deploys = DB::table('deploy_record_reruns AS drr')
-            ->select('external_deploy_id', 'drr.esp_internal_id', 'drr.esp_account_id', 'datetime',
+            ->select('external_deploy_id', 'drr.esp_internal_id' , 'drr.esp_account_id', 'datetime',
                 'delivers', 'opens', 'clicks', 'unsubs', 'complaints', 'bounces')
             ->join('mt2_reports.standard_reports AS sr', 'drr.deploy_id', '=', 'sr.external_deploy_id')
             ->where('drr.esp_account_id', $this->espAccountId)
@@ -264,28 +264,17 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
-            $missingDeliveryId = false;
-            
-            #$generatedId = $deploy->esp_internal_id;
-            #$deploy->esp_internal_id = BrontoMapping::makeDumbInternalId($generatedId,$this->espAccountId);
-            $raws = \DB::connection( 'reporting_data' )
-                ->table( 'bronto_reports as br' )
-                ->where( 'message_name' , 'LIKE' , $deploy->external_deploy_id . '%' );
+            $this->processState[ 'campaign' ] = BrontoReport::find( $deploy->esp_internal_id )->first();
+            $this->processState[ 'campaign' ]->delivers = $deploy->delivers;
+            $this->processState[ 'campaign' ]->opens = $deploy->opens;
+            $this->processState[ 'campaign' ]->clicks = $deploy->clicks;
+            $this->processState[ 'campaign' ]->unsubs = $deploy->unsubs;
+            $this->processState[ 'campaign' ]->complaints = $deploy->complaints;
+            $this->processState[ 'campaign' ]->bounces = $deploy->bounces;
 
-            if ( $raws->count() > 0 ) {
-                $deploy->esp_internal_id = $raws->first()[ 'internal_id' ];
-            } else {
-                $missingDeliveryId = true;
-            }
-
-            $this->processState[ 'campaign' ] = $deploy;
             $this->processState[ 'espId' ] = $this->espAccountId;
 
-            if ( $missingDeliveryId ) {
-                \Log::error( 'Missing Delivery ID for Bronto Rerun using Deploy ID ' . $deploy->external_deploy_id );
-            } else {
-                $this->queueNextJob( $this->defaultQueue );
-            }
+            $this->queueNextJob( $this->defaultQueue );
         });
         $rowCount = count($deploys);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );

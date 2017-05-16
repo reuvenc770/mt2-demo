@@ -22,7 +22,7 @@ class ReportRepo
     }
 
     public function insertStats($espAccountId, $data) {
-        $this->report->updateOrCreate(array("internal_id"=> $data["internal_id"], "esp_account_id" => $espAccountId),$data);
+        return $this->report->updateOrCreate(array("internal_id"=> $data["internal_id"], "esp_account_id" => $espAccountId),$data);
     }
 
     public function insertCSVStats($espAccountId, $data) {
@@ -78,7 +78,11 @@ class ReportRepo
         return $this->report->where(["message_name" => $campaignName, "esp_account_id" => $espAccountId])->get();
     }
 
-    public function getRawCampaignsFromDate ( $date ) {
-        return $this->report->where( "created_at" , ">=" , $date )->get();
+    public function getRawCampaignsFromDate ( $date , $additionalConstraints = [] ) {
+        $base = [ [ "created_at" , ">=" , $date ] ];
+
+        $whereClause = array_merge( $base , $additionalConstraints );
+
+        return $this->report->where( $whereClause )->get();
     }
 }
