@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Maknz\Slack\Facades\Slack;
 use App\Exceptions\JobCompletedException;
 use Log;
+use Mockery\CountValidator\Exception;
+
 class JobEntryService
 {
     protected $repo;
@@ -22,6 +24,8 @@ class JobEntryService
 
 
     CONST ROOM = "#mt2-dev-failed-jobs";
+    //CONST ROOM = "#brady-test-channel"; //TODO, would it make sense to move this to env config?
+
 
     public function __construct(JobEntryRepo $repo)
     {
@@ -74,11 +78,11 @@ class JobEntryService
         if($state == JobEntry::FAILED){
             $job->time_finished = Carbon::now();
             $job->save();
-            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
+            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts (job_entries.id=$job->id)");
         }else if($state == JobEntry::ACCEPTANCE_TEST_FAILED){
             $job->time_finished = Carbon::now();
             $job->save();
-            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed acceptance test");
+            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed acceptance test (job_entries.id=$job->id)");
         }
     }
 
@@ -158,6 +162,10 @@ class JobEntryService
         $this->repo->saveJob($tracking,$params);
     }
 
-
+    //two examples of exceptions/errors that don't bubble up to trigger job->failed()
+    public function tripUp(){
+        throw new Exception('an example exception');
+        //asdf;
+    }
 
 }

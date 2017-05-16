@@ -24,10 +24,14 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
 
     protected $tracking;
     protected $jobName;
-    protected $runtime_seconds_threshold = 3600;
     protected $diagnostics;
 
 
+    /**
+     * @param $jobName
+     * @param null $tracking
+     * tracking is generated if not provided. $jobName and $this->runtime_seconds_threshold are required.
+     */
     public function __construct($jobName,$tracking=null) {
 
         $this->jobName = $jobName;
@@ -39,6 +43,11 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
         JobTracking::initiateNewMonitoredJob($this->tracking,$params);
     }
 
+    /**
+     * Job is PID locked during execution on $jobName.
+     * $this->handleJob() defined in the subclass executes the job-specific tasks.
+     *
+     */
     public function handle() {
         if ($this->jobCanRun($this->jobName)) {
             try {
@@ -73,7 +82,6 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     }
 
     public function failed() {
-        echo 'running failed';
         if(JobTracking::getJobState($this->tracking)!=JobEntry::ACCEPTANCE_TEST_FAILED){
             JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
         }
@@ -82,7 +90,7 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     protected function handleJob() {}
 
     /**
-     * executes job acceptance test if it exists
+     * executes job acceptance test if it exists, method acceptanceTest().
      */
     protected function runAcceptanceTest(){
 

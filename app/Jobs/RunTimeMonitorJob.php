@@ -10,22 +10,34 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
+use Maknz\Slack\Facades\Slack;
 use \Exception;
 
+/**
+ * Class RunTimeMonitorJob
+ * @package App\Jobs
+ * Two modes of operation: "monitor" mode analyzes the job_entries table for monitored jobs
+ * fired during the specified datetime range that are approaching or have exceeded their
+ * specified runtime threshold and updates their respective statuses accordingly. "resolved"
+ * mode will set failed job statuses to RESOLVED in order to remove them from the failed job
+ * reporting.
+ */
 class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
     CONST JOB_NAME = "RunTimeMonitor";
-    protected $runtime_seconds_threshold = 360;
+    CONST ROOM = "#mt2-dev-failed-jobs";
+    //CONST ROOM = "#brady-test-channel"; TODO, move this to env config?
+    protected $runtime_seconds_threshold = 120;
     protected $date_range;
     protected $report;
     protected $mode;
 
     /**
-     * Create a new runtime monitor instance.
-     *
-     * @return void
+     * @param null $mode, "monitor" or "resolve"
+     * @param null $date1, integer indicating days back or start datetime, format YYYYMMDDhhmmss
+     * @param null $date2, end datetime, format YYYYMMDDhhmmss
      */
     public function __construct($mode=null,$date1=null,$date2=null)
     {
@@ -65,9 +77,13 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 
     }
 
+    /**
+     * @return int|void
+     */
     public function handleJob(){
 
         try{
+            //throw new Exception('runtime monitor failure test');
             if($this->mode=='monitor'){
                 $this->updateStatuses();
                 $this->generateReport();
@@ -76,13 +92,16 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
             }
             $this->sendReport();
         }catch (Exception $e){
-            $this->sendRunTimeMonitorFailureAlert();
+            $this->sendRunTimeMonitorFailureAlert($e->getMessage());
             JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
             $this->failed();
         }
         return 1;
     }
 
+    /**
+     * updates jobs approaching or exceed runtime_seconds_threshold
+     */
     private function updateStatuses(){
         $affected = DB::update("UPDATE job_entries
                                 SET status=
@@ -98,6 +117,11 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 
     }
 
+    /**
+     * generates both a summary snapshot of job statuses for the specified daterange
+     * and a detailed list of failed jobs under report[errors], and jobs approaching
+     * runtime threshold under report[warnings].
+     */
     private function generateReport(){
         $snapshot = DB::select("SELECT
                                 CASE
@@ -121,12 +145,14 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
                                 ORDER BY `status `
                               ");
 
-        $this->report['summary'] = array('Snapshot of Job Queue as of '.Carbon::now());
-        $this->report['summary'] = array('Date Range Analyzed: '.$this->date_range);
+        $this->report['summary'][] = 'Snapshot of Job Queue as of '.Carbon::now();
+        $this->report['summary'][] = 'Date Range Analyzed: '.$this->date_range;
         $this->report['summary'][] = "Status\tCount";
+        $this->report['summary'][] = "------\t-----";
+
 
         foreach($snapshot AS $row){
-            $row->{'status '} = preg_replace("/^\d /","",$row->{'status '});
+            $row->{'status '} = preg_replace("/^[0-9]{1,2} /","",$row->{'status '});
             $this->report['summary'][] = $row->{'status '}."\t".$row->count;
         }
 
@@ -164,6 +190,9 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 
     }
 
+    /**
+     * sets status to RESOLVED for the specified daterange of jobs with status FAILED and FAILED_ACCEPTANCE_TEST
+     */
     private function resolveJobs(){
 
         $affected = DB::update("UPDATE job_entries
@@ -172,16 +201,21 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
                                 AND runtime_seconds_threshold IS NOT NULL
                                 ");
 
-        $this->report['summary'] = array('Specified Jobs RESOLVED, executed at '.Carbon::now());
-        $this->report['summary'] = array('Date Range RESOLVED: '.$this->date_range);
+        $this->report['summary'][] = 'Specified Jobs RESOLVED, executed at '.Carbon::now();
+        $this->report['summary'][] = 'Date Range RESOLVED: '.$this->date_range;
         $this->report['summary'][] = "Number of Jobs RESOLVED: $affected";
 
         JobTracking::addDiagnostic(array('notices' => $affected . ' jobs statuses were updated to RESOLVED'),$this->tracking);
     }
 
+    /**
+     * sends runtime monitoring report configured slack channel
+     */
     private function sendReport(){
 
-        $pretty = array('SUMMARY','==========');
+        $pretty = array("RunTimeMonitor Report");
+        $pretty[] = 'SUMMARY';
+        $pretty[] = '==========';
         $pretty[] = implode("\n",$this->report['summary']);
         $pretty[] = "\n\n";
         $pretty[] = "ERRORS";
@@ -195,19 +229,22 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         $pretty[] = "WARNINGS";
         $pretty[] = "==========";
         $flat_warnings = array();
-        foreach($this->report['errors'] as $row){
+        foreach($this->report['warnings'] as $row){
             $flat_warnings[] = json_encode($row,JSON_PRETTY_PRINT);
         }
         $pretty[] = implode("\n",$flat_warnings);
 
 
         $pretty_report = implode("\n",$pretty);
-        print $pretty_report;
+        //print $pretty_report;
 
-        #TODO, where do we send, slack channel, email?
+        Slack::to(self::ROOM)->attach(['text' => $pretty_report])->send('Runtime Monitoring Report');
     }
 
-    private function sendRunTimeMonitorFailureAlert(){
-        #TODO, route to critical alert channel, highest escalation
+    /**
+     * reports execution failure to configured slack channel
+     */
+    private function sendRunTimeMonitorFailureAlert($error_message){
+        Slack::to(self::ROOM)->send('ERROR ALERT: RunTimeMonitor failed to properly execute! '.$error_message);
     }
 }
