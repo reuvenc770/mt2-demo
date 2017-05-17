@@ -26,7 +26,6 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     protected $jobName;
     protected $diagnostics;
 
-
     /**
      * @param $jobName
      * @param null $tracking
@@ -63,12 +62,15 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
                     JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, $rows);
                 }else{
                     JobTracking::changeJobState(JobEntry::ACCEPTANCE_TEST_FAILED,$this->tracking);
+                    JobTracking::addDiagnostic(array('errors' => array('acceptance test failed')),$this->tracking);
                     $this->failed();
                 }
 
             }
             catch (Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                //JobTracking::changeJobState(JobEntry::FAILED, $this->tracking); //commented out for now, but needed since local failed() not called
+                JobTracking::addDiagnostic(array('errors' => array('Job FAILED with exception: '.$e->getMessage())),$this->tracking);
                 $this->failed();
             }
             finally {
@@ -82,9 +84,8 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     }
 
     public function failed() {
-        if(JobTracking::getJobState($this->tracking)!=JobEntry::ACCEPTANCE_TEST_FAILED){
-            JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
-        }
+        echo "running local failed\n";  //never gets here, job_entries.status doesn't set to FAILED
+        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
 
     protected function handleJob() {}
@@ -96,21 +97,12 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
 
         if(method_exists($this,'acceptanceTest')){
             JobTracking::changeJobState(JobEntry::RUNNING_ACCEPTANCE_TEST,$this->tracking);
-            try{
-                if($this->acceptanceTest()){
-                    return 1;
-                }else {
-                    return 0;
-                }
-            }catch(Exception $e){
-                JobTracking::changeJobState(JobEntry::ACCEPTANCE_TEST_FAILED,$this->tracking);
-                return $e;
+            if($this->acceptanceTest()){
+                return 1;
+            }else {
+                return 0;
             }
-
-        }else{
-            return 1;
         }
-
+        return 1;
     }
-
 }

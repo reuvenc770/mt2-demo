@@ -47,29 +47,28 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     {
 
         //do job specific stuff
-        echo $this->foo ? 'simulating successful acceptance test' : 'simulating failed acceptance test';
+        echo $this->foo ? "simulating successful acceptance test\n" : "simulating failed acceptance test\n";
 
-        //example of invoking exception at different layer, stranding the job at running status
+        //example of invoking exception at different layer,
+        //stranding the job at running status => added job status update  in handle() catch fixes this.
         //JobTracking::tripUp();
 
         return 0;
     }
 
     /**
-     * must return boolean result or exception
-     * @return Exception|bool|\Exception
+     * must return boolean
+     * @return bool
      */
     protected function acceptanceTest(){
 
-        sleep(5); //to observe status ACCEPTANCE_TEST_RUNNING
-        try{
-            $result = $this->foo;
-            //example of how to add a diagnostic
-            JobTracking::addDiagnostic(array('acceptance_test' => (integer) $result),$this->tracking);
-            return $result;
-        }catch (Exception $e){
-            return $e;
-        }
+        throw new \Exception('ac crash!'); //for testing
 
+        sleep(5); //to observe status ACCEPTANCE_TEST_RUNNING
+
+        //example of how to add a diagnostic
+        JobTracking::addDiagnostic(array('acceptance_test' => (integer) $this->foo),$this->tracking);
+
+        return $this->foo;
     }
 }

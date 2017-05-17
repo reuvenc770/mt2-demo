@@ -20,16 +20,15 @@ use Mockery\CountValidator\Exception;
 class JobEntryService
 {
     protected $repo;
+    protected $room;
     protected $jobName;
 
-
-    CONST ROOM = "#mt2-dev-failed-jobs";
-    //CONST ROOM = "#brady-test-channel"; //TODO, would it make sense to move this to env config?
-
+    CONST ROOM = '#mt2-dev-failed-jobs';
 
     public function __construct(JobEntryRepo $repo)
     {
         $this->repo = $repo;
+        $this->room = env('SLACK_CHANNEL',self::ROOM);
     }
 
     public function startEspJob($jobName, $espName, $accountName, $tracking, $campaignId = 0)
@@ -78,11 +77,11 @@ class JobEntryService
         if($state == JobEntry::FAILED){
             $job->time_finished = Carbon::now();
             $job->save();
-            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts (job_entries.id=$job->id)");
+            Slack::to($this->room)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts (job_entries.id=$job->id)");
         }else if($state == JobEntry::ACCEPTANCE_TEST_FAILED){
             $job->time_finished = Carbon::now();
             $job->save();
-            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed acceptance test (job_entries.id=$job->id)");
+            Slack::to($this->room)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed acceptance test (job_entries.id=$job->id)");
         }
     }
 

@@ -27,9 +27,9 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     CONST JOB_NAME = "RunTimeMonitor";
-    CONST ROOM = "#mt2-dev-failed-jobs";
-    //CONST ROOM = "#brady-test-channel"; TODO, move this to env config?
+    CONST ROOM = 'mt2-dev-failed-jobs';
     protected $runtime_seconds_threshold = 120;
+    protected $room;
     protected $date_range;
     protected $report;
     protected $mode;
@@ -43,6 +43,8 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
     {
 
         parent::__construct(self::JOB_NAME.'_'.Carbon::now());
+
+        $this->room = env('SLACK_CHANNEL',self::ROOM);
 
         //valid modes are 'monitor' and 'resolve'
         $this->mode = $mode==null ? 'monitor' : $mode;
@@ -145,7 +147,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
                                 ORDER BY `status `
                               ");
 
-        $this->report['summary'][] = 'Snapshot of Job Queue as of '.Carbon::now();
+        $this->report['summary'][] = 'Snapshot of Job Queue as of '.Carbon::now()->toDateTimeString();
         $this->report['summary'][] = 'Date Range Analyzed: '.$this->date_range;
         $this->report['summary'][] = "Status\tCount";
         $this->report['summary'][] = "------\t-----";
@@ -191,7 +193,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
     }
 
     /**
-     * sets status to RESOLVED for the specified daterange of jobs with status FAILED and FAILED_ACCEPTANCE_TEST
+     * sets status to RESOLVED for the specified date range of jobs with status FAILED and FAILED_ACCEPTANCE_TEST
      */
     private function resolveJobs(){
 
@@ -238,7 +240,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         $pretty_report = implode("\n",$pretty);
         //print $pretty_report;
 
-        Slack::to(self::ROOM)->attach(['text' => $pretty_report])->send('Runtime Monitoring Report');
+        Slack::to($this->room)->attach(['text' => $pretty_report])->send('Runtime Monitoring Report');
     }
 
     /**
