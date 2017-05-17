@@ -224,6 +224,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.formSubmitted = false;
         self.updateDomains();
     };
+
+
+    self.editRowFailure = function ( response ) {
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
+    };
+
     self.loadAccountFailureCallback = function (response){
         modalService.simpleToast("Failed to load domain.");
         self.rowBeingEdited = 0;
