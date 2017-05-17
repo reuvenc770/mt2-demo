@@ -224,7 +224,7 @@ class EmailActionsRepo {
     public function pullEspAccount($espAccounts, $date) {
         $date .= ' 00:00:00';
         return DB::table('mt2_reports.email_actions AS ea')
-            ->join('mt2_data.emails AS e', 'ea.email_id', '=', 'e.id')
+            ->join('emails AS e', 'ea.email_id', '=', 'e.id')
             ->whereIn('esp_account_id', $espAccounts)
             ->whereIn('ea.action_id', [1,2])
             ->where('ea.created_at', '>=', $date)

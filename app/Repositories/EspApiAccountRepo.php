@@ -13,6 +13,7 @@ use App\Models\EspAccountCustomIdHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
+use App\Repositories\Traits\ToggleBooleanColumn;
 
 //TODO ADD CACHING ONCE ESP SECTION IS DONE
 
@@ -22,6 +23,10 @@ use Carbon\Carbon;
  */
 class EspApiAccountRepo
 {
+    use ToggleBooleanColumn;
+
+    const DEACTIVATION_PERIOD_DAYS = 30;
+
     /**
      * @var EspAccount
      */
@@ -61,7 +66,8 @@ class EspApiAccountRepo
     }
 
     public function getEspInfoByAccountName($accountName){
-        return $this->espAccount->where("account_name", $accountName)->whereIn('status', [1,2])->with('esp')->first();
+        #Changed this to check enable_stats. It is only used in ReportFactory. The Report doesn't seem to be active but adding here just in case.
+        return $this->espAccount->where("account_name", $accountName)->where( 'enable_stats', '=' , 1 )->with('esp')->first();
     }
 
     /**
@@ -72,7 +78,7 @@ class EspApiAccountRepo
     }
 
     public function getAllActiveAccounts(){
-        return $this->espAccount->where("status",1)->orWhere('status',2)->with( 'esp' )->orderBy('account_name')->get();
+        return $this->espAccount->where([ [ "enable_suppression" , '=' , 1 ] , [ 'enable_stats' , '=' , 1 ]] )->with( 'esp' )->orderBy('account_name')->get();
     }
 
     /**
@@ -86,10 +92,72 @@ class EspApiAccountRepo
             ->select('esp_accounts.*')
             ->addSelect('esps.name')
             ->where('esps.name',$espName)
-            ->whereRaw('enable_suppression = 1')
             ->get();
     }
 
+    public function suppressionEnabledForAccount ( $accountId ) {
+        return (bool)$this->espAccount->where( [ [ 'id' , '=' , $accountId ] , [ 'enable_suppression' , '=' , '1' ] ] )->count();
+    } 
+
+    public function statsEnabledForAccount ( $accountId ) {
+        return (bool)$this->espAccount->where( [ [ 'id' , '=' , $accountId ] , [ 'enable_stats' , '=' , '1' ] ] )->count();
+    } 
+
+    public function toggleStats ( $accountId , $currentStatus ) {
+        return $this->toggleBooleanColumn(
+            $this->espAccount ,
+            $accountId ,
+            'enable_stats' ,
+            $currentStatus
+        );
+    }
+
+    public function toggleSuppression ( $accountId , $currentStatus ) {
+        $this->toggleBooleanColumn(
+            $this->espAccount ,
+            $accountId ,
+            'enable_suppression' ,
+            $currentStatus
+        );
+
+        if ( $currentStatus == 1 ) {
+            $this->removeDeactivationDate( $accountId );
+        }
+
+        return true;
+    }
+
+    public function setDeactivationDateFromToday ( $accountId ) {
+        $account = $this->espAccount->find( $accountId );
+
+        $date = Carbon::now()->addDays( self::DEACTIVATION_PERIOD_DAYS )->toDateString();
+
+        $account->deactivation_date = $date;
+
+        $account->save(); 
+    }
+
+    public function removeDeactivationDate ( $accountId ) {
+        $account = $this->espAccount->find( $accountId );
+
+        $account->deactivation_date = null;
+
+        $account->save(); 
+    }
+
+    public function activate ( $accountId ) {
+        $this->toggleStats( $accountId , false );
+        $this->toggleSuppression( $accountId , false );
+        $this->removeDeactivationDate( $accountId );
+
+        return true;
+    }
+
+    public function deactivate ( $accountId ) {
+        $this->setDeactivationDateFromToday( $accountId );
+
+        return true;
+    }
 
     /**
      * @param array $newAccount The collection of account details to save.
@@ -124,10 +192,9 @@ class EspApiAccountRepo
             ->first();
     }
 
-    public function getAccountsbyEsp($esp){
+    public function getAccountsbyEspWithSuppression($esp){
         return $this->espAccount->where('esp_id', $esp)->where(function ($query) {
-            $query->where('status',1)
-                ->orWhere('status',2);
+            $query->where('enable_suppression',1);
         })->get();
     }
 
@@ -147,25 +214,6 @@ class EspApiAccountRepo
 
     public function getImageLinkFormat($id) {
         return $this->espAccount->find($id)->imageLinkFormat;
-    }
-
-    public function toggleRow($id, $direction){
-        if (2 === (int)$direction) {
-            $deactivationDate = Carbon::today()->addDays(30)->toDateString();
-        }
-        elseif (1 === (int)$direction) {
-            $deactivationDate = null;
-        }
-        else {
-            echo "direction is $direction" . PHP_EOL;
-        }
-
-        return $this->espAccount->find($id)->update(['status'=> $direction, 'deactivation_date' => $deactivationDate]);
-    }
-
-    public function toggleSuppression($id, $bool){
-        $deactivationDate = $bool ? null : Carbon::today()->toDateString();
-        return $this->espAccount->find($id)->update(['enable_suppression' => $bool, 'deactivation_date' => $deactivationDate, 'status' => $bool]);
     }
 
     public function getAccountWithOAuth($id) {

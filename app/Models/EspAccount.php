@@ -19,7 +19,7 @@ use Storage;
  * @property int $esp_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property bool $status
+ * @property bool $enable_stats
  * @property bool $enable_suppression
  * @property-read \App\Models\OAuthTokens $OAuthTokens
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\AWeberReport[] $aweberReport
