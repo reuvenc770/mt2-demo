@@ -7,6 +7,7 @@ use App\Models\AWeberList;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Services\EspApiAccountService;
 
 class GrabAWeberSubscribers extends Command
 {
@@ -41,12 +42,16 @@ class GrabAWeberSubscribers extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle( EspApiAccountService $espServ )
     {
-       $lists = AWeberList::where("is_active",1)->get();
+        $lists = AWeberList::where("is_active",1)->get();
         foreach($lists as $list) {
-            $job = (new AggregateAWeberSubscribers($list, str_random(16)))->onQueue("AWeber");
-            $this->dispatch($job);
+            if ( $espServ->statsEnabledForAccount( $list->esp_account_id ) ) {
+                $job = (new AggregateAWeberSubscribers($list, str_random(16)))->onQueue("AWeber");
+                $this->dispatch($job);
+            } else {
+                $this->info( 'AWeber stats disabled for account ' . $list->esp_account_id . '. Aborting subscriber pull for list ' . $list->internal_id);
+            }
         }
     }
 }

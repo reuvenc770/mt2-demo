@@ -13,6 +13,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Carbon\Carbon;
 use Cache;
+use App\Services\EspApiAccountService;
+
 class ProcessAweberUniques extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -48,37 +50,41 @@ class ProcessAweberUniques extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle( EspApiAccountService $espServ )
     {
-        if(Cache::get(self::KEY_NAME.$this->espAccountId) == 1){
-            $this->release(0);
-        };
+        if ( $espServ->statsEnabledForAccount( $this->espAccountId ) ) {
+            if(Cache::get(self::KEY_NAME.$this->espAccountId) == 1){
+                $this->release(0);
+            };
 
-        $time = Carbon::now()->addMinutes(120);
-        Cache::put(self::KEY_NAME.$this->espAccountId,1,$time);//lock this account
+            $time = Carbon::now()->addMinutes(120);
+            Cache::put(self::KEY_NAME.$this->espAccountId,1,$time);//lock this account
 
-        $reportService = APIFactory::createAPIReportService("AWeber", $this->espAccountId);
-        try {
-            JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-            switch ($this->type) {
-                case AWeberReport::UNIQUE_OPENS:
-                    $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl, AWeberReport::UNIQUE_OPENS);
-                    Cache::forget(self::KEY_NAME.$this->espAccountId);//give up the key
-                    $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
-                    break;
-                case AWeberReport::UNIQUE_CLICKS:
-                    $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl, AWeberReport::UNIQUE_CLICKS);
-                    Cache::forget(self::KEY_NAME.$this->espAccountId);//give up the key
-                    $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
-                    break;
-                default:
-                    throw new JobException("Not a valid action type");
+            $reportService = APIFactory::createAPIReportService("AWeber", $this->espAccountId);
+            try {
+                JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
+                switch ($this->type) {
+                    case AWeberReport::UNIQUE_OPENS:
+                        $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl, AWeberReport::UNIQUE_OPENS);
+                        Cache::forget(self::KEY_NAME.$this->espAccountId);//give up the key
+                        $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
+                        break;
+                    case AWeberReport::UNIQUE_CLICKS:
+                        $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl, AWeberReport::UNIQUE_CLICKS);
+                        Cache::forget(self::KEY_NAME.$this->espAccountId);//give up the key
+                        $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
+                        break;
+                    default:
+                        throw new JobException("Not a valid action type");
+                }
+
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+            } catch (\Exception $e) {
+                Cache::forget(self::KEY_NAME.$this->espAccountId);
+                throw new JobException("{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL);
             }
-
-            JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-        } catch (\Exception $e) {
-            Cache::forget(self::KEY_NAME.$this->espAccountId);
-            throw new JobException("{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL);
+        } else {
+            \Log::warning( 'ESP Account ' . $this->espAccountId . ' from Aweber is not enabled for loading stats. Uniques data import is being aborted.' );
         }
     }
 

@@ -79,6 +79,7 @@ class MT1SuppressionService implements IFeedSuppression {
         }
 
         if ( (int)$this->list->md5 === 1 ) {
+            $record->lower_case_md5 = md5(strtolower($record->email_address));
             return $this->md5Repo->isSuppressed( $record , $this->list->id );
         } else {
             return $this->plaintextRepo->isSuppressed( $record , $this->list->id );

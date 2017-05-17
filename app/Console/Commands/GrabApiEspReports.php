@@ -54,14 +54,22 @@ class GrabApiEspReports extends Command
         $this->processOptions();
 
         if( $this->isSingleAccountGrab() ) {
-            $this->fireJob();
+            if ( $this->espRepo->statsEnabledForAccount( $this->currentAccountId ) ) {
+                $this->fireJob();
+            } else {
+                $this->info( 'Stats Not Enabled for ESP Account ' . $this->currentAccountId );
+            }
         } else{
             $espAccounts = $this->espRepo->getAccountsByESPName( $this->espName );
 
             foreach ($espAccounts as $account) {
-                $this->setCurrentAccountId( $account->id );
+                if ( $account->enable_stats ) {
+                    $this->setCurrentAccountId( $account->id );
 
-                $this->fireJob();
+                    $this->fireJob();
+                } else {
+                    $this->info( 'Stats Not Enabled for ESP Account ' . $account->id );
+                }
             }
         }
 

@@ -21,9 +21,15 @@ class CheckDeployService extends AbstractEtlService {
     }
 
     public function load() {
+        $espService = \App::make( \App\Services\EspApiAccountService::class );
+
         foreach ($this->data as $row) {
-            $row = $this->transform($row);
-            $this->targetRepo->loadData($row);
+            if ( $espService->statsEnabledForAccount( $row->esp_account_id ) ) {
+                $row = $this->transform($row);
+                $this->targetRepo->loadData($row);
+            } else {
+                \Log::warning( 'ESP Account ' . $row->esp_account_id . ' disabled for rerun.' );
+            }
         }
 
         Event::fire(new DeploysMissingDataFound([]));
