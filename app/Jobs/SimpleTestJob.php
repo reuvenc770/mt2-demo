@@ -22,8 +22,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
  */
 class SimpleTestJob extends MonitoredJob implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
-
     CONST JOB_NAME = "SimpleTestJob";
     protected $foo;
     protected $runtime_seconds_threshold = 20;
