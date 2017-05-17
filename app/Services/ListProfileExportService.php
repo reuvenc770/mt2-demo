@@ -164,12 +164,12 @@ class ListProfileExportService {
     }
 
     private function writeBatch($fileName) {
-        $string = implode(PHP_EOL, $this->rows);
+        $string = implode(PHP_EOL, $this->rows) . PHP_EOL;
         File::append($fileName, $string);
     }
 
     private function writeBatchSuppression($fileName) {
-        $string = implode(PHP_EOL, $this->suppressedRows);
+        $string = implode(PHP_EOL, $this->suppressedRows) . PHP_EOL;
         File::append($fileName, $string);
     }
 
