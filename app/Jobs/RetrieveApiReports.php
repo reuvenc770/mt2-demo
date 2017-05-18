@@ -15,9 +15,8 @@ use Log;
  * Class RetrieveReports
  * @package App\Jobs
  */
-class RetrieveApiReports extends Job implements ShouldQueue
+class RetrieveApiReports extends MonitoredJob implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "RetrieveApiEspReports";
     protected $apiName;
     protected $espAccountId;
@@ -33,15 +32,19 @@ class RetrieveApiReports extends Job implements ShouldQueue
         JobException::CRITICAL => 'critical'
     ];
 
-    public function __construct($apiName, $espAccountId, $date, $tracking, $apiLimit = null)
+    public function __construct($runtime_threshold,$apiName, $espAccountId, $date, $tracking, $apiLimit = null)
     {
+
+       $jobname = self::JOB_NAME."_".$apiName."_".$espAccountId;
+       parent::__construct($jobname,$runtime_threshold,$tracking);
+
        $this->apiName = $apiName;
        $this->espAccountId = $espAccountId;
        $this->date = $date;
        $this->attempts = 0;
        $this->tracking = $tracking;
        $this->apiLimit = $apiLimit;
-       JobTracking::startEspJob( self::JOB_NAME , $this->apiName , $this->espAccountId , $this->tracking );
+       JobTracking::startEspJob( $jobname , $this->apiName , $this->espAccountId , $this->tracking );
     }
 
     /**
@@ -49,7 +52,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handleJob()
     {
 
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);

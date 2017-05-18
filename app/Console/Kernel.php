@@ -151,15 +151,15 @@ class Kernel extends ConsoleKernel
          * Campaign Data Daily
          */
         $filePath = storage_path('logs')."/downloadAPI.log";
-        $schedule->command('reports:downloadApi BlueHornet --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Campaigner --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi BlueHornet --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Campaigner --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40 --runtime-threshold=5m')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Maro --daysBack=5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Maro --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Publicators --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Bronto --daysBack=5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Publicators --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Bronto --daysBack=5 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('process:cfsStats')->cron('0 */4 * * *'); // Job name like: ProcessCfsStats
         
@@ -168,14 +168,14 @@ class Kernel extends ConsoleKernel
         /**
          * Campaign Data Monthly
          */
-        $schedule->command('reports:downloadApi BlueHornet --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Campaigner --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber --daysBack=31 --apiLimit=200')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi BlueHornet --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Campaigner --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi AWeber --daysBack=31 --apiLimit=200 --runtime-threshold=15m')->monthly()->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Publicators --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Bronto --daysBack=31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Publicators --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Bronto --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
         #$schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
 
