@@ -75,11 +75,9 @@ class JobEntryService
         }
 
         if($state == JobEntry::FAILED){
-            $job->time_finished = Carbon::now();
             $job->save();
             Slack::to($this->room)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts (job_entries.id=$job->id)");
         }else if($state == JobEntry::ACCEPTANCE_TEST_FAILED){
-            $job->time_finished = Carbon::now();
             $job->save();
             Slack::to($this->room)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed acceptance test (job_entries.id=$job->id)");
         }
@@ -161,10 +159,19 @@ class JobEntryService
         $this->repo->saveJob($tracking,$params);
     }
 
-    //two examples of exceptions/errors that don't bubble up to trigger job->failed()
-    public function tripUp(){
-        throw new Exception('an example exception');
-        //asdf;
+    public function updateJobStatuses($daterange){
+        return $this->repo->updateJobStatuses($daterange);
     }
 
+    public function generateRunTimeReport($daterange){
+        return $this->repo->generateRunTimeReport($daterange);
+    }
+
+    public function retrieveBadJobs($daterange){
+        return $this->repo->retrieveBadJobs($daterange);
+    }
+
+    public function resolveJobs($daterange){
+        return $this->repo->resolveJobs($daterange);
+    }
 }

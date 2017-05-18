@@ -9,7 +9,6 @@ use App\Jobs\MonitoredJob;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\DB;
 use Maknz\Slack\Facades\Slack;
 use \Exception;
 
@@ -24,11 +23,9 @@ use \Exception;
  */
 class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
 
     CONST JOB_NAME = "RunTimeMonitor";
-    CONST ROOM = 'mt2-dev-failed-jobs';
-    protected $runtime_seconds_threshold = 120;
+    CONST ROOM = '#mt2-dev-failed-jobs';
     protected $room;
     protected $date_range;
     protected $report;
@@ -39,15 +36,15 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
      * @param null $date1, integer indicating days back or start datetime, format YYYYMMDDhhmmss
      * @param null $date2, end datetime, format YYYYMMDDhhmmss
      */
-    public function __construct($mode=null,$date1=null,$date2=null)
+    public function __construct($mode,$runtime_threshold,$date1,$date2=null)
     {
 
-        parent::__construct(self::JOB_NAME.'_'.Carbon::now());
+        parent::__construct(self::JOB_NAME.'_'.Carbon::now(),$runtime_threshold);
 
         $this->room = env('SLACK_CHANNEL',self::ROOM);
 
         //valid modes are 'monitor' and 'resolve'
-        $this->mode = $mode==null ? 'monitor' : $mode;
+        $this->mode = $mode;
         if(!preg_match("/^(monitor|resolve)$/",$this->mode)){
             JobTracking::addDiagnostic(array('errors'=>array('invalid mode '.$mode)),$this->tracking);
             JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
@@ -65,7 +62,6 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         );
 
         //build datetime snippet
-        $date1 = $date1==null ? 3 : $date1;
         if(preg_match("/^[0-9]{14}$/",$date1) && preg_match("/^[0-9]{14}$/",$date2)){
             $this->date_range = "BETWEEN $date1 AND $date2";
         }elseif(preg_match("/^[0-9]{1,3}$/",$date1)){
@@ -105,18 +101,8 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
      * updates jobs approaching or exceed runtime_seconds_threshold
      */
     private function updateStatuses(){
-        $affected = DB::update("UPDATE job_entries
-                                SET status=
-                                CASE
-                                    WHEN time_started < NOW() - INTERVAL IFNULL(runtime_seconds_threshold,3600) SECOND THEN 10
-                                    WHEN time_started < NOW() - INTERVAL TRUNCATE(IFNULL(runtime_seconds_threshold,3600)*0.75,0) SECOND THEN 9
-                                ELSE status
-                                END
-                                WHERE status IN(1,7) AND time_fired ".$this->date_range."
-                                AND runtime_seconds_threshold IS NOT NULL
-                                ");
+        $affected = JobTracking::updateJobStatuses($this->date_range);
         JobTracking::addDiagnostic(array('notices' => $affected . ' jobs statuses were updated'),$this->tracking);
-
     }
 
     /**
@@ -125,71 +111,23 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
      * runtime threshold under report[warnings].
      */
     private function generateReport(){
-        $snapshot = DB::select("SELECT
-                                CASE
-                                  WHEN status=5 THEN '1 QUEUED'
-                                  WHEN status=4 THEN '2 WAITING'
-                                  WHEN status=6 THEN '3 SKIPPED'
-                                  WHEN status=1 THEN '4 RUNNING'
-                                  WHEN status=7 THEN '5 RUNNING ACCEPTANCE TEST'
-                                  WHEN status=2 THEN '6 SUCCESS'
-                                  WHEN status=9 THEN '7 RUNTIME WARNING'
-                                  WHEN status=10 THEN '8 RUNTIME ERROR'
-                                  WHEN status=3 THEN '9 FAILED'
-                                  WHEN status=8 THEN '10 ACCEPTANCE TEST FAILED'
-                                  WHEN status=11 THEN '11 RESOLVED'
-                                END as `status `,
-                                COUNT(status) AS count
-                                FROM job_entries
-                                WHERE time_fired ".$this->date_range."
-                                AND runtime_seconds_threshold IS NOT NULL
-                                GROUP BY `status `
-                                ORDER BY `status `
-                              ");
-
+        $snapshot = JobTracking::generateRunTimeReport($this->date_range);
         $this->report['summary'][] = 'Snapshot of Job Queue as of '.Carbon::now()->toDateTimeString();
         $this->report['summary'][] = 'Date Range Analyzed: '.$this->date_range;
         $this->report['summary'][] = "Status\tCount";
         $this->report['summary'][] = "------\t-----";
-
 
         foreach($snapshot AS $row){
             $row->{'status '} = preg_replace("/^[0-9]{1,2} /","",$row->{'status '});
             $this->report['summary'][] = $row->{'status '}."\t".$row->count;
         }
 
-
         JobTracking::addDiagnostic(array('summary' => $this->report['summary']),$this->tracking);
 
-        $badjobs = DB::select("SELECT
-                                CASE
-                                WHEN status=9 THEN 'warning'
-                                ELSE 'error'
-                                END AS type,
-                                CASE
-                                WHEN status=9 THEN 'RUNTIME WARNING'
-                                WHEN status=10 THEN 'RUNTIME ERROR'
-                                WHEN status=3 THEN 'FAILED'
-                                WHEN status=8 THEN 'ACCEPTANCE TEST FAILED'
-                                END as message,
-                                id,
-                                job_name,
-                                runtime_seconds_threshold,
-                                time_fired,
-                                time_started,
-                                time_finished,
-                                attempts,
-                                status
-                                FROM job_entries
-                                WHERE time_fired ".$this->date_range."
-                                AND status IN(3,8,9,10)
-                                AND runtime_seconds_threshold IS NOT NULL
-                              ");
-
+        $badjobs = JobTracking::retrieveBadJobs($this->date_range);
         foreach($badjobs AS $job){
             $this->report[$job->type.'s'][] = (array) $job;
         }
-
     }
 
     /**
@@ -197,11 +135,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
      */
     private function resolveJobs(){
 
-        $affected = DB::update("UPDATE job_entries
-                                SET status=11
-                                WHERE status IN(3,8) AND time_fired ".$this->date_range."
-                                AND runtime_seconds_threshold IS NOT NULL
-                                ");
+        $affected = JobTracking::resolveJobs($this->date_range);
 
         $this->report['summary'][] = 'Specified Jobs RESOLVED, executed at '.Carbon::now();
         $this->report['summary'][] = 'Date Range RESOLVED: '.$this->date_range;

@@ -24,14 +24,13 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
 {
     CONST JOB_NAME = "SimpleTestJob";
     protected $foo;
-    protected $runtime_seconds_threshold = 20;
 
     /**
      * @param  boolean $foo - acceptanceTest result relayed for testing
      */
-    public function __construct($foo)
+    public function __construct($foo,$runtime_threshold,$tracking=null)
     {
-        parent::__construct(self::JOB_NAME);
+        parent::__construct(self::JOB_NAME,$runtime_threshold,$tracking);
 
         $this->foo = $foo;
     }
@@ -59,8 +58,6 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
      * @return bool
      */
     protected function acceptanceTest(){
-
-        throw new \Exception('ac crash!'); //for testing
 
         sleep(5); //to observe status ACCEPTANCE_TEST_RUNNING
 

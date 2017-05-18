@@ -9,7 +9,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Console\Commands\Traits\UseTracking;
-use \Exception;
 
 /**
  * Class MonitoredJob
@@ -25,15 +24,19 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     protected $tracking;
     protected $jobName;
     protected $diagnostics;
+    protected $runtime_seconds_threshold;
 
     /**
      * @param $jobName
+     * @param $runtime_threshold
      * @param null $tracking
      * tracking is generated if not provided. $jobName and $this->runtime_seconds_threshold are required.
      */
-    public function __construct($jobName,$tracking=null) {
+    public function __construct($jobName,$runtime_threshold,$tracking=null) {
 
+        $this->runtime_seconds_threshold = $this->parseRuntimeThreshold($runtime_threshold);
         $this->jobName = $jobName;
+        $this->runtime_seconds_threshold = $this->runtime_seconds_threshold;
         $this->tracking = $tracking!=null ? $tracking : $this->getTrackingId();
         $params = array(
             'job_name' => $jobName,
@@ -61,15 +64,12 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
                 if($this->runAcceptanceTest()){
                     JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, $rows);
                 }else{
-                    JobTracking::changeJobState(JobEntry::ACCEPTANCE_TEST_FAILED,$this->tracking);
                     JobTracking::addDiagnostic(array('errors' => array('acceptance test failed')),$this->tracking);
-                    $this->failed();
+                    JobTracking::changeJobState(JobEntry::ACCEPTANCE_TEST_FAILED,$this->tracking);
                 }
-
             }
-            catch (Exception $e) {
+            catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
-                //JobTracking::changeJobState(JobEntry::FAILED, $this->tracking); //commented out for now, but needed since local failed() not called
                 JobTracking::addDiagnostic(array('errors' => array('Job FAILED with exception: '.$e->getMessage())),$this->tracking);
                 $this->failed();
             }
@@ -84,8 +84,7 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     }
 
     public function failed() {
-        echo "running local failed\n";  //never gets here, job_entries.status doesn't set to FAILED
-        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
+            JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
 
     protected function handleJob() {}
@@ -104,5 +103,22 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
             }
         }
         return 1;
+    }
+
+    /**
+     * validates runtime_threshold and converts to seconds
+     * examples of valid values: 2h (2 hours), 45m (45 minutes), 368s (368 seconds), 3292 (3292 seconds)
+     * @param $runtime_threshold
+     * @return integer
+     * @throws \Exception
+     */
+    private function parseRuntimeThreshold($runtime_threshold){
+        if(!preg_match("/^([0-9]{1,})(s|m|h|)$/",$runtime_threshold,$rtparts)){
+            throw new \Exception("invalid runtime_threshold");
+        }
+
+        if($rtparts[2]=="m") return $rtparts[1]*60;
+        elseif($rtparts[2]=="h") return $rtparts[1]*60*60;
+        else return $rtparts[1];
     }
 }

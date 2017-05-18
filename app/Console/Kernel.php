@@ -105,7 +105,9 @@ class Kernel extends ConsoleKernel
         Commands\BulkInsertDelivers::class,
         Commands\SyncModelsWithNewFeedsCommand::class,
         Commands\ResetUserPasswordCommand::class,
-    ];
+        Commands\SimpleTestCommand::class,
+        Commands\RunTimeMonitorCommand::class,
+];
 
     /**
      * Define the application's command schedule.
