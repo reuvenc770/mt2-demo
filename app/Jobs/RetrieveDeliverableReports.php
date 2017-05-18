@@ -264,17 +264,19 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
-            $this->processState[ 'campaign' ] = BrontoReport::find( $deploy->esp_internal_id )->first();
-            $this->processState[ 'campaign' ]->delivers = $deploy->delivers;
-            $this->processState[ 'campaign' ]->opens = $deploy->opens;
-            $this->processState[ 'campaign' ]->clicks = $deploy->clicks;
-            $this->processState[ 'campaign' ]->unsubs = $deploy->unsubs;
-            $this->processState[ 'campaign' ]->complaints = $deploy->complaints;
-            $this->processState[ 'campaign' ]->bounces = $deploy->bounces;
+            if ( BrontoReport::find( $deploy->esp_internal_id )->count() ) {
+                $this->processState[ 'campaign' ] = BrontoReport::find( $deploy->esp_internal_id )->first();
+                $this->processState[ 'campaign' ]->delivers = $deploy->delivers;
+                $this->processState[ 'campaign' ]->opens = $deploy->opens;
+                $this->processState[ 'campaign' ]->clicks = $deploy->clicks;
+                $this->processState[ 'campaign' ]->unsubs = $deploy->unsubs;
+                $this->processState[ 'campaign' ]->complaints = $deploy->complaints;
+                $this->processState[ 'campaign' ]->bounces = $deploy->bounces;
 
-            $this->processState[ 'espId' ] = $this->espAccountId;
+                $this->processState[ 'espId' ] = $this->espAccountId;
 
-            $this->queueNextJob( $this->defaultQueue );
+                $this->queueNextJob( $this->defaultQueue );
+            }
         });
         $rowCount = count($deploys);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
