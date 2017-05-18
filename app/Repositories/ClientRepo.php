@@ -20,6 +20,8 @@ class ClientRepo implements IAwsRepo {
         $this->client->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function getModel () {
         return $this->client;
     }

@@ -21,4 +21,6 @@ class OfferCreativeMapRepo {
         ], $data);
     }
 
+    public function prepareTableForSync() {}
+
 }

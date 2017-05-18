@@ -152,20 +152,22 @@ class EspApiAccountController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $suppressionToggle = $request->get("toggleSuppression");
-        if(isset($suppressionToggle)){
-            $this->espAccountService->toggleSuppression($id, $suppressionToggle);
-           return $suppressionToggle ? "Suppression has been enabled" : "Suppression has been disabled";
-        }
-        $this->espAccountService->toggleRow($id,$request->get("direction"));
+    }
 
-        $message = "ESP API account is now active.";
+    public function toggleStats ( Request $request , $id ) {
+        $this->espAccountService->toggleStats( $id , $request->input( 'currentStatus' ) );
+    }
 
-        if( $request->get("direction") === '2' ) {
-            $message = "ESP API account set to deactivate in 30 days.";
-        }
+    public function toggleSuppression ( Request $request , $id ) {
+        $this->espAccountService->toggleSuppression( $id , $request->input( 'currentStatus' ) );
+    }
 
-        return response($message);
+    public function activate ( $id ) {
+        $this->espAccountService->activate( $id );
+    }
+
+    public function deactivate ( $id ) {
+        $this->espAccountService->deactivate( $id );
     }
 
     public function displayEspAccounts(Request $request, $name){

@@ -23,6 +23,16 @@ class CustomValidatorHelper {
         return ( is_null( $date ) ? false : true );
     }
 
+    public function europeanDateNotFuture ( $attribute , $value , $parameters , $validator ) {
+        $date = $this->rawFeed->convertEuropeanDate( $value );
+
+        if ( !is_null( $date ) && Carbon::parse( $date )->isFuture() ) {
+            $date = null;
+        }
+
+        return ( is_null( $date ) ? false : true );
+    }
+
     public function hash ( $attribute , $value , $parameters , $validator ) {
         if ( $parameters[ 0 ] == 'userPassword' ) {
             $user = Sentinel::getUser();

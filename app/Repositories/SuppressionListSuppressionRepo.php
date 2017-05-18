@@ -31,6 +31,15 @@ class SuppressionListSuppressionRepo implements IAwsRepo {
                     ->get();
     }
 
+    public function isSuppressedInLists($emailAddress, array $listIds) {
+        if (count($listIds) > 0) {
+            return $this->model->where('email_address', $emailAddress)->whereIn('suppression_list_id', $listIds)->count() > 0;
+        }
+        else {
+            return false;
+        }
+    }
+
     public function addToSuppressionList($emailAddress, $listId) {
         $emailAddress = strtolower($emailAddress);
         $lowerMd5 = md5($emailAddress);

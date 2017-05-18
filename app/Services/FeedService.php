@@ -355,9 +355,9 @@ class FeedService implements IFtpAdmin
         $batchDobExists = ( isset( $data[ 'dob' ] ) && $data[ 'dob' ] != '' );
 
         if ( $isBritishRecord ) {
-            $rules[ 'capture_date' ] = $euroDateRule;
+            $rules[ 'capture_date' ] = $euroDateRule . '|euroDateNotFuture';
         } else {
-            $rules[ 'capture_date' ] = $usDateRule;
+            $rules[ 'capture_date' ] = $usDateRule . '|before:tomorrow';
         }
 
         if ( $isBritishRecord && $realtimeDobExists ) {

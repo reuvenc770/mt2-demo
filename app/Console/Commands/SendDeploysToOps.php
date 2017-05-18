@@ -17,7 +17,7 @@ class SendDeploysToOps extends Command
      */
     protected $deploys;
     protected $username;
-    protected $signature = 'deploys:sendtoops {deploysCommaList} {username}';
+    protected $signature = 'deploys:sendToOps {deploysCommaList} {username}';
 
     /**
      * The console command description.

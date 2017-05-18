@@ -134,7 +134,7 @@ class EmailActionsRepo {
         return DB::select("SELECT
             ea.email_id,
             ea.deploy_id,
-            d.esp_account_id,
+            ea.esp_account_id,
             ea.date,
             e.email_address,
             e.lower_case_md5,
@@ -157,7 +157,7 @@ class EmailActionsRepo {
                 email_id,
                 deploy_id,
                 DATE(datetime) as date,
-                
+                MAX(esp_account_id) as esp_account_id,
                 SUM(IF(action_id = 4, 1, 0)) as deliveries,
                 SUM(IF(action_id = 1, 1, 0)) as opens,
                 SUM(IF(action_id = 2, 1, 0)) as clicks,
@@ -206,6 +206,7 @@ class EmailActionsRepo {
                 action_id IN (1, 2, 4)
                 AND
                 std.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 5 DAY
+                AND deploy_id <> 0
               GROUP BY
                 deploy_id) ea ON ea.deploy_id = sr.external_deploy_id
                
@@ -223,7 +224,7 @@ class EmailActionsRepo {
     public function pullEspAccount($espAccounts, $date) {
         $date .= ' 00:00:00';
         return DB::table('mt2_reports.email_actions AS ea')
-            ->join('mt2_data.emails AS e', 'ea.email_id', '=', 'e.id')
+            ->join('emails AS e', 'ea.email_id', '=', 'e.id')
             ->whereIn('esp_account_id', $espAccounts)
             ->whereIn('ea.action_id', [1,2])
             ->where('ea.created_at', '>=', $date)

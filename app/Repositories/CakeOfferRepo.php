@@ -19,4 +19,6 @@ class CakeOfferRepo {
         $this->offer->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
 }

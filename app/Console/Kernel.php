@@ -8,14 +8,14 @@ use Predis\Command\Command;
 
 class Kernel extends ConsoleKernel
 {
-    const DELIVERABLE_SCHEDULE_TIME = '02:00';
+    const EARLY_DELIVERABLE_SCHEDULE_TIME = '20:00';
+    const DELIVERABLE_SCHEDULE_TIME = '22:00';
+
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
     const REPORT_TIME_2 = '11:10';
-    const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
-    const EXPIRATION_RUNS = "01:15";
-    const DROP_OFF_LIST_PROFILES = "05:00";
+    
     const DEPLOY_CHECK_TIME = '14:00';
     const UPDATE_SOURCE_COUNTS = '14:00';
     const CAKE_CONVERSION_UPDATE_TIME = '14:00';
@@ -117,7 +117,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        #$schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
 
         /**
          * Orphan Adoption
@@ -185,16 +185,16 @@ class Kernel extends ConsoleKernel
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
         $schedule->command( 'reports:downloadDeliverables Campaigner:delivered 2 Campaigner' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Campaigner:actions 5 Campaigner' )->cron('0 0,10 * * * *');
-        $schedule->command( 'reports:downloadDeliverables BlueHornet:delivered 3 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command('reports:downloadDeliverables BlueHornet:actions 5 BlueHornet')->cron('0 0,10 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Campaigner:actions 5 Campaigner' )->cron('0 10,20 * * * *');
+        $schedule->command( 'reports:downloadDeliverables BlueHornet:delivered 3 BlueHornet' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command('reports:downloadDeliverables BlueHornet:actions 5 BlueHornet')->cron('0 10,22 * * * *');
         #$schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Maro 2 Maro' )->cron('0 0,10 * * * *')->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro 2 Maro' )->cron('0 10,22 * * * *')->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 2 Maro' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 0,10 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 10,22 * * * *');
         $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 0,10 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 10,22 * * * *');
         $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
@@ -254,7 +254,7 @@ class Kernel extends ConsoleKernel
          */
          
         // Attribution jobs disabled temporarily until launch
-        $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS); // Job name: Scheduled Filter Expiration
+        $schedule->command('runFilter expiration')->dailyAt(self::MIDNIGHT); // Job name: Scheduled Filter Expiration
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
         $schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
@@ -268,13 +268,13 @@ class Kernel extends ConsoleKernel
          *  List profile jobs
          */
 
-        $schedule->command('listprofile:dataEtl')->cron('30 6,13,16 * * 1-6 *'); // Job names like: %-s3
+        $schedule->command('listprofile:dataEtl')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3
         $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
-        $schedule->command('listprofile:aggregateActions')->cron('0 4,14 * * * *'); // Job name: ListProfileAggregation
+        $schedule->command('listprofile:aggregateActions')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation
         $schedule->command('listprofile:contentServerRawStats')->hourly(); // Job name: ProcessContentServerRawStats
         $schedule->command('listprofile:getRecordAgentData 2')->hourly(); // Job name: ContentServerDeviceData
-        $schedule->command('listprofile:baseTables')->cron('30 7,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
+        $schedule->command('listprofile:baseTables')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
         $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
