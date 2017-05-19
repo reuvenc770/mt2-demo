@@ -233,4 +233,28 @@ class AttributionModelRepo {
     public function getNonliveModels () {
         return $this->models->select( 'id' , 'name' )->where( 'live' , '=' , 0 )->get();
     }
+
+    public function modelExists ( $modelId ) {
+        return (bool)$this->models->find( $modelId )->count();
+    }
+
+    public function quickReorder ( $modelId , $newOrder ) {
+        DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $modelId )->truncate();
+
+        foreach ( $newOrder as $level => $feedId ) {
+            $newLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
+
+            $newLevel->feed_id = $feedId;
+            $newLevel->level = $level + 1;
+            $newLevel->save();
+
+            unset( $newLevel );
+        }
+
+        if ( $this->getLiveModelId() == $modelId ) {
+            $this->setLive( self::getLiveModelId() );
+        }
+
+        return true;
+    }
 }

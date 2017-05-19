@@ -72,4 +72,18 @@ class AttributionModelService {
     public function syncModelsWithNewFeeds () {
         $this->repo->syncModelsWithNewFeeds();
     }
+
+    public function modelExists ( $modelId ) {
+        return $this->repo->modelExists( $modelId );
+    }
+
+    public function quickReorder ( $modelId , $newOrder ) {
+        $currentFeeds = $this->levels->getAllLevels( $modelId );
+
+        $missingFeeds = array_diff( $currentFeeds , $newOrder );
+
+        $newFeedOrder = array_merge( $newOrder , $missingFeeds );
+
+        $this->repo->quickReorder ( $modelId , $newFeedOrder );
+    }
 }

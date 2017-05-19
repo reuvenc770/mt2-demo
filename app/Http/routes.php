@@ -1149,6 +1149,12 @@ Route::group(
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@syncLevelsWithMT1'
                 ] );
+
+                Route::post( '/attribution/quickReorder/{modelId}' , [
+                    'as' => 'api.attribution.quickReorder' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@quickReorder'
+                ] );
             }
         );
 
