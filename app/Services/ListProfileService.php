@@ -16,6 +16,7 @@ use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
 use App\Services\ListProfileBaseTableCreationService;
 use App\Services\ServiceTraits\PaginateList;
+        use Log;
 
 class ListProfileService
 {
@@ -106,6 +107,8 @@ class ListProfileService
         $zips = json_decode( $listProfile->zip );
         $cities = json_decode( $listProfile->city );
 
+        $offersSuppressed = $listProfile->offerSuppression->all();
+
         return json_encode( [
             'profile_id' => $id ,
             'name' => $listProfile->name ,
@@ -132,16 +135,16 @@ class ListProfileService
                     'multiaction' => $listProfile->conversion_count
                 ]
             ] ,
-            'suppression' => $listProfile->use_global_suppression ? [ 'global' => [ 1 => 'Orange Global' ] ] : [] ,
+            'suppression' =>  [ 'global' => ($listProfile->use_global_suppression ? [ 1 => 'Orange Global' ] : []), 'offer' => $offersSuppressed ],
             'attributeFilters' => [
                 'age' => json_decode( $listProfile->age_range ) ,
-                'genders' => array_intersect( [ 'Male' => 'M' , 'Female' => 'F' , 'Unknown' => 'U' ] , json_decode( $listProfile->gender ) ) ,
-                'zips' => ( is_array( $zips ) && !empty( $zips ) ? implode( ',' , $zips ) : '' ) ,
-                'cities' => ( is_array( $cities ) && !empty( $cities ) ? implode( ',' , $cities ) : '' ) ,
-                'states' => json_decode( $listProfile->state ) ,
-                'deviceTypes' => json_decode( $listProfile->device_type ) ,
-                'mobileCarriers' => json_decode( $listProfile->mobile_carrier ) ,
-                'os' => json_decode( $listProfile->device_os )
+                'genders' => $this->includeAndExclude($listProfile->gender),
+                'zips' => $this->includeAndExclude($listProfile->zip),
+                'cities' => $this->includeAndExclude($listProfile->city),
+                'states' => $this->includeAndExclude($listProfile->state),
+                'deviceTypes' => $this->includeAndExclude($listProfile->device_type),
+                'mobileCarriers' => $this->includeAndExclude($listProfile->mobile_carrier),
+                'os' => $this->includeAndExclude($listProfile->device_os)
             ] ,
             'selectedColumns' => $this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
             'exportOptions' => [
@@ -155,16 +158,77 @@ class ListProfileService
             'feedGroups' => $listProfile->feedGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
             'feedClients' => $listProfile->clients()->get()->pluck( 'name' , 'id' )->toArray() ,
             'categories' => $listProfile->verticals()->get()->pluck( 'name' , 'id' )->toArray() ,
-            'offers' => $listProfile->offers()->get()->toArray() ,
+            'offerActions' => $listProfile->offerAction()->get()->toArray() ,
             'includeCsvHeader' => $listProfile->insert_header ? true : false ,
             'admiralsOnly' => $listProfile->admiral_only ? true : false
         ] );
     }
 
+    private function includeAndExclude($json) {
+        // JSON is untrustworthy
+        if ('' === $json || 'null' === $json) {
+            return ['include' => [], 'exclude' => []];
+        }
+
+        $array = json_decode($json, true);
+        $output = [];
+
+        if (!isset($array['include'])) {
+            $output['include'] = [];
+            $output['exclude'] = [];
+            return $output;
+        }
+
+        if (gettype($array['include']) === 'array') {
+            $output['include'] = $array['include'];
+        }
+        else {
+            $output['include'] = explode(',', $array['include']);
+        }
+
+        if (gettype($array['exclude']) === 'array') {
+            $output['exclude'] = $array['exclude'];
+        }
+        else {
+            $output['exclude'] = explode(',', $array['exclude']);
+        }
+
+        return $output;
+    }
+
+    private function formatCommaLists($array) {
+        $output = [];
+
+        if (!isset($array['include'])) {
+            $output['include'] = [];
+            $output['exclude'] = [];
+            return $output;
+        }
+
+        if (gettype($array['include']) === 'array') {
+            $output['include'] = $array['include'];
+        }
+        else {
+            $inc = preg_replace('/(\s+|\,\s*$)/', '', $array['include']);
+            $output['include'] = explode(',', $inc);
+        }
+
+        if (gettype($array['exclude']) === 'array') {
+            $output['exclude'] = $array['exclude'];
+        }
+        else {
+            $excl = preg_replace('/(\s+|\,\s*$)/', '', $array['exclude']);
+            $output['exclude'] = explode(',', $excl);
+        }
+
+        return $output;
+    }
+
     public function formUpdate ( $id , $data ) {
         $cleanData = $this->cleanseData( $data );
         $cleanData[ 'profile_id' ] = $id;
-
+        Log::info("cleansed data:");
+        Log::info($cleanData);
         $this->profileRepo->updateOrCreate( $cleanData );
 
         $this->saveEntities( $id , $data , true );
@@ -227,6 +291,9 @@ class ListProfileService
     }
 
     private function cleanseData ( $data ) {
+        Log::info("Raw data");
+        Log::info($data);
+
         return [
             'name' => $data[ 'name' ] ,
             'ftp_folder' => $data['ftp_folder'],
@@ -243,14 +310,14 @@ class ListProfileService
             'conversion_count' => isset( $data[ 'actionRanges' ][ 'converter' ][ 'multiaction' ] ) ? $data[ 'actionRanges' ][ 'converter' ][ 'multiaction' ] : 1,
             'use_global_suppression' => $data[ 'suppression' ][ 'global' ] ? 1 : 0 ,
             'age_range' => json_encode( $data[ 'attributeFilters' ][ 'age' ] ) ,
-            'gender' => json_encode( array_values( $data[ 'attributeFilters' ][ 'genders' ] ) ) ,
-            'zip' => $data[ 'attributeFilters' ][ 'zips' ] ? json_encode( explode( ',' , $data[ 'attributeFilters' ][ 'zips' ] ) ) : '{}' ,
-            'city' => $data[ 'attributeFilters' ][ 'cities' ] ? json_encode( explode( ',' , $data[ 'attributeFilters' ][ 'cities' ] ) ) : '{}' ,
-            'state' => json_encode( $data[ 'attributeFilters' ][ 'states' ] ) ,
-            'device_type' => json_encode( $data[ 'attributeFilters' ][ 'deviceTypes' ] ) ,
-            'mobile_carrier' => json_encode( $data[ 'attributeFilters' ][ 'mobileCarriers' ] ) ,
+            'gender' => json_encode($this->formatCommaLists($data['attributeFilters']['genders'])),
+            'zip' => json_encode($this->formatCommaLists($data['attributeFilters']['zips'])),
+            'city' => json_encode($this->formatCommaLists($data['attributeFilters']['cities'])),
+            'state' => json_encode($this->formatCommaLists($data['attributeFilters']['states'])),
+            'device_type' => json_encode($this->formatCommaLists($data['attributeFilters']['deviceTypes'])),
+            'mobile_carrier' => json_encode($this->formatCommaLists($data['attributeFilters']['mobileCarriers'])),
+            'device_os' => json_encode($this->formatCommaLists($data['attributeFilters']['os'])),
             'insert_header' => $data[ 'includeCsvHeader' ],
-            'device_os' => json_encode( $data[ 'attributeFilters' ][ 'os' ] ) ,
             'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
@@ -271,8 +338,8 @@ class ListProfileService
             $this->profileRepo->assignClients( $id , array_keys($data[ 'feedClients' ]) );
         }
 
-        if ( $data[ 'offers' ] || $isUpdate ) {
-            $this->profileRepo->assignOffers( $id , $data[ 'offers' ] );
+        if ( $data[ 'offerActions' ] || $isUpdate ) {
+            $this->profileRepo->assignOfferActions( $id , $data[ 'offerActions' ] );
         }
 
         if ( $data[ 'feeds' ] || $isUpdate ) {
@@ -285,6 +352,10 @@ class ListProfileService
 
         if ( $data[ 'isps' ] || $isUpdate ) {
             $this->profileRepo->assignIsps( $id , array_keys( $data[ 'isps' ] ) );
+        }
+
+        if ($data['suppression']['offer'] || $isUpdate) {
+            $this->profileRepo->assignOfferSuppression($id, $data['suppression']['offer']);
         }
 
     }
@@ -396,9 +467,14 @@ class ListProfileService
             $this->profileRepo->assignFeedGroups($copyProfile->id, $feedGroups->toArray());
         }
 
-        $offers = $currentProfile->offers()->pluck('id');
-        if ($offers->count() > 0) {
-            $this->profileRepo->assignCopiedOffers($copyProfile->id, $offers->toArray());
+        $offerActions = $currentProfile->offerAction()->pluck('id');
+        if ($offerActions->count() > 0) {
+            $this->profileRepo->assignOfferActions($copyProfile->id, $offerActions->toArray());
+        }
+
+        $offersSuppressed = $currentProfile->offerSuppression()->pluck('id');
+        if ($offersSuppressed->count() > 0) {
+            $this->profileRepo->assignOfferSuppression($copyProfile->id, $offersSuppressed->toArray());
         }
 
         $verticals = $currentProfile->verticals()->pluck('id');

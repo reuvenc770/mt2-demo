@@ -139,16 +139,19 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.highlightedDeviceTypeFiltersForRemoval = [];
     self.deviceTypeFilterVisibility = { 'mobile' : true , 'desktop' : true , 'unknown' : true };
     self.deviceTypeFilterNameMap = { 'mobile' : 'Mobile' , 'desktop' : 'Desktop' , 'unknown' : "Unknown" };
+    self.deviceTypeReverseNameMap = {'Mobile': 'mobile', 'Desktop': 'desktop', 'Unknown': "unknown" };
 
     self.highlightedOsFilters = [];
     self.highlightedOsFiltersForRemoval = [];
     self.osFilterVisibility = { 'android' : true , 'ios' : true , 'macosx' : true , 'rim' : true , 'windows' : true , 'linux' : true , 'other' : true };
     self.osFilterNameMap = { 'android' : 'Android' , 'ios' : 'iOS' , 'macosx' : 'Mac OS X' , 'rim' : 'Rim OS' , 'windows' : 'Windows' , 'linux' : 'Linux' , 'other' : 'Other' };
+    self.osFilterReverseNameMap = {'Android': 'android', 'iOS': 'ios', 'Mac OS X': 'macosx', 'Rim OS': 'rim', 'Windows' : 'windows', 'Linux': 'linux', 'Other': 'other' };
 
     self.highlightedCarrierFilters = [];
     self.highlightedCarrierFiltersForRemoval = [];
     self.carrierFilterVisibility = { 'att' : true , 'sprint' : true , 'tmobile' : true , 'verizon' : true };
     self.carrierFilterNameMap = { 'att' : 'AT&T' , 'sprint' : 'Sprint' , 'tmobile' : 'T-Mobile' , 'verizon' : 'Verizon' };
+    self.reverseCarrierNameMap = {'AT&T': 'att', 'Sprint': 'sprint',  'T-Mobile': 'tmobile', 'Verizon': 'verizon'};
 
     self.highlightedGlobalSupp = [];
     self.highlightedGlobalSuppForRemoval = [];
@@ -306,6 +309,32 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
                 self.categoryVisibility[ index ] = false;
             });
 
+            angular.forEach(self.current.attributeFilters.states.include, function (value, index) {
+                self.stateFilterVisibility[value] = false;
+                self.selectedFilterStates[value] = self.stateSuppNameMap[value];
+            });
+
+            angular.forEach(self.current.attributeFilters.states.exclude, function (value, index) {
+                self.stateSuppVisibility[value] = false;
+                self.selectedSuppStates[value] = self.stateSuppNameMap[value];
+            });
+
+            angular.forEach(self.current.attributeFilters.deviceTypes.include, function (value, index) {
+                self.deviceTypeFilterVisibility[self.deviceTypeReverseNameMap[value]] = false;
+            });
+
+            angular.forEach(self.current.attributeFilters.os.include, function (value, index) {
+                self.osFilterVisibility[self.osFilterReverseNameMap[value]] = false;
+            });
+
+            angular.forEach(self.current.attributeFilters.mobileCarriers.include, function (value, index) {
+                self.carrierFilterVisibility[self.reverseCarrierNameMap[value]] = false;
+            });
+
+            angular.forEach(self.current.attributeFilters.genders.include, function (value, index) {
+                self.genderChecked[value] = true;
+            });
+
             var len = self.current.selectedColumns.length;
             var columnsTemp = self.columnList.filter(function (item) {
                 for (var i = 0; i < len; i++) {
@@ -337,8 +366,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         } );
 
         angular.forEach( [ 'genders' , 'states' , 'deviceTypes' , 'os' , 'mobileCarriers' ] , function ( value , index ) {
-            if ( self.current.attributeFilters[ value ].length == 0 ) {
-                self.current.attributeFilters[ value ] = {};
+            if ( Object.keys(self.current.attributeFilters[ value ]).length == 0 ) {
+                self.current.attributeFilters[ value ] = {'include': [], 'exclude':[]};
             }
         } );
     };
@@ -1010,7 +1039,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     };
 
     self.updateListProfile = function () {
-        console.log(self.current);
         ListProfileApiService.updateListProfile( self.current , self.SuccessCallBackRedirect , self.failureCallback );
     };
 
