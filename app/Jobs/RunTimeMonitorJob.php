@@ -25,7 +25,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 {
 
     CONST JOB_NAME = "RunTimeMonitor";
-    CONST ROOM = '#mt2-dev-failed-jobs';
+    CONST ROOM = '#job-runtime-report';
     protected $room;
     protected $date_range;
     protected $report;
@@ -41,7 +41,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 
         parent::__construct(self::JOB_NAME.'_'.Carbon::now(),$runtime_threshold);
 
-        $this->room = env('SLACK_CHANNEL',self::ROOM);
+        $this->room = env('SLACK_RUNTIME_REPORT_CHANNEL',self::ROOM);
 
         //valid modes are 'monitor' and 'resolve'
         $this->mode = $mode;

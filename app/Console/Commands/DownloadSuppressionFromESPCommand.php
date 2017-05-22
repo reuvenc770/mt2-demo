@@ -16,7 +16,7 @@ class DownloadSuppressionFromESPCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'suppression:downloadESP {espName} {lookBack} {queueName?}';
+    protected $signature = 'suppression:downloadESP {--runtime-threshold=} {espName} {lookBack} {queueName?}';
     protected $espRepo;
     protected $lookBack;
 
@@ -57,6 +57,7 @@ class DownloadSuppressionFromESPCommand extends Command
                 $this->info( $espLogLine );
 
                 $job = ( new DownloadSuppressionFromESP(
+                    $this->option('runtime-threshold'),
                     $account->name ,
                     $account->id ,
                     $this->lookBack ,
