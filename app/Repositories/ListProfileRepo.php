@@ -13,40 +13,44 @@ use App\Models\ListProfile;
 use App\Models\ListProfileClient;
 use App\Models\ListProfileVertical;
 use App\Models\ListProfileSchedule;
-use App\Models\ListProfileOffer;
+use App\Models\ListProfileOfferAction;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
 use App\Models\ListProfileFeedGroup;
+use App\Models\ListProfileOfferSuppression;
 
 class ListProfileRepo
 {
     private $listProfile;
     private $vertical;
     private $schedule;
-    private $offer;
+    private $offerAction;
     private $feed;
     private $isp;
     private $feedGroup;
     private $client;
+    private $offerSuppression;
 
     public function __construct(
         ListProfile $listProfile ,
         ListProfileVertical $vertical ,
         ListProfileSchedule $schedule ,
-        ListProfileOffer $offer ,
+        ListProfileOfferAction $offerAction ,
         ListProfileFeed $feed ,
         ListProfileDomainGroup $isp,
         ListProfileFeedGroup $feedGroup,
-        ListProfileClient $client
+        ListProfileClient $client,
+        ListProfileOfferSuppression $offerSuppression
     ) {
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
         $this->schedule = $schedule;
-        $this->offer = $offer;
+        $this->offerAction = $offerAction;
         $this->feed = $feed;
         $this->isp = $isp;
         $this->feedGroup = $feedGroup;
         $this->client = $client;
+        $this->offerSuppression = $offerSuppression;
     }
 
     public function getModel ( $options = [] ) {
@@ -127,19 +131,19 @@ class ListProfileRepo
         ] );
     }
 
-    public function assignOffers ( $id , $offers ) {
-        $this->offer->where( 'list_profile_id' , $id )->delete();
+    public function assignOfferActions ( $id , $offers ) {
+        $this->offerAction->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $offers as $currentOffer ) {
-            $this->offer->insert( [ 'list_profile_id' => $id , 'offer_id' => $currentOffer[ 'id' ] ] );
+            $this->offerAction->insert( [ 'list_profile_id' => $id , 'offer_id' => $currentOffer[ 'id' ] ] );
         }
     }
 
-    public function assignCopiedOffers($id, $offers) {
-        $this->offer->where('list_profile_id', $id)->delete();
+    public function assignOfferSuppression ($id , $offers) {
+        $this->offerSuppression->where('list_profile_id', $id)->delete();
 
-        foreach ( $offers as $currentOffer ) {
-            $this->offer->insert(['list_profile_id' => $id, 'offer_id' => $currentOffer ]);
+        foreach ($offers as $currentOffer) {
+            $this->offerSuppression->insert(['list_profile_id' => $id, 'offer_id' => $currentOffer[ 'id' ]]);
         }
     }
 
