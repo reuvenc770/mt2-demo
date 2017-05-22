@@ -180,7 +180,7 @@ class AttributionController extends Controller
             return response()->json( [ 'newFeedOrder' => [ 'Model does not exist. Please save model first.' ] ] , 422 );
         }
 
-        $lines = explode( "\n" , $request->input( 'newFeedOrder' ) );
+        $lines = explode( PHP_EOL , $request->input( 'newFeedOrder' ) );
 
         $orderList = [];
         foreach ( $lines as $current ) {
