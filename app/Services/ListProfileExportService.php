@@ -71,18 +71,23 @@ class ListProfileExportService {
         $count = 0;
 
         foreach ($resource as $row) {
-            $suppressed = false;
-            foreach ($listProfile->offers as $offer) {
-                // handle advertiser suppression here
-                if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
-                    $suppressed = true;
-                    break;
+            if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
+                
+                $suppressed = false;
+                foreach ($listProfile->offers as $offer) {
+                    // handle advertiser suppression here
+                    if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
+                        $suppressed = true;
+                        $entry->incrementOfferSuppression();
+                        break;
+                    }
                 }
-            }
 
-            if (!$suppressed) {
-                $row = $this->mapRow($columns, $row);
-                $this->remoteBatch($fileName, $row);
+                if (!$suppressed) {
+                    $row = $this->mapRow($columns, $row);
+                    $this->remoteBatch($fileName, $row);
+                    $entry->increaseFinalRecordCount();
+                }
             }
         }
 
