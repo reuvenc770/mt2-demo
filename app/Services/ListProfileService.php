@@ -291,9 +291,6 @@ class ListProfileService
     }
 
     private function cleanseData ( $data ) {
-        Log::info("Raw data");
-        Log::info($data);
-
         return [
             'name' => $data[ 'name' ] ,
             'ftp_folder' => $data['ftp_folder'],
