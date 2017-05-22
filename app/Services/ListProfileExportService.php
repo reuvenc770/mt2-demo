@@ -67,58 +67,26 @@ class ListProfileExportService {
         }
 
         $result = $this->tableRepo->getModel();
-
-        $runId = str_random(10);
-        $reportCard = CacheReportCard::makeNewReportCard("LP::{$listProfileId}-{$runId}");
-        $reportCard->setOwner('');
-        $entry = new ReportEntry("List Profile $listProfileId");
-        $entry->setFileName($fileName);
-
-        $offerNames = [];
-
-        foreach ($listProfile->offers->all() as $offer) {
-            $offerNames[] = $this->offerRepo->getOfferName($offer->id);
-        }
-
-        $entry->addOffersSuppressedAgainst($offerNames);
-
         $resource = $result->cursor();
         $count = 0;
 
         foreach ($resource as $row) {
-            if ($row->isGloballySuppressed()) {
-                $entry->increaseGlobalSuppressionCount();
-            }
-            elseif ($row->isFeedSuppressed()) {
-                $entry->increaseListSuppressionCount();
-            }
-            else {
-                $suppressed = false;
-                foreach ($listProfile->offers as $offer) {
-                    // handle advertiser suppression here
-                    if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
-                        $suppressed = true;
-                        $entry->incrementOfferSuppression();
-                        break;
-                    }
-                }
-
-                if (!$suppressed) {
-                    $row = $this->mapRow($columns, $row);
-                    $this->remoteBatch($fileName, $row);
-                    $entry->increaseFinalRecordCount();
+            $suppressed = false;
+            foreach ($listProfile->offers as $offer) {
+                // handle advertiser suppression here
+                if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
+                    $suppressed = true;
+                    break;
                 }
             }
 
-            $count++;
+            if (!$suppressed) {
+                $row = $this->mapRow($columns, $row);
+                $this->remoteBatch($fileName, $row);
+            }
         }
 
         $this->writeRemoteBatch($fileName);
-
-        $entry->addOriginalTotal($count);
-        $reportCard->addEntry($entry);
-        $reportCard->mail();
-
         return $fileName;
     }
 
