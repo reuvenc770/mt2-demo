@@ -16,7 +16,7 @@ class GrabApiEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadApi {espName} {--D|daysBack=} {--Q|queueName=default} {--E|espAccountId=} {--L|apiLimit=}}';
+    protected $signature = 'reports:downloadApi {espName} {--D|daysBack=} {--Q|queueName=default} {--E|espAccountId=} {--L|apiLimit=} {--runtime-threshold=}';
     protected $espRepo;
 
     protected $espName;
@@ -101,9 +101,9 @@ class GrabApiEspReports extends Command
     public function fireJob () {
 
         if ( $this->limitCallSize() ) {
-            $job = new RetrieveApiReports( $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) , $this->apiLimit );
+            $job = new RetrieveApiReports($this->option('runtime-threshold'), $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) , $this->apiLimit );
         } else {
-            $job = new RetrieveApiReports( $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) );
+            $job = new RetrieveApiReports($this->option('runtime-threshold'), $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) );
         }
 
         $job->onQueue( $this->queueName );

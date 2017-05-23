@@ -22,7 +22,7 @@ class ProcessNewActionsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'newActions:process {--hoursBack= : How far back to look for actions} {--s|startDateTime= : Beginning of datetime range to look for actions.} {--e|endDateTime= : End of datetime range to look for actions.}';
+    protected $signature = 'newActions:process {--hoursBack= : How far back to look for actions} {--s|startDateTime= : Beginning of datetime range to look for actions.} {--e|endDateTime= : End of datetime range to look for actions.} {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -54,7 +54,8 @@ class ProcessNewActionsCommand extends Command
 
         $this->dispatch( new ProcessNewActionsJob(
             $this->dateTimeRange ,
-            str_random( 16 )
+            str_random( 16 ),
+            $this->option('runtime-threshold')
         ) );
     }
 
