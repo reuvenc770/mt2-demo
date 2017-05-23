@@ -602,7 +602,6 @@
 </h3>
 
 @if ( Sentinel::inRole( 'admiral' ) )
-<!- We probably want this to be anything above a certain paygrade, not just admiral. Ask Chin.  ->
 <div class="row cmp-admiral-feature" ng-show="listProfile.enableAdmiral">
     <div class="col-sm-6">
         <label>Available Global Suppression</label>
