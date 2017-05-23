@@ -15,11 +15,12 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\ListProfileOffer whereOfferId($value)
  * @mixin \Eloquent
  */
-class ListProfileOffer extends Model
+class ListProfileOfferSuppression extends Model
 {
-    protected $guarded = [''];
+    protected $guarded = [];
     public $timestamps = false;
     protected $connection = 'list_profile';
+    protected $table = 'list_profile_offer_suppression';
 
     public function offer() {
         return $this->belongsTo('App\Models\Offer');

@@ -16,10 +16,14 @@ class AttributionLevelRepo {
 
     public function __construct ( $attributionModelId = null ) {
         if ( !is_null( $attributionModelId ) && is_numeric( $attributionModelId ) ) {
-            $this->levels = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $attributionModelId );
+            $this->setModelId( $attributionModelId );
         } else {
             $this->levels = new AttributionLevel();
         }
+    }
+
+    public function setModelId ( $attributionModelId ) {
+        $this->levels = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $attributionModelId );
     }
 
     public function setLevel ( $feedId , $level ) {
@@ -40,8 +44,24 @@ class AttributionLevelRepo {
         }
     }
 
-    public function getAllLevels () {
-        #returns all levels
+    public function getAllLevels ( $attributionModelId = null ) {
+        if ( is_numeric( $attributionModelId ) ) {
+            $this->setModelId( $attributionModelId );
+        }
+
+        $currentFeedArray = [];
+
+        $this->levels
+            ->select( 'feed_id' , 'level' )
+            ->get()
+            ->keyBy( 'level' )
+            ->each( function ( $item , $key ) use ( &$currentFeedArray ) {
+                $currentFeedArray[ $key ] = (int)$item[ 'feed_id' ];
+            } );
+
+        ksort( $currentFeedArray );
+
+        return $currentFeedArray;
     }
 
     public function toggleActiveStatus ( $feedId , $isActive ) {

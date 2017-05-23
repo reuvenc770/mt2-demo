@@ -376,15 +376,19 @@
 <div class="row">
     <div class="col-sm-6">
         <label>Offer Actions
-            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Return records that are within selected offer(s) and also meets selected action day ranges.">help</md-icon>
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Return records that are within selected offer(s) and also meet selected action day ranges.">help</md-icon>
         </label>
 
         <div class="pull-right">
             <label ng-click="listProfile.addOffers()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
-            <input type="text" style="margin-bottom:5px" placeholder="To search, type first 3 letters of offer name." name="searchBy" id="searchBy" class="form-control" ng-change="listProfile.search.populateOffers()" ng-model="listProfile.search.offer"  />
-        <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 150px;" ng-options="offer.name for offer in listProfile.search.offerResults" >
-            </select>
+        <input type="text" style="margin-bottom:5px" 
+            placeholder="To search, type at least 3 letters of offer name." 
+            name="searchBy" id="searchBy" 
+            class="form-control" 
+            ng-change="listProfile.search.populateOffers()" 
+            ng-model="listProfile.search.offer"  />
+        <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 150px;" ng-options="offer.name for offer in listProfile.search.offerResults" ></select>
     </div>
 
     <div class="col-sm-6">
@@ -394,7 +398,7 @@
             <label ng-click="listProfile.removeOffers()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
         </div>
 
-        <select  ng-model="listProfile.highlightedOffersForRemoval" multiple ng-options="offer.name for offer in listProfile.current.offers" style="width: 100%; height: 150px; margin-top:40px">
+        <select ng-model="listProfile.highlightedOffersForRemoval" multiple ng-options="offer.name for offer in listProfile.current.offerActions" style="width: 100%; height: 150px; margin-top:40px">
         </select>
     </div>
 </div>
@@ -441,19 +445,19 @@
         <label>Gender</label>
 
         <div layout="row" layout-align="start center">
-            <md-checkbox name="filterGenderMale" value="Male" ng-checked="listProfile.current.attributeFilters.genders.Male" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap ,'Male' )">
+            <md-checkbox name="filterGenderMale" value="Male" ng-checked="listProfile.genderChecked.Male" ng-click="listProfile.setGender('Male')">
                 Male
             </md-checkbox>
 
             <span flex="5"></span>
 
-            <md-checkbox name="filterGenderFemale" value="Female" ng-checked="listProfile.current.attributeFilters.genders.Female" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap , 'Female' )">
+            <md-checkbox name="filterGenderFemale" value="Female" ng-checked="listProfile.genderChecked.Female" ng-click="listProfile.setGender('Female')">
                 Female
             </md-checkbox>
 
             <span flex="5"></span>
 
-            <md-checkbox name="filterGenderUnknown" value="Unknown" ng-checked="listProfile.current.attributeFilters.genders.Unknown" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap , 'Unknown' )">
+            <md-checkbox name="filterGenderUnknown" value="Unknown" ng-checked="listProfile.genderChecked.Unknown" ng-click="listProfile.setGender('Unknown')">
                 Unknown
             <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Some records may not have data for this attribute. Check 'Unknown' to include those records.">help</md-icon>
             </md-checkbox>
@@ -463,13 +467,13 @@
     <div class="form-group">
         <label>Zip Codes(s)</label>
 
-        <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.attributeFilters.zips" rows="5"></textarea>
+        <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.attributeFilters.zips.include" rows="5"></textarea>
     </div>
 
     <div class="form-group">
         <label>City/Cities</label>
 
-        <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.attributeFilters.cities" rows="5"></textarea>
+        <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.attributeFilters.cities.include" rows="5"></textarea>
     </div>
 
     <div class="row">
@@ -495,7 +499,7 @@
             </div>
 
             <select ng-model="listProfile.highlightedStateFiltersForRemoval" multiple style="width: 100%; height: 150px;">
-                <option ng-repeat="( stateId , stateName ) in listProfile.current.attributeFilters.states" ng-value="stateId">@{{stateName}}</option>
+                <option ng-repeat="(stateId, stateName) in listProfile.selectedFilterStates" ng-value="stateId">@{{stateName}}</option>
             </select>
         </div>
     </div>
@@ -511,7 +515,7 @@
 
             <select ng-model="listProfile.highlightedDeviceTypeFilters" multiple style="width: 100%; height: 75px;">
                 <option value="mobile" ng-show="listProfile.deviceTypeFilterVisibility[ 'mobile' ]">Mobile</option>
-                <option value="desktop" ng-show="listProfile.deviceTypeFilterVisibility[ 'desktop' ]">Dekstop</option>
+                <option value="desktop" ng-show="listProfile.deviceTypeFilterVisibility[ 'desktop' ]">Desktop</option>
                 <option value="unknown" ng-show="listProfile.deviceTypeFilterVisibility[ 'unknown' ]">Unknown</option>
             </select>
         </div>
@@ -524,7 +528,7 @@
             </div>
 
             <select ng-model="listProfile.highlightedDeviceTypeFiltersForRemoval" multiple style="width: 100%; height: 75px;">
-                <option ng-repeat="( typeId , typeName ) in listProfile.current.attributeFilters.deviceTypes" ng-value="typeId">@{{typeName}}</option>
+                <option ng-repeat="( typeId , typeName ) in listProfile.current.attributeFilters.deviceTypes.include" ng-value="typeName">@{{typeName}}</option>
             </select>
         </div>
     </div>
@@ -557,7 +561,7 @@
             </div>
 
             <select ng-model="listProfile.highlightedOsFiltersForRemoval" multiple style="width: 100%; height: 75px;">
-                <option ng-repeat="( osId , osName ) in listProfile.current.attributeFilters.os" ng-value="osId">@{{osName}}</option>
+                <option ng-repeat="( osId , osName ) in listProfile.current.attributeFilters.os.include" ng-value="osName">@{{osName}}</option>
             </select>
         </div>
     </div>
@@ -587,7 +591,7 @@
             </div>
 
             <select ng-model="listProfile.highlightedCarrierFiltersForRemoval" multiple style="width: 100%; height: 75px;">
-                <option ng-repeat="( carrierId , carrierName ) in listProfile.current.attributeFilters.mobileCarriers" ng-value="carrierId">@{{carrierName}}</option>
+                <option ng-repeat="( carrierId , carrierName ) in listProfile.current.attributeFilters.mobileCarriers.include" ng-value="carrierName">@{{carrierName}}</option>
             </select>
         </div>
     </div>
@@ -666,12 +670,17 @@
         <label>Available Offer Suppression</label>
 
         <div class="pull-right">
-            <label ng-click="listProfile.addOfferSupp( $event )" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
+            <label ng-click="listProfile.addOfferSupp($event)" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 75px;">
-            <option value="">NEED LIST</option>
-        </select>
+        <input type="text" 
+            style="margin-bottom:5px" 
+            placeholder="To search, type at least 3 letters of offer name." 
+            name="searchSuppBy" id="searchSuppBy" 
+            class="form-control" 
+            ng-change="listProfile.search.populateOfferSupp()" 
+            ng-model="listProfile.search.offerSupp"  />
+        <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 150px;" ng-options="offer.name for offer in listProfile.search.offerSuppResults" ></select>
     </div>
 
     <div class="col-sm-6">
@@ -680,11 +689,9 @@
         <div class="pull-right">
             <label ng-click="listProfile.removeOfferSupp()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
         </div>
-
-        <select ng-model="listProfile.highlightedOfferSuppForRemoval" multiple style="width: 100%; height: 250px;">
-            <option ng-repeat="( offerSuppId , offerSuppName ) in listProfile.current.suppression.offer" ng-value="offerSuppId">@{{offerSuppName}}</option>
-        </select>
+        <select ng-model="listProfile.highlightedOfferSuppForRemoval" multiple ng-options="offer.name for offer in listProfile.current.suppression.offer" style="width: 100%; height: 150px; margin-top:40px"></select>
     </div>
+
 </div>
 
 <h3 class="bold-text">Attribute Suppression
@@ -694,14 +701,14 @@
 <div class="form-group">
     <label>City/Cities</label>
 
-    <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.suppression.attribute.cities"></textarea>
+    <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.attributeFilters.cities.exclude"></textarea>
 </div>
 
 
 <div class="form-group">
     <label>Zip Code(s)</label>
 
-    <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.suppression.attribute.zips"></textarea>
+    <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.attributeFilters.zips.exclude"></textarea>
 </div>
 
 <div class="row">
@@ -727,7 +734,7 @@
         </div>
 
         <select ng-model="listProfile.highlightedStateSuppForRemoval" multiple style="width: 100%; height: 150px;">
-            <option ng-repeat="( stateId , stateName ) in listProfile.current.suppression.attribute.states" ng-value="stateId">@{{stateName}}</option>
+            <option ng-repeat="( stateId , stateName ) in listProfile.selectedSuppStates" ng-value="stateId">@{{stateName}}</option>
         </select>
     </div>
 </div>
