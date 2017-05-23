@@ -27,7 +27,7 @@ trait UseTracking {
         $this->trackingId = $trackingId;
     }
 
-    protected function generateTrackingId () {
+    public function generateTrackingId () {
         $this->trackingId =  str_random( $this->trackingIdLength );
     }
 }
