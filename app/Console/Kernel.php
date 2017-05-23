@@ -166,7 +166,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('reports:downloadApi Ymlp --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto --daysBack=5 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadTrackingData Cake 5 --runtime-threshold=1m')->hourly()->sendOutputTo($filePath);
         $schedule->command('process:cfsStats')->cron('0 */4 * * *'); // Job name like: ProcessCfsStats
         
         
@@ -260,7 +260,7 @@ class Kernel extends ConsoleKernel
          */
          
         // Attribution jobs disabled temporarily until launch
-        $schedule->command('runFilter expiration')->dailyAt(self::MIDNIGHT); // Job name: Scheduled Filter Expiration
+        $schedule->command('runFilter expiration --runtime-threshold=25m')->dailyAt(self::MIDNIGHT); // Job name: Scheduled Filter Expiration
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
         $schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
@@ -340,6 +340,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process --hoursBack=2")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
+        $schedule->command("newActions:process --hoursBack=2 --runtime-threshold=20m")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
     }
 }

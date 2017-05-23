@@ -15,7 +15,7 @@ class RunScheduledFilter extends Command
      *
      * @var string
      */
-    protected $signature = 'runFilter {filter} {runDate?}';
+    protected $signature = 'runFilter {filter} {runDate?} {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -53,7 +53,7 @@ class RunScheduledFilter extends Command
             }
         }
 
-        $job = new ScheduledFilterResolver( $this->argument( 'filter' ), $date , str_random(16));
+        $job = new ScheduledFilterResolver( $this->argument( 'filter' ), $date , str_random(16), $this->option('runtime-threshold'));
         $this->dispatch( $job );
     }
 }
