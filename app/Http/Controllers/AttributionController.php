@@ -174,4 +174,25 @@ class AttributionController extends Controller
     public function getReportData ( Request $request ) {
         return response()->json( $this->reportService->getReportData( $request ) );
     }
+
+    public function quickReorder ( Request $request , $modelId ) {
+        if ( !$this->service->modelExists( $modelId ) ) {
+            return response()->json( [ 'newFeedOrder' => [ 'Model does not exist. Please save model first.' ] ] , 422 );
+        }
+
+        $lines = explode( PHP_EOL , $request->input( 'newFeedOrder' ) );
+
+        $orderList = [];
+        foreach ( $lines as $current ) {
+            $parts = explode( ',' , $current);
+
+            if ( count( $parts ) !== 2 ) {
+                return response()->json( [ 'newFeedOrder' => [ 'You must have 2 columns. Format: [LEVEL],[FEEDID]' ] ] , 422 );
+            }
+
+            $orderList [ $parts[ 0 ] ] = (int)$parts[ 1 ];
+        }
+
+        return response()->json( [ "status" => $this->service->quickReorder( $modelId , $orderList ) ] );
+    }
 }
