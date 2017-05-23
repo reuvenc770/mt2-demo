@@ -113,6 +113,43 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     }
 
     private function setRecordStatus(ProcessingRecord &$record) {
+        # This will have to be uncommented later
+        /*
+        if ($record->isSuppressed) {
+            $record->status = 'suppressed';
+        }
+        elseif (isset($this->emailCache[$record->emailAddress])) {
+            $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
+
+            if ($record->feedId === $currentAttributedFeedId) {
+                $record->uniqueStatus = 'duplicate';
+                $record->attrStatus = ''; // We won't be inserting this
+            }
+            elseif (0 === $currentAttributedFeedId 
+                && ($record->feedId === $this->emailCache[$record->emailAddress])) {
+                // probably was first attributed in this very batch
+                $record->uniqueStatus = 'duplicate';
+                $record->attrStatus = ''; // We won't be inserting this
+            }
+            else {
+                $record->uniqueStatus = 'non-unique';
+                $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
+            }
+        }
+        elseif ($record->newEmail && !isset($this->emailCache[$record->emailAddress])) {
+            // Brand new email. Assigning attribution and inserting record data.
+            $this->emailCache[$record->emailAddress] = $record->feedId;
+            $record->uniqueStatus = 'unique';
+            $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
+        }
+        else { 
+            // This is not a new email. Attribution is now first come, first served (at least here)
+            $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
+            $record->uniqueStatus = $currentAttributedFeedId === $record->feedId ? 'duplicate' : 'non-unique';
+            $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
+        }
+        */
+
         if ($record->isSuppressed) {
             $record->status = 'suppressed';
         }
@@ -145,6 +182,9 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             $record->actionStatus = $this->emailStatusRepo->getActionStatus($record->emailId);
             $attributionTruths = $this->emailRepo->getAttributionTruths($record->emailId);
             $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
+            $lastActionDateTime = $this->emailStatusRepo->getLastActionTime($record->emailId);
+            $actionLookback = 90;
+            $recentAction = ($lastActionDateTime === null) ? false : (!Carbon::parse($lastActionDateTime)->lt(Carbon::today()->subDays($actionLookback)));
             $this->emailCache[$record->emailAddress] = 1;
 
             if (0 === $attributionTruths) {
@@ -159,21 +199,15 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
             }
             // For the rest, the feeds differ, by definition
-            elseif (1 === $attributionTruths->recent_import) {
+            elseif (1 === $attributionTruths->recent_import || $recentAction) {
                 // Stays with importer
                 $record->uniqueStatus = 'non-unique';
                 $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
             }
-            elseif (0 === $attributionTruths->recent_import && 1 === $attributionTruths->has_action) {
-                // Not a recent import but there is an action
-                $record->uniqueStatus = 'non-unique';
-                $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_RESPONDER;                
-            }
             else {
-                // Not a new record, not attributed import was not recent, has no action
+                // Not a new record, import was not recent, has no recent action
                 $importingAttrLevel = $this->attributionLevelRepo->getLevel($record->feedId);
                 $currentAttributionLevel = $this->emailRepo->getCurrentAttributionLevel($record->emailId);
-
                 $lastImportDate = $this->latestDataRepo->getSubscribeDate($record->emailId);
 
                 if (is_null($lastImportDate) || Carbon::parse($lastImportDate)->lt(Carbon::today()->subDays(90))) {
