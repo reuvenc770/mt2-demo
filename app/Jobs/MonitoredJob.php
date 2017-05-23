@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Console\Commands\Traits\UseTracking;
+use Log;
 
 /**
  * Class MonitoredJob
@@ -71,6 +72,9 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
                 JobTracking::addDiagnostic(array('errors' => array('Job FAILED with exception: '.$e->getMessage())),$this->tracking);
+                Log::error( 'MonitorJob ERROR: job_entries.tracking="'.$this->tracking.'"' );
+                Log::error( $e->getMessage() );
+                Log::error( $e->getTraceAsString() );
                 $this->failed();
             }
             finally {

@@ -35,7 +35,6 @@ class DownloadSuppressionFromESP extends MonitoredJob implements ShouldQueue
 
     public function handleJob()
     {
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
         $data = $subscriptionService->pullUnsubsEmailsByLookback($this->date);
         if($data){
