@@ -227,8 +227,6 @@ class ListProfileService
     public function formUpdate ( $id , $data ) {
         $cleanData = $this->cleanseData( $data );
         $cleanData[ 'profile_id' ] = $id;
-        Log::info("cleansed data:");
-        Log::info($cleanData);
         $this->profileRepo->updateOrCreate( $cleanData );
 
         $this->saveEntities( $id , $data , true );
