@@ -53,6 +53,8 @@ class DownloadSuppressionFromESPCommand extends Command
 
         foreach ($espAccounts as $account){
             if($account->enable_suppression) {
+                $this->generateTrackingId();
+                
                 $espLogLine = "{$account->name}::{$account->account_name}::" . $this->getTrackingId();
                 $this->info( $espLogLine );
 
