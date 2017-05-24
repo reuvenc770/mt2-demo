@@ -103,7 +103,7 @@ class JobEntryRepo
      * @param string $tracking
      * @param array $params
      */
-    public function saveJob(string $tracking, array $params){
+    public function saveJob($tracking, array $params){
         $this->entry->updateOrCreate(
             array('tracking' => $tracking),
             $params
