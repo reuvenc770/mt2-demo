@@ -19,6 +19,7 @@ class RemoteFeedFileService {
     const SLACK_CHANNEL = "#mt2team";
     const DEV_TEAM_EMAIL = 'tech.team.mt2@zetaglobal.com';
     const STAKEHOLDERS_EMAIL = 'orangeac@zetaglobal.com';
+    const ROOT_FILE_DIR = '/home';
 
     protected $feedService;
     protected $systemService;
@@ -65,7 +66,7 @@ class RemoteFeedFileService {
 
             if ( !is_null( $this->lastFileProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
                 $callback = $this->fileProcessedCallback;
-                $callback( $this->lastFileProcessed );
+                $callback( $this->lastFileProcessed , $this->systemService);
 
                 $this->lastFileProcessed = null;
             }
@@ -288,12 +289,12 @@ class RemoteFeedFileService {
     }
 
     protected function getValidDirectories () {
-        $rawDirectoryList = $this->systemService->listDirectories( '/home' );    
+        $rawDirectoryList = $this->systemService->listDirectories( self::ROOT_FILE_DIR );    
 
         array_pop( $rawDirectoryList );
         array_shift( $rawDirectoryList );
 
-        $validFeedList = $this->feedService->getActiveFeedShortNames();
+        $validFeedList = $this->getValidFeedList();
 
         $directoryList = [];
         
@@ -315,6 +316,10 @@ class RemoteFeedFileService {
         }
 
         return $directoryList;
+    }
+
+    protected function getValidFeedList () {
+        return $this->feedService->getActiveFeedShortNames();
     }
 
     protected function connectToServer () {
