@@ -37,11 +37,18 @@ class RemoteFeedFileService {
     protected $processedFileCount = 0;
     protected $notificationCollection = [];
 
+    protected $lastFileProcessed;
+    protected $fileProcessedCallback;
+
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         $this->feedService = $feedService;
         $this->systemService = $systemService;
         $this->domainGroupService = $domainGroupService;
         $this->rawRepo = $rawRepo;
+    }
+
+    public function setFileProcessedCallback ( Callable $callback ) {
+        $this->fileProcessedCallback = $callback;
     }
 
     public function processNewFiles () {
@@ -55,6 +62,13 @@ class RemoteFeedFileService {
             $recordSqlList = $this->getNewRecords();
 
             $this->rawRepo->massInsert( $recordSqlList );
+
+            if ( !is_null( $this->lastFileProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
+                $callback = $this->fileProcessedCallback;
+                $callback( $this->lastFileProcessed );
+
+                $this->lastFileProcessed = null;
+            }
 
             $this->processedFileCount++;
         }
@@ -128,7 +142,7 @@ class RemoteFeedFileService {
             }
 
             $this->currentFile = $this->newFileList[ 0 ];
-            $this->currentColumnMap = $this->feedService->getFileColumnMap( $this->currentFile[ 'feedId' ] );
+            $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
             if ( $this->lastLineNumber === 0 ) {
                 $this->systemService->appendEofToFile( $this->currentFile[ 'path' ] );
@@ -156,7 +170,7 @@ class RemoteFeedFileService {
 
                 $this->markFileAsProcessed();
                 
-                array_shift( $this->newFileList );
+                $this->lastFileProcessed = array_shift( $this->newFileList );
 
                 $this->resetCursor();
             }
@@ -172,6 +186,10 @@ class RemoteFeedFileService {
         return $this->getBufferContent();
     }
 
+    protected function getFileColumnMap ( $feedId ) {
+        return $this->feedService->getFileColumnMap( $feedId );
+    } 
+
     protected function processLines () {
         $lineNumber = $this->lastLineNumber + 1;
 
@@ -179,7 +197,7 @@ class RemoteFeedFileService {
             $lineColumns = explode( ',' , trim( $currentLine ) );
 
             if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
-                SlackLevel::to(self::SLACK_CHANNEL)->send( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
+                $this->fireAlert( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
 
                 throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
             } 
@@ -193,6 +211,10 @@ class RemoteFeedFileService {
 
             $lineNumber++;
         }
+    }
+
+    protected function fireAlert ( $message ) {
+        SlackLevel::to(self::SLACK_CHANNEL)->send( $message );
     }
 
     protected function isValidRecord ( $record , $rawRecord , $lineNumber ) {
