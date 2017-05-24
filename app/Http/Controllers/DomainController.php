@@ -177,6 +177,13 @@ class DomainController extends Controller
     public function update(Request $request, $id)
     {
         $domain = $request->toArray();
+
+        try {
+            Carbon::createFromFormat( 'Y-m-d' , $domain[ 'expires_at' ] );
+        } catch ( \Exception $e ) {
+            return response()->json( ['expires_at' => ["This domain's expiration date is invalid."] ] , 422 );
+        }
+
         $bool = $this->service->updateDomain($domain);
         return response()->json(['success' => $bool]);
     }
