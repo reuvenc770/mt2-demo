@@ -20,10 +20,8 @@ class ProcessFeedRawFilesJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
-    const JOB_NAME_BASE = 'ProcessFeedRawFilesJob-';
-
-    private $jobName = '';
-    private $tracking;
+    protected $jobName = 'ProcessFeedRawFilesJob-';
+    protected $tracking;
 
     /**
      * Create a new job instance.
@@ -34,7 +32,8 @@ class ProcessFeedRawFilesJob extends Job implements ShouldQueue
     {
         $this->tracking = $tracking;
 
-        $this->jobName = self::JOB_NAME_BASE . $tracking;
+        $this->jobName .= $tracking;
+
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 

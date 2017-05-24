@@ -16,10 +16,8 @@ use Carbon\Carbon;
 use Mail;
 
 class RemoteFeedFileService {
-    const SLACK_CHANNEL = "#mt2team";
     const DEV_TEAM_EMAIL = 'tech.team.mt2@zetaglobal.com';
     const STAKEHOLDERS_EMAIL = 'orangeac@zetaglobal.com';
-    const ROOT_FILE_DIR = '/home';
 
     protected $feedService;
     protected $systemService;
@@ -38,6 +36,9 @@ class RemoteFeedFileService {
     protected $processedFileCount = 0;
     protected $notificationCollection = [];
 
+    protected $slackChannel = "#mt2team";
+    protected $rootFileDirectory = '/home';
+    protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
     protected $lastFileProcessed;
     protected $fileProcessedCallback;
 
@@ -215,7 +216,7 @@ class RemoteFeedFileService {
     }
 
     protected function fireAlert ( $message ) {
-        SlackLevel::to(self::SLACK_CHANNEL)->send( $message );
+        SlackLevel::to( $this->slackChannel )->send( $message );
     }
 
     protected function isValidRecord ( $record , $rawRecord , $lineNumber ) {
@@ -289,7 +290,7 @@ class RemoteFeedFileService {
     }
 
     protected function getValidDirectories () {
-        $rawDirectoryList = $this->systemService->listDirectories( self::ROOT_FILE_DIR );    
+        $rawDirectoryList = $this->systemService->listDirectories( $this->rootFileDirectory );    
 
         array_pop( $rawDirectoryList );
         array_shift( $rawDirectoryList );
@@ -300,7 +301,7 @@ class RemoteFeedFileService {
         
         foreach( $rawDirectoryList as $dir ) { 
             $matches = []; 
-            preg_match( '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/' , $dir , $matches );
+            preg_match( $this->validDirectoryRegex , $dir , $matches );
 
             $notSystemUser = ( strpos( $dir , 'centos' ) === false );
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
@@ -309,7 +310,7 @@ class RemoteFeedFileService {
 
             if ( $notAdminUser && $notSystemUser && $notCustomUser && $isValidFeed ) { 
                 // Need to switch 2430 and 2618 to 2979
-                $feedIdResult = $this->feedService->getFeedIdByShortName( $matches[ 1 ] );
+                $feedIdResult = $this->getFeedIdFromName( $matches[ 1 ] );
                 $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;
                 $directoryList[] = [ 'directory' => $dir , 'feedId' =>  $feedId];
             }   
@@ -320,6 +321,10 @@ class RemoteFeedFileService {
 
     protected function getValidFeedList () {
         return $this->feedService->getActiveFeedShortNames();
+    }
+
+    protected function getFeedIdFromName ( $name ) {
+        return $this->feedService->getFeedIdByShortName( $name );
     }
 
     protected function connectToServer () {
