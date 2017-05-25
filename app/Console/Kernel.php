@@ -275,7 +275,7 @@ class Kernel extends ConsoleKernel
         /**
          * Feed File Processing
          */
-        $schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
+#        $schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
 
