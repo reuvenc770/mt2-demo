@@ -306,7 +306,7 @@ class RemoteFeedFileService {
             $notSystemUser = ( strpos( $dir , 'centos' ) === false );
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
             $notAdminUser = ( strpos( $dir , 'sftp-admin' ) === false );
-            $isValidFeed = ( strpos( $dir , 'upload' ) !== false ) && in_array( $matches[ 1 ] , $validFeedList );
+            $isValidFeed = $this->isCorrectDirectoryStructure( $dir ) && in_array( $matches[ 1 ] , $validFeedList );
 
             if ( $notAdminUser && $notSystemUser && $notCustomUser && $isValidFeed ) { 
                 // Need to switch 2430 and 2618 to 2979
@@ -317,6 +317,10 @@ class RemoteFeedFileService {
         }
 
         return $directoryList;
+    }
+
+    protected function isCorrectDirectoryStructure ( $directory ) {
+        return ( strpos( $directory , 'upload' ) !== false );
     }
 
     protected function getValidFeedList () {
