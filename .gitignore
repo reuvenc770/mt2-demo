@@ -19,3 +19,5 @@ Homestead.json
 *.csv
 *.sql
 *.log
+*.pub
+*.pem
