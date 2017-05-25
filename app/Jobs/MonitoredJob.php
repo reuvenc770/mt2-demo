@@ -52,6 +52,11 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
      *
      */
     public function handle() {
+
+        if(isset($this->job) && $this->job->getQueue()!=null && $this->job->getQueue()!='default'){
+            JobTracking::saveJob($this->tracking,array('queue' => $this->job->getQueue()));
+        }
+
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);

@@ -6,13 +6,14 @@ use App\Models\JobEntry;
 use App\Facades\JobTracking;
 use App\Factories\DataProcessingFactory;
 
-class DataProcessingJob extends SafeJob {
+class DataProcessingJob extends MonitoredJob {
 
     private $lookback;
 
-    public function __construct($jobName, $tracking, $lookback = null) {
+    public function __construct($jobName, $tracking, $lookback = null, $runtime_threshold) {
         $this->lookback = $lookback;
-        parent::__construct($jobName, $tracking);
+
+        parent::__construct($jobName, $runtime_threshold, $tracking);
     }
 
     protected function handleJob() {
@@ -20,5 +21,4 @@ class DataProcessingJob extends SafeJob {
         $service->extract($this->lookback);
         $service->load();
     }
-
 }
