@@ -23,7 +23,7 @@ class JobEntryService
     protected $room;
     protected $jobName;
 
-    CONST ROOM = '#mt2-dev-failed-jobs';
+    CONST ROOM = '#cmp_hard_start_errors';
 
     public function __construct(JobEntryRepo $repo)
     {

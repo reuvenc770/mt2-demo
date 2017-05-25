@@ -291,4 +291,6 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
         return $feedResult->name;
     }
+
+    public function prepareTableForSync() {}
 }
