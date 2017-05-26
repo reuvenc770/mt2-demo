@@ -74,7 +74,7 @@ class ListProfileExportService {
             if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
                 
                 $suppressed = false;
-                foreach ($listProfile->offers as $offer) {
+                foreach ($listProfile->offerSuppression as $offer) {
                     // handle advertiser suppression here
                     if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
                         $suppressed = true;
@@ -338,7 +338,7 @@ class ListProfileExportService {
         $localCombineFileNameDNM = $this->getLocalFileName($combineFileNameDNM);
 
         foreach ($listProfiles as $listProfile) {
-            $lpOffers = $listProfile->offers->pluck('id')->all();
+            $lpOffers = $listProfile->offerSuppression->pluck('id')->all();
             $lpLists = OfferSuppressionList::whereIn('offer_id', $lpOffers)->pluck('suppression_list_id')->all();
             
             $offersSuppressed = array_unique(array_merge($offersSuppressed, $lpOffers));
