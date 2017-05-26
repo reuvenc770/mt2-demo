@@ -31,6 +31,13 @@ return [
             'public_key' => env('CMPADMIN_PUB_KEY', ''),
             'private_key' => env('CMPADMIN_PRIV_KEY', ''),
         ] ,
+        'cmpte_realtime_server' => [
+            'host'      => env('CMPTE_REALTIME_HOST', 'localhost'),
+            'username'  => env('CMPTE_REALTIME_USER', 'forge'),
+            'port'      => env('CMPTE_REALTIME_PORT', ''),
+            'public_key' => env('CMPADMIN_PUB_KEY', ''),
+            'private_key' => env('CMPADMIN_PRIV_KEY', ''),
+        ] ,
     ]
     
 ];

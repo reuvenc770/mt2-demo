@@ -41,6 +41,7 @@ class RemoteFeedFileService {
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
     protected $lastFileProcessed;
     protected $fileProcessedCallback;
+    protected $metaData = [];
 
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         $this->feedService = $feedService;
@@ -62,12 +63,12 @@ class RemoteFeedFileService {
 
         while ( $this->newFilesPresent() ) {
             $recordSqlList = $this->getNewRecords();
-
+    
             $this->rawRepo->massInsert( $recordSqlList );
 
             if ( !is_null( $this->lastFileProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
                 $callback = $this->fileProcessedCallback;
-                $callback( $this->lastFileProcessed , $this->systemService);
+                $callback( $this->lastFileProcessed , $this->systemService , $this->metaData );
 
                 $this->lastFileProcessed = null;
             }
@@ -144,6 +145,7 @@ class RemoteFeedFileService {
             }
 
             $this->currentFile = $this->newFileList[ 0 ];
+
             $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
             if ( $this->lastLineNumber === 0 ) {
@@ -196,23 +198,49 @@ class RemoteFeedFileService {
         $lineNumber = $this->lastLineNumber + 1;
 
         foreach( $this->currentLines as $currentLine ) {
-            $lineColumns = explode( ',' , trim( $currentLine ) );
+            $lineColumns = $this->extractData( $currentLine );
+            #$lineColumns = explode( ',' , trim( $currentLine ) );
 
+            /*
             if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
                 $this->fireAlert( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
 
                 throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
             } 
+             */
+            $this->columnMatchCheck( $lineColumns );
 
+            $record = $this->mapRecord( $lineColumns );
+            /*
             $record = array_combine( $this->currentColumnMap , $lineColumns );
             $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+             */
 
-            if ( $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
+            if ( !is_null( $record ) && $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
                 $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
             }
 
             $lineNumber++;
         }
+    }
+
+    protected function extractData ( $csvLine ) {
+        return explode( ',' , trim( $currentLine ) );
+    }
+
+    protected function columnMatchCheck ( $lineColumns ) {
+        if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
+            $this->fireAlert( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
+
+            throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
+        } 
+    }
+
+    protected function mapRecord ( $lineColumns ) {
+        $record = array_combine( $this->currentColumnMap , $lineColumns );
+        $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+
+        return $record;
     }
 
     protected function fireAlert ( $message ) {
