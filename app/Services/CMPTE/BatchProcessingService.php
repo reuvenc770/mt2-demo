@@ -16,8 +16,8 @@ use App\Models\MT1Models\User as Feeds;
 
 class BatchProcessingService extends RemoteFeedFileService {
     protected $slackChannel = '#cmp_hard_start_errors';
-    protected $rootFileDirectory = '/home/mt1';
-    protected $validDirectoryRegex = '/^\/(?:\w+)\/mt1\/([a-zA-Z0-9_-]+)/';
+    protected $rootFileDirectory = '/home';
+    protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
 
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         parent::__construct( $feedService , $systemService , $domainGroupService , $rawRepo );
