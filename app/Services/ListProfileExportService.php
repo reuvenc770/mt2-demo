@@ -67,32 +67,12 @@ class ListProfileExportService {
         }
 
         $result = $this->tableRepo->getModel();
-
-        $runId = str_random(10);
-        $reportCard = CacheReportCard::makeNewReportCard("LP::{$listProfileId}-{$runId}");
-        $reportCard->setOwner('');
-        $entry = new ReportEntry("List Profile $listProfileId");
-        $entry->setFileName($fileName);
-
-        $offerNames = [];
-
-        foreach ($listProfile->offers->all() as $offer) {
-            $offerNames[] = $this->offerRepo->getOfferName($offer->id);
-        }
-
-        $entry->addOffersSuppressedAgainst($offerNames);
-
         $resource = $result->cursor();
         $count = 0;
 
         foreach ($resource as $row) {
-            if ($row->isGloballySuppressed()) {
-                $entry->increaseGlobalSuppressionCount();
-            }
-            elseif ($row->isFeedSuppressed()) {
-                $entry->increaseListSuppressionCount();
-            }
-            else {
+            if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
+                
                 $suppressed = false;
                 foreach ($listProfile->offers as $offer) {
                     // handle advertiser suppression here
@@ -109,16 +89,9 @@ class ListProfileExportService {
                     $entry->increaseFinalRecordCount();
                 }
             }
-
-            $count++;
         }
 
         $this->writeRemoteBatch($fileName);
-
-        $entry->addOriginalTotal($count);
-        $reportCard->addEntry($entry);
-        $reportCard->mail();
-
         return $fileName;
     }
 

@@ -51,6 +51,6 @@ class RunTimeMonitorCommand extends Command
         $date2 = $this->option('dt-end')!="?" ? $this->option('dt-end') : null;
 
         $job = new RunTimeMonitorJob($this->option('mode'),$this->option('runtime-threshold'),$date1,$date2);
-        $this->dispatch($job);
+        $this->dispatch( $job->onQueue( 'Monitor' ) );
     }
 }

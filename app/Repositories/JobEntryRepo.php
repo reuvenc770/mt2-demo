@@ -103,7 +103,7 @@ class JobEntryRepo
      * @param string $tracking
      * @param array $params
      */
-    public function saveJob(string $tracking, array $params){
+    public function saveJob($tracking, array $params){
         $this->entry->updateOrCreate(
             array('tracking' => $tracking),
             $params
@@ -114,11 +114,12 @@ class JobEntryRepo
         return DB::update("UPDATE job_entries
                     SET status=
                     CASE
-                        WHEN time_started < NOW() - INTERVAL IFNULL(runtime_seconds_threshold,3600) SECOND THEN 10
-                        WHEN time_started < NOW() - INTERVAL TRUNCATE(IFNULL(runtime_seconds_threshold,3600)*0.75,0) SECOND THEN 9
+                        WHEN status IN (1,7) AND time_started < NOW() - INTERVAL IFNULL(runtime_seconds_threshold,3600) SECOND THEN 10
+                        WHEN status IN (1,7) AND time_started < NOW() - INTERVAL TRUNCATE(IFNULL(runtime_seconds_threshold,3600)*0.75,0) SECOND THEN 9
+                        WHEN status=5 AND time_fired < NOW() - INTERVAL 4 HOUR
                     ELSE status
                     END
-                    WHERE status IN(1,7) AND time_fired ".$daterange."
+                    WHERE status IN(1,5,7) AND time_fired ".$daterange."
                     AND runtime_seconds_threshold !=0
                   ");
     }
@@ -128,21 +129,22 @@ class JobEntryRepo
         return DB::select("SELECT
                             CASE
                               WHEN status=5 THEN '1 QUEUED'
-                              WHEN status=4 THEN '2 WAITING'
-                              WHEN status=6 THEN '3 SKIPPED'
-                              WHEN status=1 THEN '4 RUNNING'
-                              WHEN status=7 THEN '5 RUNNING ACCEPTANCE TEST'
-                              WHEN status=2 THEN '6 SUCCESS'
-                              WHEN status=9 THEN '7 RUNTIME WARNING'
-                              WHEN status=10 THEN '8 RUNTIME ERROR'
-                              WHEN status=3 THEN '9 FAILED'
-                              WHEN status=8 THEN '10 ACCEPTANCE TEST FAILED'
-                              WHEN status=11 THEN '11 RESOLVED'
+                              WHEN status=12 THEN '2 LONG_ONQUEUE'
+                              WHEN status=4 THEN '3 WAITING'
+                              WHEN status=6 THEN '4 SKIPPED'
+                              WHEN status=1 THEN '5 RUNNING'
+                              WHEN status=7 THEN '6 RUNNING ACCEPTANCE TEST'
+                              WHEN status=2 THEN '7 SUCCESS'
+                              WHEN status=9 THEN '8 RUNTIME WARNING'
+                              WHEN status=10 THEN '9 RUNTIME ERROR'
+                              WHEN status=3 THEN '10 FAILED'
+                              WHEN status=8 THEN '11 ACCEPTANCE TEST FAILED'
+                              WHEN status=11 THEN '12 RESOLVED'
                             END as `status `,
                             COUNT(status) AS count
                             FROM job_entries
                             WHERE time_fired ".$daterange."
-                            AND runtime_seconds_threshold !=0
+                            #AND runtime_seconds_threshold !=0
                             GROUP BY `status `
                             ORDER BY `status `
                           ");
@@ -172,15 +174,18 @@ class JobEntryRepo
                             FROM job_entries
                             WHERE time_fired ".$daterange."
                             AND status IN(3,8,9,10)
-                            AND runtime_seconds_threshold !=0
+                            #AND runtime_seconds_threshold !=0
+                            ORDER BY id DESC
                           ");
     }
 
     public function resolveJobs($daterange){
         return DB::update("UPDATE job_entries
-                            SET status=11
-                            WHERE status IN(3,8) AND time_fired ".$daterange."
+                            SET diagnostics = JSON_SET(diagnostics,'$.status_update',CONCAT('status RESOLVED from status=',status)),
+                            status=11
+                            WHERE status NOT IN(2,11) AND time_fired ".$daterange."
                             AND runtime_seconds_threshold !=0
                           ");
     }
+
 }

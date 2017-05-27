@@ -26,6 +26,17 @@ class ThirdPartyEmailStatusRepo {
         }
     }
 
+    public function getLastActionTime($emailId) {
+        $row = $this->model->where('email_id')->first();
+
+        if ($row) {
+            return $row->last_action_datetime;
+        }
+        else {
+            return null;
+        }
+    }
+
     private function buildBatchedQuery($data) {
         return "INSERT INTO third_party_email_statuses (email_id, last_action_type,
             last_action_offer_id, last_action_datetime, last_action_esp_account_id,

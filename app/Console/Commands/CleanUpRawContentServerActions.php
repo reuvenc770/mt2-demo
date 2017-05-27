@@ -15,7 +15,7 @@ class CleanUpRawContentServerActions extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:contentServerRawStats';
+    protected $signature = 'listprofile:contentServerRawStats {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -41,7 +41,7 @@ class CleanUpRawContentServerActions extends Command
      */
     public function handle(EtlPickupRepo $pickupRepo) {
         $lookback = $pickupRepo->getLastInsertedForName($this->jobName);
-        $job = new DataProcessingJob($this->jobName, str_random(16), $lookback);
+        $job = new DataProcessingJob($this->jobName, str_random(16), $lookback, $this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }

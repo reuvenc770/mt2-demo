@@ -400,7 +400,7 @@ class ListProfileQueryBuilder {
     private function getOfferIds($listProfile) {
         $offerIds = [];
 
-        foreach($listProfile->offers as $offer) {
+        foreach($listProfile->offerAction as $offer) {
             $offerIds[] = $offer->id;
         }
 

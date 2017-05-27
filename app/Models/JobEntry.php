@@ -49,6 +49,7 @@ class JobEntry extends Model
     CONST RUNTIME_WARNING = 9;
     CONST RUNTIME_FAILED = 10;
     CONST RESOLVED = 11;
+    CONST LONG_ONQUEUE = 12;
     protected $guarded = ['id'];
     public $timestamps = false;
 
@@ -66,7 +67,8 @@ class JobEntry extends Model
             self::ACCEPTANCE_TEST_FAILED => 'Job Completed But Failed Acceptance Test',
             self::RUNTIME_WARNING => 'Runtime Longer Than Expected - Possibly Hung',
             self::RUNTIME_FAILED => 'Runtime Threshold Exceeded - Non-fatal Error',
-            self::RESOLVED => 'Previously Failed or Hanging Job has been marked as Resolved'
+            self::RESOLVED => 'Previously Failed or Hanging Job has been marked as Resolved',
+            self::LONG_ONQUEUE => 'On Queue longer than specified threshold'
         );
     }
 
