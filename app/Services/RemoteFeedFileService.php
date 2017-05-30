@@ -225,7 +225,7 @@ class RemoteFeedFileService {
     }
 
     protected function extractData ( $csvLine ) {
-        return explode( ',' , trim( $currentLine ) );
+        return explode( ',' , trim( $csvLine ) );
     }
 
     protected function columnMatchCheck ( $lineColumns ) {
