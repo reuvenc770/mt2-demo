@@ -112,7 +112,7 @@ class RealtimeProcessingService extends RemoteFeedFileService {
                 $this->currentFile[ 'path' ] , 
                 0 ,
                 '' , 
-                $lineColumns[ 'feed_id' ]
+                $lineColumns[ 0 ]
             );  
 
             return null;
