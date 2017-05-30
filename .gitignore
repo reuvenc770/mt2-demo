@@ -22,4 +22,5 @@ Homestead.json
 *.pub
 *.pem
 storage/*
+/storage
 bootstrap/cache/*
