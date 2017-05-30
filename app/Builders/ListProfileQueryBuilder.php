@@ -72,6 +72,8 @@ class ListProfileQueryBuilder {
             'device_type' => 'rd.device_type',
             'device_name' => 'rd.device_name',
             'carrier' => 'rd.carrier',
+            'action_status' => 'rd.last_action_type',
+            'action_date' => 'rd.last_action_date'
             'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
             'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
         ];
@@ -110,7 +112,6 @@ class ListProfileQueryBuilder {
             throw new ValidationException("No columns selected");
         }
 
-
         if (empty($this->feedIds)) {
             $this->feedIds = $this->getFeedIds($listProfile);
         }
@@ -131,7 +132,7 @@ class ListProfileQueryBuilder {
         if (empty($this->recordDataColumns)) {
             $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2',
                 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date', 'source_url', 'capture_date',
-                'device_type', 'device_name', 'carrier'], $this->columns);
+                'device_type', 'device_name', 'carrier', 'action_status', 'action_date'], $this->columns);
         }
         if (empty($this->attributionColumns)) {
             $this->attributionColumns = array_intersect(['feed_id'], $this->columns);
