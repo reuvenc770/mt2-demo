@@ -11,23 +11,21 @@ use App\Http\Requests\BulkSuppressionRequest;
 use Laracasts\Flash\Flash;
 use App\Facades\Suppression;
 use App\Http\Controllers\Controller;
-use App\Services\MT1ApiService;
 use App\Services\SuppressionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
+use Artisan;
 
 class BulkSuppressionController extends Controller
 {
 
-    protected $api;
     protected $suppServ;
     protected $emailService;
     const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppress_save';
 
 
-    public function __construct(MT1ApiService $api, SuppressionService $suppServ , EmailRecordService $recordService)
+    public function __construct(SuppressionService $suppServ , EmailRecordService $recordService)
     {
-        $this->api = $api;
         $this->suppServ = $suppServ;
         $this->emailService = $recordService;
     }
@@ -74,6 +72,11 @@ class BulkSuppressionController extends Controller
                 ));
             }
         }
+
+        Artisan::queue( 'mt1Import' , [
+            'type' => 'globalSuppression' ,
+            '--delay' => 10 
+        ] );
 
         return $failed;
     }

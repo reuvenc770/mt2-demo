@@ -136,4 +136,11 @@ class APIFactory
     public static function createSharedCookieGuzzleClient () {
         return new Client( [ 'cookies' => true ] );
     }
+
+    public static function createESPApiAccountRepo(){
+       $model = new App\Models\EspAccount();
+       $hist = new App\Models\EspAccountCustomIdHistory();
+       return new App\Repositories\EspApiAccountRepo($model,$hist);
+    }
+
 }

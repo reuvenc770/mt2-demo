@@ -13,40 +13,44 @@ use App\Models\ListProfile;
 use App\Models\ListProfileClient;
 use App\Models\ListProfileVertical;
 use App\Models\ListProfileSchedule;
-use App\Models\ListProfileOffer;
+use App\Models\ListProfileOfferAction;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
 use App\Models\ListProfileFeedGroup;
+use App\Models\ListProfileOfferSuppression;
 
 class ListProfileRepo
 {
     private $listProfile;
     private $vertical;
     private $schedule;
-    private $offer;
+    private $offerAction;
     private $feed;
     private $isp;
     private $feedGroup;
     private $client;
+    private $offerSuppression;
 
     public function __construct(
         ListProfile $listProfile ,
         ListProfileVertical $vertical ,
         ListProfileSchedule $schedule ,
-        ListProfileOffer $offer ,
+        ListProfileOfferAction $offerAction ,
         ListProfileFeed $feed ,
         ListProfileDomainGroup $isp,
         ListProfileFeedGroup $feedGroup,
-        ListProfileClient $client
+        ListProfileClient $client,
+        ListProfileOfferSuppression $offerSuppression
     ) {
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
         $this->schedule = $schedule;
-        $this->offer = $offer;
+        $this->offerAction = $offerAction;
         $this->feed = $feed;
         $this->isp = $isp;
         $this->feedGroup = $feedGroup;
         $this->client = $client;
+        $this->offerSuppression = $offerSuppression;
     }
 
     public function getModel ( $options = [] ) {
@@ -70,6 +74,8 @@ class ListProfileRepo
 
         $this->listProfile->updateOrCreate(['id' => $listProfileId ], $data);
     }
+
+    public function prepareTableForSync() {}
 
     public function canBeDeleted ( $id ) {
         return $this->listProfile->find( $id )->canModelBeDeleted();
@@ -125,19 +131,19 @@ class ListProfileRepo
         ] );
     }
 
-    public function assignOffers ( $id , $offers ) {
-        $this->offer->where( 'list_profile_id' , $id )->delete();
+    public function assignOfferActions ( $id , $offers ) {
+        $this->offerAction->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $offers as $currentOffer ) {
-            $this->offer->insert( [ 'list_profile_id' => $id , 'offer_id' => $currentOffer[ 'id' ] ] );
+            $this->offerAction->insert( [ 'list_profile_id' => $id , 'offer_id' => $currentOffer[ 'id' ] ] );
         }
     }
 
-    public function assignCopiedOffers($id, $offers) {
-        $this->offer->where('list_profile_id', $id)->delete();
+    public function assignOfferSuppression ($id , $offers) {
+        $this->offerSuppression->where('list_profile_id', $id)->delete();
 
-        foreach ( $offers as $currentOffer ) {
-            $this->offer->insert(['list_profile_id' => $id, 'offer_id' => $currentOffer ]);
+        foreach ($offers as $currentOffer) {
+            $this->offerSuppression->insert(['list_profile_id' => $id, 'offer_id' => $currentOffer[ 'id' ]]);
         }
     }
 
@@ -171,5 +177,44 @@ class ListProfileRepo
         foreach ( $isps as $currentIsp ) {
             $this->isp->insert( [ 'list_profile_id' => $id , 'domain_group_id' => $currentIsp ] );
         }
+    }
+
+    public function getFeedIdsForProfile($id) {
+        // Feeds can belong to a list profile one of three ways:
+        // 1. Directly attached to the list profile (list_profile_feeds)
+        // 2. Indirectly attached via a feed group (list_profile_feed_groups)
+        // 3. Indirectly attached via a client (list_profile_clients)
+        // We need to return all of these and dedupe
+
+        $output = [];
+
+        $directFeeds = $this->feed->where('list_profile_id', $id)->pluck('feed_id')->all();
+
+        $data = config('database.connections.mysql.database');
+        $feedGroupFeeds = $this->feedGroup
+            ->join("$data.feedgroup_feed as fgf", 'list_profile_feed_groups.feed_group_id', '=', 'fgf.feedgroup_id')
+            ->where('list_profile_id', $id)
+            ->pluck('feed_id')->all();
+
+        $clientFeeds = $this->client
+                            ->join("$data.clients as c", 'list_profile_clients.client_id', '=', 'c.id')
+                            ->join("$data.feeds as f", 'c.id', '=', 'f.client_id')
+                            ->where('list_profile_id', $id)
+                            ->pluck('f.id')->all();
+
+        $output = array_merge($feedGroupFeeds, $directFeeds);
+        $output = array_merge($output, $clientFeeds);
+
+        return array_unique($output);
+    }
+
+    public function getSuppressionListIds($id) {
+        $feeds = $this->getFeedIdsForProfile($id);
+
+        $data = config('database.connections.mysql.database');
+        $list = $this->feed->join("$data.feeds as f", 'list_profile_feeds.feed_id', '=', 'f.id')
+                    ->pluck('suppression_list_id')->all();
+
+        return array_unique($list);
     }
 }

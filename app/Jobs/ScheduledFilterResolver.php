@@ -3,17 +3,16 @@
 namespace App\Jobs;
 
 use App\Factories\ServiceFactory;
-use App\Jobs\Job;
+use App\Jobs\MonitoredJob;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
-use App\Services\AttributionRecordTruthService;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maknz\Slack\Facades\Slack;
-class ScheduledFilterResolver extends Job implements ShouldQueue
+
+class ScheduledFilterResolver extends MonitoredJob implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
     public $filterName;
     public $date;
 
@@ -24,12 +23,16 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($filterName, $date, $tracking)
+    public function __construct($filterName, $date, $tracking, $runtime_threshold)
     {
+        $jobname = "Scheduled Filter {$filterName}";
+
+        parent::__construct($jobname,$runtime_threshold,$tracking);
+
         $this->filterName = $filterName;
         $this->date = $date;
         $this->tracking = $tracking;
-        JobTracking::startEspJob("Scheduled Filter {$filterName}","","",$this->tracking);
+        JobTracking::startEspJob($jobname,"","",$this->tracking);
     }
 
     /**
@@ -37,30 +40,36 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AttributionRecordTruthService $truthService)
+    public function handleJob()
     {
-        JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
+        $truthService = \App::make('\App\Services\AttributionRecordTruthService');
+
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
-        $records = $scheduledFilterService->getRecordsByDate($this->date);
-        $total = 0;
+        
         $columns = $scheduledFilterService->returnFieldsForExpiration();
+        $key = $scheduledFilterService->getSetFields()[0];
+        $value = $columns[$key];
 
-        $records->chunk(10000, function($results) use (&$total, $columns, $truthService) {
-            $total += count($results);
-            $emailIds = $results->pluck("email_id")->all();
+        $startPoint = $scheduledFilterService->getMinEmailIdForDate($this->date);
+        $endPoint = $scheduledFilterService->getMaxEmailIdForDate($this->date);
+        $total = 0;
 
-            foreach($columns as $key => $value){
-                $truthService->bulkToggleFieldRecord($emailIds,$key,$value);
+        while ($startPoint < $endPoint) {
+            $limit = 10000;
+            $segmentEnd = $scheduledFilterService->nextNRows($startPoint, $limit);
+            $segmentEnd = $segmentEnd ? $segmentEnd : $endPoint;
+
+            $emails = $scheduledFilterService->getExpiringRecordsBetweenIds($this->date, $startPoint, $segmentEnd);
+
+            if ($emails) {
+                $total = $total + count($emails);
+                $truthService->bulkToggleFieldRecord($emails, $key, $value);
             }
-        });
+            
+            $startPoint = $segmentEnd;
+        }
 
-        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);
-    }
+        return $total;
 
-    public function failed()
-    {
-        JobTracking::changeJobState( JobEntry::FAILED , $this->tracking);
-
-        Slack::to( self::SLACK_TARGET_SUBJECT )->send("Scheduled Filter for {$this->filterName} Failed to run after " . $this->attempts() . " attempts.");
     }
 }

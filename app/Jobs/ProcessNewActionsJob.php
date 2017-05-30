@@ -2,20 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
+use App\Jobs\MonitoredJob;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Exceptions\JobException;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
 
-use App\Services\NewActionsService;
-
-class ProcessNewActionsJob extends Job implements ShouldQueue
+class ProcessNewActionsJob extends MonitoredJob implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     const BASE_JOB_NAME = 'ProcessNewActionsJob';
 
@@ -29,12 +25,14 @@ class ProcessNewActionsJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $dateRange , $tracking )
+    public function __construct( $dateRange , $tracking, $runtime_threshold )
     {
         $this->dateRange = $dateRange;
         $this->tracking = $tracking;
 
         $this->jobName = self::BASE_JOB_NAME . ":" . json_encode( $dateRange );
+
+        parent::__construct($this->jobName,$runtime_threshold,$tracking);
 
         JobTracking::startAggregationJob( $this->jobName , $this->tracking );
     }
@@ -44,34 +42,13 @@ class ProcessNewActionsJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle( NewActionsService $newActions )
+    public function handleJob()
     {
-        if ($this->jobCanRun($this->jobName)) {
-            try {
-                $this->createLock($this->jobName);
+        $newActions = \App::make('\App\Services\NewActionsService');
 
-                JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking );        
-
-                $newActions->updateThirdPartyEmailStatuses( $this->dateRange );
-
-                $newActions->updateAttributionRecordTruths( $this->dateRange );
-
-                JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
-            } catch ( \Exception $e ) {
-                echo "{$this->jobName} failed with {$e->getMessage()} in file {$e->getFile()} on line {$e->getLine()}" . PHP_EOL;
-
-                $this->failed();
-            } finally {
-                $this->unlock($this->jobName);
-            }
-        } else {
-            echo "Still running {$this->jobName} - job level" . PHP_EOL;
-
-            JobTracking::changeJobState( JobEntry::SKIPPED , $this->tracking );
-        }
+        $newActions->updateThirdPartyEmailStatuses( $this->dateRange );
+        $newActions->updateAttributionRecordTruths( $this->dateRange );
     }
 
-    public function failed () {
-        JobTracking::changeJobState( JobEntry::FAILED , $this->tracking );
-    }
+
 }

@@ -35,13 +35,19 @@ class BrontoIdMappingService
     }
 
     public function returnOriginalId($id, $espAccountId){
-       if(Cache::has("Bronto.{$espAccountId}.{$id}")){
+        if(Cache::has("Bronto.{$espAccountId}.{$id}")){
            return Cache::get("Bronto.{$espAccountId}.{$id}");
-       } else {
-           $mapping = $this->repo->getOriginalId($id, $espAccountId);
-           Cache::put("Bronto.{$espAccountId}.{$id}",$mapping->primary_id);
-           return $mapping->primary_id;
-       }
+        } else {
+            $mapping = $this->repo->getOriginalId($id, $espAccountId);
+            
+            if ($mapping) {
+                Cache::put("Bronto.{$espAccountId}.{$id}", $mapping->primary_id);
+                return $mapping->primary_id;
+            }
+            else {
+                return null;
+            }   
+        }
     }
 
     public function makeDumbInternalId($id,$espAccountId){

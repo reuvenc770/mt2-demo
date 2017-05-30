@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Facades\BrontoMapping;
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -18,6 +17,7 @@ use App\Exceptions\JobException;
 use App\Exceptions\JobAlreadyQueuedException;
 use Carbon\Carbon;
 use App\Models\StandardReport;
+use App\Models\BrontoReport;
 use App\Repositories\StandardApiReportRepo;
 use Storage;
 use App\Exceptions\JobCompletedException;
@@ -235,10 +235,27 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
+    protected function getRawCampaigns () {
+        $rawCampaigns = $this->reportService->getRawCampaigns( $this->processState );
+
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $rawCampaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        });
+
+        $rowCount = count( $rawCampaigns );
+
+        $this->changeJobEntry( JobEntry::SUCCESS , $rowCount );
+    }
+
     protected function getBrontoRerunCampaigns() {
 
         $deploys = DB::table('deploy_record_reruns AS drr')
-            ->select('external_deploy_id', 'drr.esp_internal_id', 'drr.esp_account_id', 'datetime',
+            ->select('external_deploy_id', 'drr.esp_internal_id' , 'drr.esp_account_id', 'datetime',
                 'delivers', 'opens', 'clicks', 'unsubs', 'complaints', 'bounces')
             ->join('mt2_reports.standard_reports AS sr', 'drr.deploy_id', '=', 'sr.external_deploy_id')
             ->where('drr.esp_account_id', $this->espAccountId)
@@ -247,12 +264,19 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
-            $generatedId = $deploy->esp_internal_id;
-            $deploy->esp_internal_id = BrontoMapping::makeDumbInternalId($generatedId,$this->espAccountId);
-            $this->processState[ 'campaign' ] = $deploy;
-            $this->processState[ 'espId' ] = $this->espAccountId;
+            if ( !is_null( BrontoReport::find( $deploy->esp_internal_id ) ) ) {
+                $this->processState[ 'campaign' ] = BrontoReport::find( $deploy->esp_internal_id )->first();
+                $this->processState[ 'campaign' ]->delivers = $deploy->delivers;
+                $this->processState[ 'campaign' ]->opens = $deploy->opens;
+                $this->processState[ 'campaign' ]->clicks = $deploy->clicks;
+                $this->processState[ 'campaign' ]->unsubs = $deploy->unsubs;
+                $this->processState[ 'campaign' ]->complaints = $deploy->complaints;
+                $this->processState[ 'campaign' ]->bounces = $deploy->bounces;
 
-            $this->queueNextJob( $this->defaultQueue );
+                $this->processState[ 'espId' ] = $this->espAccountId;
+
+                $this->queueNextJob( $this->defaultQueue );
+            }
         });
         $rowCount = count($deploys);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
@@ -279,7 +303,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
-        if ( $this->reportService->pageHasData() ) {
+        if ( $this->reportService->pageHasData( $this->processState ) ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
             $this->reportService->savePage( $this->processState, $map );
             $rowCount = count($this->processState[ 'currentPageData' ]);

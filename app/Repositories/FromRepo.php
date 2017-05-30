@@ -18,6 +18,8 @@ class FromRepo {
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function getFromOfferOpenRate($offerId) {
         $schema = config("database.connections.reporting_data.database");
         return $this->model

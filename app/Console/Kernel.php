@@ -8,14 +8,14 @@ use Predis\Command\Command;
 
 class Kernel extends ConsoleKernel
 {
-    const DELIVERABLE_SCHEDULE_TIME = '02:00';
+    const EARLY_DELIVERABLE_SCHEDULE_TIME = '20:00';
+    const DELIVERABLE_SCHEDULE_TIME = '22:00';
+
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
     const REPORT_TIME_2 = '11:10';
-    const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
-    const EXPIRATION_RUNS = "01:15";
-    const DROP_OFF_LIST_PROFILES = "05:00";
+    
     const DEPLOY_CHECK_TIME = '14:00';
     const UPDATE_SOURCE_COUNTS = '14:00';
     const CAKE_CONVERSION_UPDATE_TIME = '14:00';
@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
     const MT1_SYNC_TIME = '23:00';
     const REDSHIFT_UPLOAD_TIME = '09:00';
     const AWEBER_TIME = '19:00';
+    const MIDNIGHT = '00:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -104,7 +105,9 @@ class Kernel extends ConsoleKernel
         Commands\BulkInsertDelivers::class,
         Commands\SyncModelsWithNewFeedsCommand::class,
         Commands\ResetUserPasswordCommand::class,
-    ];
+        Commands\SimpleTestCommand::class,
+        Commands\RunTimeMonitorCommand::class,
+];
 
     /**
      * Define the application's command schedule.
@@ -114,7 +117,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        #$schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+
+        /**
+         * Runtime Monitor
+         */
+        $schedule->command('monitors:runtime --mode=monitor --days-back=2 --runtime-threshold=30s')->cron('05 8,16 * * * *');
+
 
         /**
          * Orphan Adoption
@@ -127,13 +136,13 @@ class Kernel extends ConsoleKernel
         /**
          * Suppression Jobs
          */
-        $schedule->command('suppression:downloadESP BlueHornet 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Maro 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Campaigner 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP EmailDirect 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Publicators 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP AWeber 1')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP BlueHornet 5 --runtime-threshold=2m')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Maro 5 --runtime-threshold=4m')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Campaigner 5 --runtime-threshold=1m')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP EmailDirect 5 --runtime-threshold=2m')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Publicators 5 --runtime-threshold=6m')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=4m')->cron('0 */4 * * * *');
+        $schedule->command('suppression:downloadESP AWeber 5 --runtime-threshold=1h')->cron('0 */4 * * * *');
 
         $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
@@ -141,23 +150,23 @@ class Kernel extends ConsoleKernel
         $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
         $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
+        $schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *'); //FTPSuppressionsToMT1
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
         
         /**
          * Campaign Data Daily
          */
         $filePath = storage_path('logs')."/downloadAPI.log";
-        $schedule->command('reports:downloadApi BlueHornet --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Campaigner --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi BlueHornet --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Campaigner --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40 --runtime-threshold=5m')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Maro --daysBack=5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Maro --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Publicators --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Bronto --daysBack=5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Publicators --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Bronto --daysBack=5 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadTrackingData Cake 5 --runtime-threshold=1m')->hourly()->sendOutputTo($filePath);
         $schedule->command('process:cfsStats')->cron('0 */4 * * *'); // Job name like: ProcessCfsStats
         
         
@@ -165,14 +174,14 @@ class Kernel extends ConsoleKernel
         /**
          * Campaign Data Monthly
          */
-        $schedule->command('reports:downloadApi BlueHornet --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Campaigner --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber --daysBack=31 --apiLimit=200')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi BlueHornet --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Campaigner --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi AWeber --daysBack=31 --apiLimit=200 --runtime-threshold=15m')->monthly()->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Publicators --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Bronto --daysBack=31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Publicators --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Bronto --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
         #$schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
 
@@ -182,16 +191,16 @@ class Kernel extends ConsoleKernel
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
         $schedule->command( 'reports:downloadDeliverables Campaigner:delivered 2 Campaigner' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Campaigner:actions 5 Campaigner' )->cron('0 0,10 * * * *');
-        $schedule->command( 'reports:downloadDeliverables BlueHornet:delivered 3 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command('reports:downloadDeliverables BlueHornet:actions 5 BlueHornet')->cron('0 0,10 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Campaigner:actions 5 Campaigner' )->cron('0 10,20 * * * *');
+        $schedule->command( 'reports:downloadDeliverables BlueHornet:delivered 3 BlueHornet' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command('reports:downloadDeliverables BlueHornet:actions 5 BlueHornet')->cron('0 10,22 * * * *');
         #$schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Maro 2 Maro' )->cron('0 0,10 * * * *')->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro 2 Maro' )->cron('0 10,22 * * * *')->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 2 Maro' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 0,10 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 10,22 * * * *');
         $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 0,10 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 10,22 * * * *');
         $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
@@ -205,7 +214,7 @@ class Kernel extends ConsoleKernel
         /**
          *  Deactivation jobs
          */
-        $schedule->command('deactivate:espAccounts')->dailyAt(self::REPORT_TIME);
+        $schedule->command('deactivate:espAccounts')->dailyAt(self::MIDNIGHT);
 
 
         /**
@@ -244,14 +253,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import client')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import vendorSuppressionInfo')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import globalSuppression')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import globalSuppression')->cron('45 */4 * * * *');
 
         /**
          * Attribution Jobs
          */
          
         // Attribution jobs disabled temporarily until launch
-        $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS); // Job name: Scheduled Filter Expiration
+        $schedule->command('runFilter expiration --runtime-threshold=25m')->dailyAt(self::MIDNIGHT); // Job name: Scheduled Filter Expiration
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
         $schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
@@ -265,13 +274,13 @@ class Kernel extends ConsoleKernel
          *  List profile jobs
          */
 
-        $schedule->command('listprofile:dataEtl')->cron('30 6,13,16 * * 1-6 *'); // Job names like: %-s3
+        $schedule->command('listprofile:dataEtl')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3
         $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
-        $schedule->command('listprofile:aggregateActions')->cron('0 4,14 * * * *'); // Job name: ListProfileAggregation
+        $schedule->command('listprofile:aggregateActions')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation
         $schedule->command('listprofile:contentServerRawStats')->hourly(); // Job name: ProcessContentServerRawStats
         $schedule->command('listprofile:getRecordAgentData 2')->hourly(); // Job name: ContentServerDeviceData
-        $schedule->command('listprofile:baseTables')->cron('30 7,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
+        $schedule->command('listprofile:baseTables')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
         $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
@@ -331,6 +340,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process --hoursBack=2")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
+        $schedule->command("newActions:process --hoursBack=2 --runtime-threshold=20m")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
     }
 }

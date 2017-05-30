@@ -30,7 +30,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         'feedClients' :{} ,
         'isps' : {} ,
         'categories' : {} ,
-        'offers' : [] ,
+        'offerActions' : [] ,
         'suppression' : {
             'global' : { 1 : "Orange Global" } ,
             'list' : {} ,
@@ -45,13 +45,13 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         },
         'attributeFilters' : {
             'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
-            'genders' : {},
-            'zips' : [],
-            'cities' : [],
-            'states' : {},
-            'deviceTypes' : {},
-            'os' : {} ,
-            'mobileCarriers' : {}
+            'genders' : {'include':[], 'exclude': []},
+            'zips' : {'include':[], 'exclude': []},
+            'cities' : {'include':[], 'exclude': []},
+            'states' : {'include':[], 'exclude': []},
+            'deviceTypes' : {'include':[], 'exclude': []},
+            'os' : {'include':[], 'exclude': []},
+            'mobileCarriers' : {'include':[], 'exclude': []}
         },
         'impressionwise' : false ,
         'tower' : {
@@ -89,6 +89,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.countryCodeMap = { 1 : 'US' , 2 : 'UK' };
     self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 2 };
     self.genderNameMap = { 'Male' : 'M' , 'Female' : 'F' , 'Unknown' : 'U' };
+    self.genderChecked = {};
 
     self.highlightedFeeds = [];
     self.highlightedFeedsForRemoval = [];
@@ -121,6 +122,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
     self.highlightedOffers = [];
     self.highlightedOffersForRemoval = [];
+    self.highlightedOfferSupp = [];
+    self.highlightedOfferSuppForRemoval = [];
+
     self.offerVisibility = {};
     self.offerNameMap = {};
 
@@ -128,21 +132,26 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.highlightedStateFiltersForRemoval = [];
     self.stateFilterVisibility = {};
     self.stateFilterNameMap = {};
+    self.selectedFilterStates = {};
+    self.selectedSuppStates = {};
 
     self.highlightedDeviceTypeFilters = [];
     self.highlightedDeviceTypeFiltersForRemoval = [];
     self.deviceTypeFilterVisibility = { 'mobile' : true , 'desktop' : true , 'unknown' : true };
     self.deviceTypeFilterNameMap = { 'mobile' : 'Mobile' , 'desktop' : 'Desktop' , 'unknown' : "Unknown" };
+    self.deviceTypeReverseNameMap = {'Mobile': 'mobile', 'Desktop': 'desktop', 'Unknown': "unknown" };
 
     self.highlightedOsFilters = [];
     self.highlightedOsFiltersForRemoval = [];
     self.osFilterVisibility = { 'android' : true , 'ios' : true , 'macosx' : true , 'rim' : true , 'windows' : true , 'linux' : true , 'other' : true };
     self.osFilterNameMap = { 'android' : 'Android' , 'ios' : 'iOS' , 'macosx' : 'Mac OS X' , 'rim' : 'Rim OS' , 'windows' : 'Windows' , 'linux' : 'Linux' , 'other' : 'Other' };
+    self.osFilterReverseNameMap = {'Android': 'android', 'iOS': 'ios', 'Mac OS X': 'macosx', 'Rim OS': 'rim', 'Windows' : 'windows', 'Linux': 'linux', 'Other': 'other' };
 
     self.highlightedCarrierFilters = [];
     self.highlightedCarrierFiltersForRemoval = [];
     self.carrierFilterVisibility = { 'att' : true , 'sprint' : true , 'tmobile' : true , 'verizon' : true };
     self.carrierFilterNameMap = { 'att' : 'AT&T' , 'sprint' : 'Sprint' , 'tmobile' : 'T-Mobile' , 'verizon' : 'Verizon' };
+    self.reverseCarrierNameMap = {'AT&T': 'att', 'Sprint': 'sprint',  'T-Mobile': 'tmobile', 'Verizon': 'verizon'};
 
     self.highlightedGlobalSupp = [];
     self.highlightedGlobalSuppForRemoval = [];
@@ -154,8 +163,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.listSuppVisibility = { 1 : true , 2 : true , 3 : true , 4 : true };
     self.listSuppNameMap = { 1 : 'Sprint Yahoo' , 2 : 'Verizon Gmail' , 3 : 'Trendr Hotmail' , 4 : 'RMP Hotmail' };
 
-    self.highlightedOfferSupp = [];
-    self.highlightedOfferSuppForRemoval = [];
+    
     self.offerSuppVisibility = {};
     self.offerSuppNameMap = {};
 
@@ -221,6 +229,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.feedGroupFormSubmitting = false;
 
     self.formErrors = [];
+
+    // Offer Search
+    self.search.ready = true;
+    self.search.queue = [];
+    self.search.suppReady = true;
+    self.search.suppQueue = [];
 
     modalService.setPopover();
 
@@ -297,6 +311,32 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
                 self.categoryVisibility[ index ] = false;
             });
 
+            angular.forEach(self.current.attributeFilters.states.include, function (value, index) {
+                self.stateFilterVisibility[value] = false;
+                self.selectedFilterStates[value] = self.stateSuppNameMap[value];
+            });
+
+            angular.forEach(self.current.attributeFilters.states.exclude, function (value, index) {
+                self.stateSuppVisibility[value] = false;
+                self.selectedSuppStates[value] = self.stateSuppNameMap[value];
+            });
+
+            angular.forEach(self.current.attributeFilters.deviceTypes.include, function (value, index) {
+                self.deviceTypeFilterVisibility[self.deviceTypeReverseNameMap[value]] = false;
+            });
+
+            angular.forEach(self.current.attributeFilters.os.include, function (value, index) {
+                self.osFilterVisibility[self.osFilterReverseNameMap[value]] = false;
+            });
+
+            angular.forEach(self.current.attributeFilters.mobileCarriers.include, function (value, index) {
+                self.carrierFilterVisibility[self.reverseCarrierNameMap[value]] = false;
+            });
+
+            angular.forEach(self.current.attributeFilters.genders.include, function (value, index) {
+                self.genderChecked[value] = true;
+            });
+
             var len = self.current.selectedColumns.length;
             var columnsTemp = self.columnList.filter(function (item) {
                 for (var i = 0; i < len; i++) {
@@ -312,6 +352,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
             var currentExportInterval = self.current.exportOptions.interval[0];
 
+            // This is deliberate - any list profile that has been set to Never should be set to Immediately when edited
             if ( currentExportInterval === 'Never' ) {
                 self.current.exportOptions.interval[0] = 'Immediately';
             }
@@ -327,8 +368,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         } );
 
         angular.forEach( [ 'genders' , 'states' , 'deviceTypes' , 'os' , 'mobileCarriers' ] , function ( value , index ) {
-            if ( self.current.attributeFilters[ value ].length == 0 ) {
-                self.current.attributeFilters[ value ] = {};
+            if ( Object.keys(self.current.attributeFilters[ value ]).length == 0 ) {
+                self.current.attributeFilters[ value ] = {'include': [], 'exclude':[]};
             }
         } );
     };
@@ -512,18 +553,39 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         }
     }
 
-    self.removeMembershipItems = function ( container , context , callback ) {
+    self.removeMembershipItems = function (container, context) {
         angular.forEach( container.highlightedForRemoval , function ( id ) {
-            container.visibility[ id ] = true;
-
-            delete( context[ id ] );
+            container.visibility[id] = true;
+            delete(context[id]);
         } );
 
         container.highlightedForRemoval = [];
+    }
 
-        if ( typeof( callback ) !== 'undefined' ) {
-            callback();
-        }
+    self.addMembershipItemsToList = function(container, context) {
+        angular.forEach( container.highlighted , function(id) {
+            container.visibility[id] = false;
+            context.push(container.map[id]);
+        } );
+
+        container.highlighted = [];
+    }
+
+    self.removeMembershipItemsFromList = function ( container , context) {
+        angular.forEach( container.highlightedForRemoval , function (value, key) {
+            
+            for (key in container.map) {
+                if (container.map[key] === value) {
+                    container.visibility[key] = true;
+                    break;
+                }
+            }
+            
+            var ind = context.indexOf(value);
+            context.splice(ind, 1);
+        } );
+
+        container.highlightedForRemoval = [];
     }
 
     self.addFeeds = function ( ev ) {
@@ -634,13 +696,13 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
     self.updateFeedVisibilityFromCountry = function () {
         angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
-                    var feedListExistsAndBelongsInCountry = ( typeof( self.countryFeedMap[ parseInt( self.current.country_id ) ] ) != 'undefined' && self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1);
-                    if( feedListExistsAndBelongsInCountry ) {
-                        self.feedVisibility[ feedId ] = true;
-                    } else{
-                        self.feedVisibility[ feedId ] = false;
-                    }
-                } );
+            var feedListExistsAndBelongsInCountry = ( typeof( self.countryFeedMap[ parseInt( self.current.country_id ) ] ) != 'undefined' && self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1);
+            if( feedListExistsAndBelongsInCountry ) {
+                self.feedVisibility[ feedId ] = true;
+            } else{
+                self.feedVisibility[ feedId ] = false;
+            }
+        } );
     };
 
     self.updateFeedVisibilityFromParty = function () {
@@ -660,12 +722,49 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         self.updateFeedVisibility();
     };
 
-
     self.search.populateOffers = function (){
-        if(self.search.offer.length >= 3){
-            ListProfileApiService.searchOffers(self.search.offer,function(response){
-                self.search.offerResults = response.data;
-            },function(){});
+        if(self.search.offer.length >= 3) {
+
+            if (self.search.queue.indexOf(self.search.offer) === -1) {
+                self.search.queue.push(self.search.offer);
+            }
+
+            if (self.search.ready === true && self.search.queue.length > 0){
+                self.search.ready = false;
+                ListProfileApiService.searchOffers(self.search.offer,function(response){
+                    self.search.ready = true;
+                    self.search.queue = self.search.queue.slice(1); // due to the execution lock, we should always search and remove the first time
+                    self.search.offerResults = response.data;
+                    
+                    if (self.search.queue.length > 0) {
+                        self.search.populateOffers();
+                    }
+                },function(){});
+            }
+        }
+
+    };
+
+    self.search.populateOfferSupp = function () {
+        // Due to the modification of globals we have to duplicate this method
+        if(self.search.offerSupp.length >= 3) {
+
+            if (self.search.suppQueue.indexOf(self.search.offerSupp) === -1) {
+                self.search.suppQueue.push(self.search.offerSupp);
+            }
+
+            if (self.search.suppReady === true && self.search.suppQueue.length > 0){
+                self.search.suppReady = false;
+                ListProfileApiService.searchOffers(self.search.offerSupp, function(response){
+                    self.search.suppReady = true;
+                    self.search.suppQueue = self.search.suppQueue.slice(1);
+                    self.search.offerSuppResults = response.data;
+                    
+                    if (self.search.suppQueue.length > 0) {
+                        self.search.populateOfferSupp();
+                    }
+                },function(){});
+            }
         }
 
     };
@@ -702,7 +801,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
     self.addOffers = function () {
         angular.forEach( self.highlightedOffers , function ( value , key ) {
-            self.current.offers.push( value );
+            self.current.offerActions.push( value );
             var index = self.search.offerResults.indexOf( value );
 
             if ( index >= 0 ) {
@@ -717,68 +816,106 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
                 self.search.offerResults.push( selectedValue );
             }
 
-            var index = self.current.offers.indexOf( selectedValue );
+            var index = self.current.offerActions.indexOf( selectedValue );
 
             if ( index >= 0 ) {
-                self.current.offers.splice( index , 1 );
+                self.current.offerActions.splice( index , 1 );
             }
         } );
 
     };
 
+    self.addOfferSupp = function ($event) {
+        if (self.enabledSuppression['offer']) {
+            angular.forEach(self.highlightedOfferSupp, function (value, key) {
+                self.current.suppression.offer.push(value);
+                var index = self.search.offerSuppResults.indexOf(value);
+
+                if (index >= 0) {
+                    self.search.offerSuppResults.splice(index, 1);
+                }
+            });
+
+        }
+
+        self.confirmSuppressionConfig( $event , 'offer' );
+    };
+
+    self.removeOfferSupp = function () {
+        angular.forEach( self.highlightedOfferSuppForRemoval , function ( selectedValue , selectedKey ) {
+            if ( typeof( self.search.offerSuppResults ) !== 'undefined' && self.search.offerSuppResults.length > 0 ) {
+                self.search.offerSuppResults.push( selectedValue );
+            }
+
+            var index = self.current.suppression.offer.indexOf( selectedValue );
+
+            if ( index >= 0 ) {
+                self.current.suppression.offer.splice(index, 1);
+            }
+        } );
+    };
+
     self.addStateFilters = function () {
-        self.addMembershipItems(
-            { "highlighted" : self.highlightedStateFilters , "visibility" : self.stateFilterVisibility , "map" : self.stateFilterNameMap } ,
-            self.current.attributeFilters.states
-        );
+        angular.forEach(self.highlightedStateFilters, function(value, key) {
+            self.selectedFilterStates[value] = self.stateFilterNameMap[value];
+            self.current.attributeFilters.states.include.push(value);
+            self.stateFilterVisibility[value] = false;
+        });
+
+        self.highlightedStateFilters = [];
     };
 
     self.removeStateFilters = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedStateFiltersForRemoval , "visibility" : self.stateFilterVisibility } ,
-            self.current.attributeFilters.states
-        );
+        angular.forEach(self.highlightedStateFiltersForRemoval, function (value, key) {
+            self.stateFilterVisibility[value] = true;
+            delete(self.selectedFilterStates[value]);
+            
+            var ind = self.current.attributeFilters.states.include.indexOf(value);
+            self.current.attributeFilters.states.include.splice(ind, 1);
+        });
+
+        self.highlightedStateFiltersForRemoval = [];
     };
 
     self.addDeviceTypeFilters = function () {
-        self.addMembershipItems(
+        self.addMembershipItemsToList(
             { "highlighted" : self.highlightedDeviceTypeFilters , "visibility" : self.deviceTypeFilterVisibility , "map" : self.deviceTypeFilterNameMap } ,
-            self.current.attributeFilters.deviceTypes
+            self.current.attributeFilters.deviceTypes.include
         );
     };
 
     self.removeDeviceTypeFilters = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedDeviceTypeFiltersForRemoval , "visibility" : self.deviceTypeFilterVisibility } ,
-            self.current.attributeFilters.deviceTypes
+        self.removeMembershipItemsFromList(
+            { "highlightedForRemoval" : self.highlightedDeviceTypeFiltersForRemoval , "visibility" : self.deviceTypeFilterVisibility, "map" : self.deviceTypeFilterNameMap } ,
+            self.current.attributeFilters.deviceTypes.include
         );
     };
 
     self.addOsFilters = function () {
-        self.addMembershipItems(
+        self.addMembershipItemsToList(
             { "highlighted" : self.highlightedOsFilters , "visibility" : self.osFilterVisibility , "map" : self.osFilterNameMap } ,
-            self.current.attributeFilters.os
+            self.current.attributeFilters.os.include
         );
     };
 
     self.removeOsFilters = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedOsFiltersForRemoval , "visibility" : self.osFilterVisibility } ,
-            self.current.attributeFilters.os
+        self.removeMembershipItemsFromList(
+            { "highlightedForRemoval" : self.highlightedOsFiltersForRemoval , "visibility" : self.osFilterVisibility, "map" : self.osFilterNameMap } ,
+            self.current.attributeFilters.os.include
         );
     };
 
     self.addCarrierFilters = function () {
-        self.addMembershipItems(
+        self.addMembershipItemsToList(
             { "highlighted" : self.highlightedCarrierFilters , "visibility" : self.carrierFilterVisibility , "map" : self.carrierFilterNameMap } ,
-            self.current.attributeFilters.mobileCarriers
+            self.current.attributeFilters.mobileCarriers.include
         );
     };
 
     self.removeCarrierFilters = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedCarrierFiltersForRemoval , "visibility" : self.carrierFilterVisibility } ,
-            self.current.attributeFilters.mobileCarriers
+        self.removeMembershipItemsFromList(
+            { "highlightedForRemoval" : self.highlightedCarrierFiltersForRemoval , "visibility" : self.carrierFilterVisibility, "map" : self.carrierFilterNameMap } ,
+            self.current.attributeFilters.mobileCarriers.include
         );
     };
 
@@ -816,49 +953,39 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         );
     };
 
-    self.addOfferSupp = function ( $event ) {
-        if ( self.enabledSuppression[ 'offer' ] ) {
-            self.addMembershipItems(
-                { "highlighted" : self.highlightedOfferSupp , "visibility" : self.offerSuppVisibility , "map" : self.offerSuppNameMap } ,
-                self.current.suppression.offer
-            );
-
-            return true;
-        }
-
-        self.confirmSuppressionConfig( $event , 'offer' );
-    };
-
-    self.removeOfferSupp = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedOfferSuppForRemoval , "visibility" : self.offerSuppVisibility } ,
-            self.current.suppression.offer
-        );
-    };
-
     self.addStateSupp = function ( $event ) {
-        self.addMembershipItems(
-            { "highlighted" : self.highlightedStateSupp , "visibility" : self.stateSuppVisibility , "map" : self.stateSuppNameMap } ,
-            self.current.suppression.attribute.states
-        );
+        angular.forEach(self.highlightedStateSupp, function(value, key) {
+            self.selectedSuppStates[value] = self.stateSuppNameMap[value];
+            self.current.attributeFilters.states.exclude.push(value);
+            self.stateSuppVisibility[value] = false;
+        });
+
+        self.highlightedStateSupp = [];
     };
 
     self.removeStateSupp = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedStateSuppForRemoval , "visibility" : self.stateSuppVisibility } ,
-            self.current.suppression.attribute.states
-        );
+        angular.forEach(self.highlightedStateSuppForRemoval, function (value, key) {
+            self.stateSuppVisibility[value] = true;
+            delete(self.selectedSuppStates[value]);
+            
+            var ind = self.current.attributeFilters.states.exclude.indexOf(value);
+            self.current.attributeFilters.states.exclude.splice(ind, 1);
+        });
+
+        self.highlightedStateSuppForRemoval = [];
     };
 
-    self.toggleSelection = function ( list , nameMap , name , callback ) {
-        if ( typeof( list[ name ] ) !== 'undefined' ) {
-            delete( list[ name ] );
-        } else {
-            list[ name ] = nameMap[ name ];
+    self.setGender = function (gender) {
+        var mappedGender = self.genderNameMap[gender];
+        var ind = self.current.attributeFilters.genders.include.indexOf(mappedGender);
+        if (-1 === ind) {
+            // doesn't exist in the list yet
+            self.current.attributeFilters.genders.include.push(mappedGender);
+            self.genderChecked[gender] = true;
         }
-
-        if ( typeof( callback ) != 'undefined' ) {
-            callback();
+        else {
+            var out = self.current.attributeFilters.genders.include.splice(ind, 1);
+            self.genderChecked[gender] = false;
         }
     };
 

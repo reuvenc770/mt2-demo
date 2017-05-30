@@ -22,6 +22,8 @@ class ImportMt1DataService {
     }
 
     public function load() {
+        $this->mt2Repo->prepareTableForSync();
+
         $this->records->chunk(5000, function($records) {
             foreach ($records as $record) {
                 $record = $this->mapStrategy->map($record->toArray());

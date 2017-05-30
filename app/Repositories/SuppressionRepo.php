@@ -150,7 +150,7 @@ class SuppressionRepo
         return $this->suppressionModel
                     ->join('esp_accounts as eac', 'suppressions.esp_account_id', '=', 'eac.id')
                     ->join('esps as e', 'eac.esp_id', '=', 'e.id')
-                    ->where('suppressions.created_at', '>=', $date)
+                    ->where('suppressions.date', '=', $date)
                     ->selectRaw('e.name as esp_name, eac.account_name, SUM(IF(type_id = 1, 1, 0)) as unsubs, SUM(IF(type_id = 2, 1, 0)) as hardbounces')
                     ->groupBy('e.name', 'eac.account_name')
                     ->get();
@@ -160,9 +160,33 @@ class SuppressionRepo
         return $this->suppressionModel
             ->join('esp_accounts as eac', 'suppressions.esp_account_id', '=', 'eac.id')
             ->join('esps as e', 'eac.esp_id', '=', 'e.id')
-            ->where('suppressions.date', '>=', $date)
+            ->where('suppressions.date', '=', $date)
             ->where('e.name', '=', $espName)
             ->selectRaw('SUM(IF(type_id = 1, 1, 0)) as unsubs, SUM(IF(type_id = 2, 1, 0)) as hardbounces')
             ->first();
+    }
+
+    public function getMinIdForDate($date) {
+        return $this->suppressionModel->where('created_at', '>=', $date)->min('id');
+    }
+
+    public function getMaxId() {
+        return $this->suppressionModel->max('id');
+    }
+
+    public function nextNRows($startPoint, $offset) {
+        return $this->suppressionModel
+            ->where('id', '>=', $startPoint)
+            ->orderBy('id')
+            ->skip($offset)
+            ->first()['id'];
+    }
+
+    public function pullSuppressionsBetweenIds($start, $end) {
+        return $this->suppressionModel->selectRaw("distinct email_address")->whereRaw("id between $start AND $end")->get();
+    }
+
+    public function getTotalSinceDate($date) {
+        return $this->suppressionModel->where('date', '>=', $date)->count();
     }
 }

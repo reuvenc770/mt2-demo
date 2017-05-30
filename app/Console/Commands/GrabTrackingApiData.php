@@ -17,7 +17,7 @@ class GrabTrackingApiData extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?} {--s|startDate=none} {--e|endDate=none}';
+    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?} {--s|startDate=none} {--e|endDate=none} {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -66,7 +66,8 @@ class GrabTrackingApiData extends Command
                 $start,
                 $end,
                 str_random( 16 ) ,
-                $processType
+                $processType,
+                $this->option('runtime-threshold')
             )
         );
 

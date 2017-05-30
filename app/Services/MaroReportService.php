@@ -326,7 +326,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         $this->pageNumber++;
     }
 
-    public function pageHasData()
+    public function pageHasData( $processState = null )
     {
         $this->api->setDeliverableLookBack();
         $this->api->constructDeliverableUrl($this->pageType, $this->pageNumber);

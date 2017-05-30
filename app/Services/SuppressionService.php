@@ -173,10 +173,30 @@ class SuppressionService implements IFeedSuppression
                     'totalUnsubs' => $espTotals->unsubs];
             }
             else {
-                $output[$espName][$espAccountName] = ['hardbounces' => $row->hardbounces, 'unsubs' => $row->unsubs];
+                $output['esps'][$espName][$espAccountName] = ['hardbounces' => $row->hardbounces, 'unsubs' => $row->unsubs];
             }
         }
 
         return $output;
+    }
+
+    public function getMinIdForDate($date) {
+        return $this->repo->getMinIdForDate($date);
+    }
+
+    public function getMaxId() {
+        return $this->repo->getMaxId();
+    }
+
+    public function nextNRows($start, $offset) {
+        return $this->repo->nextNRows($start, $offset);
+    }
+
+    public function pullSuppressionsBetweenIds($start, $end) {
+        return $this->repo->pullSuppressionsBetweenIds($start, $end);
+    }
+
+    public function getTotalSinceDate($date) {
+        return $this->repo->getTotalSinceDate($date);
     }
 }

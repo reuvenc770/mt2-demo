@@ -87,7 +87,7 @@ class DeployService
     {
         $deploysWithProfile = array();
         foreach($deploys as $row){
-            $row['id'] = $row['deploy_id'];
+            $row['id'] = isset( $row['deploy_id'] ) ? $row[ 'deploy_id' ] : null;
             $row['list_profile_combine_id'] = $this->combineRepo->getIdFromName($row['list_profile_name']);
             unset($row['deploy_id']);
             unset($row['valid']);

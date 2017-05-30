@@ -1149,6 +1149,12 @@ Route::group(
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@syncLevelsWithMT1'
                 ] );
+
+                Route::post( '/attribution/quickReorder/{modelId}' , [
+                    'as' => 'api.attribution.quickReorder' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@quickReorder'
+                ] );
             }
         );
 
@@ -1163,6 +1169,26 @@ Route::group(
         Route::get( '/espapi/generatecustomid' , [
             'as' => 'api.espapi.generatecustomid' ,
             'uses' => 'EspApiAccountController@generateCustomId'
+        ] );
+
+        Route::post( '/espapi/toggleStats/{id}' , [
+            'as' => 'api.espapi.toggleStats' ,
+            'uses' => 'EspApiAccountController@toggleStats'
+        ] );
+
+        Route::post( '/espapi/toggleSuppression/{id}' , [
+            'as' => 'api.espapi.toggleSuppression' ,
+            'uses' => 'EspApiAccountController@toggleSuppression'
+        ] );
+
+        Route::post( '/espapi/activate/{id}' , [
+            'as' => 'api.espapi.activate' ,
+            'uses' => 'EspApiAccountController@activate'
+        ] );
+
+        Route::post( '/espapi/deactivate/{id}' , [
+            'as' => 'api.espapi.deactivate' ,
+            'uses' => 'EspApiAccountController@deactivate'
         ] );
 
         /**

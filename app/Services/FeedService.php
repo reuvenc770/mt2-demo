@@ -270,28 +270,11 @@ class FeedService implements IFtpAdmin
     }
 
     public function getCountryFeedMap(){
-        $map = [];
-        $feeds = $this->feedRepo->getFeeds();
-
-        foreach ($feeds as $feed) {
-
-            $map[$feed->country_id][] = $feed->id;
-        }
-
-        return $map;
+        return $this->feedRepo->getCountryFeedMap();
     }
 
     public function getPartyFeedMap(){
-
-        $map = [];
-        $feeds = $this->feedRepo->getFeeds();
-
-        foreach ($feeds as $feed) {
-
-            $map[$feed->party][] = $feed->id;
-        }
-
-        return $map;
+        return $this->feedRepo->getPartyFeedMap();
     }
 
     public function getPaginatedJson($page, $count, $params = null)
@@ -372,9 +355,9 @@ class FeedService implements IFtpAdmin
         $batchDobExists = ( isset( $data[ 'dob' ] ) && $data[ 'dob' ] != '' );
 
         if ( $isBritishRecord ) {
-            $rules[ 'capture_date' ] = $euroDateRule;
+            $rules[ 'capture_date' ] = $euroDateRule . '|euroDateNotFuture';
         } else {
-            $rules[ 'capture_date' ] = $usDateRule;
+            $rules[ 'capture_date' ] = $usDateRule . '|before:tomorrow';
         }
 
         if ( $isBritishRecord && $realtimeDobExists ) {
@@ -390,5 +373,9 @@ class FeedService implements IFtpAdmin
         }
 
         return $rules;
+    }
+
+    public function getFeedNameFromId ( $id ) {
+        return $this->feedRepo->getFeedNameFromId( $id );
     }
 }

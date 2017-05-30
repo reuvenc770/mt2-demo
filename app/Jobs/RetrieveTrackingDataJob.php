@@ -8,15 +8,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Factories\APIFactory;
-use App\Repositories\CakeAffiliateRepo;
 
 /**
  * Class RetrieveReports
  * @package App\Jobs
  */
-class RetrieveTrackingDataJob extends Job implements ShouldQueue
+class RetrieveTrackingDataJob extends MonitoredJob implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "RetrieveTrackingApiData-";
 
     CONST PROCESS_TYPE_ACTION = 1;
@@ -30,7 +28,7 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
 
     protected $isRecordProcessing = false;
 
-    public function __construct($source, $startDate, $endDate, $tracking, $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION ) {
+    public function __construct($source, $startDate, $endDate, $tracking, $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION, $runtime_threshold ) {
        $this->source = $source;
        $this->startDate = $startDate;
        $this->endDate = $endDate;
@@ -42,6 +40,8 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
 
        $fullJobName = self::JOB_NAME . $this->source . '-' . ( $processType == self::PROCESS_TYPE_ACTION ? 'action-' : 'record-' );
 
+       parent::__construct($fullJobName,$runtime_threshold,$tracking);
+
        JobTracking::startTrackingJob($fullJobName, $this->startDate, $this->endDate, $this->tracking);
     }
 
@@ -50,9 +50,11 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(CakeAffiliateRepo $affRepo)
+    public function handleJob()
     {
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+
+        $affRepo = \App::make('App\Repositories\CakeAffiliateRepo');
+
         $dataService = APIFactory::createTrackingApiService($this->source, $this->startDate,$this->endDate);
 
         $cakeIds = array_map(function($obj) { return $obj['id']; }, $affRepo->getAll()->toArray());
@@ -77,13 +79,8 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
                 $this->isRecordProcessing
             );
         }
+        return $dataLength;
 
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
-
-    public function failed()
-    {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
-    }
 }

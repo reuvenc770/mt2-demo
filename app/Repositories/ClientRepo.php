@@ -20,6 +20,8 @@ class ClientRepo implements IAwsRepo {
         $this->client->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function getModel () {
         return $this->client;
     }
@@ -77,5 +79,22 @@ class ClientRepo implements IAwsRepo {
 
     public function getCount() {
         return $this->client->count();
+    }
+
+    public function getClientFeedMap () {
+        $map = [];
+        $clients = $this->get();
+
+        foreach ($clients as $client) {
+            $feeds = [];
+
+            foreach ($client->feeds as $feed) {
+                $feeds[] = $feed->id;
+            }
+
+            $map[$client->id] = $feeds;
+        }
+
+        return $map;
     }
 }

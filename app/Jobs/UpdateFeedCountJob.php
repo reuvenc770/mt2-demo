@@ -50,7 +50,6 @@ class UpdateFeedCountJob extends Job implements ShouldQueue
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
-                $this->failed();
             }
             finally {
                 $this->unlock($this->jobName);

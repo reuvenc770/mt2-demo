@@ -23,6 +23,8 @@ class OfferRepo {
         $this->offer->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function getAdvertiserName($offerId) {
         $result = $this->offer
              ->join('advertisers as a', 'offers.advertiser_id', '=', 'a.id')
@@ -37,9 +39,8 @@ class OfferRepo {
         }
     }
 
-    public function fuzzySearchBack($day,$term){
-        return $this->offer->where('name', 'like', $term . '%')
-            ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'N')
+    public function fuzzySearchBack($term){
+        return $this->offer->whereRaw("name like '%$term%'")
             ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
             ->select("id","name")->orderBy('name')->get();
     }

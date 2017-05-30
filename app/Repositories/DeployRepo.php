@@ -88,6 +88,8 @@ class DeployRepo implements Mt2Export
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function update($data, $id)
     {
         return $this->deploy->find($id)->update($data);
@@ -132,7 +134,7 @@ class DeployRepo implements Mt2Export
             }
         }
 
-        $otherErrors = $this->validateDeploy($deploy);
+        $otherErrors = $this->validateDeploy($deploy,false);
         return array_merge($errors,$otherErrors);
 
 
@@ -340,8 +342,10 @@ class DeployRepo implements Mt2Export
                 $errors[] = "List Profile is missing";
             }
         } else{
+            $lpSchema = config('database.connections.list_profile.database');
+
             if (isset($deploy['list_profile_name'])) {
-                $count = DB::select("Select count(*) as count from list_profile_combines where name = :name", ['name' => $deploy['list_profile_name']])[0];
+                $count = DB::select("Select count(*) as count from $lpSchema.list_profile_combines where name = :name", ['name' => $deploy['list_profile_name']])[0];
                 if ($count->count == 0) {
                     $errors[] = "List Profile is not active or wrong";
                 }

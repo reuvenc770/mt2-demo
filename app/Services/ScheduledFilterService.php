@@ -85,4 +85,20 @@ class ScheduledFilterService
     public function deleteSchedules($emails){
         return $this->scheduleRepo->bulkDelete($emails);
     }
+
+    public function getExpiringRecordsBetweenIds($date, $startEmailId, $endEmailId) {
+        return $this->scheduleRepo->getExpiringRecordsBetweenIds($date, $startEmailId, $endEmailId);
+    }
+
+    public function getMinEmailIdForDate($date) {
+        return $this->scheduleRepo->getMinEmailIdForDate($date);
+    }
+
+    public function getMaxEmailIdForDate($date) {
+        return $this->scheduleRepo->getMaxEmailIdForDate($date);
+    }
+
+    public function nextNRows($startEmailId, $offset) {
+        return $this->scheduleRepo->nextNRows($startEmailId, $offset);
+    }
 }

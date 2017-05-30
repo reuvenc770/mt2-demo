@@ -37,7 +37,7 @@ class ListProfileQueryBuilder {
     private $feedsWithSuppression;
 
     // Note already-prepared fields in ListProfileBaseTableService
-    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed'];
+    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed', 'feed_suppressed'];
 
 
     public function __construct() {
@@ -72,9 +72,10 @@ class ListProfileQueryBuilder {
             'device_type' => 'rd.device_type',
             'device_name' => 'rd.device_name',
             'carrier' => 'rd.carrier',
-            'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL OR sls.email_address IS NOT NULL) AS globally_suppressed"),
             'action_status' => 'rd.last_action_type',
             'action_date' => 'rd.last_action_date'
+            'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
+            'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
         ];
     }
 
@@ -246,11 +247,11 @@ class ListProfileQueryBuilder {
             }
 
             $insert = count($listIds) > 0 ? $listIds : array("0");
-                $listIds = '(' . implode(',', $insert) . ')';
-                $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
-                    $join->on("e.email_address", '=', 'sls.email_address');
-                    $join->on('sls.suppression_list_id', 'in', DB::connection('redshift')->raw($listIds));
-                });
+            $listIds = '(' . implode(',', $insert) . ')';
+            $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
+                $join->on("e.email_address", '=', 'sls.email_address');
+                $join->on('sls.suppression_list_id', 'in', DB::connection('redshift')->raw($listIds));
+            });
 
         }
 
@@ -400,7 +401,7 @@ class ListProfileQueryBuilder {
     private function getOfferIds($listProfile) {
         $offerIds = [];
 
-        foreach($listProfile->offers as $offer) {
+        foreach($listProfile->offerAction as $offer) {
             $offerIds[] = $offer->id;
         }
 

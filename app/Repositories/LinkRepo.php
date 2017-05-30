@@ -44,4 +44,6 @@ class LinkRepo implements Mt2Export {
             return null;
         } 
     }
+
+    public function prepareTableForSync() {}
 }
