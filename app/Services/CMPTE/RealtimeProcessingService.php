@@ -79,6 +79,11 @@ class RealtimeProcessingService extends RemoteFeedFileService {
          * - Look for 24 char strings where the ip should be and add colons. This is causing records to fail validation.
          */
         $columns = explode( '|' , $csvLine );
+
+        #ipv6 fix, add colons
+        if ( strlen( $columns[ 13 ] ) == 32 ) {
+            $columns[ 13 ] = substr( chunk_split( $columns[ 13 ] , 4 , ':' ) , 0 , -1 ); 
+        }
         
         $extraFields = [];
 
