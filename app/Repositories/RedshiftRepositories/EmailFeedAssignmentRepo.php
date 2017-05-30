@@ -19,7 +19,7 @@ class EmailFeedAssignmentRepo implements IRedshiftRepo {
         
         $sql = <<<SQL
 copy email_feed_assignments_staging
-from 's3://mt2-listprofile-export/cmpte/{$entity}.csv'
+from 's3://mt2-listprofile-export-cmpte/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '\'' delimiter as ',';
 SQL;
