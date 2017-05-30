@@ -115,13 +115,13 @@ class S3RedshiftExportService {
                     if ($this->tries <= self::MAX_TRIES) {
                         $this->tries++;
 
-                        echo "Upload for $entity failed with {$e->getMessage()}. Retrying {$this->tries}." . PHP_EOL;
+                        echo "Upload for {$this->entity} failed with {$e->getMessage()}. Retrying {$this->tries}." . PHP_EOL;
                         $uploader = new MultipartUploader($s3Client, $source, [
                             'state' => $e->getState(),
                         ]);
                     }
                     else {
-                        throw new Exception("Multi-part upload for $entity failed completely with {$e->getMessage()}.");
+                        throw new Exception("Multi-part upload for {$this->entity} failed completely with {$e->getMessage()}.");
                     }
                 }
             } while (!isset($result));
