@@ -16,7 +16,6 @@ use Carbon\Carbon;
 use Mail;
 
 class RemoteFeedFileService {
-    const SLACK_CHANNEL = "#mt2team";
     const DEV_TEAM_EMAIL = 'tech.team.mt2@zetaglobal.com';
     const STAKEHOLDERS_EMAIL = 'orangeac@zetaglobal.com';
 
@@ -37,11 +36,22 @@ class RemoteFeedFileService {
     protected $processedFileCount = 0;
     protected $notificationCollection = [];
 
+    protected $slackChannel = "#mt2team";
+    protected $rootFileDirectory = '/home';
+    protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
+    protected $lastFileProcessed;
+    protected $fileProcessedCallback;
+    protected $metaData = [];
+
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         $this->feedService = $feedService;
         $this->systemService = $systemService;
         $this->domainGroupService = $domainGroupService;
         $this->rawRepo = $rawRepo;
+    }
+
+    public function setFileProcessedCallback ( Callable $callback ) {
+        $this->fileProcessedCallback = $callback;
     }
 
     public function processNewFiles () {
@@ -53,8 +63,15 @@ class RemoteFeedFileService {
 
         while ( $this->newFilesPresent() ) {
             $recordSqlList = $this->getNewRecords();
-
+    
             $this->rawRepo->massInsert( $recordSqlList );
+
+            if ( !is_null( $this->lastFileProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
+                $callback = $this->fileProcessedCallback;
+                $callback( $this->lastFileProcessed , $this->systemService , $this->metaData );
+
+                $this->lastFileProcessed = null;
+            }
 
             $this->processedFileCount++;
         }
@@ -128,7 +145,8 @@ class RemoteFeedFileService {
             }
 
             $this->currentFile = $this->newFileList[ 0 ];
-            $this->currentColumnMap = $this->feedService->getFileColumnMap( $this->currentFile[ 'feedId' ] );
+
+            $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
             if ( $this->lastLineNumber === 0 ) {
                 $this->systemService->appendEofToFile( $this->currentFile[ 'path' ] );
@@ -156,7 +174,7 @@ class RemoteFeedFileService {
 
                 $this->markFileAsProcessed();
                 
-                array_shift( $this->newFileList );
+                $this->lastFileProcessed = array_shift( $this->newFileList );
 
                 $this->resetCursor();
             }
@@ -172,27 +190,61 @@ class RemoteFeedFileService {
         return $this->getBufferContent();
     }
 
+    protected function getFileColumnMap ( $feedId ) {
+        return $this->feedService->getFileColumnMap( $feedId );
+    } 
+
     protected function processLines () {
         $lineNumber = $this->lastLineNumber + 1;
 
         foreach( $this->currentLines as $currentLine ) {
-            $lineColumns = explode( ',' , trim( $currentLine ) );
+            $lineColumns = $this->extractData( $currentLine );
+            #$lineColumns = explode( ',' , trim( $currentLine ) );
 
+            /*
             if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
-                SlackLevel::to(self::SLACK_CHANNEL)->send( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
+                $this->fireAlert( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
 
                 throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
             } 
+             */
+            $this->columnMatchCheck( $lineColumns );
 
+            $record = $this->mapRecord( $lineColumns );
+            /*
             $record = array_combine( $this->currentColumnMap , $lineColumns );
             $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+             */
 
-            if ( $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
+            if ( !is_null( $record ) && $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
                 $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
             }
 
             $lineNumber++;
         }
+    }
+
+    protected function extractData ( $csvLine ) {
+        return explode( ',' , trim( $currentLine ) );
+    }
+
+    protected function columnMatchCheck ( $lineColumns ) {
+        if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
+            $this->fireAlert( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
+
+            throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
+        } 
+    }
+
+    protected function mapRecord ( $lineColumns ) {
+        $record = array_combine( $this->currentColumnMap , $lineColumns );
+        $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+
+        return $record;
+    }
+
+    protected function fireAlert ( $message ) {
+        SlackLevel::to( $this->slackChannel )->send( $message );
     }
 
     protected function isValidRecord ( $record , $rawRecord , $lineNumber ) {
@@ -266,33 +318,45 @@ class RemoteFeedFileService {
     }
 
     protected function getValidDirectories () {
-        $rawDirectoryList = $this->systemService->listDirectories( '/home' );    
+        $rawDirectoryList = $this->systemService->listDirectories( $this->rootFileDirectory );    
 
         array_pop( $rawDirectoryList );
         array_shift( $rawDirectoryList );
 
-        $validFeedList = $this->feedService->getActiveFeedShortNames();
+        $validFeedList = $this->getValidFeedList();
 
         $directoryList = [];
         
         foreach( $rawDirectoryList as $dir ) { 
             $matches = []; 
-            preg_match( '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/' , $dir , $matches );
+            preg_match( $this->validDirectoryRegex , $dir , $matches );
 
             $notSystemUser = ( strpos( $dir , 'centos' ) === false );
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
             $notAdminUser = ( strpos( $dir , 'sftp-admin' ) === false );
-            $isValidFeed = ( strpos( $dir , 'upload' ) !== false ) && in_array( $matches[ 1 ] , $validFeedList );
+            $isValidFeed = $this->isCorrectDirectoryStructure( $dir ) && in_array( $matches[ 1 ] , $validFeedList );
 
             if ( $notAdminUser && $notSystemUser && $notCustomUser && $isValidFeed ) { 
                 // Need to switch 2430 and 2618 to 2979
-                $feedIdResult = $this->feedService->getFeedIdByShortName( $matches[ 1 ] );
+                $feedIdResult = $this->getFeedIdFromName( $matches[ 1 ] );
                 $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;
                 $directoryList[] = [ 'directory' => $dir , 'feedId' =>  $feedId];
             }   
         }
 
         return $directoryList;
+    }
+
+    protected function isCorrectDirectoryStructure ( $directory ) {
+        return ( strpos( $directory , 'upload' ) !== false );
+    }
+
+    protected function getValidFeedList () {
+        return $this->feedService->getActiveFeedShortNames();
+    }
+
+    protected function getFeedIdFromName ( $name ) {
+        return $this->feedService->getFeedIdByShortName( $name );
     }
 
     protected function connectToServer () {

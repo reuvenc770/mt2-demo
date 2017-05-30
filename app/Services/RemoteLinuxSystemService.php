@@ -18,6 +18,7 @@ class RemoteLinuxSystemService {
     const GET_FILE_LINE_COUNT_COMMAND = "wc -l < %s";
     const APPEND_EOF_COMMAND = "sed -i -e '\$a\' %s";
     const USER_EXISTS_COMMAND = 'getent passwd %s > /dev/null 2&>1; [[ $? -eq 0 ]] && echo "{\"status\":1}" || echo "{\"status\":0}"';
+    const MOVE_FILE_COMMAND = 'sudo mv %s %s';
 
     protected $sshConnection = null;
     protected $host = null;
@@ -152,6 +153,14 @@ class RemoteLinuxSystemService {
 
     public function userExists ( $username ) {
         $command = sprintf( self::USER_EXISTS_COMMAND , $username );
+
+        $stream = ssh2_exec( $this->sshConnection , $command );
+
+        return $this->getOutput( $stream );
+    }
+
+    public function moveFile ( $source , $destination ) {
+        $command = sprintf( self::MOVE_FILE_COMMAND , $source , $destination );
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 
