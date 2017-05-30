@@ -38,7 +38,6 @@ class PopulateAttributionMappingJob extends SafeJob {
 
 		    }
 		    elseif (in_array($row->client_id, $this->feeds) || in_array($row->current_attributed_feed, $this->feeds)) {
-			echo "New email: {$row->email_addr} coming in from {$row->client_id} / {$row->current_attributed_feed}" . PHP_EOL;
 			$cmpFeedId = $this->getCmpFeedId($row->email_addr, $row->current_attributed_feed);
 			DB::statement("INSERT INTO mt2_shuttle.mt1_cmp_attribution_map 
 				(email_address, mt1_feed_id, cmp_feed_id, last_mt1_action)
@@ -50,7 +49,7 @@ class PopulateAttributionMappingJob extends SafeJob {
 				cmp_feed_id = values(cmp_feed_id),
 				last_mt1_action = values(last_mt1_action)",
 			[
-				':email', $row->email_addr,
+				':email' => $row->email_addr,
 				':mt1feed' => $row->current_attributed_feed,
 				':cmpfeed' => $cmpFeedId,
 				':date' => $row->last_action_date
