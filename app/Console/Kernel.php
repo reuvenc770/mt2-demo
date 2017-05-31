@@ -204,7 +204,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
         $schedule->command('process:useragents')->hourly(); // Job name like: ProcessUserAgents
-        #$schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
+        $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
 
 
         /**
@@ -259,7 +259,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 20 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #early monthly rerun
         #$schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
         #$schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
-        #$schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME); // Job name: AttributionValidation
+        $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME); // Job name: AttributionValidation
         
         /**
          *  List profile jobs
@@ -270,8 +270,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:optimize')->weekly();
         $schedule->command('listprofile:aggregateActions')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation
         $schedule->command('listprofile:contentServerRawStats')->hourly(); // Job name: ProcessContentServerRawStats
-        #$schedule->command('listprofile:getRecordAgentData 2')->hourly(); // Job name: ContentServerDeviceData
-        #$schedule->command('listprofile:baseTables')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
+        $schedule->command('listprofile:getRecordAgentData 2')->hourly(); // Job name: ContentServerDeviceData
+        $schedule->command('listprofile:baseTables')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
         #$schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
@@ -328,9 +328,9 @@ class Kernel extends ConsoleKernel
          *  Data consistency jobs
          *  Job names like DataValidation followed by lower case entity (middle item)
          */
-        #$schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
-        #$schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
-        #$schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("newActions:process --hoursBack=2 --runtime-threshold=20m")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
     }
 }
