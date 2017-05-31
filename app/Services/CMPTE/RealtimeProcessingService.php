@@ -76,7 +76,6 @@ class RealtimeProcessingService extends RemoteFeedFileService {
          * TODO:
          *
          * - Look for pipes in the custom field section at the end of the line. This will cause mismatching columns and values
-         * - Look for 24 char strings where the ip should be and add colons. This is causing records to fail validation.
          */
         $columns = explode( '|' , $csvLine );
 

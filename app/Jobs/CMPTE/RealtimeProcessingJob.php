@@ -18,9 +18,14 @@ class RealtimeProcessingJob extends ProcessFeedRawFilesJob {
     public function handle ( RemoteFeedFileService $service ) {
         $service = \App::make( \App\Services\CMPTE\RealtimeProcessingService::class );
 
+        /**
+         *
+         * Uncomment this when we're ready for CMPTE 
+         *
         $service->setFileProcessedCallback( function ( $file , $systemService , $meta ) {
-            \Log::info( $meta );
+            $systemService->deleteFile( $file[ 'path' ] );
         } );
+         */
 
         parent::handle( $service );
     }
