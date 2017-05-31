@@ -283,10 +283,10 @@ class ListProfileExportService {
         $combineName = $deploy->listProfileCombine->name;
 
         if ('mailable' === $version) {
-            return "{$ftpFolder}/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/mailable/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
         elseif ('donotmail' === $version) {
-            return "{$ftpFolder}/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/donotmail/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
     }
 
