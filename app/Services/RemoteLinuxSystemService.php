@@ -19,6 +19,9 @@ class RemoteLinuxSystemService {
     const APPEND_EOF_COMMAND = "sed -i -e '\$a\' %s";
     const USER_EXISTS_COMMAND = 'getent passwd %s > /dev/null 2&>1; [[ $? -eq 0 ]] && echo "{\"status\":1}" || echo "{\"status\":0}"';
     const MOVE_FILE_COMMAND = 'sudo mv %s %s';
+    const DELETE_FILE_COMMAND = 'sudo rm %s';
+
+    const PSEUDO_TTY_FLAG = true; #for nologin users w/ sudo access
 
     protected $sshConnection = null;
     protected $host = null;
@@ -162,14 +165,22 @@ class RemoteLinuxSystemService {
     public function moveFile ( $source , $destination ) {
         $command = sprintf( self::MOVE_FILE_COMMAND , $source , $destination );
 
-        $stream = ssh2_exec( $this->sshConnection , $command );
+        $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
-        return $this->getOutput( $stream );
+        return $this->getOutput( $stream , SSH2_STREAM_STDERR );
     }
 
-    protected function getOutput ( $stream ) {
+    public function deleteFile ( $file ) {
+        $command = sprintf( self::DELETE_FILE_COMMAND , $file );
+
+        $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
+
+        return $this->getOutput( $stream , SSH2_STREAM_STDERR );
+    }
+
+    protected function getOutput ( $stream , $streamId = SSH2_STREAM_STDIO ) {
         stream_set_blocking( $stream , true );
-        $stream_out = ssh2_fetch_stream( $stream , SSH2_STREAM_STDIO );
+        $stream_out = ssh2_fetch_stream( $stream , $streamId );
         return stream_get_contents( $stream_out );
     }
 }

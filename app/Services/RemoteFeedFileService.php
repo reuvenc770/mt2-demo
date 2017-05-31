@@ -331,12 +331,17 @@ class RemoteFeedFileService {
             $matches = []; 
             preg_match( $this->validDirectoryRegex , $dir , $matches );
 
+            if ( empty( $matches ) ) {
+                continue;
+            }
+
             $notSystemUser = ( strpos( $dir , 'centos' ) === false );
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
             $notAdminUser = ( strpos( $dir , 'sftp-admin' ) === false );
+            $notMt1Folder = ( strpos( $dir , 'mt1' ) === false );
             $isValidFeed = $this->isCorrectDirectoryStructure( $dir ) && in_array( $matches[ 1 ] , $validFeedList );
 
-            if ( $notAdminUser && $notSystemUser && $notCustomUser && $isValidFeed ) { 
+            if ( $notAdminUser && $notSystemUser && $notCustomUser && $notMt1Folder && $isValidFeed ) { 
                 // Need to switch 2430 and 2618 to 2979
                 $feedIdResult = $this->getFeedIdFromName( $matches[ 1 ] );
                 $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;

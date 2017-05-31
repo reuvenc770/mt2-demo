@@ -286,9 +286,15 @@ class Kernel extends ConsoleKernel
         /**
          * Feed File Processing
          */
-        $schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
+        #$schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
+
+        /**
+         * CMPTE Feed Ingestion
+         */
+        $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyFiveMinutes(); // Job name like: BatchProcessingJob%
+        $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyFiveMinutes(); // Job name like: RealtimeProcessingJob%
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id
