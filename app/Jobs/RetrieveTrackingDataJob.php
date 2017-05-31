@@ -28,7 +28,7 @@ class RetrieveTrackingDataJob extends MonitoredJob implements ShouldQueue
 
     protected $isRecordProcessing = false;
 
-    public function __construct($source, $startDate, $endDate, $tracking, $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION, $runtime_threshold ) {
+    public function __construct($source, $startDate, $endDate, $tracking, $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION, $runtimeThreshold ) {
        $this->source = $source;
        $this->startDate = $startDate;
        $this->endDate = $endDate;
@@ -40,7 +40,7 @@ class RetrieveTrackingDataJob extends MonitoredJob implements ShouldQueue
 
        $fullJobName = self::JOB_NAME . $this->source . '-' . ( $processType == self::PROCESS_TYPE_ACTION ? 'action-' : 'record-' );
 
-       parent::__construct($fullJobName,$runtime_threshold,$tracking);
+       parent::__construct($fullJobName,$runtimeThreshold,$tracking);
 
        JobTracking::startTrackingJob($fullJobName, $this->startDate, $this->endDate, $this->tracking);
     }

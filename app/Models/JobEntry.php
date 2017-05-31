@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $tracking
  * @property string $status
  * @property string $time_fired
- * @property mediumint $runtime_seconds_threshold
+ * @property mediumint $runtimeSecondsThreshold
  * @property string $acceptance_test
  * @property json $diagnostics
  * @method static \Illuminate\Database\Query\Builder|\App\Models\JobEntry whereAccountName($value)

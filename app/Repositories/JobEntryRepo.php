@@ -116,7 +116,7 @@ class JobEntryRepo
                     CASE
                         WHEN status IN (1,7) AND time_started < NOW() - INTERVAL IFNULL(runtime_seconds_threshold,3600) SECOND THEN 10
                         WHEN status IN (1,7) AND time_started < NOW() - INTERVAL TRUNCATE(IFNULL(runtime_seconds_threshold,3600)*0.75,0) SECOND THEN 9
-                        WHEN status=5 AND time_fired < NOW() - INTERVAL 4 HOUR
+                        WHEN status=5 AND time_fired < NOW() - INTERVAL 4 HOUR THEN 12
                     ELSE status
                     END
                     WHERE status IN(1,5,7) AND time_fired ".$daterange."

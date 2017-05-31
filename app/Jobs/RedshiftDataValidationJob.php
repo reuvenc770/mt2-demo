@@ -11,11 +11,11 @@ class RedshiftDataValidationJob extends MonitoredJob {
     private $entity;
     private $lookback;
 
-    public function __construct($entity, $lookback, $tracking, $runtime_threshold) {
+    public function __construct($entity, $lookback, $tracking, $runtimeThreshold) {
         $this->entity = $entity;
         $this->lookback = $lookback;
         $jobName = 'DataValidation-' . $entity;
-        parent::__construct($jobName, $runtime_threshold, $tracking);
+        parent::__construct($jobName, $runtimeThreshold, $tracking);
     }
 
     protected function handleJob() {

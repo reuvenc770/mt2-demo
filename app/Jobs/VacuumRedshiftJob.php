@@ -9,19 +9,16 @@ class VacuumRedshiftJob extends MonitoredJob {
     private $repo;
     protected $jobName = 'OptimizeRedshift';
 
-    public function __construct($repo, $tracking, $runtime_threshold) {
+    public function __construct($repo, $tracking, $runtimeThreshold) {
         $this->repo = $repo;
         $this->tracking = $tracking;
 
-        parent::__construct($this->jobName,$runtime_threshold,$tracking);
+        parent::__construct($this->jobName,$runtimeThreshold,$tracking);
 
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     public function handleJob() {
-
-        $this->createLock($this->jobName);
-
         $this->repo->optimizeDb();
     }
 

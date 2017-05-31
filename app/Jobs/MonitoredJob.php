@@ -25,23 +25,23 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     protected $tracking;
     protected $jobName;
     protected $diagnostics;
-    protected $runtime_seconds_threshold;
+    protected $runtimeSecondsThreshold;
 
     /**
      * @param $jobName
-     * @param $runtime_threshold
+     * @param $runtimeThreshold
      * @param null $tracking
-     * tracking is generated if not provided. $jobName and $this->runtime_seconds_threshold are required.
+     * tracking is generated if not provided. $jobName and $this->runtimeSecondsThreshold are required.
      */
-    public function __construct($jobName,$runtime_threshold,$tracking=null) {
+    public function __construct($jobName,$runtimeThreshold,$tracking=null) {
 
-        $this->runtime_seconds_threshold = $this->parseRuntimeThreshold($runtime_threshold);
+        $this->runtimeSecondsThreshold = $this->parseRuntimeThreshold($runtimeThreshold);
         $this->jobName = $jobName;
-        $this->runtime_seconds_threshold = $this->runtime_seconds_threshold;
+        $this->runtimeSecondsThreshold = $this->runtimeSecondsThreshold;
         $this->tracking = $tracking!=null ? $tracking : $this->getTrackingId();
         $params = array(
             'job_name' => $jobName,
-            'runtime_seconds_threshold' => $this->runtime_seconds_threshold
+            'runtime_seconds_threshold' => $this->runtimeSecondsThreshold
         );
         JobTracking::initiateNewMonitoredJob($this->tracking,$params);
     }
@@ -115,15 +115,15 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     }
 
     /**
-     * validates runtime_threshold and converts to seconds
+     * validates runtimeThreshold and converts to seconds
      * examples of valid values: 2h (2 hours), 45m (45 minutes), 368s (368 seconds), 3292 (3292 seconds)
-     * @param $runtime_threshold
+     * @param $runtimeThreshold
      * @return integer
      * @throws \Exception
      */
-    private function parseRuntimeThreshold($runtime_threshold){
-        if(!preg_match("/^([0-9]{1,})(s|m|h|)$/",$runtime_threshold,$rtparts)){
-            throw new \Exception("invalid runtime_threshold");
+    private function parseRuntimeThreshold($runtimeThreshold){
+        if(!preg_match("/^([0-9]{1,})(s|m|h|)$/",$runtimeThreshold,$rtparts)){
+            throw new \Exception("invalid runtimeThreshold");
         }
 
         if($rtparts[2]=="m") return $rtparts[1]*60;

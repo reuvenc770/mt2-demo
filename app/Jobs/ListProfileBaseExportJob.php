@@ -17,13 +17,13 @@ class ListProfileBaseExportJob extends MonitoredJob {
     protected $jobName;
     private $cacheTagName;
 
-    public function __construct($profileId, $cacheTagName, $tracking, $runtime_threshold) {
+    public function __construct($profileId, $cacheTagName, $tracking, $runtimeThreshold) {
         $this->profileId = $profileId;
         $this->tracking = $tracking;
         $this->jobName = 'ListProfileGeneration-' . $profileId;
         $this->cacheTagName = $cacheTagName;
 
-        parent::__construct($this->jobName,$runtime_threshold,$tracking);
+        parent::__construct($this->jobName,$runtimeThreshold,$tracking);
 
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
@@ -55,7 +55,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
                 foreach($deploys as $deploy) {
                     $runId = str_random(10);
                     $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$deploy->id}-{$runId}");
-                    $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtime_threshold));
+                    $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtimeThreshold));
                 }
             }
         }

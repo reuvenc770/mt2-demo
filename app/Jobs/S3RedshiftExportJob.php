@@ -22,7 +22,7 @@ class S3RedshiftExportJob extends MonitoredJob implements ShouldQueue {
     private $version;
     private $extraData;
 
-    public function __construct($entity, $version, $tracking, $runtime_threshold, $extraData = null) {
+    public function __construct($entity, $version, $tracking, $runtimeThreshold, $extraData = null) {
         if ($version < 0 || $version > 2) {
             throw new \Exception("Job run type must be 0, 1, or 2. Currently is $version.");
         }
@@ -42,7 +42,7 @@ class S3RedshiftExportJob extends MonitoredJob implements ShouldQueue {
         $this->version = $version;
         $this->extraData = $extraData;
 
-        parent::__construct($this->jobName,$runtime_threshold,$this->tracking);
+        parent::__construct($this->jobName,$runtimeThreshold,$this->tracking);
 
         $this->updateNotificationTally( $entity );
 

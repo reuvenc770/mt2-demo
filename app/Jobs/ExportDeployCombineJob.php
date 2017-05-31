@@ -19,7 +19,7 @@ class ExportDeployCombineJob extends MonitoredJob {
      *
      * @return void
      */
-    public function __construct(array $deploys, CacheReportCard $reportCard, $tracking, $runtime_threshold) {
+    public function __construct(array $deploys, CacheReportCard $reportCard, $tracking, $runtimeThreshold) {
         $this->deploys = $deploys;
         $this->reportCard = $reportCard;
         $this->tracking = $tracking;
@@ -32,7 +32,7 @@ class ExportDeployCombineJob extends MonitoredJob {
         $deployNames = implode(',', $deployIds);
         $this->jobName = self::BASE_NAME . $deployNames;
 
-        parent::__construct($this->jobName,$runtime_threshold,$tracking);
+        parent::__construct($this->jobName,$runtimeThreshold,$tracking);
 
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
