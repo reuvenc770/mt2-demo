@@ -100,6 +100,7 @@ class FeedDateEmailBreakdownRepo {
                     }
                     catch (\Exception $e) {
                         $attempts++;
+                        sleep(2);
                     }
                 }
                 else {
@@ -168,6 +169,7 @@ class FeedDateEmailBreakdownRepo {
                     }
                     catch (\Exception $e) {
                         $attempts++;
+                        sleep(2);
                     }
                 }
                 else {
