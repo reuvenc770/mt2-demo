@@ -78,7 +78,6 @@ class ListProfileExportService {
                     // handle advertiser suppression here
                     if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
                         $suppressed = true;
-                        $entry->incrementOfferSuppression();
                         break;
                     }
                 }
