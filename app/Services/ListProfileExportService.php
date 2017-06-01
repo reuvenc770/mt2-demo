@@ -85,7 +85,6 @@ class ListProfileExportService {
                 if (!$suppressed) {
                     $row = $this->mapRow($columns, $row);
                     $this->remoteBatch($fileName, $row);
-                    $entry->increaseFinalRecordCount();
                 }
             }
         }
