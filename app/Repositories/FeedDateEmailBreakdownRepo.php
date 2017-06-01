@@ -12,6 +12,7 @@ use Illuminate\Database\Query\Builder;
 class FeedDateEmailBreakdownRepo {
   
     private $model;
+    const MAX_RETRY_ATTEMPTS = 20;
 
     public function __construct(FeedDateEmailBreakdown $model) {
         $this->model = $model;
@@ -74,21 +75,37 @@ class FeedDateEmailBreakdownRepo {
         $inserts = implode(',', $updates);
 
         if ($inserts) {
-            DB::statement(
-                "INSERT INTO feed_date_email_breakdowns 
-                (feed_id, date, domain_group_id, unique_emails, feed_duplicates, cross_feed_duplicates)
+            $done = false;
+            $attempts = 0;
+            
+            while (!$done) {
+                if ($attempts < self::MAX_RETRY_ATTEMPTS) {
+                    try {
+                        DB::statement(
+                            "INSERT INTO feed_date_email_breakdowns 
+                            (feed_id, date, domain_group_id, unique_emails, feed_duplicates, cross_feed_duplicates)
 
-                VALUES 
-                
-                $inserts
+                            VALUES 
 
-                ON DUPLICATE KEY UPDATE
-                    feed_id = feed_id,
-                    date = date,
-                    domain_group_id = domain_group_id,
-                    unique_emails = unique_emails + VALUES(unique_emails),
-                    feed_duplicates = feed_duplicates + VALUES(feed_duplicates),
-                    cross_feed_duplicates = cross_feed_duplicates + VALUES(cross_feed_duplicates)");
+                            $inserts
+
+                            ON DUPLICATE KEY UPDATE
+                                feed_id = feed_id,
+                                date = date,
+                                domain_group_id = domain_group_id,
+                                unique_emails = unique_emails + VALUES(unique_emails),
+                                feed_duplicates = feed_duplicates + VALUES(feed_duplicates),
+                                cross_feed_duplicates = cross_feed_duplicates + VALUES(cross_feed_duplicates)");
+                        $done = true;
+                    }
+                    catch (\Exception $e) {
+                        $attempts++;
+                    }
+                }
+                else {
+                    throw new \Exception("FeedDateEmailBreakdownRepo::massUpdateValidEmailStatus() failed too many times with $inserts");
+                }
+            }
         }
         
     }
@@ -120,27 +137,44 @@ class FeedDateEmailBreakdownRepo {
         $inserts = implode(',', $updates);
 
         if ($inserts) {
-            DB::statement("INSERT INTO feed_date_email_breakdowns
-                (feed_id, date, domain_group_id, total_emails, valid_emails, suppressed_emails,
-                bad_source_urls, full_postal_counts, bad_ip_addresses, other_invalid, suppressed_domains,
-                phone_counts)
-                VALUES
+            $done = false;
+            $attempts = 0;
+            
+            while (!$done) {
+                if ($attempts < self::MAX_RETRY_ATTEMPTS) {
+                    try {
+                        DB::statement("INSERT INTO feed_date_email_breakdowns
+                            (feed_id, date, domain_group_id, total_emails, valid_emails, suppressed_emails,
+                            bad_source_urls, full_postal_counts, bad_ip_addresses, other_invalid, suppressed_domains,
+                            phone_counts)
+                            VALUES
 
-                $inserts
+                            $inserts
 
-                ON DUPLICATE KEY UPDATE
-                feed_id = feed_id,
-                date = date,
-                domain_group_id = domain_group_id,
-                total_emails = total_emails + VALUES(total_emails),
-                valid_emails = valid_emails + VALUES(valid_emails),
-                suppressed_emails = suppressed_emails + VALUES(suppressed_emails),
-                bad_source_urls = bad_source_urls + VALUES(bad_source_urls),
-                full_postal_counts = full_postal_counts + VALUES (full_postal_counts),
-                bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
-                other_invalid = other_invalid + VALUES(other_invalid),
-                suppressed_domains = suppressed_emails + VALUES(suppressed_emails),
-                phone_counts = phone_counts + VALUES(phone_counts)");
+                            ON DUPLICATE KEY UPDATE
+                            feed_id = feed_id,
+                            date = date,
+                            domain_group_id = domain_group_id,
+                            total_emails = total_emails + VALUES(total_emails),
+                            valid_emails = valid_emails + VALUES(valid_emails),
+                            suppressed_emails = suppressed_emails + VALUES(suppressed_emails),
+                            bad_source_urls = bad_source_urls + VALUES(bad_source_urls),
+                            full_postal_counts = full_postal_counts + VALUES (full_postal_counts),
+                            bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
+                            other_invalid = other_invalid + VALUES(other_invalid),
+                            suppressed_domains = suppressed_emails + VALUES(suppressed_emails),
+                            phone_counts = phone_counts + VALUES(phone_counts)");
+                        $done = true;
+                    }
+                    catch (\Exception $e) {
+                        $attempts++;
+                    }
+                }
+                else {
+                    throw new \Exception("FeedDateEmailBreakdownRepo::updateExtendedStatuses() failed too many times with $inserts");
+                }
+            }
+            
         }
 
         
