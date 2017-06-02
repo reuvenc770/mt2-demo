@@ -65,7 +65,7 @@ class RemoteFeedFileService {
         while ( $this->newFilesPresent() ) {
             $recordSqlList = $this->getNewRecords();
     
-            if ( $recordSqlList != '' ) {
+            if ( !empty( $recordSqlList ) ) {
                 $this->rawRepo->massInsert( $recordSqlList );
             }
 
@@ -289,8 +289,8 @@ class RemoteFeedFileService {
     }
 
     protected function markFileAsProcessed () {
-        ProcessedFeedFile::updateOrCreate( [ 'path' => $this->currentFile[ 'path' ] ] , [
-            'path' => $this->currentFile[ 'path' ] ,
+        ProcessedFeedFile::updateOrCreate( [ 'path' => trim( $this->currentFile[ 'path' ] ) ] , [
+            'path' => trim( $this->currentFile[ 'path' ] ) ,
             'feed_id' => $this->currentFile[ 'feedId' ] ,
             'line_count' => $this->currentFileLineCount
         ] );
