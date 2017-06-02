@@ -92,7 +92,7 @@ class CheckBatchFeedProcessingCommand extends Command
                 foreach ( explode( "\n" , $newFileString ) as $redFile ) {
                     if ( $redFile !== '' ) {
                         $newPath = '/home/mt1' . str_replace( '/home' , '' , $redFile ); 
-                        $output = $systemService->moveFile( $redFile , $newPath );
+                        $output = $this->remote->moveFile( $redFile , $newPath );
                     }
                 }
             }

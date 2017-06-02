@@ -11,12 +11,12 @@ class RemoteLinuxSystemService {
     const CREATE_DIR_COMMAND = "sudo mkdir %s";
     const CHANGE_DIR_OWNER_COMMAND = "sudo chown -R %s:sftponly %s";
     const CHANGE_DIR_PERMS_COMMAND = "sudo chmod 755 %s";
-    const FIND_RECENT_FILES_COMMAND = "find %s %s"; 
-    const LIST_DIRECTORIES_COMMAND = "find %s -type d -print ";
+    const FIND_RECENT_FILES_COMMAND = "sudo find %s %s"; 
+    const LIST_DIRECTORIES_COMMAND = "sudo find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
-    const GET_CONTENT_SLICE_COMMAND = "sed -n %d,%dp %s";
-    const GET_FILE_LINE_COUNT_COMMAND = "wc -l < %s";
-    const APPEND_EOF_COMMAND = "sed -i -e '\$a\' %s";
+    const GET_CONTENT_SLICE_COMMAND = "sudo sed -n %d,%dp %s";
+    const GET_FILE_LINE_COUNT_COMMAND = "sudo wc -l < %s";
+    const APPEND_EOF_COMMAND = "sudo sed -i -e '\$a\' %s";
     const USER_EXISTS_COMMAND = 'getent passwd %s > /dev/null 2&>1; [[ $? -eq 0 ]] && echo "{\"status\":1}" || echo "{\"status\":0}"';
     const MOVE_FILE_COMMAND = 'sudo mv %s %s';
     const DELETE_FILE_COMMAND = 'sudo rm %s';
@@ -96,7 +96,7 @@ class RemoteLinuxSystemService {
     public function listDirectories ( $directory ) {
         $command = sprintf( self::LIST_DIRECTORIES_COMMAND , $directory  );
 
-        $stream = ssh2_exec( $this->sshConnection , $command );
+        $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
         $directoryString = $this->getOutput( $stream );
 
@@ -108,13 +108,13 @@ class RemoteLinuxSystemService {
     public function appendEofToFile ( $filePath ) {
         $command = sprintf( self::APPEND_EOF_COMMAND , $filePath );
     
-        ssh2_exec( $this->sshConnection , $command );
+        ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
     }
 
     public function getFileContentSlice ( $filePath , $firstLine , $lastLine ) {
         $command = sprintf( self::GET_CONTENT_SLICE_COMMAND , $firstLine , $lastLine , $filePath );
 
-        $stream = ssh2_exec( $this->sshConnection , $command );
+        $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
         $contentString = $this->getOutput( $stream );
 
@@ -131,7 +131,7 @@ class RemoteLinuxSystemService {
     public function getFileLineCount ( $filePath ) {
         $command = sprintf( self::GET_FILE_LINE_COUNT_COMMAND , $filePath );
 
-        $stream = ssh2_exec( $this->sshConnection , $command );
+        $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
         $contentString = $this->getOutput( $stream );
 
@@ -162,7 +162,7 @@ class RemoteLinuxSystemService {
 
         $command = sprintf( self::FIND_RECENT_FILES_COMMAND , $directory , $optionString );
 
-        $stream = ssh2_exec( $this->sshConnection , $command );
+        $stream = ssh2_exec( $this->sshConnection , $command ,  self::PSEUDO_TTY_FLAG );
 
         return $this->getOutput( $stream );
     }
