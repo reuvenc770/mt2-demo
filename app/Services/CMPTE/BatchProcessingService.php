@@ -40,7 +40,6 @@ class BatchProcessingService extends RemoteFeedFileService {
         $options = [ 
             '-type f' ,
             '-mtime -1' ,
-            '-mmin +10' ,
             ' -not -path "/home/mt1/*"' ,
             "\( -name '*.csv' -o -name '*.txt' \)" ,
             '-print' 
