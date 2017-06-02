@@ -33,7 +33,6 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
     }
 
     public function handle(EtlPickupRepo $pickupRepo) {
-        echo "Job handle attempt" . PHP_EOL;
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
