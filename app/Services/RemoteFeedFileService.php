@@ -64,7 +64,9 @@ class RemoteFeedFileService {
         while ( $this->newFilesPresent() ) {
             $recordSqlList = $this->getNewRecords();
     
-            $this->rawRepo->massInsert( $recordSqlList );
+            if ( $recordSqlList != '' ) {
+                $this->rawRepo->massInsert( $recordSqlList );
+            }
 
             if ( !is_null( $this->lastFileProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
                 $callback = $this->fileProcessedCallback;
