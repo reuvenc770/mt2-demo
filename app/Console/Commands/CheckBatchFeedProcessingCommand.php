@@ -71,7 +71,7 @@ class CheckBatchFeedProcessingCommand extends Command
 
         foreach ( $homeDirectoryNames as $currentFeedName ) {
             if ( $files = $this->remote->getRecentFiles( '/home/' . $currentFeedName , $findOptions ) ) {
-                Slack::to( self::SLACK_TARGET_SUBJECT )->send( "Found Orange Feed Files which were not migrated to MT1 folders. File List:\n" . $files ); 
+                Slack::to( self::SLACK_CHANNEL )->send( "Found Orange Feed Files which were not migrated to MT1 folders. File List:\n" . $files ); 
             }
         }
     }
