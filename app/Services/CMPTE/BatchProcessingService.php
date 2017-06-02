@@ -32,7 +32,20 @@ class BatchProcessingService extends RemoteFeedFileService {
     }
 
     public function getValidFeedList () {
-        return Feeds::where( 'status' , 'A' )->pluck( 'username' )->toArray();
+        return Feeds::where( [ [ 'status' , '=' , 'A'] , [ 'OrangeClient' , '=' , 'Y' ] ] )->pluck( 'username' )->toArray();
+    }
+
+    public function getRecentFiles ( $directory ) {
+        $options = [ 
+            '-type f' ,
+            '-mtime -1' ,
+            '-mmin +10' ,
+            ' -not -path "/home/mt1/*"' ,
+            "\( -name '*.csv' -o -name '*.txt' \)" ,
+            '-print' 
+        ]; 
+
+        return $this->systemService->getRecentFiles( $directory , $options );
     }
 
     protected function connectToServer () {

@@ -121,7 +121,7 @@ class RemoteFeedFileService {
         $feedDirList = $this->getValidDirectories();
 
         foreach ( $feedDirList as $dirInfo ) {
-            $newFileString = $this->systemService->getRecentFiles( $dirInfo[ 'directory' ] );
+            $newFileString = $this->getRecentFiles( $dirInfo[ 'directory' ] );
             
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if ( $newFile !== '' && ProcessedFeedFile::find( $newFile ) === null ) {
@@ -129,6 +129,10 @@ class RemoteFeedFileService {
                 }
             }
         }
+    }
+
+    public function getRecentFiles ( $directory ) {
+        return $this->systemService->getRecentFiles( $directory );
     }
 
     public function newFilesPresent () {
@@ -338,10 +342,9 @@ class RemoteFeedFileService {
             $notSystemUser = ( strpos( $dir , 'centos' ) === false );
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
             $notAdminUser = ( strpos( $dir , 'sftp-admin' ) === false );
-            $notMt1Folder = ( strpos( $dir , 'mt1' ) === false );
             $isValidFeed = $this->isCorrectDirectoryStructure( $dir ) && in_array( $matches[ 1 ] , $validFeedList );
 
-            if ( $notAdminUser && $notSystemUser && $notCustomUser && $notMt1Folder && $isValidFeed ) { 
+            if ( $notAdminUser && $notSystemUser && $notCustomUser && $isValidFeed ) { 
                 // Need to switch 2430 and 2618 to 2979
                 $feedIdResult = $this->getFeedIdFromName( $matches[ 1 ] );
                 $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;
