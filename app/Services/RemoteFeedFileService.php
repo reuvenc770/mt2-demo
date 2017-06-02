@@ -127,7 +127,7 @@ class RemoteFeedFileService {
             $newFileString = $this->getRecentFiles( $dirInfo[ 'directory' ] );
             
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
-                if ( $newFile !== '' && ProcessedFeedFile::find( $newFile ) === null ) {
+                if ( $newFileString !== '' && ProcessedFeedFile::find( $newFile ) === null ) {
                     $this->newFileList[] = [ 'path' => $newFile , 'feedId' => $dirInfo[ 'feedId' ] ];
                 }
             }
