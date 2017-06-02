@@ -70,6 +70,10 @@ class CheckBatchFeedProcessingCommand extends Command
         ];
 
         foreach ( $homeDirectoryNames as $currentFeedName ) {
+            if ( !$this->remote->directoryExists( '/home/' . $currentFeedName ) ) {
+                continue;
+            }
+
             if ( $files = $this->remote->getRecentFiles( '/home/' . $currentFeedName , $findOptions ) ) {
                 Slack::to( self::SLACK_CHANNEL )->send( "Found Orange Feed Files which were not migrated to MT1 folders. File List:\n" . $files ); 
             }
@@ -88,6 +92,10 @@ class CheckBatchFeedProcessingCommand extends Command
         ];
 
         foreach ( $homeDirectoryNames as $currentFeedName ) {
+            if ( !$this->remote->directoryExists( '/home/' . $currentFeedName ) ) {
+                continue;
+            }
+
             if ( $newFileString = $this->remote->getRecentFiles( '/home/' . $currentFeedName , $findOptions ) ) {
                 foreach ( explode( "\n" , $newFileString ) as $redFile ) {
                     if ( $redFile !== '' ) {
