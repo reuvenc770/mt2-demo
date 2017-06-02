@@ -54,7 +54,7 @@ class SessionsController extends Controller
             return redirect()->back()->withInput();
         } catch (NotActivatedException $e) {
             UserEventLog::insertCustomRequest(0,str_replace(".","/",$request->route()->getAction()['as']),"Deactivated Login Attempt ",\App\Models\UserEventLog::UNAUTHORIZED);
-            Flash::error("'User Not Activated.");
+            Flash::error("User Not Activated.");
             return redirect()->back()->withInput();
         } catch (ThrottlingException $e) {
             Flash::error($e->getMessage());

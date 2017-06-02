@@ -108,6 +108,7 @@ class Kernel extends ConsoleKernel
         Commands\SimpleTestCommand::class,
         Commands\RunTimeMonitorCommand::class,
 	Commands\PopulateMappingTable::class,
+        Commands\CompareMt1AndCmpExports::class,
 ];
 
     /**
@@ -284,8 +285,8 @@ class Kernel extends ConsoleKernel
         /**
          * CMPTE Feed Ingestion
          */
-        $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyFiveMinutes(); // Job name like: BatchProcessingJob%
-        $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyFiveMinutes(); // Job name like: RealtimeProcessingJob%
+        #$schedule->command( 'feedRecords:processRawFiles -M 1' )->everyMinute(); // Job name like: BatchProcessingJob%
+        $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id
