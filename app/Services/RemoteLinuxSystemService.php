@@ -11,7 +11,7 @@ class RemoteLinuxSystemService {
     const CREATE_DIR_COMMAND = "sudo mkdir %s";
     const CHANGE_DIR_OWNER_COMMAND = "sudo chown -R %s:sftponly %s";
     const CHANGE_DIR_PERMS_COMMAND = "sudo chmod 755 %s";
-    const FIND_RECENT_FILES_COMMAND = "find %s -type f -mtime -1 -mmin +10 -print";
+    const FIND_RECENT_FILES_COMMAND = "find %s %s"; 
     const LIST_DIRECTORIES_COMMAND = "find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
     const GET_CONTENT_SLICE_COMMAND = "sed -n %d,%dp %s";
@@ -146,8 +146,21 @@ class RemoteLinuxSystemService {
         return ( $this->getOutput( $stream ) == 1 );
     }
 
-    public function getRecentFiles ( $directory ) {
-        $command = sprintf( self::FIND_RECENT_FILES_COMMAND , $directory );
+    public function getRecentFiles ( $directory , $options = null ) {
+        $defaultOptions = [
+            '-type f' ,
+            '-mtime -1' ,
+            '-mmin +10' , 
+            '-print'
+        ];
+
+        if ( !is_null( $options ) ) {
+            $defaultOptions = $options;
+        }
+
+        $optionString = implode( ' ' , $defaultOptions );
+
+        $command = sprintf( self::FIND_RECENT_FILES_COMMAND , $directory , $optionString );
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 
