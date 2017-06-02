@@ -36,6 +36,7 @@ class RemoteFeedFileService {
     protected $processedFileCount = 0;
     protected $notificationCollection = [];
 
+    protected $serviceName = 'RemoteFeedFileService';
     protected $slackChannel = "#mt2team";
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
@@ -58,7 +59,7 @@ class RemoteFeedFileService {
         $this->loadNewFilePaths();
 
         if ( !$this->newFilesPresent() ) {
-            \Log::info( 'RemoteFeedFileService: No new files to process....' );
+            \Log::info( $this->serviceName . ': No new files to process....' );
         }
 
         while ( $this->newFilesPresent() ) {
@@ -146,7 +147,7 @@ class RemoteFeedFileService {
 
         while ( $this->getBufferSize () < $chunkSize ) {
             if ( count( $this->newFileList ) <= 0 ) {
-                \Log::info( 'RemoteFeedFileService: No more files to process....' );
+                \Log::info( $this->serviceName . ': No more files to process....' );
                 break;
             }
 
@@ -236,7 +237,7 @@ class RemoteFeedFileService {
 
     protected function columnMatchCheck ( $lineColumns ) {
         if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
-            $this->fireAlert( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
+            $this->fireAlert( $this->serviceName . " Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
 
             throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
         } 
