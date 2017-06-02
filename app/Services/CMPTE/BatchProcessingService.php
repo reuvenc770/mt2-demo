@@ -15,6 +15,7 @@ use App\Repositories\RawFeedEmailRepo;
 use App\Models\MT1Models\User as Feeds;
 
 class BatchProcessingService extends RemoteFeedFileService {
+    protected $serviceName = 'BatchProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';

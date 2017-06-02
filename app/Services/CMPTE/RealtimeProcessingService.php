@@ -15,6 +15,7 @@ use App\Repositories\RawFeedEmailRepo;
 use App\Models\MT1Models\User as Feeds;
 
 class RealtimeProcessingService extends RemoteFeedFileService {
+    protected $serviceName = 'RealtimeProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $currentCustomFields = [];
 
