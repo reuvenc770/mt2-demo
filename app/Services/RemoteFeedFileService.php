@@ -65,7 +65,7 @@ class RemoteFeedFileService {
         while ( $this->newFilesPresent() ) {
             $recordSqlList = $this->getNewRecords();
     
-            if ( $recordSqlList != '' ) {
+            if ( !empty( $recordSqlList ) ) {
                 $this->rawRepo->massInsert( $recordSqlList );
             }
 
