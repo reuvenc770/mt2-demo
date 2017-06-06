@@ -104,7 +104,7 @@ class FeedDateEmailBreakdownRepo {
                     }
                 }
                 else {
-                    throw new \Exception("FeedDateEmailBreakdownRepo::massUpdateValidEmailStatus() failed too many times with $inserts");
+                    throw new \Exception("FeedDateEmailBreakdownRepo::massUpdateValidEmailStatus() failed too many times with {$e->getMessage()} and $inserts");
                 }
             }
         }
@@ -173,7 +173,7 @@ class FeedDateEmailBreakdownRepo {
                     }
                 }
                 else {
-                    throw new \Exception("FeedDateEmailBreakdownRepo::updateExtendedStatuses() failed too many times with $inserts");
+                    throw new \Exception("FeedDateEmailBreakdownRepo::updateExtendedStatuses() failed too many times with {$e->getMessage()} and $inserts");
                 }
             }
             
