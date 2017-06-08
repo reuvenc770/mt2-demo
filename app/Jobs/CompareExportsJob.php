@@ -24,6 +24,34 @@ class CompareExportsJob extends SafeJob {
     private $userActionRepo;
     private $assignmentRepo;
 
+
+
+    // Attachments 
+    // MT1-only
+    private $cmpInvalidatedMt1DidNotListList;
+    private $unprocessedInCmpListList;
+    private $notEvenRawListList;
+    private $sameFeedButCmpActionListList;
+    private $sameFeedButNoActionUnexplainableListList;
+    private $noStage2ListList;
+    private $noCmpAttributionListList;
+    private $doNotHaveFeedInstanceListList;
+    private $raceConditionListList;
+    private $attributionMysteryListList;
+    private $diffFeedCmpActionPreventedAttrListList;
+    private $diffFeedUnexplainableListList;
+
+    // CMP-only
+    private $cmpDeliverableButMt1HasActionListString;
+    private $cmpActionYetDeliverableListString;
+    private $mt1IncorrectlySkipsListString;
+    private $unexplainedInCmpOnlySameFeedListString;
+    private $legacyDataIssueCmpHasRecordListString;
+    private $cmpDidNotReceiveNewRecordListString;
+    private $cmpInvalidatedRecordListString;
+    private $unexplainedInCmpOnlyListString;
+    private $mt1DidNotProcessListString;
+
     public function __construct($mt1FileName, $cmpFileName, $tracking) {
 	$this->mt1FileName = $mt1FileName;
 	$this->cmpFileName = $cmpFileName;
@@ -31,8 +59,8 @@ class CompareExportsJob extends SafeJob {
     }
 
     protected function handleJob() {
-        $this->buildTable($this->mt1FileName, self::MT1_TABLE);
-        $this->buildTable($this->cmpFileName, self::CMP_TABLE);
+        #$this->buildTable($this->mt1FileName, self::MT1_TABLE);
+        #$this->buildTable($this->cmpFileName, self::CMP_TABLE);
         $sharedCount = $this->getSharedCount(self::MT1_TABLE, self::CMP_TABLE);
 
         $this->recordDataRepo = App::make(\App\Repositories\EmailAttributableFeedLatestDataRepo::class);
@@ -64,6 +92,21 @@ class CompareExportsJob extends SafeJob {
 
         $checkList = [];
 echo "PROCESSING MT1 RECORDS" . PHP_EOL;
+
+        // Lists for MT1-only records
+        $cmpInvalidatedMt1DidNotList = [];
+        $unprocessedInCmpList = [];
+        $notEvenRawList = [];
+        $sameFeedButCmpActionList = [];
+        $sameFeedButNoActionUnexplainableList = [];
+        $noStage2List = [];
+        $noCmpAttributionList = [];
+        $doNotHaveFeedInstanceList = [];
+        $raceConditionList = [];
+        $attributionMysteryList = [];
+        $diffFeedCmpActionPreventedAttrList = [];
+        $diffFeedUnexplainableList = [];
+
         foreach ($inMt1Only as $record) {
             $comment = " 
             1. How many are attributed to the same feed(s)?
@@ -101,17 +144,20 @@ echo "PROCESSING MT1 RECORDS" . PHP_EOL;
                     // Check if it was invalidated for some reason in invalid_feed_emails
                     if ($this->cmpInvalidated($record->email_address, $record->feed_id)) {
                         $cmpInvalidatedMt1DidNot++;
+                        $cmpInvalidatedMt1DidNotList[] = $record->email_address;
                     }
                     
                     // An odd case. Exists in the raw table. Was not invalidated. Yet does not exist in `emails`
                     // Perhaps an indication of a truly serious processing delay?
                     else {
                         $unprocessedInCmp++;
+                        $unprocessedInCmpList[] = $record->email_address;
                     } 
                 }
                 else {
                     // Note - these might not be benign. They might be due to bugs in the ingestion system
                     $notEvenRaw++;
+                    $notEvenRawList[] = $record->email_address;
                 }
                 
             }
@@ -120,14 +166,17 @@ echo "PROCESSING MT1 RECORDS" . PHP_EOL;
                     if ($cmpLastActionDate) {
                         // This user has an action by us. This is fine.
                         $sameFeedButCmpAction++;
+                        $sameFeedButCmpActionList[] = $record->email_address;
                     }
                     else {
-                        // No action and attributed to the same feed. This is not fine, unless we have (small) timing issue with suppression
-                        // Might indicate processing problems with redshift, among other things 
+                        // No action and attributed to the same feed. This is not fine, unless 
+                        // 1. We have (small) timing issue with suppression
+                        // 2. These records are quite recent and we have a (slight) processing delay in CMP
+                        // Might indicate processing problems or delays with redshift, among other things 
+                        // These take some time to look up so hopefully they are small in number and can be done 
+                        // on an as-needed basis
                         $sameFeedButNoActionUnexplainable++;
-                        if ($sameFeedButNoActionUnexplainable < 300) {
-                            print "unexplained: " . $record->email_address . PHP_EOL;
-                        }
+                        $sameFeedButNoActionUnexplainableList[] = $record->email_address;
                     }
                 }
                 else {
@@ -135,15 +184,18 @@ echo "PROCESSING MT1 RECORDS" . PHP_EOL;
                         // A possible processing problem
                         if (is_null($cmpSubscribeDate)) {
                             $noStage2++;
+                            $noStage2List[] = $record->email_address;
                         }
 
                         else {
                             $noCmpAttribution++;
+                            $noCmpAttributionList[] = $record->email_address;
                         }
                     }
                     elseif ($this->doNotHaveFeedInstance($localEmailId, $record->feed_id)) {
                         // Another possible processing problem
                         $doNotHaveFeedInstance++;
+                        $doNotHaveFeedInstanceList[] = $record->email_address;
                     }
                     elseif (is_null($cmpLastActionDate)) {
                         // A tricky case. Both MT1 and CMP agree that no action took place, but their attribution differs nonetheless.
@@ -152,24 +204,56 @@ echo "PROCESSING MT1 RECORDS" . PHP_EOL;
                         // We know that a feed instance came in because we passed the previous test
                         if ($this->attributionRaceConditionOccurred($localEmailId, $record->feed_id, $cmpFeedId)) {
                             $raceCondition++;
+                            $raceConditionList[] = $record->email_address;
                         }
                         else {
                             $attributionMystery++; 
+                            $attributionMysteryList[] = $record->email_address;
                         }
                     }
                     elseif (!is_null($cmpLastActionDate) && $cmpLastActionDate < $record->subscribe_date) { # maybe not this field? Depends if Jim updates or not.
                         // There's been a recent action that only CMP saw that prevented an attribution that MT1 used
                         $diffFeedCmpActionPreventedAttr++;
+                        $diffFeedCmpActionPreventedAttrList[] = $record->email_address;
                     }
                     else {
                         // Not fine
                         // Might indicate a redshift upload problem, among other things
                         $diffFeedUnexplainable++;
+                        $diffFeedUnexplainableList[] = $record->email_address;
                     }
                 }
                 
             }
         }
+
+        $this->cmpInvalidatedMt1DidNotListString = implode(PHP_EOL, $cmpInvalidatedMt1DidNotList);
+        $this->unprocessedInCmpListString = implode(PHP_EOL, $unprocessedInCmpList);
+        $this->notEvenRawListString = implode(PHP_EOL, $notEvenRawList);
+        $this->sameFeedButCmpActionListString = implode(PHP_EOL, $sameFeedButCmpActionList);
+        $this->sameFeedButNoActionUnexplainableListString = implode(PHP_EOL, $sameFeedButNoActionUnexplainableList);
+        $this->noStage2ListString = implode(PHP_EOL, $noStage2List);
+        $this->noCmpAttributionListString = implode(PHP_EOL, $noCmpAttributionList);
+        $this->doNotHaveFeedInstanceListString = implode(PHP_EOL, $doNotHaveFeedInstanceList);
+        $this->raceConditionListString = implode(PHP_EOL, $raceConditionList);
+        $this->attributionMysteryListString = implode(PHP_EOL, $attributionMysteryList);
+        $this->diffFeedCmpActionPreventedAttrListString = implode(PHP_EOL, $diffFeedCmpActionPreventedAttrList);
+        $this->diffFeedUnexplainableListString = implode(PHP_EOL, $diffFeedUnexplainableList);
+
+        $cmpInvalidatedMt1DidNotList = null;
+        $unprocessedInCmpList = null;
+        $notEvenRawList = null;
+        $sameFeedButCmpActionList = null;
+        $sameFeedButNoActionUnexplainableList = null;
+        $noStage2List = null;
+        $noCmpAttributionList = null;
+        $doNotHaveFeedInstanceList = null;
+        $raceConditionList = null;
+        $attributionMysteryList = null;
+        $diffFeedCmpActionPreventedAttrList = null;
+        $diffFeedUnexplainableList = null;
+
+
 echo "PROCESSING CMP RECORDS" . PHP_EOL;
         /**
             Part 2: Why are certain records in CMP's file and not MT1's?
@@ -186,6 +270,16 @@ echo "PROCESSING CMP RECORDS" . PHP_EOL;
         $cmpTotalCount = $this->getTotalCount(self::CMP_TABLE);
         $mt1DidNotProcess = 0;
         $unexplainedInCmpOnlySameFeed = 0;
+        
+        $cmpDeliverableButMt1HasActionList = [];
+        $cmpActionYetDeliverableList = [];
+        $mt1IncorrectlySkipsList = [];
+        $unexplainedInCmpOnlySameFeedList = [];
+        $legacyDataIssueCmpHasRecordList = [];
+        $cmpDidNotReceiveNewRecordList = [];
+        $cmpInvalidatedRecordList = [];
+        $unexplainedInCmpOnlyList = [];
+        $mt1DidNotProcessList = [];
         
         foreach($inCmpOnly as $record) {
             /*
@@ -209,10 +303,12 @@ echo "PROCESSING CMP RECORDS" . PHP_EOL;
                 if ($record->feed_id === $mt1CurrentFeed) {
                     if (!is_null($mt1LastAction) && is_null($cmpLastAction)) {
                         $cmpDeliverableButMt1HasAction++;
+                        $cmpDeliverableButMt1HasActionList[] = $record->email_address;
                     }
                     elseif (!is_null($cmpLastAction)) {
                         // Cmp somehow has set this to deliverable despite it having an action - maybe check the time of these actions
                         $cmpActionYetDeliverable++;
+                        $cmpActionYetDeliverable[] = $record->email_address;
                     }
                     elseif (is_null($mt1LastAction)) {
                         // cmp action is null implied
@@ -221,12 +317,11 @@ echo "PROCESSING CMP RECORDS" . PHP_EOL;
                         // THIS MIGHT BE AN INCORRECT DESCRIPTION - WE MIGHT BE MISSING MT1 ACTIONS SOMEHOW
                         // WE NEED TO CHECK SUBSCRIBE_DATES AS WELL - DO THEY MATCH UP?
                         $mt1IncorrectlySkips++;
-                        if ($mt1IncorrectlySkips < 300) {
-                            echo "mt1-skips: {$record->email_address}" . PHP_EOL;
-                        }
+                        $mt1IncorrectlySkipsList[] = $record->email_address;
                     }
                     else {
                         $unexplainedInCmpOnlySameFeed++;
+                        $unexplainedInCmpOnlySameFeedList[] = $record->email_address;
                     }
                 }
                 else {
@@ -234,26 +329,51 @@ echo "PROCESSING CMP RECORDS" . PHP_EOL;
                     if (!is_null($mt1LastAction) && $record->subscribe_date > $mt1LastAction) {
                         // What likely happened was that Mt1 had an action, Cmp did not, and we attributed the correct b/c we didn't have legacy data
                         $legacyDataIssue_CmpHasRecord++;
+                        $legacyDataIssueCmpHasRecordList[] = $record->email_address;
                     }
                     elseif (!$this->existsInRaw($record->email_address, $mt1CurrentFeed)) {
                         // Record came in to MT1 and not CMPTE during this time (say, via batch)
                         $cmpDidNotReceiveNewRecord++;
+                        $cmpDidNotReceiveNewRecordList[] = $record->email_address;
                     }
                     elseif ($this->cmpInvalidated($record->email_address, $mt1CurrentFeed)) {
                         // We invalidated the record and MT1 did not
                         $cmpInvalidatedRecord++;
+                        $cmpInvalidatedRecordList[] = $record->email_address;
                     }
                     else {
                         // These are unexplained
                         $unexplainedInCmpOnly++;
+                        $unexplainedInCmpOnlyList[] = $record->email_address;
                     }
                 }
                 
             }
             else {
                 $mt1DidNotProcess++;
+                $mt1DidNotProcessList[] = $record->email_address;
             }
         }
+        
+        $this->cmpDeliverableButMt1HasActionListString = implode(PHP_EOL, $cmpDeliverableButMt1HasActionList);
+        $this->cmpActionYetDeliverableListString = implode(PHP_EOL, $cmpActionYetDeliverableList);
+        $this->mt1IncorrectlySkipsListString = implode(PHP_EOL, $mt1IncorrectlySkipsList);
+        $this->unexplainedInCmpOnlySameFeedListString = implode(PHP_EOL, $unexplainedInCmpOnlySameFeedList);
+        $this->legacyDataIssueCmpHasRecordListString = implode(PHP_EOL, $legacyDataIssueCmpHasRecordList);
+        $this->cmpDidNotReceiveNewRecordListString = implode(PHP_EOL, $cmpDidNotReceiveNewRecordList);
+        $this->cmpInvalidatedRecordListString = implode(PHP_EOL, $cmpInvalidatedRecordList);
+        $this->unexplainedInCmpOnlyListString = implode(PHP_EOL, $unexplainedInCmpOnlyList);
+        $this->mt1DidNotProcessListString = implode(PHP_EOL, $mt1DidNotProcessList);
+
+        $cmpDeliverableButMt1HasActionList = null;
+        $cmpActionYetDeliverableList = null;
+        $mt1IncorrectlySkipsList = null;
+        $unexplainedInCmpOnlySameFeedList = null;
+        $legacyDataIssueCmpHasRecordList = null;
+        $cmpDidNotReceiveNewRecordList = null;
+        $cmpInvalidatedRecordList = null;
+        $unexplainedInCmpOnlyList = null;
+        $mt1DidNotProcessList = null;
         
         $message = <<<TXT
 MT1 file total count: $mt1TotalCount
@@ -262,37 +382,103 @@ CMP file total count: $cmpTotalCount
 Shared records: $sharedCount
 
 For records only in MT1 (out of $mt1Count):
-$sameFeedButCmpAction share a feed but have an action in CMP and are thus not deliverable. (same_feed_but_cmp_action.csv)
-$diffFeedCmpActionPreventedAttr differ in terms of attribution because CMP had an action earlier that prevented attribution. (cmp_action_prevented_attribution.csv)
-$cmpInvalidatedMt1DidNot are missing from CMP because they were invalidated by CMP's processing rules (cmp_invalidated_records.csv)
-$unprocessedInCmp were ingested by CMP but not processed and are not invalid. (cmp_unprocessed.csv)
-$notEvenRaw never appeared in CMP in any form (not_even_raw.csv)
-$doNotHaveFeedInstance did not have feed instances for this feed id (no_feed_instances.csv)
-$raceCondition differ because the order of ingestion differed between MT1 and CMP (race_condition.csv)
-$noStage2 do not have a row in stage 2 email tables - tpes, eafld
-$noCmpAttribution do not have attribution in CMP despite appearing in other parts of the system (no_cmp_attribution.csv)
+$sameFeedButCmpAction share a feed but have an action in CMP and are thus not deliverable. (same_feed_but_cmp_action.txt)
+$diffFeedCmpActionPreventedAttr differ in terms of attribution because CMP had an action earlier that prevented attribution. (cmp_action_prevented_attribution.txt)
+$cmpInvalidatedMt1DidNot are missing from CMP because they were invalidated by CMP's processing rules (cmp_invalidated_records.txt)
+$unprocessedInCmp were ingested by CMP but not processed and are not invalid. (cmp_unprocessed.txt)
+$notEvenRaw never appeared in CMP in any form (not_even_raw.txt)
+$doNotHaveFeedInstance did not have feed instances for this feed id (no_feed_instances.txt)
+$raceCondition differ because the order of ingestion differed between MT1 and CMP (race_condition.txt)
+$noStage2 do not have a row in stage 2 email tables (no_stage_2.txt)
+$noCmpAttribution do not have attribution in CMP despite appearing in other parts of the system (no_cmp_attribution.txt)
 
-$attributionMystery are a mystery case - different attribution, deliverable, with no current obvious issues (other.csv)
-$sameFeedButNoActionUnexplainable records had the same attributed feed in MT1 and CMP but could not be explained by the above
-$diffFeedUnexplainable records differed in terms of feeds but cannot be explained by the above
+$attributionMystery are a mystery case - different attribution, deliverable, with no current obvious issues (other.txt)
+$sameFeedButNoActionUnexplainable records had the same attributed feed in MT1 and CMP but could not be explained by the above (mt1_only_same_feed_unexplained.txt)
+$diffFeedUnexplainable records differed in terms of feeds but cannot be explained by the above (mt1_only_diff_feed_unexplained.txt)
 
 
 For records only in CMP (out of $cmpCount):
-$cmpDeliverableButMt1HasAction are deliverable in CMP but have an action in MT1 and are thus not deliverable (cmp_deliverable_mt1_action.csv)
-$mt1IncorrectlySkips are incorrectly classified as responders in MT1 (mt1_incorrect_responders.csv)
-$legacyDataIssue_CmpHasRecord differ due to a lack of legacy data in CMP. A record was attributed in CMP (and became deliverable) because we did not have an action to block attribution. (cmp_legacy_data_issue.csv)
-$cmpDidNotReceiveNewRecord caused by CMP not receiving a record (that MT1 did) that would have taken it away from this list
-$mt1DidNotProcess were not processed by MT1
+$cmpDeliverableButMt1HasAction are deliverable in CMP but have an action in MT1 and are thus not deliverable (cmp_deliverable_mt1_action.txt)
+$mt1IncorrectlySkips are incorrectly classified as responders in MT1 (mt1_incorrect_responders.txt)
+$legacyDataIssue_CmpHasRecord differ due to a lack of legacy data in CMP. A record was attributed in CMP (and became deliverable) because we did not have an action to block attribution. (cmp_legacy_data_issue.txt)
+$cmpDidNotReceiveNewRecord caused by CMP not receiving a record (that MT1 did) that would have taken it away from this list. (cmp_did_not_receive_new_attribution.txt)
+$mt1DidNotProcess were not processed by MT1 (mt1_did_not_process.txt)
 
-$unexplainedInCmpOnly unexplained with different feeds (in_cmp_only_unexplained.csv)
-$unexplainedInCmpOnlySameFeed unexplained with the same feed (in_cmp_only_unexplained_same_feed.csv)
-$cmpActionYetDeliverable records were mysteriously set to deliverable in CMP despite having an action (cmp_mistakenly_deliverable.csv)
+$unexplainedInCmpOnly unexplained with different feeds (in_cmp_only_unexplained.txt)
+$unexplainedInCmpOnlySameFeed unexplained with the same feed (in_cmp_only_unexplained_same_feedtxt)
+$cmpActionYetDeliverable records were mysteriously set to deliverable in CMP despite having an action (cmp_mistakenly_deliverable.txt)
 TXT;
         echo $message;
+
         Mail::raw($message, function ($m) {
             $m->subject("List Profile Comparison Results");
             $m->priority(1);
             $m->to("rbertorelli@zetaglobal.com");
+
+            // MT1-only attachments
+
+            $m->attachData($this->sameFeedButCmpActionListString, 'same_feed_but_cmp_action.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->diffFeedCmpActionPreventedAttrListString, 'cmp_action_prevented_attribution.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->cmpInvalidatedMt1DidNotListString, 'cmp_invalidated_records.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->unprocessedInCmpListString, 'cmp_unprocessed.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->notEvenRawListString, 'not_even_raw.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->doNotHaveFeedInstanceListString, 'no_feed_instances.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->raceConditionListString, 'race_condition.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->noStage2ListString, 'no_stage_2.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->noCmpAttributionListString, 'no_cmp_attribution.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->attributionMysteryListString, 'other.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->sameFeedButNoActionUnexplainableListString, 'mt1_only_same_feed_unexplained.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->diffFeedUnexplainableListString, 'mt1_only_diff_feed_unexplained.txt', [
+                'mime' => 'text/plain'
+            ]);
+
+            // CMP-only attachments
+            $m->attachData($this->cmpDeliverableButMt1HasActionListString, 'cmp_deliverable_mt1_action.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->mt1IncorrectlySkipsListString, 'mt1_incorrect_responders.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->legacyDataIssueCmpHasRecordListString, 'cmp_legacy_data_issue.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->cmpDidNotReceiveNewRecordListString, 'cmp_did_not_receive_new_attribution.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->mt1DidNotProcessListString, 'mt1_did_not_process.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->unexplainedInCmpOnlyListString, 'in_cmp_only_unexplained.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->unexplainedInCmpOnlyListString, 'in_cmp_only_unexplained_same_feed.txt', [
+                'mime' => 'text/plain'
+            ]);
+            $m->attachData($this->cmpActionYetDeliverableListString, 'cmp_mistakenly_deliverable.txt', [
+                'mime' => 'text/plain'
+            ]);
         });
     
     }
