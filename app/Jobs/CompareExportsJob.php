@@ -24,22 +24,20 @@ class CompareExportsJob extends SafeJob {
     private $userActionRepo;
     private $assignmentRepo;
 
-
-
     // Attachments 
     // MT1-only
-    private $cmpInvalidatedMt1DidNotListList;
-    private $unprocessedInCmpListList;
-    private $notEvenRawListList;
-    private $sameFeedButCmpActionListList;
-    private $sameFeedButNoActionUnexplainableListList;
-    private $noStage2ListList;
-    private $noCmpAttributionListList;
-    private $doNotHaveFeedInstanceListList;
-    private $raceConditionListList;
-    private $attributionMysteryListList;
-    private $diffFeedCmpActionPreventedAttrListList;
-    private $diffFeedUnexplainableListList;
+    private $cmpInvalidatedMt1DidNotListString;
+    private $unprocessedInCmpListString;
+    private $notEvenRawListString;
+    private $sameFeedButCmpActionListString;
+    private $sameFeedButNoActionUnexplainableListString;
+    private $noStage2ListString;
+    private $noCmpAttributionListString;
+    private $doNotHaveFeedInstanceListString;
+    private $raceConditionListString;
+    private $attributionMysteryListString;
+    private $diffFeedCmpActionPreventedAttrListString;
+    private $diffFeedUnexplainableListString;
 
     // CMP-only
     private $cmpDeliverableButMt1HasActionListString;
