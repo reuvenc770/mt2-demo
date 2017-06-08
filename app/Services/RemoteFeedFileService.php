@@ -131,7 +131,7 @@ class RemoteFeedFileService {
                 if (
                     $newFileString !== ''
                     && ProcessedFeedFile::find( $newFile ) === null
-                    && Cache::tags('realtime_feed_processing')->has( $newFile )
+                    && !Cache::tags('realtime_feed_processing')->has( $newFile )
                 ) {
                     $this->newFileList[] = [ 'path' => $newFile , 'feedId' => $dirInfo[ 'feedId' ] ];
                 }
