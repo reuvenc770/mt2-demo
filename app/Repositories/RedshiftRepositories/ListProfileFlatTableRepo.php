@@ -58,6 +58,7 @@ SQL;
         return $this->model
                     ->selectRaw("deploy_id, sum(has_click) as clicks, sum(has_open) as opens, sum(has_conversion) as conversions")
                     ->whereRaw("date >= current_date - interval '$lookback day'")
+                    ->groupBy('deploy_id')
                     ->inRandomOrder()
                     ->take($size)
                     ->get();
