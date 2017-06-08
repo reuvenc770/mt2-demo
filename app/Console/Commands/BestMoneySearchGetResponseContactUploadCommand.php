@@ -10,7 +10,7 @@ class BestMoneySearchGetResponseContactUploadCommand extends Command
 {
     use DispatchesJobs;
 
-    const RUNTIME_THRESHOLD = 180;
+    const RUNTIME_THRESHOLD = 30 * 60;
 
     protected $runtimeThreshold;
 
