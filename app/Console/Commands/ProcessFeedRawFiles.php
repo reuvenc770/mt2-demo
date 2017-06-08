@@ -54,6 +54,6 @@ class ProcessFeedRawFiles extends Command
             $job = new ProcessFeedRawFilesJob(str_random(16));
         }
 
-        $this->dispatch($job);
+        $this->dispatch($job->onQueue( 'rawFeedProcessing' ));
     }
 }
