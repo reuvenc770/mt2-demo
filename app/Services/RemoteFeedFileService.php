@@ -13,6 +13,7 @@ use App\Repositories\RawFeedEmailRepo;
 use App\Facades\SlackLevel;
 
 use Carbon\Carbon;
+use Cache;
 use Mail;
 
 class RemoteFeedFileService {
@@ -127,8 +128,14 @@ class RemoteFeedFileService {
             $newFileString = $this->getRecentFiles( $dirInfo[ 'directory' ] );
             
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
-                if ( $newFileString !== '' && ProcessedFeedFile::find( $newFile ) === null ) {
+                if (
+                    $newFileString !== ''
+                    && ProcessedFeedFile::find( $newFile ) === null
+                    && Cache::tags('realtime_feed_processing')->has( $newFile )
+                ) {
                     $this->newFileList[] = [ 'path' => $newFile , 'feedId' => $dirInfo[ 'feedId' ] ];
+
+                    Cache::tags('realtime_feed_processing')->forever( $newFile , 1 );
                 }
             }
         }
@@ -163,6 +170,8 @@ class RemoteFeedFileService {
 
             if ( $this->currentFileLineCount === 0 ) {
                 $this->markFileAsProcessed();
+
+                Cache::tags('realtime_feed_processing')->forget( $this->currentFile[ 'path' ] );
 
                 array_shift( $this->newFileList );
 
