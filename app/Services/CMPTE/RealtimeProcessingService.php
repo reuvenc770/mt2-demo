@@ -81,7 +81,7 @@ class RealtimeProcessingService extends RemoteFeedFileService {
         $columns = explode( '|' , $csvLine );
 
         #ipv6 fix, add colons
-        if ( strlen( $columns[ 13 ] ) == 32 ) {
+        if ( isset( $columns[ 13 ] ) && strlen( $columns[ 13 ] ) == 32 ) {
             $columns[ 13 ] = substr( chunk_split( $columns[ 13 ] , 4 , ':' ) , 0 , -1 ); 
         }
         

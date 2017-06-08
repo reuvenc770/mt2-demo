@@ -15,8 +15,8 @@ class RemoteLinuxSystemService {
     const LIST_DIRECTORIES_COMMAND = "sudo find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
     const GET_CONTENT_SLICE_COMMAND = "sudo sed -n %d,%dp %s";
-    const GET_FILE_LINE_COUNT_COMMAND = "sudo wc -l < %s";
-    const APPEND_EOF_COMMAND = "sudo sed -i -e '\$a\' %s";
+    const GET_FILE_LINE_COUNT_COMMAND = /*"sudo cat %s | wc -l";*/ "wc -l < %s";
+    const APPEND_EOF_COMMAND = "sed -i -e '\$a\' %s";
     const USER_EXISTS_COMMAND = 'getent passwd %s > /dev/null 2&>1; [[ $? -eq 0 ]] && echo "{\"status\":1}" || echo "{\"status\":0}"';
     const MOVE_FILE_COMMAND = 'sudo mv %s %s';
     const DELETE_FILE_COMMAND = 'sudo rm %s';
@@ -108,11 +108,11 @@ class RemoteLinuxSystemService {
     public function appendEofToFile ( $filePath ) {
         $command = sprintf( self::APPEND_EOF_COMMAND , trim( $filePath ) );
     
-        ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
+        ssh2_exec( $this->sshConnection , $command ); #, self::PSEUDO_TTY_FLAG );
     }
 
     public function getFileContentSlice ( $filePath , $firstLine , $lastLine ) {
-        $command = sprintf( self::GET_CONTENT_SLICE_COMMAND , $firstLine , $lastLine , $filePath );
+        $command = sprintf( self::GET_CONTENT_SLICE_COMMAND , $firstLine , $lastLine , trim( $filePath ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
@@ -131,9 +131,9 @@ class RemoteLinuxSystemService {
     public function getFileLineCount ( $filePath ) {
         $command = sprintf( self::GET_FILE_LINE_COUNT_COMMAND , trim( $filePath ) );
 
-        $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
+        $stream = ssh2_exec( $this->sshConnection , $command ); # , self::PSEUDO_TTY_FLAG );
 
-        $contentString = $this->getOutput( $stream );
+        $contentString = $this->getOutput( $stream ); #, SSH2_STREAM_STDERR );
 
         return (int) trim( $contentString );
     }
