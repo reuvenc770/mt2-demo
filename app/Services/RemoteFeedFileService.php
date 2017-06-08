@@ -137,6 +137,8 @@ class RemoteFeedFileService {
                 ) {
                     $this->newFileList[] = [ 'path' => $newFile , 'feedId' => $dirInfo[ 'feedId' ] ];
 
+                    Cache::tags('realtime_feed_processing')->forever( $newFile , 1 );
+
                     $count++;
                 }
             }
@@ -161,10 +163,6 @@ class RemoteFeedFileService {
             }
 
             $this->currentFile = $this->newFileList[ 0 ];
-
-            if ( !Cache::tags('realtime_feed_processing')->has( $this->currentFile[ 'path' ] ) ) {
-                Cache::tags('realtime_feed_processing')->forever( $this->currentFile[ 'path' ] , 1 );
-            }
 
             $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
