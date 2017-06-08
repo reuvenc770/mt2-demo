@@ -32,8 +32,6 @@ class BestMoneySearchGetResponseContactUploadJob extends MonitoredJob implements
         $this->jobName = self::BASE_JOB_NAME . ":" . json_encode( $dateRange );
 
         parent::__construct( $this->jobName , $runtimeThreshold , $tracking );
-
-        JobTracking::startAggregationJob( $this->jobName , $this->tracking );
     }
 
     public function handleJob()

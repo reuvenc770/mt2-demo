@@ -12,12 +12,14 @@ class BestMoneySearchGetResponseContactUploadCommand extends Command
 
     const RUNTIME_THRESHOLD = 180;
 
+    protected $runtimeThreshold;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'EspContactUpload:BestMoneySearch {--D|daysBack=1 : How far back to look for new records.}';
+    protected $signature = 'EspContactUpload:BestMoneySearch {--D|daysBack=1 : How far back to look for new records.} {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -49,7 +51,7 @@ class BestMoneySearchGetResponseContactUploadCommand extends Command
 
         $tracking = str_random( 16 );
 
-        $this->dispatch( \App::make( \App\Jobs\BestMoneySearchGetResponseContactUploadJob::class , [ $this->dateRange , $tracking , self::RUNTIME_THRESHOLD ] ) );
+        $this->dispatch( \App::make( \App\Jobs\BestMoneySearchGetResponseContactUploadJob::class , [ $this->dateRange , $tracking , $this->runtimeThreshold ] ) );
     }
 
     protected function processOptions () {
@@ -57,5 +59,11 @@ class BestMoneySearchGetResponseContactUploadCommand extends Command
             'start' => Carbon::now()->subDays( $this->option( 'daysBack' ) )->toDateTimeString() ,
             'end' => Carbon::now()->toDateTimeString()
         ];
+
+        if ( !empty( $this->option( 'runtime-threshold' ) ) ) {
+            $this->runtimeThreshold = $this->option( 'runtime-threshold' );
+        } else {
+            $this->runtimeThreshold = self::RUNTIME_THRESHOLD;
+        }
     }
 }
