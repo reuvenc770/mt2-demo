@@ -19,7 +19,7 @@ class BestMoneySearchGetResponseContactUploadCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'EspContactUpload:BestMoneySearch {--D|daysBack=1 : How far back to look for new records.} {--runtime-threshold=}';
+    protected $signature = 'EspContactUpload:BestMoneySearch {--D|daysBack= : How far back to look for new records.} {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -55,10 +55,17 @@ class BestMoneySearchGetResponseContactUploadCommand extends Command
     }
 
     protected function processOptions () {
-        $this->dateRange = [
-            'start' => Carbon::now()->subDays( $this->option( 'daysBack' ) )->toDateTimeString() ,
-            'end' => Carbon::now()->toDateTimeString()
-        ];
+        if ( !is_null( $this->option( 'daysBack' ) ) ) {
+            $this->dateRange = [
+                'start' => Carbon::now()->subDays( $this->option( 'daysBack' ) )->toDateTimeString() ,
+                'end' => Carbon::now()->toDateTimeString()
+            ];
+        } else {
+            $this->dateRange = [
+                'start' => Carbon::now()->subMinutes( 10 )->toDateTimeString() ,
+                'end' => Carbon::now()->toDateTimeString()
+            ];
+        }
 
         if ( !empty( $this->option( 'runtime-threshold' ) ) ) {
             $this->runtimeThreshold = $this->option( 'runtime-threshold' );
