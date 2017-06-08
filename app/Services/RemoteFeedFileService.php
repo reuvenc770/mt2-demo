@@ -127,13 +127,17 @@ class RemoteFeedFileService {
         foreach ( $feedDirList as $dirInfo ) {
             $newFileString = $this->getRecentFiles( $dirInfo[ 'directory' ] );
             
+            $count = 0;
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if (
                     $newFileString !== ''
                     && ProcessedFeedFile::find( $newFile ) === null
                     && !Cache::tags('realtime_feed_processing')->has( $newFile )
+                    && $count <= 5
                 ) {
                     $this->newFileList[] = [ 'path' => $newFile , 'feedId' => $dirInfo[ 'feedId' ] ];
+
+                    $count++;
                 }
             }
         }
