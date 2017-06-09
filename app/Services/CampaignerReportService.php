@@ -315,12 +315,19 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $recordData = $this->getReportData( $processState );
 
             foreach ( $recordData as $key => $record ) {
+                // Campaigner sends records over in UTC. 
+                // For the sake of consistency we need to 
+                // translate them into Eastern Time
+
+                // Campaigner timestamps look like YYYY-MM-DDTHH:ii:ss.DDDDDD
+                $actionDate = Carbon::parse($record['actionDate'] . 'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i:s');
+
                 if ( $record[ 'action' ] === 'SpamComplaint' ) {
                     Suppression::recordRawComplaint(
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espInternalId' ] ,
-                        $record[ 'actionDate' ] 
+                        $actionDate
                     );
 
                     continue;
@@ -329,7 +336,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                         $processState['ticket']['espId'],
                         $record['email'],
                         $processState['ticket']['espInternalId'],
-                        Carbon::parse($record['actionDate'])->format('Y-m-d H:i:s')
+                        $actionDate
                     );
                     continue;
                 }
@@ -345,7 +352,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                     $processState[ 'ticket' ][ 'espId' ] ,
                     $processState['ticket']['deployId'],
                     $processState[ 'ticket' ][ 'espInternalId' ] ,
-                    Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
+                    $actionDate
                 );
 
                 $count++;
