@@ -245,9 +245,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 */
 
                 // Simply appending 'UTC' converts this to UTC for this
-                $convertedTime = Carbon::parse($record->TimeStamp.'UTC')->setTimezone('America/New_York')->toDateTimeString();
-
-                $trimmedTimestamp = date('Y-m-d H:i', strtotime($convertedTime));
+                $trimmedTimestamp = Carbon::parse($record->TimeStamp.'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i');
                 $key = 'Pub' . md5($record->Email . $recordType . $trimmedTimestamp);
 
                 // If the tag already exists, get the (already-incremented) second, and increment again
