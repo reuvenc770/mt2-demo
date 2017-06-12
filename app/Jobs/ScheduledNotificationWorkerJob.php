@@ -2,31 +2,53 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
-use App\Jobs\MonitoredJob;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Jobs\ScheduledNotificationQueueJob;
+use Mail;
+use Maknz\Slack\Facades\Slack;
 
-class ScheduledNotificationWorkerJob extends MonitoredJob implements ShouldQueue
+class ScheduledNotificationWorkerJob extends ScheduledNotificationQueueJob
 {
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected $baseJobName = 'ScheduledNotificationWorkerJob';
+    protected $schedule;
+
+    public function __construct( $schedule , $tracking , $runtimeThreshold , $isCritical = false )
     {
-        //
+        $this->schedule = $schedule;
+
+        if ( $isCritical ) {
+            $this->baseJobName .= ':CRITICAL';
+        }
+
+        parent::__construct( $this->schedule->content_key , $tracking , $runtimeThreshold );
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle()
+    public function handleJob()
     {
-        //
+        $service = \App::make( \App\Services\NotificationScheduleService::class );
+        $logs = $service->getLogs( $this->schedule->content_key , $this->schedule->content_lookback );
+
+        if ( $this->schedule->use_email ) {
+            $emailRecipients = $this->schedule->email_recipients;
+            $subject = $this->schedule->title;
+
+            Mail::send(
+                $this->schedule->email_template_path  ,
+                $logs , #do lookback for logs in service
+                function ( $message ) use ( $emailRecipients , $subject ) {
+                    $message->to( $emailRecipients );
+                    $message->subject( $subject . ' ' . Carbon::now()->toCookieString() );
+                    $message->priority( 1 );
+                }
+            );
+        }
+
+        if ( $this->schedule->use_slack ) {
+            foreach ( $logs as $log ) {
+                Slack::to( $this->schedule->slack_recipients )
+                    ->send(
+                        view( $this->schedule->slack_template_path , json_decode( $log->content ) )
+                    );
+            }
+        }
     }
 }

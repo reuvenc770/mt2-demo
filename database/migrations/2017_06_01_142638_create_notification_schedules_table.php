@@ -15,6 +15,7 @@ class CreateNotificationSchedulesTable extends Migration
         Schema::create('notification_schedules', function (Blueprint $table) {
             $table->increments( 'id' );
             $table->string( 'content_key' );
+            $table->string( 'level' );
             $table->tinyInteger( 'status' )->default( 1 );
             $table->string( 'title' );
 

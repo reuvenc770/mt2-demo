@@ -7,14 +7,19 @@ use App\Jobs\MonitoredJob;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Facades\JobTracking;
 use Carbon\Carbon;
 use Cron\CronExpression;
 
 class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
 {
-    const BASE_JOB_NAME = 'ScheduledNotificationQueueJob';
+    use DispatchesJobs;
 
+    const NOTIFICATION_QUEUE = 'scheduled_notifications';
+    const DEFAULT_RUNTIME_THRESHOLD = 20 * 60;
+
+    protected $baseJobName = 'ScheduledNotificationQueueJob';
     protected $jobName;
     protected $contentType;
     protected $tracking;
@@ -27,12 +32,14 @@ class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
     public function __construct( $contentType , $tracking , $runtimeThreshold )
     {
         $this->contentType = $contentType;
-        $this->jobName = self::BASE_JOB_NAME . ":" . $this->contentType;
+        $this->jobName = $this->baseJobName . ":" . $this->contentType;
         $this->tracking = $tracking;
 
-        parent::__construct( $this->jobName , $runtimeThreshold , $tracking );
-
-        JobTracking::startAggregationJob( $this->jobName , $this->tracking );
+        parent::__construct(
+            $this->jobName ,
+            $runtimeThreshold ?: self::DEFAULT_RUNTIME_THRESHOLD ,
+            $tracking
+        );
     }
 
     /**
@@ -44,21 +51,24 @@ class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
     {
         $service = \App::make( \App\Services\NotificationScheduleService::class );
 
-        $schedules = $service->getAllActiveNotifications();
-
-        foreach ( $schedules as $current ) {
-            $cron = CronExpression::factory( $current->cron_expression );
-            $nextRunDate = Carbon::parse( $cron->getNextRunDate()->format('Y-m-d H:i:s') );
-
-            if ( $nextRunDate->isToday() ) {
-                \Log::info( $current->title . " scheduled for today." );
-
-                $nextRunInSeconds = Carbon::now()->diffInSeconds( Carbon::parse( $cron->getNextRunDate()->format('Y-m-d H:i:s') ) );            
-
-                \Log::info( $nextRunInSeconds );
-            } else {
-                \Log::info( $current->title . ' scheduled for ' . $cron->getNextRunDate()->format('Y-m-d H:i:s') );
+        foreach ( $service->getAllActiveNotifications( $this->contentType ) as $notification ) {
+            if ( !$notification->isToday || !$notification->hasLogs ) {
+                continue;
             }
+
+            $jobDelay = 0;
+            if ( !$notification->isCritical ) {
+                $jobDelay = $notification->nextRunInSeconds;
+            }
+
+            $worker = ( \App::make( \App\Jobs\ScheduledNotificationWorkerJob::class , [
+                $notification ,
+                str_random( 16 ) ,
+                self::DEFAULT_RUNTIME_THRESHOLD ,
+                $notification->isCritical
+            ] ) )->delay( $jobDelay )->onQueue( self::NOTIFICATION_QUEUE );
+
+            $this->dispatch( $worker );
         }
     }
 }

@@ -8,24 +8,65 @@ namespace App\Repositories;
 use App\Models\NotificationSchedule;
 use App\Models\NotificationLog;
 
-class NotificationScheduleRepo {
-    protected $schedule;
-    protected $log;
+use Carbon\Carbon;
+use Cron\CronExpression;
 
-    public function __construct ( NotificationSchedule $schedule , NotificationLog $log ) {
-        $this->schedule = $schedule;
-        $this->log = $log;
+class NotificationScheduleRepo {
+    protected $schedules;
+    protected $logs;
+
+    public function __construct ( NotificationSchedule $schedules , NotificationLog $logs ) {
+        $this->schedules = $schedules;
+        $this->logs = $logs;
     }
 
-    public function getAllActiveNotifications () {
-        $result = $this->schedule->where( 'status' , 1 );
+    public function getAllActiveNotifications ( $contentType ) {
+        $result = $this->schedules->where( 'status' , 1 );
 
-        $schedules = collect( [] );
-
-        if ( $result->count() ) {
-            $schedules = $result->get();
+        if ( $contentType != 'all' ) {
+            $result->where( 'content_key' , $contentType );
         }
 
-        return $schedules;
+        $scheduleCollection = collect( [] );
+
+        if ( $result->count() ) {
+            $scheduleCollection = $result->get();
+
+            foreach ( $scheduleCollection as $current ) {
+                $cron = CronExpression::factory( $current->cron_expression );
+                $current->nextRunDatetime = Carbon::parse( $cron->getNextRunDate()->format('Y-m-d H:i:s') );
+
+                $current->isToday = ( Carbon::parse( $current->nextRunDatetime ) )->isToday();
+                $current->nextRunInSeconds = Carbon::now()->diffInSeconds(
+                    Carbon::parse( $current->nextRunDatetime )
+                );
+
+                if ( $current->level == 'critical' ) {
+                    $current->isCritical = true;
+                }
+
+                $current->hasLogs = $this->hasLogs( $current->content_key , $current->content_lookback );
+            }
+        }
+
+        return $scheduleCollection;
+    }
+
+    public function log ( $contentType , $content ) {
+        return $this->logs->create( [
+            'content_key' => $contentType ,
+            'content' => $content
+        ] );
+    }
+
+    public function hasLogs ( $contentType , $lookback ) {
+        $result = $this->logs
+            ->where( 'content_key' , $contentType )
+            ->whereBetween( 'created_at' , [  
+                Carbon::now()->subHours( $lookback )->toDateTimeString() ,
+                Carbon::now()->toDateTimeString()
+            ] );
+
+        return $result->count() > 0;
     }
 }

@@ -14,7 +14,15 @@ class NotificationScheduleService {
         $this->repo = $repo;
     }
 
-    public function getAllActiveNotifications () {
-        return $this->repo->getAllActiveNotifications();
+    public function getAllActiveNotifications ( $contentType ) {
+        return $this->repo->getAllActiveNotifications( $contentType );
+    }
+
+    public function log ( $contentType , $content ) {
+        return $this->repo->log( $contentType , $content );
+    }
+
+    public function hasLogs ( $contentType , $lookback ) {
+        return $this->repo->hasLogs( $contentType , $lookback );
     }
 }

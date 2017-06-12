@@ -13,6 +13,7 @@ class CreateNotificationLogsTable extends Migration
     public function up()
     {
         Schema::create('notification_logs', function (Blueprint $table) {
+            $table->increments( 'id' );
             $table->string( 'content_key' );
             $table->text( 'content' );
 
