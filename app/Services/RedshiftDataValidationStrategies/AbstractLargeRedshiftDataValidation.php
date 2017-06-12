@@ -74,6 +74,9 @@ abstract class AbstractLargeRedshiftDataValidation {
     }  
 
     protected function isEqual($cmpCount, $redshiftCount) {
+        $cmpCount = $cmpCount ?: 0;
+        $redshiftCount = $redshiftCount ?: 0;
+
         if ($cmpCount === $redshiftCount) {
             return true;
         }
