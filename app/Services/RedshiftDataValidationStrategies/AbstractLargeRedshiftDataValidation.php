@@ -31,7 +31,7 @@ abstract class AbstractLargeRedshiftDataValidation {
 
             Our first test is to run a set number (10k now) random spot checks on both tables.
             This number is both small enough to be finished relatively quickly and large enough to get good results
-            We check if the difference rate is statistically likely to be within our threshold (99% confidence, one-sided)
+            We check if the difference rate is statistically likely to be within our threshold (99% correct with 95% confidence, one-sided)
             using Student's one sample T-test with one degree of freedom.
         */
 
