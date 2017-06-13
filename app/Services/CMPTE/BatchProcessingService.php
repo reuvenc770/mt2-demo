@@ -63,4 +63,18 @@ class BatchProcessingService extends RemoteFeedFileService {
     protected function isCorrectDirectoryStructure ( $directory ) {
         return true;
     } 
+
+    protected function columnMatchCheck ( $lineColumns ) {
+        #columns have a chance to not match. parsing is overridden in this class
+    }
+
+    protected function mapRecord ( $lineColumns ) {
+        $record = [];
+
+        foreach ( $this->currentColumnMap as $index => $columnName ) {
+            $record[ $columnName ] = $lineColumns[ $index ];
+        }
+
+        return $record;
+    }
 }
