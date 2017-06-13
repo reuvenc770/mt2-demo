@@ -201,6 +201,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
         { 'header' : 'short_name' , 'label' : "Feed Short Name" } ,
         { 'header' : 'client_name' , 'label' : "Client" } ,
+        { 'header' : 'action_status' , 'label' : "Action Status" } ,
+        { 'header' : 'action_date' , 'label' : "Action Date" } ,
         { 'header' : 'subscribe_date' , 'label' : 'Registration Date' } ,
         { 'header' : 'tower_date' , 'label' : 'Tower Date' }
     ];

@@ -74,11 +74,10 @@ class ListProfileExportService {
             if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
                 
                 $suppressed = false;
-                foreach ($listProfile->offers as $offer) {
+                foreach ($listProfile->offerSuppression as $offer) {
                     // handle advertiser suppression here
                     if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
                         $suppressed = true;
-                        $entry->incrementOfferSuppression();
                         break;
                     }
                 }
@@ -86,7 +85,6 @@ class ListProfileExportService {
                 if (!$suppressed) {
                     $row = $this->mapRow($columns, $row);
                     $this->remoteBatch($fileName, $row);
-                    $entry->increaseFinalRecordCount();
                 }
             }
         }
@@ -283,10 +281,10 @@ class ListProfileExportService {
         $combineName = $deploy->listProfileCombine->name;
 
         if ('mailable' === $version) {
-            return "{$ftpFolder}/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/mailable/{$deploy->send_date}_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
         elseif ('donotmail' === $version) {
-            return "{$ftpFolder}/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
+            return "{$ftpFolder}/donotmail/{$deploy->send_date}_DONOTMAIL_{$deploy->id}_{$espAccountName}_{$combineName}_{$offerName}.csv";
         }
     }
 
@@ -338,7 +336,7 @@ class ListProfileExportService {
         $localCombineFileNameDNM = $this->getLocalFileName($combineFileNameDNM);
 
         foreach ($listProfiles as $listProfile) {
-            $lpOffers = $listProfile->offers->pluck('id')->all();
+            $lpOffers = $listProfile->offerSuppression->pluck('id')->all();
             $lpLists = OfferSuppressionList::whereIn('offer_id', $lpOffers)->pluck('suppression_list_id')->all();
             
             $offersSuppressed = array_unique(array_merge($offersSuppressed, $lpOffers));
