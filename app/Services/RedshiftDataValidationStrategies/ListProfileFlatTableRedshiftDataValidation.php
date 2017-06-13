@@ -57,11 +57,12 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         $cmpTime = 0;
         $redshiftTime = 0; 
 
-        $data = $this->redshiftRepo->getRandomSample($this->lookback, self::SAMPLE_SIZE);
-
         while ($i < self::SAMPLE_SIZE) {
+            $i++;
+
             // pick a random date
-            $date = array_rand($dates);
+            $dateKey = array_rand($dates);
+            $date = $dates[$dateKey];
 
             // pick a deploy that has actions on that date
             $cmpStart = microtime(true);
@@ -85,30 +86,29 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
                 $redshiftTime = $redshiftTime + ($redshiftEnd - $redshiftStart);
 
                 // equality found here
-                if (null === $rsObject) {
+                if (null === $rsObj) {
                     continue;
                 }
-                elseif ($this->isEqual($cmpObj->opens, $rsObject->opens) && 
-                            $this->isEqual($cmpObj->clicks, $rsObject->clicks) && 
-                            $this->isEqual($cmpObj->conversions, $rsObject->conversions)) {
-                     $matches++;
+                elseif ($this->isEqual($cmpObj->opens, $rsObj->opens) && 
+                            $this->isEqual($cmpObj->clicks, $rsObj->clicks) && 
+                            $this->isEqual($cmpObj->conversions, $rsObj->conversions)) {
+                    $matches++;
                 }
             }
-
-            $i++;
         }
 
         Cache::tags('list_profile_flat_check')->flush();
 
-        // sn = sqrt(np(1-p)). se is sn / sqrt(sample_size).
-        $sampleStdDev = sqrt((self::SAMPLE_SIZE * ($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE)) );
+        // se is sqrt(p(1-p) / sample_size).
+        $stdErr = sqrt((($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE) ) / self::SAMPLE_SIZE);
         
         $testEnd = microtime(true);
         $testTime = $testEnd - $testStart;
-        Log::info("ListProfileFlatTable has $matches matches out of " . self::SAMPLE_SIZE . " with sample std dev $sampleStdDev.");
-        Log::info("ListProfileFlatTable took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
-        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::SAMPLE_SIZE))));
+        Log::info("$entity has $matches matches out of " . self::SAMPLE_SIZE . " for a match rate of " . round($matches / self::SAMPLE_SIZE, 3) . " with a standard error of $stdErr.");
+        Log::info("$entity took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
+
+        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * $stdErr));
     }  
 
 
