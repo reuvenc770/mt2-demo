@@ -79,7 +79,7 @@ class SuppressionListSuppressionRepo implements IAwsRepo {
 
     public function getConnection()
     {
-        return $this->model->getConnection();
+        return $this->model->getConnectionName();
     }
 
     public function getAllQuery($lookback) {
