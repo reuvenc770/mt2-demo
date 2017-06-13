@@ -15,6 +15,8 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
 
     use DispatchesJobs;
     
+    use DispatchesJobs;
+
     private $badEmailSegments = [];
     const SAMPLE_SIZE = 5000;
     private $lookback;

@@ -229,7 +229,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             foreach ( $records as $record ) {
 
                 /*
-                    Publicators timestamps are of the form YYYY/MM/DD HH:MM:SS
+                    Publicators timestamps are of the form YYYY/MM/DD HH:ii:ss
                     Additionally, they often record multiple actions within a second
                     (5 or more is not unheard of). Levelocity wants to preserve
                     each of these actions (they would overwrite each other) so we
@@ -238,6 +238,10 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
                     edit: we've now seen >60 actions per minute, so we're capping it at that
                     with Levelocity's approval
+
+                    Additionally, they send over their actions in UTC. For the sake
+                    of consistency, we want them to be in Eastern time.
+
                 */
                 $trimmedTimestamp = Carbon::parse($record->TimeStamp.'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i');
                 $key = 'Pub' . md5($record->Email . $recordType . $trimmedTimestamp);

@@ -315,7 +315,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $recordData = $this->getReportData( $processState );
 
             foreach ( $recordData as $key => $record ) {
-                
                 $actionDate = Carbon::parse($record['actionDate'] . 'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i:s');
                 if ( $record[ 'action' ] === 'SpamComplaint' ) {
                     Suppression::recordRawComplaint(
