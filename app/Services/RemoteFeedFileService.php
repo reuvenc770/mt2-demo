@@ -14,6 +14,7 @@ use App\Facades\SlackLevel;
 
 use Carbon\Carbon;
 use Mail;
+use Notify;
 
 class RemoteFeedFileService {
     const SLACK_CHANNEL = "#mt2team";
@@ -50,6 +51,7 @@ class RemoteFeedFileService {
         $this->loadNewFilePaths();
 
         if ( !$this->newFilesPresent() ) {
+            Notify::log( 'batch_feed_no_files' , json_encode( [ "message" => "No new files to process." ] ) );
             \Log::info( 'RemoteFeedFileService: No new files to process....' );
         }
 
@@ -64,6 +66,8 @@ class RemoteFeedFileService {
         }
 
         if ( $this->processedFileCount > 0 ) {
+            Notify::log( 'batch_feed' , json_encode( [ "files" => $this->notificationCollection ] ) );
+            /*
             Mail::raw( implode( PHP_EOL , $this->notificationCollection )  , function ( $message ) {
                 $message->to( self::DEV_TEAM_EMAIL );
                 $message->to( self::STAKEHOLDERS_EMAIL );
@@ -71,9 +75,12 @@ class RemoteFeedFileService {
                 $message->subject( 'Feed Files Processed - ' . Carbon::now()->toCookieString() );
                 $message->priority(1);
             } );
+             */
         }
 
         if ( count( $this->missingMappingList ) > 0 ) {
+            Notify::log( 'batch_feed_mapping_missing' , json_encode( $this->missingMappingList ) );
+            /*
             Mail::send( 'emails.feedNoMappingAlert'  , [ 'fileList' => $this->missingMappingList ] , function ( $message ) {
                 $message->to( self::DEV_TEAM_EMAIL );
                 $message->to( self::CLIENT_OPERATOR_EMAIL );
@@ -82,6 +89,7 @@ class RemoteFeedFileService {
 
                 $message->priority(1);
             } );
+             */
         }
     }
 
@@ -147,14 +155,15 @@ class RemoteFeedFileService {
 
             if ( count( $this->currentColumnMap ) <= 0 ) {
                 $feedName = $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] );
-                if ( !isset( $this->missingMappingList[ $feedName ] ) ) {
-                    $this->missingMappingList[ $feedName ] = [];
+                if ( !isset( $this->missingMappingList[ 'files' ] ) ) {
+                    $this->missingMappingList[ 'files' ] = [];
                 }
 
-                $this->missingMappingList[ $feedName ] []= $this->currentFile[ 'path' ];
-
-                $errorMessage = "Feed File Processing Error: No Column Mapping for file '{$this->currentFile[ 'path' ]}'.";
-                SlackLevel::to(self::SLACK_CHANNEL)->send( $errorMessage );
+                $this->missingMappingList[ 'files' ] []= [
+                    "file" => $this->currentFile[ 'path' ] ,
+                    "feedId" => $this->currentFile[ 'feedId' ] ,
+                    'feedName' => $feedName
+                ];
 
                 array_shift( $this->newFileList );
                 $this->resetCursor();
@@ -212,14 +221,21 @@ class RemoteFeedFileService {
             if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
                 $errorMessage = "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'.";
 
-                SlackLevel::to(self::SLACK_CHANNEL)->send( $errorMessage );
+                #SlackLevel::to(self::SLACK_CHANNEL)->send( $errorMessage );
 
+                Notify::log( 'batch_feed_mismatch' , json_encode( [ "files" => [
+                    'file' => $this->currentFile[ 'path' ] ,
+                    'feedId' => $this->currentFile[ 'feedId' ] ,
+                    'feedName' => $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
+                ] ] ) );
+                /*
                 Mail::raw( $errorMessage  , function ( $message ) {
                     $message->to( self::CLIENT_OPERATOR_EMAIL );
                     
                     $message->subject( 'Feed File Processing Error - Column Mismatch - ' . Carbon::now()->toCookieString() );
                     $message->priority(1);
                 } );
+                 */
 
                 throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
             } 
@@ -276,10 +292,18 @@ class RemoteFeedFileService {
             'line_count' => $this->currentFileLineCount
         ] );
 
+        /*
         $this->notificationCollection []= "File {$this->currentFile[ 'path' ]} from '"
             . $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
             . "' ({$this->currentFile[ 'feedId' ]}) was processed at "
             . Carbon::now()->toCookieString() . " with {$this->currentFileLineCount} records.";
+         */
+        $this->notificationCollection []= [
+            "file" => $this->currentFile[ 'path' ] ,
+            "feedId" => $this->currentFile[ 'feedId' ] ,
+            "feedName" => $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] ) ,
+            "recordCount" => $this->currentFileLineCount
+        ];
 
 
         \Log::info( 'RemoteFeedFileService: processed ' . $this->currentFile[ 'path' ] );
@@ -331,6 +355,8 @@ class RemoteFeedFileService {
                 $directoryList[] = [ 'directory' => $dir , 'feedId' =>  $feedId];
             }   
         }
+
+        \Log::info( json_encode( $directoryList ) );
 
         return $directoryList;
     }
