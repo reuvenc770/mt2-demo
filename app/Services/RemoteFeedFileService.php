@@ -193,6 +193,8 @@ class RemoteFeedFileService {
                 $this->processLines();
 
                 $this->markFileAsProcessed();
+
+                Cache::tags('realtime_feed_processing')->forget( $this->currentFile[ 'path' ] );
                 
                 $this->lastFileProcessed = array_shift( $this->newFileList );
 
