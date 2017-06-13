@@ -32,7 +32,6 @@ abstract class AbstractLargeRedshiftDataValidation {
             Our first test is to run a set number (10k now) random spot checks on both tables.
             This number is both small enough to be finished relatively quickly and large enough to get good results
             We check if the difference rate is statistically likely to be within our threshold (99% correct with 95% confidence, one-sided)
-            using Student's one sample T-test with one degree of freedom.
         */
 
         $i = 0;
@@ -64,13 +63,13 @@ abstract class AbstractLargeRedshiftDataValidation {
         $cmpClass = explode('\\', get_class($this->cmpRepo))[2];
         $entity = str_replace('Repo', '', $cmpClass);
         
-        // sn = sqrt(np(1-p)). se is sn / sqrt(sample_size).
-        $sampleStdDev = sqrt(self::SAMPLE_SIZE * ($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE) );
+        // se is sqrt(p(1-p) / sample_size).
+        $stdErr = sqrt((($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE) ) / self::SAMPLE_SIZE);
         
-        Log::info("$entity has $matches matches out of " . self::SAMPLE_SIZE . " with a standard deviation of $sampleStdDev.");
+        Log::info("$entity has $matches matches out of " . self::SAMPLE_SIZE . " for a match rate of " . round($matches / self::SAMPLE_SIZE, 3) . " with a standard error of $stdErr.");
         Log::info("$entity took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
-        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::SAMPLE_SIZE))));
+        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * $stdErr));
     }  
 
     protected function isEqual($cmpCount, $redshiftCount) {
