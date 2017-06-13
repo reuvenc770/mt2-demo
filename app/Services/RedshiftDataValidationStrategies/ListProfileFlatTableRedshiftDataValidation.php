@@ -57,11 +57,12 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         $cmpTime = 0;
         $redshiftTime = 0; 
 
-        $data = $this->redshiftRepo->getRandomSample($this->lookback, self::SAMPLE_SIZE);
-
         while ($i < self::SAMPLE_SIZE) {
+            $i++;
+
             // pick a random date
-            $date = array_rand($dates);
+            $dateKey = array_rand($dates);
+            $date = $dates[$dateKey];
 
             // pick a deploy that has actions on that date
             $cmpStart = microtime(true);
@@ -85,17 +86,15 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
                 $redshiftTime = $redshiftTime + ($redshiftEnd - $redshiftStart);
 
                 // equality found here
-                if (null === $rsObject) {
+                if (null === $rsObj) {
                     continue;
                 }
-                elseif ($this->isEqual($cmpObj->opens, $rsObject->opens) && 
-                            $this->isEqual($cmpObj->clicks, $rsObject->clicks) && 
-                            $this->isEqual($cmpObj->conversions, $rsObject->conversions)) {
-                     $matches++;
+                elseif ($this->isEqual($cmpObj->opens, $rsObj->opens) && 
+                            $this->isEqual($cmpObj->clicks, $rsObj->clicks) && 
+                            $this->isEqual($cmpObj->conversions, $rsObj->conversions)) {
+                    $matches++;
                 }
             }
-
-            $i++;
         }
 
         Cache::tags('list_profile_flat_check')->flush();
