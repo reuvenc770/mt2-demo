@@ -239,8 +239,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     edit: we've now seen >60 actions per minute, so we're capping it at that
                     with Levelocity's approval
                 */
-
-                $trimmedTimestamp = date('Y-m-d H:i', strtotime($record->TimeStamp));
+                $trimmedTimestamp = Carbon::parse($record->TimeStamp.'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i');
                 $key = 'Pub' . md5($record->Email . $recordType . $trimmedTimestamp);
 
                 // If the tag already exists, get the (already-incremented) second, and increment again
