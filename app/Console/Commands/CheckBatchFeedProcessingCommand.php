@@ -99,10 +99,10 @@ class CheckBatchFeedProcessingCommand extends Command
             if ( $newFileString = $this->remote->getRecentFiles( '/home/' . $currentFeedName , $findOptions ) ) {
                 foreach ( explode( "\n" , $newFileString ) as $redFile ) {
                     if ( $redFile !== '' ) {
-                        \Log::info( 'Moving red file ' . $redFile );
+                        \Log::debug( 'Moving red file ' . $redFile );
                         $newPath = '/home/mt1' . str_replace( '/home' , '' , $redFile ); 
                         $output = $this->remote->moveFile( $redFile , $newPath );
-                        \Log::info( $redFile . ' output: ' . $output );
+                        \Log::debug( $redFile . ' output: ' . $output );
                     }
                 }
             }
