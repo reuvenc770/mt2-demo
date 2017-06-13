@@ -476,7 +476,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     }
 
     public function matches($obj) {
-        $result = $this->model->where('email_id', $obj->email_id)
+        $result = $this->model->where('tpes.email_id', $obj->email_id)
                     ->join('third_party_email_statuses as tpes', 'email_attributable_feed_latest_data.email_id', '=', 'tpes.email_id')
                     ->first();
 
