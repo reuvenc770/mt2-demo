@@ -99,15 +99,16 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
 
         Cache::tags('list_profile_flat_check')->flush();
 
-        // sn = sqrt(np(1-p)). se is sn / sqrt(sample_size).
-        $sampleStdDev = sqrt((self::SAMPLE_SIZE * ($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE)) );
+        // se is sqrt(p(1-p) / sample_size).
+        $stdErr = sqrt((($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE) ) / self::SAMPLE_SIZE);
         
         $testEnd = microtime(true);
         $testTime = $testEnd - $testStart;
-        Log::info("ListProfileFlatTable has $matches matches out of " . self::SAMPLE_SIZE . " with sample std dev $sampleStdDev.");
-        Log::info("ListProfileFlatTable took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
-        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::SAMPLE_SIZE))));
+        Log::info("$entity has $matches matches out of " . self::SAMPLE_SIZE . " for a match rate of " . round($matches / self::SAMPLE_SIZE, 3) . " with a standard error of $stdErr.");
+        Log::info("$entity took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
+
+        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * $stdErr));
     }  
 
 
