@@ -136,7 +136,7 @@ class RemoteFeedFileService {
                     && !Cache::tags('realtime_feed_processing')->has( $newFile )
                     && $count <= 5
                 ) {
-                    $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => $dirInfo[ 'party' ] ];
+                    $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 ];
 
                     Cache::tags('realtime_feed_processing')->forever( $newFile , 1 );
 
