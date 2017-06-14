@@ -378,4 +378,8 @@ class FeedService implements IFtpAdmin
     public function getFeedNameFromId ( $id ) {
         return $this->feedRepo->getFeedNameFromId( $id );
     }
+
+    public function getPartyFromId ( $id ) {
+        return $this->feedRepo->getPartyFromId( $id ); 
+    }
 }

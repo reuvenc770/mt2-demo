@@ -136,7 +136,7 @@ class RemoteFeedFileService {
                     && !Cache::tags('realtime_feed_processing')->has( $newFile )
                     && $count <= 5
                 ) {
-                    $this->newFileList[] = [ 'path' => $newFile , 'feedId' => $dirInfo[ 'feedId' ] ];
+                    $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => $dirInfo[ 'party' ] ];
 
                     Cache::tags('realtime_feed_processing')->forever( $newFile , 1 );
 
@@ -264,6 +264,8 @@ class RemoteFeedFileService {
     protected function mapRecord ( $lineColumns ) {
         $record = array_combine( $this->currentColumnMap , $lineColumns );
         $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+        $record[ 'party' ] = $this->currentFile[ 'party' ];
+        $record[ 'realtime' ] = 0;
 
         return $record;
     }
@@ -369,7 +371,12 @@ class RemoteFeedFileService {
                 // Need to switch 2430 and 2618 to 2979
                 $feedIdResult = $this->getFeedIdFromName( $matches[ 1 ] );
                 $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;
-                $directoryList[] = [ 'directory' => $dir , 'feedId' =>  $feedId];
+
+                $directoryList[] = [
+                    'directory' => $dir ,
+                    'feedId' =>  $feedId ,
+                    'party' => $this->feedService->getPartyFromId( $feedId )
+                ];
             }   
         }
 

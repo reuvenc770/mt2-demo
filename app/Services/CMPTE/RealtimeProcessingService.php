@@ -121,8 +121,12 @@ class RealtimeProcessingService extends RemoteFeedFileService {
             return null;
         }
 
-        return array_combine( $currentColumnMap , $lineColumns );
-    }
+        $record = array_combine( $currentColumnMap , $lineColumns );
+        $record[ 'party' ] = $this->feedService->getPartyFromId( $record[ 'feed_id' ] );
+        $record[ 'realtime' ] = 1;
+
+        return $record;
+    }  
 
     protected function columnMatchCheck ( $lineColumns ) {
         return true;
