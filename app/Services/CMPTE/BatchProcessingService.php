@@ -78,6 +78,12 @@ class BatchProcessingService extends RemoteFeedFileService {
         }
 
         $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+        $record[ 'party' ] = $this->currentFile[ 'party' ];
+        $record[ 'realtime' ] = 0;
+
+        if ( $record[ 'dob' ] == '0000-00-00' ) {
+            unset( $record[ 'dob' ] );
+        } 
 
         return $record;
     }
