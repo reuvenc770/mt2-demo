@@ -6,12 +6,19 @@
 namespace App\Services;
 
 use App\Repositories\NotificationScheduleRepo;
+use App\Services\ServiceTraits\PaginateList;
 
 class NotificationScheduleService {
+    use PaginateList;
+
     protected $repo;
 
     public function __construct ( NotificationScheduleRepo $repo ) {
         $this->repo = $repo;
+    }
+
+    public function getModel () {
+        return $this->repo->getModel();
     }
 
     public function getAllActiveNotifications ( $contentType ) {
@@ -24,5 +31,9 @@ class NotificationScheduleService {
 
     public function hasLogs ( $contentType , $lookback ) {
         return $this->repo->hasLogs( $contentType , $lookback );
+    }
+
+    public function getLogs ( $contentType , $lookback ) {
+        return $this->repo->getLogs( $contentType , $lookback );
     }
 }

@@ -299,10 +299,11 @@ class RemoteFeedFileService {
             . Carbon::now()->toCookieString() . " with {$this->currentFileLineCount} records.";
          */
         $this->notificationCollection []= [
-            "file" => $this->currentFile[ 'path' ] ,
+            "file" =>  substr( strrchr( $this->currentFile[ 'path' ] , "/" ) , 1 ) ,
             "feedId" => $this->currentFile[ 'feedId' ] ,
             "feedName" => $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] ) ,
-            "recordCount" => $this->currentFileLineCount
+            "recordCount" => $this->currentFileLineCount ,
+            "timeFinished" => Carbon::now()->toDayDateTimeString()
         ];
 
 

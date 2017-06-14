@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Jobs\ScheduledNotificationQueueJob;
 use Mail;
 use Maknz\Slack\Facades\Slack;
+use Carbon\Carbon;
 
 class ScheduledNotificationWorkerJob extends ScheduledNotificationQueueJob
 {
@@ -33,7 +34,7 @@ class ScheduledNotificationWorkerJob extends ScheduledNotificationQueueJob
 
             Mail::send(
                 $this->schedule->email_template_path  ,
-                $logs , #do lookback for logs in service
+                [ "content" => $logs ] , #do lookback for logs in service
                 function ( $message ) use ( $emailRecipients , $subject ) {
                     $message->to( $emailRecipients );
                     $message->subject( $subject . ' ' . Carbon::now()->toCookieString() );

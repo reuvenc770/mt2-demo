@@ -69,4 +69,28 @@ class NotificationScheduleRepo {
 
         return $result->count() > 0;
     }
+
+    public function getLogs ( $contentType , $lookback ) {
+        $result = $this->logs
+            ->where( 'content_key' , $contentType )
+            ->whereBetween( 'created_at' , [  
+                Carbon::now()->subHours( $lookback )->toDateTimeString() ,
+                Carbon::now()->toDateTimeString()
+            ] );
+
+        $logs = [];
+        if ( $result->count() > 0 ) {
+            $records = $result->get();
+
+            foreach ( $records as $current ) {
+                $logs []= json_decode( $current->content , true );
+            }
+        }
+
+        return $logs;
+    }
+
+    public function getModel () {
+        return $this->schedules;
+    }
 }
