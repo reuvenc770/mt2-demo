@@ -13,6 +13,7 @@ use App\Repositories\RawFeedEmailRepo;
 use App\Facades\SlackLevel;
 
 use Carbon\Carbon;
+use League\Csv\Reader;
 use Cache;
 use Mail;
 
@@ -247,7 +248,9 @@ class RemoteFeedFileService {
     }
 
     protected function extractData ( $csvLine ) {
-        return explode( ',' , trim( $csvLine ) );
+        $reader = Reader::createFromString( trim( $csvLine ) );
+
+        return $reader->fetchOne();
     }
 
     protected function columnMatchCheck ( $lineColumns ) {

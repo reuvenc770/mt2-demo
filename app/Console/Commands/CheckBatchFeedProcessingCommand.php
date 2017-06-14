@@ -52,9 +52,21 @@ class CheckBatchFeedProcessingCommand extends Command
             config('ssh.servers.cmpte_feed_file_server.private_key')
         );
 
+        $this->createNewFeedMt1Directories();
+
         $this->alertForOrangeFiles();
 
         $this->moveRedFiles();
+    }
+
+    protected function createNewFeedMt1Directories () {
+        $homeDirectoryNames = Feeds::where( 'status' , 'A' )->pluck( 'username' )->toArray();
+
+        foreach ( $homeDirectoryNames as $currentFeedName ) {
+            if ( !$this->remote->directoryExists( '/home/mt1/' . $currentFeedName ) ) {
+                $this->remote->createDirectory( '/home/mt1/' . $currentFeedName );
+            }
+        }
     }
 
     protected function alertForOrangeFiles () {

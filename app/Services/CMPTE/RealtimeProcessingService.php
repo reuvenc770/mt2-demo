@@ -78,7 +78,9 @@ class RealtimeProcessingService extends RemoteFeedFileService {
          *
          * - Look for pipes in the custom field section at the end of the line. This will cause mismatching columns and values
          */
-        $columns = explode( '|' , $csvLine );
+        $reader = Reader::createFromString( trim( $csvLine ) );
+        $reader->setDelimiter( '|' );
+        $columns = $reader->fetchOne();
 
         #ipv6 fix, add colons
         if ( isset( $columns[ 13 ] ) && strlen( $columns[ 13 ] ) == 32 ) {
