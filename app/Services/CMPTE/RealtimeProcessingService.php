@@ -125,6 +125,10 @@ class RealtimeProcessingService extends RemoteFeedFileService {
         $record[ 'party' ] = $this->feedService->getPartyFromId( $record[ 'feed_id' ] );
         $record[ 'realtime' ] = 1;
 
+        if ( $record[ 'dob' ] == '0000-00-00' ) {
+            unset( $record[ 'dob' ] );
+        } 
+
         return $record;
     }  
 
