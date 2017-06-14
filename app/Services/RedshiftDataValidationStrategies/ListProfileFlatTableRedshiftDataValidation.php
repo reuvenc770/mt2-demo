@@ -105,8 +105,8 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         $testEnd = microtime(true);
         $testTime = $testEnd - $testStart;
 
-        Log::info("$entity has $matches matches out of " . self::SAMPLE_SIZE . " for a match rate of " . round($matches / self::SAMPLE_SIZE, 3) . " with a standard error of $stdErr.");
-        Log::info("$entity took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
+        Log::info("ListProfileFlatTable has $matches matches out of " . self::SAMPLE_SIZE . " for a match rate of " . round($matches / self::SAMPLE_SIZE, 3) . " with a standard error of $stdErr.");
+        Log::info("ListProfileFlatTable took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
         return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * $stdErr));
     }  
