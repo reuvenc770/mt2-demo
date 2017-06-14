@@ -290,7 +290,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command( 'feedRecords:checkBatchCmpte' )->everyTenMinutes(); // Job name like: BatchProcessingJob%
         $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyMinute(); // Job name like: BatchProcessingJob%
         $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
-        $schedule->command( 'feedRecords:checkBatchCmpte' )->everyTenMinutes(); //Command only 
+        $schedule->command( 'feedRecords:checkBatchCmpte' )->hourly(); //Command only 
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id

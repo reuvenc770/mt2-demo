@@ -72,7 +72,9 @@ class BatchProcessingService extends RemoteFeedFileService {
         $record = [];
 
         foreach ( $this->currentColumnMap as $index => $columnName ) {
-            $record[ $columnName ] = $lineColumns[ $index ];
+            if ( isset( $lineColumns[ $index ] ) ) {
+                $record[ $columnName ] = $lineColumns[ $index ];
+            }
         }
 
         $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
