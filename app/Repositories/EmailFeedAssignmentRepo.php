@@ -187,6 +187,14 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
                     ->first()['email_id'];
     }
 
+    public function maxEmailIdForFeed($feedId) {
+        return $this->model->where('feed_id', $feedId)->max('email_id');
+    }
+
+    public function minEmailIdForFeed($feedId) {
+        return $this->model->where('feed_id', $feedId)->min('email_id');
+    }
+
     public function nextNRows($startPoint, $offset) {
         return $this->model
             ->where('email_id', '>=', $startPoint)
