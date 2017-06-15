@@ -70,6 +70,11 @@ class BatchProcessingService extends RemoteFeedFileService {
 
     protected function mapRecord ( $lineColumns ) {
         $record = [];
+        
+        if ( count( $this->currentColumnMap ) <= 0 || !is_array( $this->currentColumnMap ) ) {
+            \Log::error( 'Column mapping failed due to invalid mapping for file: ' . $this->currentFile[ 'path' ] );
+            return null;
+        }
 
         foreach ( $this->currentColumnMap as $index => $columnName ) {
             if ( isset( $lineColumns[ $index ] ) ) {
@@ -81,7 +86,7 @@ class BatchProcessingService extends RemoteFeedFileService {
         $record[ 'party' ] = $this->currentFile[ 'party' ];
         $record[ 'realtime' ] = 0;
 
-        if ( $record[ 'dob' ] == '0000-00-00' ) {
+        if ( isset( $record[ 'dob' ] ) &&  $record[ 'dob' ] == '0000-00-00' ) {
             unset( $record[ 'dob' ] );
         } 
 
