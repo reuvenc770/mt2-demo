@@ -36,15 +36,23 @@ class FeedSuppressionService {
 
         $records = $this->assignmentRepo->getFeedUniques($feedId);
 
-        // Create new suppression list
-        $listId = $this->listRepo->insert([
-            'name' => "FeedSuppression-$feedId",
-            'status' => 'A',
-            'suppression_list_type' => 2 // Feed suppression
-        ]);
+        $currentListId = $this->listRepo->getListForName('FeedSuppression-' . $feedId);
+
+        if (!$listId) {
+            // Create new suppression list
+            $listId = $this->listRepo->insert([
+                'name' => "FeedSuppression-$feedId",
+                'status' => 'A',
+                'suppression_list_type' => 2 // Feed suppression
+            ]);
+        }
+        else {
+            // This list already exists. Delete its contents - a record might have come in from elsewhere
+            $this->suppressionRepo->clearList($listId);
+        }
 
         foreach ($records->cursor() as $record) {
-            $this->suppressionRepo->addToSuppressionList($record->email_id, $listId);
+            $this->suppressionRepo->addToSuppressionList($record->email_address, $listId);
         }
     }
 }
