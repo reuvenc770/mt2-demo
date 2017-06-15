@@ -148,7 +148,7 @@ class RawFeedEmailRepo {
                     ->where('feed_id', $feedId)
                     ->where('id', '>', $startPoint)
                     ->orderBy('id')
-                    ->limit(1000)
+                    ->limit(1500)
                     ->get();
 
         foreach ($records as $email) {
@@ -183,8 +183,9 @@ class RawFeedEmailRepo {
         $emails = $this->rawEmail
                     ->whereRaw("raw_feed_emails.email_address RLIKE '$charsRegex'")
                     ->where('raw_feed_emails.id', '>', $startPoint)
+                    ->whereRaw('party = 3')
                     ->orderBy('raw_feed_emails.id')
-                    ->limit(1000)
+                    ->limit(1500)
                     ->get();
 
         foreach ($emails as $record) {

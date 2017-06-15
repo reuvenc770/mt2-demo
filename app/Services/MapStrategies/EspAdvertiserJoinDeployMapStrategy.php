@@ -20,6 +20,8 @@ class EspAdvertiserJoinDeployMapStrategy implements IMapStrategy {
         $accountResult = $this->espAccountRepo->getIdFromName($record['espName']);
         $espAccountId = $accountResult ? (int)$accountResult->id : 0;
         $notes = $espAccountId > 0 ? '' : $record['espName'];
+        $party = preg_match('/BR0/', $record['espName']) ? 1 : 3; // Temporary hack
+
         return [
             'id' => $record['subAffiliateID'],
             'external_deploy_id' => $record['subAffiliateID'],

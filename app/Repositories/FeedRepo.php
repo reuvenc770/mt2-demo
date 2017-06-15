@@ -22,6 +22,10 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed->orderBy('short_name')->get();
     }
 
+    public function getFeedsForParty($party) {
+        return $this->feed->where('party', $party)->get();
+    }
+
     public function getAllFeedsArray() {
         return $this->feed->orderBy('short_name')->get()->toArray();
     }

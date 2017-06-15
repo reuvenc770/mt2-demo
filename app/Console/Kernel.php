@@ -291,15 +291,8 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
 
-        // Currently commented-out. Waiting for everything going live
-        // Process first party feeds, by feed id
-        #$schedule->command('feedRecords:process 1 --feed=2983')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2971')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2972')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2987')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2759')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2798')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
+        // Process first party feeds, by feed id. This list is dynamic.
+        $schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
         $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%
