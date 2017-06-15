@@ -15,7 +15,7 @@ class RemoteLinuxSystemService {
     const LIST_DIRECTORIES_COMMAND = "sudo find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
     const GET_CONTENT_SLICE_COMMAND = "sudo sed -n %d,%dp %s";
-    const GET_FILE_LINE_COUNT_COMMAND = "sudo wc -l < %s";
+    const GET_FILE_LINE_COUNT_COMMAND = "sudo cat %s | wc -l";
     const APPEND_EOF_COMMAND = "sudo sed -i -e '\$a\' %s";
     const USER_EXISTS_COMMAND = 'getent passwd %s > /dev/null 2&>1; [[ $? -eq 0 ]] && echo "{\"status\":1}" || echo "{\"status\":0}"';
     const MOVE_FILE_COMMAND = 'sudo mv %s %s';
