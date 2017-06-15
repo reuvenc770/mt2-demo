@@ -127,9 +127,11 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         $mt2DataSchema = config('database.connections.mysql.database');
         return $this->model
                     ->join("$mt2DataSchema.email_feed_instances as efi", 'email_feed_assignments.email_id', '=', 'efi.email_id')
-                    ->selectRaw("efi.email_id, COUNT(*) as count")
+                    ->join("$mt2DataSchema.emails as e", 'efi.email_id', '=', 'e.id')
+                    ->whereRaw("email_feed_assignments.feed_id = $feedId")
+                    ->selectRaw("email_address")
                     ->groupBy('efi.email_id')
-                    ->havingRaw("COUNT(*) = 0");
+                    ->havingRaw("COUNT(DISTINCT efi.feed_id) = 1");
     }
 
     public function extractForS3Upload($startPoint) {
