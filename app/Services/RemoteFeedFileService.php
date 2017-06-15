@@ -250,7 +250,7 @@ class RemoteFeedFileService {
     protected function extractData ( $csvLine ) {
         $reader = Reader::createFromString( trim( $csvLine ) );
 
-        return $reader->fetchOne();
+        return $reader->stripBOM( true )->fetchOne();
     }
 
     protected function columnMatchCheck ( $lineColumns ) {
