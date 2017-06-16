@@ -71,7 +71,7 @@ class CommitAttribution extends Command
         Cache::forever($this->keyName, 0); // Reset to 0
 
         for ($remainder = 0; $remainder < self::MOD_BASE; $remainder++) {
-            $job = new CommitAttributionJob($argObj, $remainder, str_random(16));
+            $job = (new CommitAttributionJob($argObj, $remainder, str_random(16)))->onQueue('attribution');
             $this->dispatch($job);
         }
         

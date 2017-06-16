@@ -275,7 +275,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:contentServerRawStats')->hourly(); // Job name: ProcessContentServerRawStats
         $schedule->command('listprofile:getRecordAgentData 2')->hourly(); // Job name: ContentServerDeviceData
         $schedule->command('listprofile:baseTables')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
-        #$schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *'); // Job names like: DataValidation & upper-case entity
+        $schedule->command('listprofile:validateRedshift 1')->cron('0 6 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
          * Feed File Processing
@@ -291,15 +291,8 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
         $schedule->command( 'feedRecords:checkBatchCmpte' )->hourly(); //Command only 
 
-        // Currently commented-out. Waiting for everything going live
-        // Process first party feeds, by feed id
-        #$schedule->command('feedRecords:process 1 --feed=2983')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2971')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2972')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2987')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2759')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2798')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
+        // Process first party feeds, by feed id. This list is dynamic.
+        $schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
         $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%

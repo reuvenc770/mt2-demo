@@ -22,7 +22,8 @@ class NewBhAccounts extends Seeder
         $x->esp_id = $espId;
         $x->key_1 = 'e2376d61ef68525eb0e8147639877f49';
         $x->key_2 = 'd0084f9ec2b201c9cb440dd43ab39a77';
-        $x->status = 1;
+        $x->enable_stats = 1;
+        $x->enable_suppression = 1;
         $x->save();
 
         $x = new EspAccount();
@@ -30,7 +31,8 @@ class NewBhAccounts extends Seeder
         $x->esp_id = $espId;
         $x->key_1 = '17eb836c1bf8bbfd7417829ea9efa4cc';
         $x->key_2 = '7e8b70a0b353d6388e97651764710aee';
-        $x->status = 1;
+        $x->enable_stats = 1;
+        $x->enable_suppression = 1;
         $x->save();
 
         $x = new EspAccount();
@@ -38,7 +40,8 @@ class NewBhAccounts extends Seeder
         $x->esp_id = $espId;
         $x->key_1 = '7c429b1af545a71e2a03892ee837e1d8';
         $x->key_2 = '47a10f710d828a5d4993dbc0bfecc0db';
-        $x->status = 1;
+        $x->enable_stats = 1;
+        $x->enable_suppression = 1;
         $x->save();
 
         // Part 2 - setup of export information
