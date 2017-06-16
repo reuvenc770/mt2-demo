@@ -25,6 +25,8 @@ class RawFeedEmailRepo {
 
     protected $standardFields = [
         'feed_id' => 0 ,
+        'party' => 0 ,
+        'realtime' => 0 ,
         'email_address' => 0 ,
         'source_url' => 0 ,
         'capture_date' => 0 ,
@@ -61,6 +63,8 @@ class RawFeedEmailRepo {
             INSERT INTO
                 raw_feed_emails (
                     feed_id ,
+                    party ,
+                    realtime ,
                     email_address ,
                     source_url ,
                     capture_date ,
@@ -228,6 +232,8 @@ class RawFeedEmailRepo {
 
         return "("
             . $pdo->quote( $record[ 'feed_id' ] ) . ","
+            . $pdo->quote( $record[ 'party' ] ) . ","
+            . $pdo->quote( $record[ 'realtime' ] ) . ","
             . $pdo->quote( $record[ 'email_address' ] ) . ","
             . $pdo->quote( $record[ 'source_url' ] ) . ","
             . ( isset( $record[ 'capture_date' ] ) ? $pdo->quote( $record[ 'capture_date' ] ) : 'NULL' ) . ","
