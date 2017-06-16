@@ -295,7 +295,7 @@ class Kernel extends ConsoleKernel
         /**
          * CMPTE Feed Ingestion
          */
-        $schedule->command( 'feedRecords:checkBatchCmpte' )->hourly(); // Job name like: BatchProcessingJob%
+        $schedule->command( 'feedRecords:checkBatchCmpte' )->everyThirtyMinutes(); // Job name like: BatchProcessingJob%
         $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyMinute(); // Job name like: BatchProcessingJob%
         $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
 

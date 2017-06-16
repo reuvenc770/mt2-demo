@@ -41,44 +41,160 @@ class RealtimeProcessingService extends RemoteFeedFileService {
     }
 
     protected function getValidDirectories () {
-        return [ [ 'directory' => '/var/local/programdata/done/mt2_realtime' , 'feedId' => 0 ] ];
+        return [
+            [ 'directory' => '/var/local/programdata/done/mt2_realtime' , 'feedId' => 0 ] ,
+            [ 'directory' => '/var/local/programdata/done/mt2_foodstamps' , 'feedId' => 3016 ] ,
+            [ 'directory' => '/var/local/programdata/done/mt2_hosting' , 'feedId' => 2961 ] ,
+            [ 'directory' => '/var/local/programdata/done/mt2_medicaid' , 'feedId' => 3018 ] ,
+            [ 'directory' => '/var/local/programdata/done/mt2_simplyjobs' , 'feedId' => 2983 ] ,
+            [ 'directory' => '/var/local/programdata/done/mt2_unemployment' , 'feedId' => 3017 ] ,
+        ];
     }
 
     protected function getFileColumnMap ( $feedId ) {
-        /**
-         * Mapping: $client_id,$email,$gender,$first_name,$last_name,$birth_date,$address,$address2,$city,$state,$zip,$country,$phone,$ip,$url,$domain_id,$cha_news,$customData
-         *
-         * Example: 3038|crqrtrkr@yahoo.com||Clarence Ray|Robinson||6414 Roxanne Dr||Fort Wayne|IN|46816||4192966104|70.198.65.55|http//www.bestmoneysearch.com|0|1|subid=14424-16778-501880;studentdebt=No;creditdebt=No;education=;
-         */
-        return [
-            'feed_id' ,
-            'email_address' ,
-            'gender' ,
-            'first_name' ,
-            'last_name' ,
-            'dob' ,
-            'address' ,
-            'address2' ,
-            'city' ,
-            'state' ,
-            'zip' ,
-            'country' ,
-            'phone' ,
-            'ip' ,
-            'source_url' ,
-            'domain_id' ,
-            'cha_news' ,
-            'capture_date' ,
-        ];
+        if ( $this->isSimplyJobs() ) {
+            return [
+                'city' ,
+                'email_address' ,
+                'first_name' ,
+                'last_name' ,
+                'state' ,
+                'source_url' ,
+                'zip' ,
+                'ip' ,
+                'ts' ,
+                'job_type' ,
+                'gradyear' ,
+                'salary' ,
+                'educationlevel' ,
+                'utm_source' ,
+                'password' ,
+                'sourceID' ,
+                'capture_date' ,
+            ];
+        } elseif ( $this->isOtherFirstPartyFormat() ) {
+            return [
+                'address' ,
+                'carowner' ,
+                'city' ,
+                'credit_score' ,
+                'datetime_collected',
+                'diabetes' ,
+                'dob_day' ,
+                'dob_month' ,
+                'dob_year' ,
+                'email_address' ,
+                'first_name' ,
+                'gender' ,
+                'have_car_insurance' ,
+                'have_personal_or_work_injury' ,
+                'height_ft' ,
+                'height_in' ,
+                'in_debt' ,
+                'in_debt_amount' ,
+                'interested_education' ,
+                'interested_faster_benefits_with_direct_deposit' ,
+                'interested_going_solar' ,
+                'interested_in_publishers_clearing_house' ,
+                'interested_in_uber_driving' ,
+                'interested_receiving_job_listing_by_email' ,
+                'interested_speak_health_insurance_specialist' ,
+                'interested_store_coupons' ,
+                'last_name' ,
+                'lead_code' ,
+                'lead_id_token' ,
+                'looking_for_job' ,
+                'phone' ,
+                'pregnant' ,
+                'ss_or_disability' ,
+                'state' ,
+                'step' ,
+                'tcpa_3' ,
+                'source_url',
+                'user_agent' ,
+                'user_date_time' ,
+                'ip',
+                'utm_source',
+                'weight_lbs' ,
+                'zip',
+                'sourceID' ,
+                'capture_date' ,
+            ];
+        } else {
+            /**
+             * Example: 3038|crqrtrkr@yahoo.com||Clarence Ray|Robinson||6414 Roxanne Dr||Fort Wayne|IN|46816||4192966104|70.198.65.55|http//www.bestmoneysearch.com|0|1|subid=14424-16778-501880;studentdebt=No;creditdebt=No;education=;
+             */
+            return [
+                'feed_id' ,
+                'email_address' ,
+                'gender' ,
+                'first_name' ,
+                'last_name' ,
+                'dob' ,
+                'address' ,
+                'address2' ,
+                'city' ,
+                'state' ,
+                'zip' ,
+                'country' ,
+                'phone' ,
+                'ip' ,
+                'source_url' ,
+                'domain_id' ,
+                'cha_news' ,
+                'capture_date' ,
+            ];
+        }
+    }
 
+    protected function isSpecificPathFeed ( $feedName ) {
+        return ( strpos( $this->currentFile[ 'path' ] , $feedName ) !== false );
+    }
+
+    protected function isSimplyJobs () {
+        return $this->isSpecificPathFeed ( 'simplyjobs' );
+    }
+
+    protected function isFoodStamps () {
+        return $this->isSpecificPathFeed ( 'foodstamps' );
+    }
+
+    protected function isSection8 () {
+        return $this->isSpecificPathFeed ( 'hosting' );
+    }
+
+    protected function isMedicaid () {
+        return $this->isSpecificPathFeed ( 'medicaid' );
+    }
+
+    protected function isUnemployment () {
+        return $this->isSpecificPathFeed ( 'unemployment' );
+    }
+
+    protected function isOtherFirstPartyFormat () {
+        return ( $this->isFoodStamps() || $this->isSection8() || $this->isMedicaid() || $this->isUnemployment() );
     }
 
     protected function extractData ( $csvLine ) {
-        /**
-         * TODO:
-         *
-         * - Look for pipes in the custom field section at the end of the line. This will cause mismatching columns and values
-         */
+        if ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ) {
+            $this->extractDataFirstParty( $csvLine );
+        } else {
+            $this->extractDataNormal( $csvLine );
+        }
+    }
+
+    protected function extractDataFirstParty ( $csvLine ) {
+        $reader = Reader::createFromString( trim( $csvLine ) );
+        $reader->setDelimiter( '|' );
+
+        $columns = $reader->fetchOne();
+
+        array_push( $columns , \Carbon\Carbon::now()->toDateTimeString() );
+
+        return $columns;
+    }
+
+    protected function extractDataNormal ( $csvLine ) {
         $reader = Reader::createFromString( trim( $csvLine ) );
         $reader->setDelimiter( '|' );
         $columns = $reader->fetchOne();
@@ -122,8 +238,15 @@ class RealtimeProcessingService extends RemoteFeedFileService {
         }
 
         $record = array_combine( $currentColumnMap , $lineColumns );
-        $record[ 'party' ] = $this->feedService->getPartyFromId( $record[ 'feed_id' ] );
         $record[ 'realtime' ] = 1;
+
+        if ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ) { 
+            $record[ 'party' ] = 1;
+            $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+        } else {
+            $record[ 'party' ] = $this->feedService->getPartyFromId( $record[ 'feed_id' ] );
+        }
+
 
         if ( $record[ 'dob' ] == '0000-00-00' ) {
             unset( $record[ 'dob' ] );
