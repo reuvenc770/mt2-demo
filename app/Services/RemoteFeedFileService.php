@@ -287,7 +287,7 @@ class RemoteFeedFileService {
                 $rawRecord ,
                 $this->currentFile[ 'path' ] ,
                 $lineNumber ,
-                ( $record[ 'email_address' ] ? : '' ) ,
+                ( isset( $record[ 'email_address' ] ) ? $record[ 'email_address' ] : '' ) ,
                 $record[ 'feed_id' ]
             );
 
