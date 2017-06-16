@@ -111,6 +111,7 @@ class Kernel extends ConsoleKernel
         Commands\CompareMt1AndCmpExports::class,
         Commands\CheckBatchFeedProcessingCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
+        Commands\GetFirstPartyRecords::class,
 ];
 
     /**
