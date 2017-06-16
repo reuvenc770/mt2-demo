@@ -288,9 +288,9 @@ class Kernel extends ConsoleKernel
         /**
          * CMPTE Feed Ingestion
          */
+        $schedule->command( 'feedRecords:checkBatchCmpte' )->everyThirtyMinutes(); // Job name like: BatchProcessingJob%
         $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyMinute(); // Job name like: BatchProcessingJob%
         $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
-        $schedule->command( 'feedRecords:checkBatchCmpte' )->hourly(); //Command only 
 
         // Process first party feeds, by feed id. This list is dynamic.
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');

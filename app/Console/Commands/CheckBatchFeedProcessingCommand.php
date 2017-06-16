@@ -75,7 +75,7 @@ class CheckBatchFeedProcessingCommand extends Command
         $findOptions = [
             '-type f' ,
             '-mtime -1' ,
-            '-mmin +2' ,
+            '-mmin +45' ,
             ' -not -path "/home/mt1/*"' ,
             "\( -name '*.csv' -o -name '*.txt' \)" ,
             '-print' 
@@ -88,6 +88,14 @@ class CheckBatchFeedProcessingCommand extends Command
 
             if ( $files = $this->remote->getRecentFiles( '/home/' . $currentFeedName , $findOptions ) ) {
                 Slack::to( self::SLACK_CHANNEL )->send( "Found Orange Feed Files which were not migrated to MT1 folders. File List:\n" . $files ); 
+
+                foreach ( explode( "\n" , $newFileString ) as $orangeFile ) {
+                    if ( $orangeFile !== '' ) {
+                        \Log::info( 'Moving orange file ' . $orangeFile );
+                        $newPath = '/home/mt1' . str_replace( '/home' , '' , $orangeFile ); 
+                        $output = $this->remote->moveFile( $orangeFile , $newPath );
+                    }
+                }
             }
         }
     }
@@ -114,7 +122,6 @@ class CheckBatchFeedProcessingCommand extends Command
                         \Log::debug( 'Moving red file ' . $redFile );
                         $newPath = '/home/mt1' . str_replace( '/home' , '' , $redFile ); 
                         $output = $this->remote->moveFile( $redFile , $newPath );
-                        \Log::debug( $redFile . ' output: ' . $output );
                     }
                 }
             }
