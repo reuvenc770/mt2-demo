@@ -108,6 +108,7 @@ class Kernel extends ConsoleKernel
         Commands\SimpleTestCommand::class,
         Commands\RunTimeMonitorCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
+        Commands\GetFirstPartyRecords::class,
 ];
 
     /**
