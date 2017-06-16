@@ -93,4 +93,18 @@ class NotificationScheduleRepo {
     public function getModel () {
         return $this->schedules;
     }
+
+    public function getUnscheduledLogs () {
+        $result = $this->logs
+            ->select( 'notification_logs.content_key' , 'notification_logs.content' )
+            ->leftJoin( 'notification_schedules as ns' , 'notification_logs.content_key' , '=' , 'ns.content_key' )
+            ->where( 'ns.id' , null )
+            ->groupBy( 'notification_logs.content_key' );
+
+        if ( $result->count() <= 0 ) {
+            return [];
+        }
+
+        return $result->get()->toArray();
+    }
 }

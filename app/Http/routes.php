@@ -1404,8 +1404,13 @@ Route::group(
         Route::resource(
             'notifications',
             'ScheduledNotificationController',
-            [ 'except' => ['index','create', 'edit']]
+            [ 'except' => ['index','show','create', 'edit']]
         );
+
+        Route::get('/notifications/unscheduled', [
+            'as' => 'api.notifications.unscheduled',
+            'uses' => 'ScheduledNotificationController@getUnscheduledLogs'
+        ]);
 
         /**
          * Admin Level API Group

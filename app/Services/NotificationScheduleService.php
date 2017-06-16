@@ -36,4 +36,8 @@ class NotificationScheduleService {
     public function getLogs ( $contentType , $lookback ) {
         return $this->repo->getLogs( $contentType , $lookback );
     }
+
+    public function getUnscheduledLogs () {
+        return $this->repo->getUnscheduledLogs();
+    }
 }

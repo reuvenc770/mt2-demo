@@ -13,4 +13,11 @@ mt2App.service( 'ScheduledNotificationApiService' , [ '$http' ,  function ( $htt
             "params" : { "page" : page , "count" : count } //, 'sort' : sort }
         } ).then( successCallback , failureCallback );
     };
+
+    self.getUnscheduledKeys = function ( successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" , 
+            "url" : self.baseApiUrl + '/unscheduled'
+        } ).then( successCallback , failureCallback );
+    };
 } ] );
