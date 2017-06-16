@@ -131,7 +131,7 @@ class RemoteLinuxSystemService {
     public function getFileLineCount ( $filePath ) {
         $command = sprintf( self::GET_FILE_LINE_COUNT_COMMAND , trim( $filePath ) );
 
-        $stream = ssh2_exec( $this->sshConnection , $command ); # , self::PSEUDO_TTY_FLAG );
+        $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
         $contentString = $this->getOutput( $stream ); #, SSH2_STREAM_STDERR );
 
