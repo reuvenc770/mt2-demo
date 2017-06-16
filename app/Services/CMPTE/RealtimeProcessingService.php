@@ -177,9 +177,9 @@ class RealtimeProcessingService extends RemoteFeedFileService {
 
     protected function extractData ( $csvLine ) {
         if ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ) {
-            $this->extractDataFirstParty( $csvLine );
+            return $this->extractDataFirstParty( $csvLine );
         } else {
-            $this->extractDataNormal( $csvLine );
+            return $this->extractDataNormal( $csvLine );
         }
     }
 
