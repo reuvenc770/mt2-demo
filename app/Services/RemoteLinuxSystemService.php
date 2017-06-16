@@ -64,13 +64,13 @@ class RemoteLinuxSystemService {
     }
 
     public function createDirectory ( $directory ) {
-        $command = sprintf( self::CREATE_DIR_COMMAND , trim( $directory ) );
+        $command = sprintf( self::CREATE_DIR_COMMAND , $this->cleanPath( $directory ) );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
         
     public function createUser ( $username , $directory ) {
-        $command = sprintf( self::CREATE_USER_COMMAND , trim( $directory ) , trim( $username ) );
+        $command = sprintf( self::CREATE_USER_COMMAND , $this->cleanPath( $directory ) , trim( $username ) );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
@@ -82,19 +82,19 @@ class RemoteLinuxSystemService {
     }       
         
     public function setDirectoryOwner ( $username , $directory ) {
-        $command = sprintf( self::CHANGE_DIR_OWNER_COMMAND , trim( $username ) , trim( $directory ) );
+        $command = sprintf( self::CHANGE_DIR_OWNER_COMMAND , trim( $username ) , $this->cleanPath( $directory ) );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
         
     public function setDirectoryPermissions ( $directory ) {
-        $command = sprintf( self::CHANGE_DIR_PERMS_COMMAND , trim( $directory ) );
+        $command = sprintf( self::CHANGE_DIR_PERMS_COMMAND , $this->cleanPath( $directory ) );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
 
     public function listDirectories ( $directory ) {
-        $command = sprintf( self::LIST_DIRECTORIES_COMMAND , trim( $directory ) );
+        $command = sprintf( self::LIST_DIRECTORIES_COMMAND , $this->cleanPath( $directory ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
@@ -106,13 +106,13 @@ class RemoteLinuxSystemService {
     }
 
     public function appendEofToFile ( $filePath ) {
-        $command = sprintf( self::APPEND_EOF_COMMAND , trim( $filePath ) );
+        $command = sprintf( self::APPEND_EOF_COMMAND , $this->cleanPath( $filePath ) );
     
         ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
     }
 
     public function getFileContentSlice ( $filePath , $firstLine , $lastLine ) {
-        $command = sprintf( self::GET_CONTENT_SLICE_COMMAND , $firstLine , $lastLine , $filePath );
+        $command = sprintf( self::GET_CONTENT_SLICE_COMMAND , $firstLine , $lastLine , $this->cleanPath( $filePath ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
@@ -129,7 +129,7 @@ class RemoteLinuxSystemService {
     }
 
     public function getFileLineCount ( $filePath ) {
-        $command = sprintf( self::GET_FILE_LINE_COUNT_COMMAND , trim( $filePath ) );
+        $command = sprintf( self::GET_FILE_LINE_COUNT_COMMAND , $this->cleanPath( $filePath ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
@@ -139,7 +139,7 @@ class RemoteLinuxSystemService {
     }
 
     public function directoryExists ( $directory ) {
-        $command = sprintf( self::DIRECTORY_EXISTS_COMMAND , trim( $directory ) );
+        $command = sprintf( self::DIRECTORY_EXISTS_COMMAND , $this->cleanPath( $directory ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 
@@ -160,7 +160,7 @@ class RemoteLinuxSystemService {
 
         $optionString = implode( ' ' , $defaultOptions );
 
-        $command = sprintf( self::FIND_RECENT_FILES_COMMAND , trim( $directory ) , $optionString );
+        $command = sprintf( self::FIND_RECENT_FILES_COMMAND , $this->cleanPath( $directory ) , $optionString );
 
         $stream = ssh2_exec( $this->sshConnection , $command ,  self::PSEUDO_TTY_FLAG );
 
@@ -176,7 +176,7 @@ class RemoteLinuxSystemService {
     }
 
     public function moveFile ( $source , $destination ) {
-        $command = sprintf( self::MOVE_FILE_COMMAND , trim( $source ) , trim( $destination ) );
+        $command = sprintf( self::MOVE_FILE_COMMAND , $this->cleanPath( $source ) , $this->cleanPath( $destination ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
@@ -184,7 +184,7 @@ class RemoteLinuxSystemService {
     }
 
     public function deleteFile ( $file ) {
-        $command = sprintf( self::DELETE_FILE_COMMAND , trim( $file ) );
+        $command = sprintf( self::DELETE_FILE_COMMAND , $this->cleanPath( $file ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
@@ -195,5 +195,9 @@ class RemoteLinuxSystemService {
         stream_set_blocking( $stream , true );
         $stream_out = ssh2_fetch_stream( $stream , $streamId );
         return stream_get_contents( $stream_out );
+    }
+    
+    protected function cleanPath ( $path ) {
+        return str_replace( ' ' , '\ ' , trim( $path ) );
     }
 }
