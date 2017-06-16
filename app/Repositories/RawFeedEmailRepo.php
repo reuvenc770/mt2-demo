@@ -151,7 +151,7 @@ class RawFeedEmailRepo {
                     ->limit(1500)
                     ->get();
 
-        foreach ($records as $email) {
+        foreach ($records as $record) {
             $search = $this->email
                 ->selectRaw("email_domain_id, domain_group_id, emails.id as email_id")
                 ->where('email_address', $record->email_address)
