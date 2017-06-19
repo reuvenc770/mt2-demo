@@ -59,7 +59,9 @@ class ListProfileService
         'short_name' => "Feed Short Name",
         'client_name'  =>  "Client",
         'subscribe_date'  =>  'Registration Date',
-        'tower_date'  =>  'Tower Date'
+        'tower_date'  =>  'Tower Date',
+        'action_date' => 'Action Date',
+        'action_status' => 'Action Status'
     ];
 
     // set up unique column. 'email_id' will always be in place so we can hardcode this
