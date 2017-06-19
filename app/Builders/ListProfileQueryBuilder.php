@@ -71,8 +71,8 @@ class ListProfileQueryBuilder {
             'device_type' => 'rd.device_type',
             'device_name' => 'rd.device_name',
             'carrier' => 'rd.carrier',
-            'action_status' => 'rd.last_action_type',
-            'action_date' => 'rd.last_action_date',
+            'action_status' => DB::raw('rd.last_action_type as action_status'),
+            'action_date' => DB::raw('rd.last_action_date as action_date'),
             'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
             'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
         ];
