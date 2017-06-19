@@ -133,12 +133,12 @@ class RemoteFeedFileService {
                 if (
                     $newFileString !== ''
                     && ProcessedFeedFile::find( $newFile ) === null
-                    && !Cache::tags('realtime_feed_processing')->has( $newFile )
+                    && !Cache::tags('realtime_feed_processing')->has( trim( $newFile ) )
                     && $count <= 5
                 ) {
                     $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 ];
 
-                    Cache::tags('realtime_feed_processing')->forever( $newFile , 1 );
+                    Cache::tags('realtime_feed_processing')->put( trim( $newFile ) , 1 , Carbon::now()->addMinutes( 20 ) );
 
                     $count++;
                 }
@@ -176,7 +176,7 @@ class RemoteFeedFileService {
             if ( $this->currentFileLineCount === 0 ) {
                 $this->markFileAsProcessed();
 
-                Cache::tags('realtime_feed_processing')->forget( $this->currentFile[ 'path' ] );
+                Cache::tags('realtime_feed_processing')->forget( trim( $this->currentFile[ 'path' ] ) );
 
                 array_shift( $this->newFileList );
 
@@ -195,7 +195,7 @@ class RemoteFeedFileService {
 
                 $this->markFileAsProcessed();
 
-                Cache::tags('realtime_feed_processing')->forget( $this->currentFile[ 'path' ] );
+                Cache::tags('realtime_feed_processing')->forget( trim( $this->currentFile[ 'path' ] ) );
                 
                 $this->lastFileProcessed = array_shift( $this->newFileList );
 
