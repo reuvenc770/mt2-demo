@@ -68,7 +68,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()} on {$e->getFile}:{$e->getLine()}" . PHP_EOL;
+                echo "{$this->jobName} failed with {$e->getMessage()} on {$e->getFile()}:{$e->getLine()}" . PHP_EOL;
                 $this->failed();
             }
             finally {

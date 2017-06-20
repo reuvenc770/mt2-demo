@@ -411,7 +411,7 @@ class ListProfileService
     }
 
 
-    private function isUnique($field, $row) {
+    private function isUnique($field, $value) {
         return $this->baseTableService->isUnique($field, $value);
     }
 
