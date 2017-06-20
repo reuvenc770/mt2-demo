@@ -7,6 +7,7 @@ namespace App\Services;
 
 use App\Repositories\NotificationScheduleRepo;
 use App\Services\ServiceTraits\PaginateList;
+use Storage;
 
 class NotificationScheduleService {
     use PaginateList;
@@ -39,5 +40,47 @@ class NotificationScheduleService {
 
     public function getUnscheduledLogs () {
         return $this->repo->getUnscheduledLogs();
+    }
+
+    public function getContentKeys () {
+        return $this->repo->getDistinctContentKeys();
+    }
+
+    public function getEmailTemplates () {
+        $files = Storage::disk( 'views' )->files( 'emails' );
+
+        $names = [];
+
+        foreach ( $files as $fileName ) {
+            $matches = [];
+            preg_match( '/\w+\/(\w+).blade.php/' , $fileName , $matches );
+
+            $names []= 'emails.' . $matches[1]; 
+        }
+
+        return $names;
+    }
+
+    public function getSlackTemplates () {
+        $files = Storage::disk( 'views' )->files( 'slack' );
+
+        $names = [];
+
+        foreach ( $files as $fileName ) {
+            $matches = [];
+            preg_match( '/\w+\/(\w+).blade.php/' , $fileName , $matches );
+
+            $names []= 'slack.' . $matches[1]; 
+        }
+
+        return $names;
+    }
+
+    public function updateOrCreate ( $fields ) {
+        return $this->repo->updateOrCreate( $fields );
+    }
+
+    public function toggleStatus ( $id , $currentStatus ) {
+        return $this->repo->toggleStatus( $id , $currentStatus );
     }
 }

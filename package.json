@@ -9,6 +9,7 @@
     "angular-animate": "^1.5.0",
     "angular-aria": "^1.5.0",
     "angular-cookies": "^1.5.8",
+    "angular-cron-jobs": "^3.2.0",
     "angular-drag-and-drop-lists": "^1.4.0",
     "angular-ivh-treeview": "^1.0.3",
     "angular-material": "^1.0.5",

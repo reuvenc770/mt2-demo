@@ -1412,6 +1412,21 @@ Route::group(
             'uses' => 'ScheduledNotificationController@getUnscheduledLogs'
         ]);
 
+        Route::get('/notifications/emailtemplates', [
+            'as' => 'api.notifications.emailtemplates',
+            'uses' => 'ScheduledNotificationController@getEmailTemplates'
+        ]);
+
+        Route::get('/notifications/slacktemplates', [
+            'as' => 'api.notifications.slacktemplates',
+            'uses' => 'ScheduledNotificationController@getSlackTemplates'
+        ]);
+
+        Route::get('/notifications/contentkey', [
+            'as' => 'api.notifications.contentkey',
+            'uses' => 'ScheduledNotificationController@getContentKeys'
+        ]);
+
         /**
          * Admin Level API Group
          */

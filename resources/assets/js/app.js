@@ -12,7 +12,8 @@ var mt2App = angular.module( 'mt2App' , [
     'ivh.treeview' ,
     'md.data.table',
     'headroom' ,
-    'dndLists'
+    'dndLists' ,
+    'angular-cron-jobs'
 ] );
 
 mt2App.config( function ( $locationProvider ,$mdThemingProvider, ivhTreeviewOptionsProvider ) {

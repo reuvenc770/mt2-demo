@@ -8,10 +8,14 @@ namespace App\Repositories;
 use App\Models\NotificationSchedule;
 use App\Models\NotificationLog;
 
+use App\Repositories\Traits\ToggleBooleanColumn;
+
 use Carbon\Carbon;
 use Cron\CronExpression;
 
 class NotificationScheduleRepo {
+    use ToggleBooleanColumn;
+
     protected $schedules;
     protected $logs;
 
@@ -106,5 +110,28 @@ class NotificationScheduleRepo {
         }
 
         return $result->get()->toArray();
+    }
+
+    public function getDistinctContentKeys () {
+        return collect( \DB::select( 'select distinct( `content_key` ) from notification_logs' ) )->pluck( 'content_key' )->toArray(); 
+    }
+
+    public function updateOrCreate ( $fields ) {
+        $id = null;
+
+        if ( isset( $fields[ 'id' ] ) && is_numeric( $fields[ 'id' ] ) ) {
+            $id = $fields[ 'id' ];
+        }
+
+        return $this->schedules->updateOrCreate( [ 'id' => $id ] , $fields );
+    }
+
+    public function toggleStatus ( $id , $currentStatus ) {
+        return $this->toggleBooleanColumn(
+            $this->schedules ,
+            $id , 
+            'status' ,
+            $currentStatus
+        );        
     }
 }

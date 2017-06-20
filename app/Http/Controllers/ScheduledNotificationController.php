@@ -33,7 +33,9 @@ class ScheduledNotificationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = json_decode( ( $request->all() )[ 'data' ] , true );
+
+        return response()->json( $this->service->updateOrCreate( $data ) );
     }
 
     /**
@@ -45,7 +47,12 @@ class ScheduledNotificationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        unset( $data[ 'status' ] );
+        unset( $data[ 'created_at' ] );
+        unset( $data[ 'updated_at' ] );
+
+        return response()->json( $this->service->updateOrCreate( $data ) );
     }
 
     /**
@@ -54,12 +61,24 @@ class ScheduledNotificationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy( Request $request , $id )
     {
-        //disable notification
+        return response()->json( $this->service->toggleStatus( $id , $request->input( 'currentStatus' ) ) );
     }
 
     public function getUnscheduledLogs () {
         return response()->json( $this->service->getUnscheduledLogs() );
+    }
+
+    public function getEmailTemplates () {
+        return response()->json( $this->service->getEmailTemplates() );
+    }
+
+    public function getSlackTemplates () {
+        return response()->json( $this->service->getSlackTemplates() );
+    }
+
+    public function getContentKeys () {
+        return response()->json( $this->service->getContentKeys() );
     }
 }
