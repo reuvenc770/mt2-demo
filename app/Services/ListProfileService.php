@@ -272,7 +272,7 @@ class ListProfileService
             $resource = $query->cursor();
 
             foreach ($resource as $row) {
-                if ($this->isUnique($tag, $this->uniqueColumn, $row->{$this->uniqueColumn})) {
+                if ($this->isUnique($listProfileTag, $this->uniqueColumn, $row->{$this->uniqueColumn})) {
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
                     $this->batch($row, $listProfileTag);
