@@ -43,4 +43,8 @@ class ListProfileBaseTableRepo {
         }
         
     }
+
+    public function exists($field, $value) {
+        return $this->model->where($field, $value) > 0;
+    }
 }
