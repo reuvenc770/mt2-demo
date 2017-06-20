@@ -25,7 +25,7 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->statement("TRUNCATE suppression_list_suppression");
+        DB::connection('redshift')->statement("TRUNCATE suppression_list_suppressions");
 
         $sql = <<<SQL
 copy suppression_list_suppressions

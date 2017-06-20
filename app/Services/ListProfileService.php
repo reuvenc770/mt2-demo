@@ -11,12 +11,11 @@ namespace App\Services;
 
 use App\Repositories\ListProfileRepo;
 use App\Builders\ListProfileQueryBuilder;
-use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
 use App\Services\ListProfileBaseTableCreationService;
 use App\Services\ServiceTraits\PaginateList;
-        use Log;
+use Log;
 
 class ListProfileService
 {
@@ -59,7 +58,9 @@ class ListProfileService
         'short_name' => "Feed Short Name",
         'client_name'  =>  "Client",
         'subscribe_date'  =>  'Registration Date',
-        'tower_date'  =>  'Tower Date'
+        'tower_date'  =>  'Tower Date',
+        'action_date' => 'Action Date',
+        'action_status' => 'Action Status'
     ];
 
     // set up unique column. 'email_id' will always be in place so we can hardcode this
@@ -254,8 +255,6 @@ class ListProfileService
         $queryNumber = 1;
         $totalCount = 0;
 
-        $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
-
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
 
@@ -271,8 +270,7 @@ class ListProfileService
             $resource = $query->cursor();
 
             foreach ($resource as $row) {
-                if ($this->isUnique($listProfileTag, $row)) {
-                    $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
+                if ($this->isUnique($this->uniqueColumn, $row->{$this->uniqueColumn})) {
                     $row = $this->mapDataToColumns($columns, $row);
                     $this->batch($row);
                     $totalCount++;
@@ -284,7 +282,6 @@ class ListProfileService
             $queryNumber++;
         }
 
-        Cache::tags($listProfileTag)->flush();
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
     }
 
@@ -414,8 +411,8 @@ class ListProfileService
     }
 
 
-    private function isUnique($tag, $row) {
-        return is_null(Cache::tags($tag)->get($row->{$this->uniqueColumn}));
+    private function isUnique($field, $row) {
+        return $this->baseTableService->isUnique($field, $value);
     }
 
     private function buildDisplayColumns(array $columns) {
@@ -431,10 +428,6 @@ class ListProfileService
         return $output;
     }
 
-
-    private function saveToCache($tag, $value) {
-        Cache::tags($tag)->put($value, 1, self::ROW_STORAGE_TIME);
-    }
 
     public function cloneProfile($id){
         $currentProfile = $this->profileRepo->getProfile($id);
