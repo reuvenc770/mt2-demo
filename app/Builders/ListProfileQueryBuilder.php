@@ -274,6 +274,11 @@ class ListProfileQueryBuilder {
                     $query = $query->join("clients as c", 'f.client_id', '=', 'c.id');
                 }
             }
+            
+            if (sizeof($this->feedIds) > 0) {
+                // Get everything from the selected feeds
+                $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $this->feedIds) . ')');
+            }
         }
 
         return $query;
