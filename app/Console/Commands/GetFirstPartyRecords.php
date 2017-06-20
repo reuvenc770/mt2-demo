@@ -3,10 +3,11 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Jobs\AttributionBatchProcessJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Console\Commands\ProcessFeedRecords;
+use App\Repositories\FeedRepo;
 
-class AttributionBatchProcess extends Command
+class GetFirstPartyRecords extends Command
 {
     use DispatchesJobs;
     /**
@@ -14,16 +15,15 @@ class AttributionBatchProcess extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:processBatch {data}';
+    protected $signature = 'feedRecords:firstParty';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process attribution for the following group of records.';
+    protected $description = 'Execute calls for first party record processing.';
 
-    private $queue = 'attribution';
     /**
      * Create a new command instance.
      *
@@ -38,9 +38,14 @@ class AttributionBatchProcess extends Command
      *
      * @return mixed
      */
-    public function handle() {
-        $data = $this->argument('data');
-        $job = (new AttributionBatchProcessJob($data, str_random(16)))->onQueue($this->queue);
-        $this->dispatch($job);
+    public function handle(FeedRepo $repo) {
+        $feeds = $repo->getFeedsForParty(1);
+
+        foreach($feeds as $feed) {
+            $this->call('feedRecords:process', [
+                'party' => 1,
+                '--feed' => $feed->id
+            ]);
+        }
     }
 }
