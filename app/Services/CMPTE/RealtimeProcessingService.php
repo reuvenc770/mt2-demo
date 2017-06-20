@@ -16,6 +16,12 @@ use App\Models\MT1Models\User as Feeds;
 use League\Csv\Reader;
 
 class RealtimeProcessingService extends RemoteFeedFileService {
+    const FOODSTAMP_FEED_ID = 3016;
+    const SECTION8_FEED_ID = 2961;
+    const MEDICAID_FEED_ID = 3018;
+    const SIMPLYJOBS_FEED_ID = 2983;
+    const UNEMPLOYMENT_FEED_ID = 3017;
+
     protected $serviceName = 'RealtimeProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $currentCustomFields = [];
@@ -118,6 +124,8 @@ class RealtimeProcessingService extends RemoteFeedFileService {
                 'weight_lbs' ,
                 'zip',
                 'sourceID' ,
+                'client_date' , 
+                'misc' ,
                 'capture_date' ,
             ];
         } else {
@@ -177,9 +185,9 @@ class RealtimeProcessingService extends RemoteFeedFileService {
 
     protected function extractData ( $csvLine ) {
         if ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ) {
-            $this->extractDataFirstParty( $csvLine );
+            return $this->extractDataFirstParty( $csvLine );
         } else {
-            $this->extractDataNormal( $csvLine );
+            return $this->extractDataNormal( $csvLine );
         }
     }
 
@@ -242,13 +250,18 @@ class RealtimeProcessingService extends RemoteFeedFileService {
 
         if ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ) { 
             $record[ 'party' ] = 1;
-            $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+
+            if ( $this->isFoodStamps()   )  { $record[ 'feed_id' ] = self::FOODSTAMP_FEED_ID; }
+            if ( $this->isSection8()     )  { $record[ 'feed_id' ] = self::SECTION8_FEED_ID; }
+            if ( $this->isMedicaid()     )  { $record[ 'feed_id' ] = self::MEDICAID_FEED_ID; }
+            if ( $this->isSimplyJobs()   )  { $record[ 'feed_id' ] = self::SIMPLYJOBS_FEED_ID; }
+            if ( $this->isUnemployment() )  { $record[ 'feed_id' ] = self::UNEMPLOYMENT_FEED_ID; }
         } else {
             $record[ 'party' ] = $this->feedService->getPartyFromId( $record[ 'feed_id' ] );
         }
 
 
-        if ( $record[ 'dob' ] == '0000-00-00' ) {
+        if ( isset( $record[ 'dob' ] ) && $record[ 'dob' ] == '0000-00-00' ) {
             unset( $record[ 'dob' ] );
         } 
 
