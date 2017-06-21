@@ -11,7 +11,7 @@ class AddDatabaseandDimaTables extends Migration
      * @return void
      */
     public function up()
-    {
+    {/*
         $createStatement = 'CREATE DATABASE dima_data';
 
         if ( env( 'APP_ENV' ) == 'testing' ) {
@@ -35,6 +35,7 @@ class AddDatabaseandDimaTables extends Migration
             $table->unique(['contact_id','action_type','recorded_at']);
 
         });
+        */
     }
 
     /**
@@ -43,13 +44,13 @@ class AddDatabaseandDimaTables extends Migration
      * @return void
      */
     public function down()
-    {
+    {/*
         $dropStatement = 'Drop DATABASE dima_data';
 
         if ( env( 'APP_ENV' ) == 'testing' ) {
             $dropStatement .= '_test';
         }
 
-        DB::statement( $dropStatement );
+        DB::statement( $dropStatement );*/
     }
 }

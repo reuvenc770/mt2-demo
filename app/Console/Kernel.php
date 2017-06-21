@@ -107,6 +107,8 @@ class Kernel extends ConsoleKernel
         Commands\ResetUserPasswordCommand::class,
         Commands\SimpleTestCommand::class,
         Commands\RunTimeMonitorCommand::class,
+        Commands\BestMoneySearchGetResponseContactUploadCommand::class,
+        Commands\GetFirstPartyRecords::class,
 ];
 
     /**
@@ -142,7 +144,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP EmailDirect 5 --runtime-threshold=2m')->cron('0 */4 * * * *');
         $schedule->command('suppression:downloadESP Publicators 5 --runtime-threshold=6m')->cron('0 */4 * * * *');
         $schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=4m')->cron('0 */4 * * * *');
-        $schedule->command('suppression:downloadESP AWeber 5 --runtime-threshold=1h')->cron('0 */4 * * * *');
+        #$schedule->command('suppression:downloadESP AWeber 5 --runtime-threshold=1h')->cron('0 */4 * * * *');
 
         $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
@@ -159,7 +161,7 @@ class Kernel extends ConsoleKernel
         $filePath = storage_path('logs')."/downloadAPI.log";
         $schedule->command('reports:downloadApi BlueHornet --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40 --runtime-threshold=5m')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
+        #$schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40 --runtime-threshold=5m')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
@@ -176,14 +178,14 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('reports:downloadApi BlueHornet --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber --daysBack=31 --apiLimit=200 --runtime-threshold=15m')->monthly()->sendOutputTo($filePath);
+        #$schedule->command('reports:downloadApi AWeber --daysBack=31 --apiLimit=200 --runtime-threshold=15m')->monthly()->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath);
         #$schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
+        #$schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
 
         /**
          * Record-level Data
@@ -202,7 +204,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 10,22 * * * *');
         $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        #$schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath); // Job name like: PopulateEmailCampaignStats, PullCakeDeliverableStats
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
@@ -273,15 +275,14 @@ class Kernel extends ConsoleKernel
         /**
          *  List profile jobs
          */
-
-        $schedule->command('listprofile:dataEtl --runtime-threshold=2m')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3
+        $schedule->command('listprofile:dataEtl  --runtime-threshold=2m')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3
         $schedule->command('listprofile:dataEtl --all --runtime-threshold=5m')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize --runtime-threshold=1h')->weekly();
         $schedule->command('listprofile:aggregateActions --runtime-threshold=6h')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation
         $schedule->command('listprofile:contentServerRawStats --runtime-threshold=5m')->hourly(); // Job name: ProcessContentServerRawStats
         $schedule->command('listprofile:getRecordAgentData 2 --runtime-threshold=40m')->hourly(); // Job name: ContentServerDeviceData
         $schedule->command('listprofile:baseTables --runtime-threshold=1h')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
-        $schedule->command('listprofile:validateRedshift 1 --runtime-threshold=10h')->cron('0 4 * * * *'); // Job names like: DataValidation & upper-case entity
+        $schedule->command('listprofile:validateRedshift 1 --runtime-threshold=10h')->cron('0 6 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
          * Feed File Processing
@@ -290,15 +291,8 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
 
-        // Currently commented-out. Waiting for everything going live
-        // Process first party feeds, by feed id
-        #$schedule->command('feedRecords:process 1 --feed=2983')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2971')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2972')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2987')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2759')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2798')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
+        // Process first party feeds, by feed id. This list is dynamic.
+        #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
         $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%
@@ -322,9 +316,9 @@ class Kernel extends ConsoleKernel
         /**
          * AWeber Jobs
          */
-        $schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath); // Job name like: ProcessAweberUniques
-        $schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME); // Job name: AWeberUpdateLists
-        $schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath); // Job name: AWeberActionImmigration
+        #$schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath); // Job name like: ProcessAweberUniques
+        #$schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME); // Job name: AWeberUpdateLists
+        #$schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath); // Job name: AWeberActionImmigration
 
 
         /**
@@ -341,5 +335,10 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("newActions:process --hoursBack=2 --runtime-threshold=20m")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
+        
+        /**
+         * Custom Stuff
+         */
+        $schedule->command("EspContactUpload:BestMoneySearch")->everyMinute(); //Job name: BestMoneySearchGetResponseContactUploadJob
     }
 }

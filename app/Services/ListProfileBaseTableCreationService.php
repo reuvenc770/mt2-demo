@@ -55,4 +55,8 @@ class ListProfileBaseTableCreationService {
     public function massInsert($rows) {
         $this->repo->insert($rows);
     }
+
+    public function isUnique($field, $value) {
+        return !$this->repo->exists($field, $value);
+    }
 }

@@ -58,7 +58,7 @@ class RecordDataRedshiftDataValidation extends AbstractLargeRedshiftDataValidati
                     $this->badDays[$day] = ['cmpCount' => $count, 'rsCount' => $rsCount];
                 }
             }
-            elseif (!$this->equal($count, 0)) {
+            elseif (!$this->isEqual($count, 0)) {
                 // bad news, or just a new feed
                 $this->badDays[$day] = ['cmpCount' => $count, 'rsCount' => 0];
             }

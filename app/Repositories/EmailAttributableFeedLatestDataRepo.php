@@ -196,7 +196,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
 
         $union2 = $this->model
@@ -209,7 +209,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
 
         return $this->model
@@ -224,7 +224,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
     }
 
@@ -240,7 +240,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
 
         $union2 = $this->model
@@ -253,7 +253,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
 
         return $this->model
@@ -268,7 +268,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
     }
 
@@ -286,7 +286,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
 
         $union2 = $this->model
@@ -299,7 +299,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
 
         return $this->model
@@ -314,7 +314,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'last_action_type', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
     }
 
@@ -341,6 +341,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
             . $pdo->quote(str_replace('"', '', $row->carrier)) . ','
             . $pdo->quote($row->capture_date) . ','
             . $pdo->quote($row->subscribe_date) . ','
+            . $pdo->quote($row->last_action_type) . ','
             . $pdo->quote($row->last_action_offer_id) . ','
             . $pdo->quote($row->last_action_date) . ','
             . $pdo->quote($row->other_fields) . ','
@@ -475,13 +476,17 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     }
 
     public function matches($obj) {
-        $result = $this->model->where('email_id', $obj->email_id)
+        $attrDb = config('database.connections.attribution.database');
+        $result = $this->model->where('tpes.email_id', $obj->email_id)
                     ->join('third_party_email_statuses as tpes', 'email_attributable_feed_latest_data.email_id', '=', 'tpes.email_id')
+                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.email_id', '=', 'efa.email_id')
+                    ->selectRaw("email_attributable_feed_latest_data.*, tpes.last_action_type")
                     ->first();
 
         if ($result) {
-            $isDeliverable = $result->last_action_type === 'None';
-            return ($isDeliverable === $obj->is_deliverable)
+            $isDeliverable = (int)($result->last_action_type === 'None');
+            return ($result->last_action_type === $obj->last_action_type)
+                && $isDeliverable = $obj->is_deliverable
                 && ($result->subscribe_date === $obj->subscribe_date);
         }
         else {

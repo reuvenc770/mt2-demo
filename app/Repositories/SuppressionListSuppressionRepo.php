@@ -22,6 +22,10 @@ class SuppressionListSuppressionRepo implements IAwsRepo {
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function clearList($listId) {
+        $this->model->where('suppression_list_id', $listId)->delete();
+    }
+
     public function returnSuppressedWithFeedIds($emails, $listIds) {
         return $this->model
                     ->whereIn('suppression_list_id', $listIds)
@@ -79,7 +83,7 @@ class SuppressionListSuppressionRepo implements IAwsRepo {
 
     public function getConnection()
     {
-        return $this->model->getConnection();
+        return $this->model->getConnectionName();
     }
 
     public function getAllQuery($lookback) {
