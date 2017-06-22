@@ -1288,7 +1288,7 @@ Route::group(
         Route::resource(
             'deploy',
             'DeployController',
-            [ 'except' => [ 'create' , 'edit' ] ]
+            [ 'except' => [ 'index' , 'create' , 'edit' ] ]
         );
 
         Route::resource(

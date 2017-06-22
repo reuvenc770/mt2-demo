@@ -164,6 +164,10 @@ class RemoteFeedFileService {
             }
 
             $this->currentFile = $this->newFileList[ 0 ];
+            
+            if ( strpos( $this->currentFile[ 'path' ] , 'home' ) !== false ) {
+                \Log::debug( getmypid() . ': ' . $this->currentFile[ 'path' ] );
+            }
 
             $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
