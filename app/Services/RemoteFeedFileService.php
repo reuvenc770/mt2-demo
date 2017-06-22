@@ -15,9 +15,12 @@ use App\Facades\SlackLevel;
 use Carbon\Carbon;
 use League\Csv\Reader;
 use Cache;
+use Redis;
 use Mail;
 
 class RemoteFeedFileService {
+    const REDIS_LOCK_KEY_PREFIX = 'feedlock_';
+
     const DEV_TEAM_EMAIL = 'tech.team.mt2@zetaglobal.com';
     const STAKEHOLDERS_EMAIL = 'orangeac@zetaglobal.com';
 
@@ -133,12 +136,11 @@ class RemoteFeedFileService {
                 if (
                     $newFileString !== ''
                     && ProcessedFeedFile::find( $newFile ) === null
-                    && !Cache::tags('realtime_feed_processing')->has( trim( $newFile ) )
                     && $count <= 5
                 ) {
                     $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 ];
 
-                    Cache::tags('realtime_feed_processing')->put( trim( $newFile ) , 1 , Carbon::now()->addMinutes( 20 ) );
+                    REDIS::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $newFile ) , getmypid() ] );
 
                     $count++;
                 }
@@ -158,6 +160,16 @@ class RemoteFeedFileService {
         $this->clearRecordBuffer();
 
         while ( $this->getBufferSize () < $chunkSize ) {
+            if ( getmypid() != REDIS::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) ) {
+                \Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
+
+                array_shift( $this->newFileList );
+
+                $this->resetCursor();
+
+                continue;
+            }
+
             if ( count( $this->newFileList ) <= 0 ) {
                 \Log::info( $this->serviceName . ': No more files to process....' );
                 break;
@@ -176,7 +188,7 @@ class RemoteFeedFileService {
             if ( $this->currentFileLineCount === 0 ) {
                 $this->markFileAsProcessed();
 
-                Cache::tags('realtime_feed_processing')->forget( trim( $this->currentFile[ 'path' ] ) );
+                REDIS::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
 
                 array_shift( $this->newFileList );
 
@@ -195,7 +207,7 @@ class RemoteFeedFileService {
 
                 $this->markFileAsProcessed();
 
-                Cache::tags('realtime_feed_processing')->forget( trim( $this->currentFile[ 'path' ] ) );
+                REDIS::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
                 
                 $this->lastFileProcessed = array_shift( $this->newFileList );
 

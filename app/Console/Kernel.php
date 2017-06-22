@@ -109,6 +109,7 @@ class Kernel extends ConsoleKernel
         Commands\RunTimeMonitorCommand::class,
         Commands\CheckBatchFeedProcessingCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
+        Commands\ClearRedisKeysWithPatternCommand::class,
 ];
 
     /**
