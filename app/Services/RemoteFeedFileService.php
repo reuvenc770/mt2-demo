@@ -140,7 +140,7 @@ class RemoteFeedFileService {
                 ) {
                     $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 ];
 
-                    REDIS::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $newFile ) , getmypid() ] );
+                    Redis::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $newFile ) , getmypid() ] );
 
                     $count++;
                 }
@@ -160,7 +160,7 @@ class RemoteFeedFileService {
         $this->clearRecordBuffer();
 
         while ( $this->getBufferSize () < $chunkSize ) {
-            if ( getmypid() != REDIS::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) ) {
+            if ( getmypid() != Redis::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) ) {
                 \Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
 
                 array_shift( $this->newFileList );
@@ -188,7 +188,7 @@ class RemoteFeedFileService {
             if ( $this->currentFileLineCount === 0 ) {
                 $this->markFileAsProcessed();
 
-                REDIS::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
+                Redis::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
 
                 array_shift( $this->newFileList );
 
@@ -207,7 +207,7 @@ class RemoteFeedFileService {
 
                 $this->markFileAsProcessed();
 
-                REDIS::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
+                Redis::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
                 
                 $this->lastFileProcessed = array_shift( $this->newFileList );
 
