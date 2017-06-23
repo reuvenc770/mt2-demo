@@ -112,6 +112,7 @@ class Kernel extends ConsoleKernel
         Commands\CheckBatchFeedProcessingCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\GetFirstPartyRecords::class,
+        Commands\ClearRedisKeysWithPatternCommand::class,
 ];
 
     /**
