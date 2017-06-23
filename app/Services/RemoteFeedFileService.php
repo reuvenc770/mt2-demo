@@ -325,11 +325,7 @@ class RemoteFeedFileService {
     }
 
     protected function markFileAsProcessed () {
-        ProcessedFeedFile::updateOrCreate( [ 'path' => trim( $this->currentFile[ 'path' ] ) ] , [
-            'path' => trim( $this->currentFile[ 'path' ] ) ,
-            'feed_id' => $this->currentFile[ 'feedId' ] ,
-            'line_count' => $this->currentFileLineCount
-        ] );
+        $this->saveFileAsProcessed();
 
         $this->notificationCollection []= "File {$this->currentFile[ 'path' ]} from '"
             . $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
@@ -338,6 +334,26 @@ class RemoteFeedFileService {
 
 
         \Log::info( 'RemoteFeedFileService: processed ' . $this->currentFile[ 'path' ] );
+    }
+
+    protected function saveFileAsProcessed () {
+        #doing this so we can see how often we process the same file.
+        $cleanPath = trim( $this->currentFile[ 'path' ] );
+        \DB::insert( "
+            insert into
+                processed_feed_files( path , line_count , created_at , updated_at )
+            values
+                ( '{$cleanPath}' , '{$this->currentFileLineCount}' , NOW() , NOW()  )
+            on duplicate key update
+                processed_count = processed_count + 1" );
+
+        /*
+        ProcessedFeedFile::updateOrCreate( [ 'path' => trim( $this->currentFile[ 'path' ] ) ] , [
+            'path' => trim( $this->currentFile[ 'path' ] ) ,
+            'feed_id' => $this->currentFile[ 'feedId' ] ,
+            'line_count' => $this->currentFileLineCount
+        ] );
+         */
     }
 
     protected function resetCursor () {
