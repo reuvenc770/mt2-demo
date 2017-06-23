@@ -19,6 +19,7 @@ use Storage;
 use File;
 use App\Models\Deploy;
 use DB;
+use Log;
 
 class ListProfileExportService {
 
@@ -108,6 +109,8 @@ class ListProfileExportService {
     private function writeRemoteBatch($fileName, $disk = 'espdata') {
         $string = implode(PHP_EOL, $this->rows);
         Storage::disk($disk)->append($fileName, $string);
+        $this->rows = [];
+        $this->countCount = 0;
     }
 
     private function batch($fileName, $row, $disk = 'espdata') {
@@ -137,11 +140,16 @@ class ListProfileExportService {
     private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows) . PHP_EOL;
         File::append($fileName, $string);
+
+        $this->rows = [];
+        $this->rowCount = 0;
     }
 
     private function writeBatchSuppression($fileName) {
         $string = implode(PHP_EOL, $this->suppressedRows) . PHP_EOL;
         File::append($fileName, $string);
+        $this->suppressedRows = [];
+        $this->suppressedRowCount = 0;
     }
 
     private function mapRow($columns, $row) {
@@ -357,7 +365,7 @@ class ListProfileExportService {
 
         // Generate the query for this set (deduped and made generic).
         $query = $this->generateCombineQuery($listProfiles, $header);
-
+        
         if ($writeHeaderCount > 0) {
             // Remove fields from the actual file header
             $this->batch($localCombineFileName, implode(',', array_diff($header, ['globally_suppressed', 'feed_suppressed'])));
