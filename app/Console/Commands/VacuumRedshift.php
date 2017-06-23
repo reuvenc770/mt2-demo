@@ -13,7 +13,7 @@ class VacuumRedshift extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:optimize {--runtime-threshold=}';
+    protected $signature = 'listprofile:optimize';
 
     /**
      * The console command description.
@@ -37,7 +37,7 @@ class VacuumRedshift extends Command
      * @return mixed
      */
     public function handle(ListProfileFlatTableRepo $repo) {
-        $job = new VacuumRedshiftJob($repo, str_random(16),$this->option('runtime-threshold'));
+        $job = new VacuumRedshiftJob($repo, str_random(16));
         $this->dispatch($job);
     }
 }

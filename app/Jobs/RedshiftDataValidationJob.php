@@ -2,20 +2,20 @@
 
 namespace App\Jobs;
 
-use App\Jobs\MonitoredJob;
+use App\Jobs\SafeJob;
 use App\Factories\ServiceFactory;
 use Log;
 
-class RedshiftDataValidationJob extends MonitoredJob {
+class RedshiftDataValidationJob extends SafeJob {
 
     private $entity;
     private $lookback;
 
-    public function __construct($entity, $lookback, $tracking, $runtimeThreshold) {
+    public function __construct($entity, $lookback, $tracking) {
         $this->entity = $entity;
         $this->lookback = $lookback;
         $jobName = 'DataValidation-' . $entity;
-        parent::__construct($jobName, $runtimeThreshold, $tracking);
+        parent::__construct($jobName, $tracking);
     }
 
     protected function handleJob() {

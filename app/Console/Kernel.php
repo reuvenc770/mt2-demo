@@ -275,14 +275,14 @@ class Kernel extends ConsoleKernel
         /**
          *  List profile jobs
          */
-        $schedule->command('listprofile:dataEtl  --runtime-threshold=2m')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3
-        $schedule->command('listprofile:dataEtl --all --runtime-threshold=5m')->cron('0 1 * * 7 *');
-        $schedule->command('listprofile:optimize --runtime-threshold=1h')->weekly();
+        $schedule->command('listprofile:dataEtl')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3
+        $schedule->command('listprofile:dataEtl')->cron('0 1 * * 7 *');
+        $schedule->command('listprofile:optimize')->weekly();
         $schedule->command('listprofile:aggregateActions --runtime-threshold=6h')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation
         $schedule->command('listprofile:contentServerRawStats --runtime-threshold=5m')->hourly(); // Job name: ProcessContentServerRawStats
         $schedule->command('listprofile:getRecordAgentData 2 --runtime-threshold=40m')->hourly(); // Job name: ContentServerDeviceData
         $schedule->command('listprofile:baseTables --runtime-threshold=1h')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
-        $schedule->command('listprofile:validateRedshift 1 --runtime-threshold=10h')->cron('0 6 * * * *'); // Job names like: DataValidation & upper-case entity
+        $schedule->command('listprofile:validateRedshift 1')->cron('0 6 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
          * Feed File Processing

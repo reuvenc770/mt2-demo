@@ -12,17 +12,18 @@ use App\Factories\ServiceFactory;
 use Cache;
 use Mail;
 
-class S3RedshiftExportJob extends MonitoredJob implements ShouldQueue {
+class S3RedshiftExportJob extends Job implements ShouldQueue {
+    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     const TALLY_KEY = 'ListProfileReadiness';
 
-    protected $tracking;
+    private $tracking;
     private $entity;
-    protected $jobName;
+    private $jobName;
     private $version;
     private $extraData;
 
-    public function __construct($entity, $version, $tracking, $runtimeThreshold, $extraData = null) {
+    public function __construct($entity, $version, $tracking, $extraData = null) {
         if ($version < 0 || $version > 2) {
             throw new \Exception("Job run type must be 0, 1, or 2. Currently is $version.");
         }
@@ -35,22 +36,23 @@ class S3RedshiftExportJob extends MonitoredJob implements ShouldQueue {
             throw new \Exception("Extra specifying data passed in for standard job.");
         }
 
-
         $this->entity = $entity;
         $this->jobName = $entity . '-s3';
         $this->tracking = $tracking;
         $this->version = $version;
         $this->extraData = $extraData;
 
-        parent::__construct($this->jobName,$runtimeThreshold,$this->tracking);
-
         $this->updateNotificationTally( $entity );
 
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handleJob() {
-
+    public function handle() {
+        if ($this->jobCanRun($this->jobName)) {
+            try {
+                $this->createLock($this->jobName);
+                JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+                echo "{$this->jobName} running" . PHP_EOL;
 
                 $service = ServiceFactory::createAwsExportService($this->entity);
                 $rows = 0;
@@ -69,10 +71,26 @@ class S3RedshiftExportJob extends MonitoredJob implements ShouldQueue {
                     $service->load();
                 }
 
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, $rows);
 
                 self::updateNotificationTally( $this->entity , false );
+            }
+            catch (\Exception $e) {
+                echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                $this->failed();
+            }
+            finally {
+                $this->unlock($this->jobName);
+            }
+        }
+        else {
+            echo "Still running {$this->jobName} - job level" . PHP_EOL;
+            JobTracking::changeJobState(JobEntry::SKIPPED,$this->tracking);
+        }
+    }
 
-        return $rows;
+    public function failed() {
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 
     static public function clearNotificationTally () {

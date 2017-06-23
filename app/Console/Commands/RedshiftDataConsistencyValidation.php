@@ -14,7 +14,7 @@ class RedshiftDataConsistencyValidation extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:validateRedshift {lookback} {--runtime-threshold=}';
+    protected $signature = 'listprofile:validateRedshift {lookback}';
 
     protected $entities = ['EmailDomain', 'EmailFeedAssignment', 'Email', 'Feed', 'ListProfileFlatTable', 
     'RecordData', 'SuppressionGlobalOrange', 'DomainGroup', 'Client', 'SuppressionListSuppression'];
@@ -44,7 +44,7 @@ class RedshiftDataConsistencyValidation extends Command
         $lookback = $this->argument('lookback');
 
         foreach($this->entities as $entity) {
-            $job = new RedshiftDataValidationJob($entity, $lookback, str_random(16), $this->option('runtime-threshold'));
+            $job = new RedshiftDataValidationJob($entity, $lookback, str_random(16));
             $this->dispatch($job);
         }
 
