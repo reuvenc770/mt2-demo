@@ -266,6 +266,10 @@ class RemoteFeedFileService {
     protected function extractData ( $csvLine ) {
         $reader = Reader::createFromString( trim( $csvLine ) );
 
+        if ( strpos( $csvLine , "\t" ) !== false ) {
+            $reader->setDelimiter( "\t" );
+        }
+
         return $reader->stripBOM( true )->fetchOne();
     }
 
