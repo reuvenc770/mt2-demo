@@ -185,6 +185,7 @@ class TrackingRepo
                 DB::raw('DATE(datetime) as date'), 
                 "d.esp_account_id",
                 "d.offer_id",
+                'co.vertical_id',
                 DB::raw('COUNT(IF(action_id = 2, 1, 0)) as clicks'), 
                 DB::raw('SUM(IF(action_id = 3, 1, 0)) as conversions'))
             ->whereBetween("datetime", [
@@ -192,7 +193,8 @@ class TrackingRepo
                 Carbon::today()->endOfDay()->ToDateTimeString()
             ])
             ->join("$dataSchema.deploys as d", $table . '.deploy_id', '=', 'd.id')
-            ->groupBy('email_id', 'deploy_id', 'date');
+            ->join("$dataSchema.cake_offers as co", $table.'cake_offer_id', '=', 'co.id')
+            ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id');
     }
 
 }
