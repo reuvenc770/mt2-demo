@@ -217,9 +217,6 @@ class RemoteFeedFileService {
             else {
                 $this->currentLines = $this->systemService->getFileContentSlice( $this->currentFile[ 'path' ] , ( $this->lastLineNumber + 1 ) , ( $linesWanted + $this->lastLineNumber ) );
 
-                \Log::debug( 'Grabbing data..' );
-                \Log::debug( json_encode( $this->currentLines ) ); 
-
                 $this->processLines();
                 
                 $this->lastLineNumber = $linesWanted + $this->lastLineNumber;
