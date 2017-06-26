@@ -15,7 +15,7 @@ use App\Facades\SlackLevel;
 use Carbon\Carbon;
 use League\Csv\Reader;
 use Cache;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 use Mail;
 
 class RemoteFeedFileService {
@@ -135,13 +135,12 @@ class RemoteFeedFileService {
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if (
                     $newFileString !== ''
-                    && ProcessedFeedFile::find( $newFile ) === null
-                    && $count <= 5
+                    && ProcessedFeedFile::find( trim( $newFile ) ) === null
+                    && $count < 10
                 ) {
                     $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 ];
 
                     Redis::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $newFile ) , getmypid() ] );
-
                     $count++;
                 }
             }
@@ -160,8 +159,15 @@ class RemoteFeedFileService {
         $this->clearRecordBuffer();
 
         while ( $this->getBufferSize () < $chunkSize ) {
+            if ( count( $this->newFileList ) <= 0 ) {
+                \Log::info( $this->serviceName . ': No more files to process....' );
+                break;
+            }
+
+            $this->currentFile = $this->newFileList[ 0 ];
+
             if ( getmypid() != Redis::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) ) {
-                \Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
+                #\Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
 
                 array_shift( $this->newFileList );
 
@@ -170,16 +176,7 @@ class RemoteFeedFileService {
                 continue;
             }
 
-            if ( count( $this->newFileList ) <= 0 ) {
-                \Log::info( $this->serviceName . ': No more files to process....' );
-                break;
-            }
-
-            $this->currentFile = $this->newFileList[ 0 ];
-            
-            if ( strpos( $this->currentFile[ 'path' ] , 'home' ) !== false ) {
-                \Log::debug( getmypid() . ': ' . $this->currentFile[ 'path' ] );
-            }
+            \Log::debug( getmypid() . ': ' . $this->currentFile[ 'path' ] );
 
             $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
@@ -219,6 +216,9 @@ class RemoteFeedFileService {
             }
             else {
                 $this->currentLines = $this->systemService->getFileContentSlice( $this->currentFile[ 'path' ] , ( $this->lastLineNumber + 1 ) , ( $linesWanted + $this->lastLineNumber ) );
+
+                \Log::debug( 'Grabbing data..' );
+                \Log::debug( json_encode( $this->currentLines ) ); 
 
                 $this->processLines();
                 

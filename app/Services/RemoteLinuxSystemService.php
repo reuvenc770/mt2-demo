@@ -109,7 +109,7 @@ class RemoteLinuxSystemService {
     public function appendEofToFile ( $filePath ) {
         $command = sprintf( self::APPEND_EOF_COMMAND , $this->cleanPath( $filePath ) );
     
-        ssh2_exec( $this->sshConnection , $command ); #, self::PSEUDO_TTY_FLAG );
+        ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
     }
 
     public function getFileContentSlice ( $filePath , $firstLine , $lastLine ) {
@@ -134,7 +134,7 @@ class RemoteLinuxSystemService {
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
-        $contentString = $this->getOutput( $stream , SSH2_STREAM_STDERR );
+        $contentString = $this->getOutput( $stream ); #, SSH2_STREAM_STDERR );
 
         return (int) trim( $contentString );
     }
