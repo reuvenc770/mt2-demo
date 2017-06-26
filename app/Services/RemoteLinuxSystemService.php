@@ -134,7 +134,7 @@ class RemoteLinuxSystemService {
 
         $stream = ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
 
-        $contentString = $this->getOutput( $stream ); #, SSH2_STREAM_STDERR );
+        $contentString = $this->getOutput( $stream );
 
         return (int) trim( $contentString );
     }
