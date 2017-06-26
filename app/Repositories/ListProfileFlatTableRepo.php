@@ -90,7 +90,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     private function prepareConversionData($row) {
         $conversionFlag = ((int)$row->conversions) > 0 ? 1 : 0;
         $clickFlag = ((int)$row->clicks) > 0 ? 1 : 0;
-        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '$clickFlag', '$clickFlag', '$conversionFlag', '$conversionFlag', '{$row->clicks}', '{$row->conversions}', NOW(), NOW())";
+        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->esp_account_id}', '{$row->offer_id}', '$clickFlag', '$clickFlag', '$conversionFlag', '$conversionFlag', '{$row->clicks}', '{$row->conversions}', NOW(), NOW())";
     }
 
 
@@ -101,19 +101,19 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             $inserts = implode(',', $this->batchData);
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table 
-                (email_id, deploy_id, date, has_tracking_click, has_click, has_tracking_conversion, has_conversion, clicks, conversions, created_at, updated_at)
+                (email_id, deploy_id, date, esp_account_id, offer_id, has_tracking_click, has_click, has_tracking_conversion, has_conversion, clicks, conversions, created_at, updated_at)
 
                 VALUES $inserts
 
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 deploy_id = deploy_id,
-                esp_account_id = esp_account_id,
+                esp_account_id = values(esp_account_id),
                 date = date,
                 email_address = email_address,
                 email_domain_id = email_domain_id,
                 email_domain_group_id = email_domain_group_id,
-                offer_id = offer_id,
+                offer_id = values(offer_id),
                 cake_vertical_id = cake_vertical_id,
                 has_esp_open = has_esp_open,
                 has_cs_open = has_cs_open,
@@ -147,7 +147,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table
             (email_id, deploy_id, date, email_address, lower_case_md5, upper_case_md5, 
-                email_domain_id, has_cs_open, has_open, has_cs_click, has_click)
+                email_domain_id, esp_account_id, offer_id, cake_vertical_id, has_cs_open, has_open, has_cs_click, has_click)
 
             VALUES $inserts
 
@@ -155,9 +155,9 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             email_id = email_id,
             deploy_id = deploy_id,
             date = date,
-            esp_account_id = esp_account_id,
-            offer_id = offer_id,
-            cake_vertical_id = cake_vertical_id,
+            esp_account_id = values(esp_account_id),
+            offer_id = values(offer_id),
+            cake_vertical_id = values(cake_vertical_id),
             deliveries = deliveries,
             opens = opens,
             clicks = clicks,
