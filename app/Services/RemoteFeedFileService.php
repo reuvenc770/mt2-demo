@@ -15,7 +15,7 @@ use App\Facades\SlackLevel;
 use Carbon\Carbon;
 use League\Csv\Reader;
 use Cache;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 use Mail;
 
 class RemoteFeedFileService {
@@ -135,8 +135,8 @@ class RemoteFeedFileService {
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if (
                     $newFileString !== ''
-                    && ProcessedFeedFile::find( $newFile ) === null
-                    && $count <= 5
+                    && ProcessedFeedFile::find( trim( $newFile ) ) === null
+                    && $count < 10
                 ) {
                     $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 ];
 
@@ -160,6 +160,13 @@ class RemoteFeedFileService {
         $this->clearRecordBuffer();
 
         while ( $this->getBufferSize () < $chunkSize ) {
+            if ( count( $this->newFileList ) <= 0 ) {
+                \Log::info( $this->serviceName . ': No more files to process....' );
+                break;
+            }
+
+            $this->currentFile = $this->newFileList[ 0 ];
+
             if ( getmypid() != Redis::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) ) {
                 \Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
 
@@ -170,12 +177,7 @@ class RemoteFeedFileService {
                 continue;
             }
 
-            if ( count( $this->newFileList ) <= 0 ) {
-                \Log::info( $this->serviceName . ': No more files to process....' );
-                break;
-            }
-
-            $this->currentFile = $this->newFileList[ 0 ];
+            \Log::debug( getmypid() . ': ' . $this->currentFile[ 'path' ] );
 
             $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
