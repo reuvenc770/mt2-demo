@@ -19,7 +19,7 @@ class SimpleTestCommand extends Command
      *
      * @var string
      * --simulate=[0|1], signal sent to acceptance test simulation
-     * --runtime_threshold=[0-9]{1,}(s|m|h|)  in seconds, minutes, or hours
+     * --runtime-threshold=[0-9]{1,}(s|m|h|)  in seconds, minutes, or hours
      */
     protected $signature = 'tests:simpletestjob {--simulate=} {--runtime-threshold=}';
 
