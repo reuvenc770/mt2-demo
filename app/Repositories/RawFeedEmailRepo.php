@@ -320,7 +320,11 @@ class RawFeedEmailRepo {
                 try { #trying forward slash format with day first
                     $date = Carbon::createFromFormat( 'd/m/Y' , $dateString )->toDateString();
                 } catch ( \Exception $e ) {
-                    #all format parsing failed, leave null
+                    try { #trying dates with periods 
+                        $date = Carbon::createFromFormat( 'Y.m.d' , $dateString )->toDateString();
+                    } catch ( \Exception $e ) {
+                        #all format parsing failed, leave null
+                    }
                 }
             }
         }
