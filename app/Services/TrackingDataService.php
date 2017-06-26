@@ -133,7 +133,7 @@ class TrackingDataService implements IDataService
           'request_session_id' => $row['request_session_id'],
           'user_agent_string' => urldecode($row['user_agent']),
           'revenue' => $row['price_received'],
-          'carrier' => $row['carrier'],
+          'carrier' => $row['carrier'] ?: '',
       ];
   }
 
