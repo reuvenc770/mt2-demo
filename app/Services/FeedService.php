@@ -334,6 +334,7 @@ class FeedService implements IFtpAdmin
         $feedPasswordRule = 'required|exists:feeds,password';
         $euroDateRule = 'required|euroDate';
         $usDateRule = 'required|date';
+        $usAltDateRule = 'required|date_format:Y.m.d';
 
         if ( isset( $data[ 'pw' ] ) && $data[ 'pw' ] != '' ) {
             $isRealtime = true;
@@ -357,7 +358,7 @@ class FeedService implements IFtpAdmin
         if ( $isBritishRecord ) {
             $rules[ 'capture_date' ] = $euroDateRule . '|euroDateNotFuture';
         } else {
-            $rules[ 'capture_date' ] = $usDateRule . '|before:tomorrow';
+            $rules[ 'capture_date' ] = ( strpos( $data[ 'capture_date' ] , '.' ) !== false ? $usAltDateRule : $usDateRule ) . '|before:tomorrow';
         }
 
         if ( $isBritishRecord && $realtimeDobExists ) {
@@ -369,7 +370,7 @@ class FeedService implements IFtpAdmin
         if ( $isBritishRecord && $batchDobExists ) {
             $rules[ 'dob' ] = $euroDateRule;
         } elseif ( !$isBritishRecord && $batchDobExists ) {
-            $rules[ 'dob' ] = $usDateRule;
+            $rules[ 'dob' ] = ( strpos( $data[ 'dob' ] , '.' ) !== false ? $usAltDateRule : $usDateRule );
         }
 
         return $rules;
@@ -381,5 +382,9 @@ class FeedService implements IFtpAdmin
 
     public function getPartyFromId ( $id ) {
         return $this->feedRepo->getPartyFromId( $id ); 
+    }
+
+    public function getSourceUrlFromId ( $id ) {
+        return $this->feedRepo->getSourceUrl( $id );
     }
 }
