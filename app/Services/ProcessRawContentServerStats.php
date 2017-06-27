@@ -6,6 +6,7 @@ use App\Repositories\ContentServerStatsRawRepo;
 use App\Repositories\ListProfileFlatTableRepo;
 use App\Repositories\LinkRepo;
 use App\Repositories\EtlPickupRepo;
+use App\Repositories\DeployRepo;
 use Log;
 use DB;
 
@@ -15,14 +16,21 @@ class ProcessRawContentServerStats {
     private $lpRepo;
     private $pickupRepo;
     private $linkRepo;
+    private $deployRepo;
     private $jobName;
     const LIMIT = 10000;
 
-    public function __construct(ContentServerStatsRawRepo $csRepo, ListProfileFlatTableRepo $lpRepo, LinkRepo $linkRepo, EtlPickupRepo $pickupRepo) {
+    public function __construct(ContentServerStatsRawRepo $csRepo, 
+        ListProfileFlatTableRepo $lpRepo, 
+        LinkRepo $linkRepo, 
+        EtlPickupRepo $pickupRepo,
+        DeployRepo $deployRepo) {
+
         $this->csRepo = $csRepo;
         $this->lpRepo = $lpRepo;
         $this->linkRepo = $linkRepo;
         $this->pickupRepo = $pickupRepo;
+        $this->deployRepo = $deployRepo;
     }
 
     public function extract($startPoint) {
@@ -49,7 +57,12 @@ class ProcessRawContentServerStats {
                     }
 
                     if ($deployId) {
-                        $insertData[] = $this->mapToTable($row, $deployId);
+                        // Need esp_account_id, offer_id, cake_vertical_id
+                        $deploy = $this->deployRepo->getDeploy($deployId);
+                        $espAccountId = $deploy->esp_account_id;
+                        $offerId = $deploy->offer_id;
+                        $cakeVerticalId = $this->deployRepo->getCakeVerticalId($deployId);
+                        $insertData[] = $this->mapToTable($row, $deployId, $espAccountId, $offerId, $cakeVerticalId);
                     }
                     else {
                         // Deploy id could not be found from link
@@ -78,7 +91,7 @@ class ProcessRawContentServerStats {
         $this->jobName = $jobName;
     }
 
-    private function mapToTable($row, $deployId) {
+    private function mapToTable($row, $deployId, $espAccountId, $offerid, $cakeVerticalId) {
         $pdo = DB::connection()->getPdo();
 
         return '('
@@ -89,6 +102,9 @@ class ProcessRawContentServerStats {
             . $pdo->quote($row->lower_case_md5) . ','
             . $pdo->quote($row->upper_case_md5) . ','
             . $pdo->quote($row->email_domain_id) . ','
+            . $pdo->quote($espAccountId) . ','
+            . $pdo->quote($offerId) . ','
+            . $pdo->quote($cakeVerticalId) . ','
             . $row->has_cs_open . ','
             . $row->has_cs_open . ',' # has_open
             . $row->has_cs_click . ','

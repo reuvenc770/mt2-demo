@@ -14,7 +14,7 @@ class PullContentServerRecordData extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:getRecordAgentData {lookback}';
+    protected $signature = 'listprofile:getRecordAgentData {lookback} {--runtime-threshold=}';
     private $jobName = 'ContentServerDeviceData';
 
     /**
@@ -40,7 +40,7 @@ class PullContentServerRecordData extends Command
      */
     public function handle() {
         $lookback = (int)$this->argument('lookback');
-        $job = new DataProcessingJob($this->jobName, str_random(16), $lookback);
+        $job = new DataProcessingJob($this->jobName, str_random(16), $lookback, $this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }
