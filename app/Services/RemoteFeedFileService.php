@@ -284,6 +284,10 @@ class RemoteFeedFileService {
         $record[ 'party' ] = $this->currentFile[ 'party' ];
         $record[ 'realtime' ] = 0;
 
+        if ( !isset( $record[ 'source_url' ] ) || $record[ 'source_url' ] == '' ) {
+            $record[ 'source_url' ] = $this->feedService->getSourceUrlFromId( $record[ 'feed_id' ] );
+        }
+
         if ( $record[ 'dob' ] == '0000-00-00' ) {
             unset( $record[ 'dob' ] );
         }

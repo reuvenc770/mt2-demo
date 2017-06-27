@@ -275,7 +275,11 @@ class RawFeedEmailRepo {
             if ( $isEuroDateFormat ) {
                 $rawEmailRecord[ 'capture_date' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'capture_date' ] );
             } else {
-                $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                try {
+                    $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                } catch ( \Exception $e ) {
+                    $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'Y.m.d' , $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                }
             }
         } catch ( \Exception $e ) {
             \Log::error( $e );
@@ -293,7 +297,11 @@ class RawFeedEmailRepo {
                 if ( $isEuroDateFormat ) {
                     $rawEmailRecord[ 'dob' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'dob' ] );
                 } else {
-                    $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
+                    try {
+                        $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
+                    } catch ( \Exception $e ) {
+                        $rawEmailRecord[ 'dob' ] = Carbon::createFromFormat( 'Y.m.d' , $rawEmailRecord[ 'dob' ] )->toDateString();
+                    }
                 }
             }
         } catch ( \Exception $e ) {
@@ -321,7 +329,11 @@ class RawFeedEmailRepo {
                 try { #trying forward slash format with day first
                     $date = Carbon::createFromFormat( 'd/m/Y' , $dateString )->toDateString();
                 } catch ( \Exception $e ) {
-                    #all format parsing failed, leave null
+                    try { #trying dates with periods 
+                        $date = Carbon::createFromFormat( 'Y.m.d' , $dateString )->toDateString();
+                    } catch ( \Exception $e ) {
+                        #all format parsing failed, leave null
+                    }
                 }
             }
         }

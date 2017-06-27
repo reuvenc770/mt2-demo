@@ -113,6 +113,7 @@ class Kernel extends ConsoleKernel
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\GetFirstPartyRecords::class,
         Commands\ClearRedisKeysWithPatternCommand::class,
+        Commands\ReprocessFeedFileCommand::class ,
 ];
 
     /**

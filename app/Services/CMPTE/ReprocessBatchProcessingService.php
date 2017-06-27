@@ -12,60 +12,49 @@ use App\Services\DomainGroupService;
 use App\Services\RemoteLinuxSystemService;
 use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
-use App\Models\MT1Models\User as Feeds;
 
-class BatchProcessingService extends RemoteFeedFileService {
-    protected $serviceName = 'BatchProcessingService';
+class ReprocessBatchProcessingService extends RemoteFeedFileService {
+    protected $serviceName = 'ReprocessBatchProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
-    protected $rootFileDirectory = '/home';
-    protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
 
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         parent::__construct( $feedService , $systemService , $domainGroupService , $rawRepo );
+    }
+
+    public function setCreds ( $hostConfig , $portConfig , $userConfig , $publicKeyConfig , $privateKeyConfig ) {
+        $this->hostConfig = $hostConfig;
+        $this->portConfig = $portConfig;
+        $this->userConfig = $userConfig;
+        $this->publicKeyConfig = $publicKeyConfig;
+        $this->privateKeyConfig = $privateKeyConfig;
+    }
+
+    public function setFile ( $filePath , $feedId , $party ) {
+        $this->newFileList[] = [
+            'path' => trim( $filePath ) ,
+            'feedId' => $feedId ,
+            'party' => $party 
+        ];
     }
 
     public function fireAlert ( $message ) {
         Slack::to( $this->slackChannel )->send( $message );
     }
 
-    public function getFeedIdFromName ( $name ) {
-        return ( $record = Feeds::where( 'username' , $name )->pluck( 'user_id' ) ) ? $record->pop() : null;
-    }
-
-    public function getValidFeedList () {
-        return Feeds::where( [ [ 'status' , '=' , 'A'] , [ 'OrangeClient' , '=' , 'Y' ] ] )->pluck( 'username' )->toArray();
-    }
-
-    public function getRecentFiles ( $directory ) {
-        $options = [ 
-            '-type f' ,
-            '-mtime -1' ,
-            ' -not -path "/home/mt1/*"' ,
-            "\( -name '*.csv' -o -name '*.txt' \)" ,
-            '-print' 
-        ]; 
-
-        return $this->systemService->getRecentFiles( $directory , $options );
+    public function loadNewFilePaths () {
+        $this->connectToServer();
     }
 
     protected function connectToServer () {
         if ( !$this->systemService->connectionExists() ) { 
             $this->systemService->initSshConnection(
-                config('ssh.servers.cmpte_feed_file_server.host'),
-                config('ssh.servers.cmpte_feed_file_server.port'),
-                config('ssh.servers.cmpte_feed_file_server.username'),
-                config('ssh.servers.cmpte_feed_file_server.public_key'),
-                config('ssh.servers.cmpte_feed_file_server.private_key')
+                config( $this->hostConfig ),
+                config( $this->portConfig ),
+                config( $this->userConfig ),
+                config( $this->publicKeyConfig ),
+                config( $this->privateKeyConfig )
             );  
         }   
-    }
-
-    protected function isCorrectDirectoryStructure ( $directory ) {
-        return true;
-    } 
-
-    protected function columnMatchCheck ( $lineColumns ) {
-        #columns have a chance to not match. parsing is overridden in this class
     }
 
     protected function mapRecord ( $lineColumns ) {
