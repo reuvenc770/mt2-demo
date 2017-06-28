@@ -12,6 +12,7 @@ use App\Services\DomainGroupService;
 use App\Services\RemoteLinuxSystemService;
 use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
+use Illuminate\Support\Facades\Redis;
 
 class ReprocessBatchProcessingService extends RemoteFeedFileService {
     protected $serviceName = 'ReprocessBatchProcessingService';
@@ -35,6 +36,8 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
             'feedId' => $feedId ,
             'party' => $party 
         ];
+
+        Redis::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $filePath ) , getmypid() ] );
     }
 
     public function fireAlert ( $message ) {
