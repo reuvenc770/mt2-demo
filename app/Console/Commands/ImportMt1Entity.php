@@ -15,7 +15,7 @@ class ImportMt1Entity extends Command
      *
      * @var string
      */
-    protected $signature = 'mt1Import {type} {lookback?} {--d|delay= : Delay in minutes }';
+    protected $signature = 'mt1Import {type} {lookback?} {--d|delay= : Delay in minutes } {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -44,7 +44,7 @@ class ImportMt1Entity extends Command
         $jobName = $this->getJobName($this->argument('type'));
         $delay = $this->option( 'delay' ) ?: null;
 
-        $job = new DataProcessingJob($jobName, str_random(16), $lookback);
+        $job = new DataProcessingJob($jobName, str_random(16), $lookback, $this->option('runtime-threshold'));
 
         $validDelayPresent = ( !is_null( $delay ) && is_numeric( $delay ) && $delay > 0 );
         if ( $validDelayPresent ) {

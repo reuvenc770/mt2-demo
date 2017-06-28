@@ -108,6 +108,8 @@ class ListProfileExportService {
     private function writeRemoteBatch($fileName, $disk = 'espdata') {
         $string = implode(PHP_EOL, $this->rows);
         Storage::disk($disk)->append($fileName, $string);
+        $this->rows = [];
+        $this->rowCount = 0;
     }
 
     private function batch($fileName, $row, $disk = 'espdata') {
@@ -137,11 +139,16 @@ class ListProfileExportService {
     private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows) . PHP_EOL;
         File::append($fileName, $string);
+        $this->rows = [];
+        $this->rowCount = 0;
     }
 
     private function writeBatchSuppression($fileName) {
         $string = implode(PHP_EOL, $this->suppressedRows) . PHP_EOL;
         File::append($fileName, $string);
+
+        $this->suppressedRows = [];
+        $this->suppressedRowCount = 0;
     }
 
     private function mapRow($columns, $row) {

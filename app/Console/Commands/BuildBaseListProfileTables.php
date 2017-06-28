@@ -18,7 +18,7 @@ class BuildBaseListProfileTables extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:baseTables';
+    protected $signature = 'listprofile:baseTables {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -50,7 +50,7 @@ class BuildBaseListProfileTables extends Command
         Cache::forever($cacheTagName, count($profiles));
 
         foreach ($profiles as $profileSchedule) {
-            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, $cacheTagName, str_random(16));
+            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, $cacheTagName, str_random(16), $this->option('runtime-threshold'));
             $this->dispatch($job);
         }
     }

@@ -36,10 +36,10 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
      * @param null $date1, integer indicating days back or start datetime, format YYYYMMDDhhmmss
      * @param null $date2, end datetime, format YYYYMMDDhhmmss
      */
-    public function __construct($mode,$runtime_threshold,$date1,$date2=null)
+    public function __construct($mode,$runtimeThreshold,$date1,$date2=null)
     {
 
-        parent::__construct(self::JOB_NAME.'_'.Carbon::now(),$runtime_threshold);
+        parent::__construct(self::JOB_NAME.'_'.Carbon::now(),$runtimeThreshold);
 
         $this->room = env('SLACK_RUNTIME_REPORT_CHANNEL',self::ROOM);
 
