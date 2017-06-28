@@ -45,11 +45,13 @@ class ScheduledNotificationsCommand extends Command
      */
     public function handle()
     {
-        $job = ( \App::make( ScheduledNotificationQueueJob::class , [
+        $job = \App::make( ScheduledNotificationQueueJob::class , [
             $this->option( 'contentKey' ) ,
             str_random( 16 ) ,
             $this->option( 'runtime-threshold' )
-        ] ) )->onQueue( ScheduledNotificationQueueJob::NOTIFICATION_QUEUE );
+        ] );
+        
+        $job->onQueue( ScheduledNotificationQueueJob::NOTIFICATION_QUEUE );
 
         $this->dispatch( $job );
     }
