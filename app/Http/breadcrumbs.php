@@ -365,3 +365,8 @@ Breadcrumbs::register('report.list', function($breadcrumbs) {
     $breadcrumbs->push('Reports', route('report.list'));
 });
 
+Breadcrumbs::register('tools.notifications', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Scheduled Notifications', route('tools.notifications'));
+});
+
