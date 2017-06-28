@@ -233,13 +233,21 @@ class RealtimeProcessingService extends RemoteFeedFileService {
         $currentColumnMap = array_merge( $this->currentColumnMap , $this->currentCustomFields );
 
         if ( count( $currentColumnMap ) != count( $lineColumns ) ) {
+            $feedId = $lineColumns[ 0 ];
+
+            if ( $this->isFoodStamps()   )  { $feedId = self::FOODSTAMP_FEED_ID; }
+            if ( $this->isSection8()     )  { $feedId = self::SECTION8_FEED_ID; }
+            if ( $this->isMedicaid()     )  { $feedId = self::MEDICAID_FEED_ID; }
+            if ( $this->isSimplyJobs()   )  { $feedId = self::SIMPLYJOBS_FEED_ID; }
+            if ( $this->isUnemployment() )  { $feedId = self::UNEMPLOYMENT_FEED_ID; }
+
             $this->rawRepo->logBatchFailure(
                 'Error when parsing line. Zipping columns with values failed.' ,
                 json_encode( $lineColumns ) ,
                 $this->currentFile[ 'path' ] , 
                 0 ,
                 '' , 
-                $lineColumns[ 0 ]
+                $feedId
             );  
 
             return null;
