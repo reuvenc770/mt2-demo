@@ -68,7 +68,6 @@ class RemoteFeedFileService {
 
         if ( !$this->newFilesPresent() ) {
             \Log::info( $this->serviceName . ': No new files to process....' );
-            Notify::log( 'batch_feed_no_files' , json_encode( [ "message" => "No new files to process." ] ) );
         }
 
         while ( $this->newFilesPresent() ) {

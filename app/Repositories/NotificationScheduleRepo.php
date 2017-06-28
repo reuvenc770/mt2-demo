@@ -40,7 +40,7 @@ class NotificationScheduleRepo {
                 $cron = CronExpression::factory( $current->cron_expression );
                 $current->nextRunDatetime = Carbon::parse( $cron->getNextRunDate()->format('Y-m-d H:i:s') );
 
-                $current->isToday = ( Carbon::parse( $current->nextRunDatetime ) )->isToday();
+                $current->isToday = Carbon::parse( $current->nextRunDatetime )->isToday();
                 $current->nextRunInSeconds = Carbon::now()->diffInSeconds(
                     Carbon::parse( $current->nextRunDatetime )
                 );
