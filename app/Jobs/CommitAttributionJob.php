@@ -18,9 +18,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
 
     private $jobName = 'AttributionJob';
     private $tracking;
-    private $modelId;
     private $remainder;
-    private $userEmail;
     private $argObj;
 
     /**
@@ -31,10 +29,8 @@ class CommitAttributionJob extends Job implements ShouldQueue
     public function __construct($argObj, $remainder, $tracking) {
         $this->argObj = $argObj;
         $this->tracking = $tracking;
-        $this->modelId = $argObj['modelId'];
         $this->remainder = $remainder;
-        $this->jobName = $this->jobName . ( $this->modelId > 0 ? "::model{$this->modelId}" : '' ) . '::mod-' . $remainder . '-';
-        $this->userEmail = $argObj['userEmail'];
+        $this->jobName = $this->jobName . '::mod-' . $remainder;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -52,9 +48,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
                 echo "{$this->jobName} running" . PHP_EOL;
 
                 $service = ServiceFactory::createAttributionService($this->modelId);
-
-                $records = $service->getTransientRecords($this->argObj, $this->remainder);
-                $service->run($records, $this->modelId, $this->userEmail);
+                $service->run($this->argObj, $this->remainder);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             }

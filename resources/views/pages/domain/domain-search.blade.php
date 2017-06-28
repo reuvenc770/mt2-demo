@@ -32,7 +32,7 @@
             </div>
             <div class="col-sm-3">
                 <div class="form-group">
-                    <label>Choose an DBA Account</label>
+                    <label>Choose a DBA Account</label>
                     <select name="dba_search" class="form-control" id="dba_search"
                                ng-model="domain.search.doing_business_as_id"
                                ng-disabled="domain.updatingAccounts">
@@ -45,7 +45,7 @@
             </div>
             <div class="col-sm-3">
                 <div class="form-group">
-                    <label>Choose an Registrar</label>
+                    <label>Choose a Registrar</label>
                     <select name="registrar_search" class="form-control" id="registrar_search"
                                ng-model="domain.search.registrar_id"
                                ng-disabled="domain.updatingAccounts">

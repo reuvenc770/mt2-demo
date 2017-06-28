@@ -16,7 +16,7 @@ class SuppressionListSuppressionRepo implements IRedshiftRepo
 
     public function loadEntity($entity) {
         $sql = <<<SQL
-copy suppression_global_orange
+copy suppression_list_suppressions
 from 's3://mt2-listprofile-export/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '\'' delimiter as ',';
@@ -25,10 +25,10 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->statement("TRUNCATE suppression_list_suppression");
+        DB::connection('redshift')->statement("TRUNCATE suppression_list_suppressions");
 
         $sql = <<<SQL
-copy suppression_global_orange
+copy suppression_list_suppressions
 from 's3://mt2-listprofile-export/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '\'' delimiter as ',';

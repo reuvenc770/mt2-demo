@@ -19,6 +19,10 @@ class CakeOfferRepo {
         $this->offer->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getVerticalId($id) {
+        return $this->offer->where('id', $id)->pluck('vertical_id')->first() ?: 0;
+    }
+
     public function prepareTableForSync() {}
 
 }

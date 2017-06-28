@@ -38,19 +38,21 @@ class AttributionRecordTruthRepo {
      *      The query itself is faster than the optimized query, but must be run many more times.
      */
 
-    public function getFullTransients($remainder) {
+    public function getFullTransientsBetweenIds($remainder, $startPoint, $endPoint) {
         $attrDb = config('database.connections.slave_attribution.database');
 
         return DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                     ->select('art.email_id', DB::raw('IFNULL(efa.feed_id, 0) as feed_id'), 'efa.subscribe_date', 'art.has_action', 'art.action_expired', DB::raw('IFNULL(al.level, 0) as level'))
                     ->leftJoin($attrDb . '.email_feed_assignments as efa', 'art.email_id', '=', 'efa.email_id')
                     ->leftJoin($attrDb . '.attribution_levels as al', 'efa.feed_id', '=', 'al.feed_id')
+                    ->whereBetween('art.email_id', $startPoint, $endPoint)
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
                     ->whereRaw('action_expired IN (1,0)')
                     ->where('additional_imports', 1)
                     ->whereRaw("art.email_id % 5 = $remainder")
-                    ->orderBy('email_id');
+                    ->orderBy('email_id')
+                    ->get();
     }
 
 
@@ -61,8 +63,7 @@ class AttributionRecordTruthRepo {
      *      Should be fairly quick as the query itself is slower but likely only needs to be run once.
      */
 
-    public function getOptimizedTransients($startDateTime, $remainder) {
-        
+    public function getOptimizedTransientsBetweenIds($startDateTime, $remainder, $startPoint, $endPoint) {
         $attrDb = config('database.connections.slave_attribution.database');
         $dataDb = config('database.connections.slave_data.database');
 
@@ -83,6 +84,7 @@ class AttributionRecordTruthRepo {
                       ->whereRaw('action_expired IN (1,0)')
                       ->where('aes.trigger_date', '<', $startDateTime)
                       ->whereRaw("art.email_id % 5 = $remainder")
+                      ->whereBetween('art.email_id', $startPoint, $endPoint)
                       ->groupBy('efa.email_id', 'efa.feed_id', 'efa.subscribe_date', 'art.has_action', 'art.action_expired')
                       ->havingRaw("MAX(efi.subscribe_date) >= '$startDateTime'");
 
@@ -99,23 +101,52 @@ class AttributionRecordTruthRepo {
                     ->whereBetween('aes.trigger_date', [$startDateTime, DB::raw("CURDATE() + INTERVAL 1 HOUR")])
                     ->whereRaw('action_expired IN (0,1)')
                     ->whereRaw("art.email_id % 5 = $remainder")
+                    ->whereBetween('art.email_id', $startPoint, $endPoint)
                     ->unionAll($union)
-                    ->orderBy('email_id');
+                    ->orderBy('email_id')
+                    ->get();
     }
 
-    public function getFeedAttributions($feedId, $remainder) {
+    public function maxId() {
+        return $this->model->max('email_id');
+    }
+
+    public function minId() {
+        return $this->model->min('email_id');
+    }
+
+    public function nextNRows($startPoint, $offset) {
+        return $this->model
+            ->where('email_id', '>=', $startPoint)
+            ->orderBy('email_id')
+            ->skip($offset)
+            ->first()['email_id'];
+    }
+
+    public function nextNRowsForAttribution($feedId, $startPoint, $offset) {
+        return $this->model
+            ->where('email_id', '>=', $startPoint)
+            ->where('feed_id', $feedId)
+            ->orderBy('email_id')
+            ->skip($offset)
+            ->first()['email_id'];
+    }
+
+    public function getFeedAttributionsBetweenIds($feedId, $remainder, $startId, $endId) {
         $attrDb = config('database.connections.slave_attribution.database');
         $dataDb = config('database.connections.slave_data.database');
-        // Need to pick up any imports ever, I think, and not just the one prior to the attribution.
+        // Need to pick up any imports ever
         // It's a bit more difficult to get when an action happened ... 
 
         return DB::connection('slave_attribution')
                 ->table('attribution_record_truths as art')
-                ->join("$dataDb.email_feed_instances as efa", 'art.email_id', '=', 'efa.email_id')
-                ->join("$attrDb.attribution_levels as al", 'efa.feed_id', '=', 'al.feed_id')
-                ->where('efa.feed_id', $feedId)
+                ->join("$dataDb.email_feed_instances as efi", 'art.email_id', '=', 'efi.email_id')
+                ->join("$attrDb.attribution_levels as al", 'efi.feed_id', '=', 'al.feed_id')
+                ->where('efi.feed_id', $feedId)
                 ->whereRaw("art.email_id % 5 = $remainder")
-                ->select('art.email_id', 'efa.feed_id', DB::raw('"2000-01-01" as subscribe_date'), DB::raw('0 as has_action'), DB::raw('0 as action_expired'), 'al.level');
+                ->whereBetween('art.email_id', $startId, $endId)
+                ->select('art.email_id', 'efa.feed_id', 'efi.subscribe_date', 'has_action', 'action_expired', 'al.level')
+                ->get();
     }
 
     public function resetRecord () {

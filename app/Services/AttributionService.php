@@ -4,8 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use App\Repositories\AttributionRecordTruthRepo;
-use App\Repositories\AttributionLevelRepo;
-use App\Repositories\EtlPickupRepo;
+use App\Repositories\EmailFeedAssignmentRepo;
 use Cache;
 use Log;
 
@@ -14,78 +13,69 @@ use Artisan;
 class AttributionService
 {
     private $truthRepo;
-    private $pickupRepo;
-    private $levelRepo;
+    private $emailRepo;
+    private $assignmentRepo;
     
     private $name = 'AttributionJob';
+    const LIMIT = 65000;
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
-                                AttributionLevelRepo $levelRepo,
-                                EtlPickupRepo $pickupRepo) {
+                                EmailFeedAssignmentRepo $assignmentRepo) {
 
         $this->truthRepo = $truthRepo;
-        $this->levelRepo = $levelRepo;
-        $this->pickupRepo = $pickupRepo;
-        
-    }   
-
-    public function getTransientRecords($argObj, $remainder) {
-        $type = $argObj['type'];
-
-        $timestamp = $this->pickupRepo->getLastInsertedForName($this->name);
-        Log::info('Attribution beginning from timestamp: ' . $timestamp);
-
-        $carbonDate = Carbon::createFromTimestamp($timestamp);
-
-        // Checking whether attribution levels have changed since the last run
-        $lastAttrLevelChange = Carbon::parse($this->levelRepo->getLastUpdate());
-
-        if ('feedInvalidation' === $type) {
-            
-            //We need to get all feed instances and reassign if possible.
-            $feedId = $argObj['feedId'];
-            return $this->truthRepo->getFeedAttributions($feedId, $remainder);
-        }
-        elseif ('model' === $type || $lastAttrLevelChange->gte($carbonDate)) {
-            /* 
-                If a model is specified, or if attribution has changed recently,
-                we need to pick up all available transients. This is distinct from
-                rerunning *all* records because it does not need to trawl the entire database -
-                only two cases in the attribution flow chart.
-                There *are* some cases that this will miss in the case of level change:
-                something *would have* changed had the levels been different at some point in the past.
-                However, this omission is deliberate - attribution only moves forward (except for
-                the case above).
-            */
-            return $this->truthRepo->getFullTransients($remainder);
-        }
-        else {
-            // Otherwise, run the optimized subset
-            $datetime = $carbonDate->toDateTimeString();
-            return $this->truthRepo->getOptimizedTransients($datetime, $remainder);
-        }
-        
+        $this->assignmentRepo = $assignmentRepo;
     }
 
-    public function run( $records , $modelId = 'none' , $userEmail = 'none' ) {
+    public function run($argObj, $remainder) {
+        $type = $argObj['type'];
 
-        $currentTimestamp = Carbon::now()->timestamp;
+        if ('feedInvalidation' === $type) {
+            $feedId = $argObj['feedId'];
+            $startPoint = $this->assignmentRepo->maxEmailIdForFeed($feedId);
+            $endPoint = $this->assignmentRepo->minEmailIdForFeed($feedId);
+        }
+        else {
+            $startPoint = $this->truthRepo->maxId();
+            $endPoint = $this->truthRepo->minId();
+        }
 
-        $records->chunk(65000, function ($results) use ($modelId, $userEmail) {
-            Artisan::call('attribution:processBatch', [
-                'data' => $results, 
-                'modelId' => $modelId ,
-                'userEmail' => $userEmail
-            ]);
-
-            // This depends on the query completing faster than the processing job
-            // This is currently a good assumption, but is not necessarily true
-            Cache::increment($this->name);
-        });
-
-        // setting this to the start of the run prevents any gaps
-        $this->pickupRepo->updatePosition($this->name, $currentTimestamp);
+        while ($startPoint < $endPoint) {        
+            if ('feedInvalidation' === $type) {            
+                //We need to get all feed instances and reassign if possible.
+                $segmentEnd = $this->truthRepo->nextNRowsForAttribution($feedId, $startPoint, self::LIMIT) ?: $endPoint;
+                $records = $this->truthRepo->getFeedAttributionsBetweenIds($feedId, $remainder, $startPoint, $endPoint);
+            }
+            elseif ('model' === $type || $lastAttrLevelChange->gte($carbonDate)) {
+                /* 
+                    If a model is specified, or if attribution has changed recently,
+                    we need to pick up all available transients. This is distinct from
+                    rerunning *all* records because it does not need to trawl the entire database -
+                    only two cases in the attribution flow chart.
+                    There *are* some cases that this will miss in the case of level change:
+                    something *would have* changed had the levels been different at some point in the past.
+                    However, this omission is deliberate - attribution only moves forward (except for
+                    the case above).
+                */
+                $segmentEnd = $this->truthRepo->nextNRows($startPoint, self::LIMIT) ?: $endPoint;
+                $records = $this->truthRepo->getFullTransientsBetweenIds($remainder, $startPoint, $endPoint);
+            }
+            else {
+                // Otherwise, run the optimized subset
+                $segmentEnd = $this->truthRepo->nextNRows($startPoint, self::LIMIT) ?: $endPoint;
+                $datetime = $carbonDate->toDateTimeString();
+                $records = $this->truthRepo->getOptimizedTransientsBetweenIds($datetime, $remainder, $startPoint, $endPoint);
+            }
         
+            if ($records) {
+                Artisan::call('attribution:processBatch', [
+                    'data' => $records
+                ]);
+            
+                Cache::increment($this->name);
+            }
+        
+            $startPoint = $segmentEnd;
+        }
     }
 
 }
