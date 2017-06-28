@@ -18,8 +18,7 @@ class RunTimeMonitorCommand extends Command
      * The name and signature of the console command.
      *
      * @var string
-     * --simulate=[0|1], signal sent to acceptance test simulation
-     * --runtime_threshold=[0-9]{1,}(s|m|h|)  in seconds, minutes, or hours
+     * --runtime-threshold=[0-9]{1,}(s|m|h|)  in seconds, minutes, or hours
      */
     protected $signature = 'monitors:runtime {--mode=} {--days-back=?} {--dt-start=?} {--dt-end=?} {--runtime-threshold=}';
 

@@ -3,7 +3,7 @@ mt2App.service( 'NavigationApiService' , function ( $http ) {
 
     self.getTreeUrl = '/api/navigation/gettree';
     self.getOrphanUrl = '/api/navigation/orphans';
-    self.getBasePost = '/api/navigation/';
+    self.getBasePost = '/api/navigation';
 
     self.getPermissionsTree = function (successCallback , failureCallback ) {
         $http( {

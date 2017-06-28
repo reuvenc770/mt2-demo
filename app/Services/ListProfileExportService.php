@@ -110,7 +110,7 @@ class ListProfileExportService {
         $string = implode(PHP_EOL, $this->rows);
         Storage::disk($disk)->append($fileName, $string);
         $this->rows = [];
-        $this->countCount = 0;
+        $this->rowCount = 0;
     }
 
     private function batch($fileName, $row, $disk = 'espdata') {
@@ -140,7 +140,6 @@ class ListProfileExportService {
     private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows) . PHP_EOL;
         File::append($fileName, $string);
-
         $this->rows = [];
         $this->rowCount = 0;
     }

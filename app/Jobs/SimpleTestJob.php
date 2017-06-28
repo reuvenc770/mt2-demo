@@ -14,7 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
  * @package App\Jobs
  * an example class for a monitored job.
  * The acceptanceTest method is optional, will be executed if it exists.
- * JOB_NAME and $runtime_seconds_threshold MUST be defined.
+ * JOB_NAME and $runtimeSecondsThreshold MUST be defined.
  * Job specific tasks are executed in the handleJob method.
  *
  * Uncomment JobTracking::tripUp() for an example of a non-cascading exception that
@@ -28,9 +28,9 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     /**
      * @param  boolean $foo - acceptanceTest result relayed for testing
      */
-    public function __construct($foo,$runtime_threshold,$tracking=null)
+    public function __construct($foo,$runtimeThreshold,$tracking=null)
     {
-        parent::__construct(self::JOB_NAME,$runtime_threshold,$tracking);
+        parent::__construct(self::JOB_NAME,$runtimeThreshold,$tracking);
 
         $this->foo = $foo;
     }

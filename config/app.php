@@ -175,6 +175,7 @@ return [
         #App\Providers\AWeberReportServiceProvider::class,
         App\Providers\CustomRuleValidatorProvider::class,
         App\Providers\EntityCacheProvider::class,
+        App\Providers\NotificationScheduleServiceProvider::class,
     ],
 
     /*
@@ -236,7 +237,8 @@ return [
         'CampaignActionsEntry' => App\Facades\DeployActionEntry::class,
         'States' => AdrianMejias\States\StatesFacade::class,
         'Assets' => Fisharebest\LaravelAssets\AssetsFacade::class,
-        'AWeberEmailAction'=> App\Facades\AWeberEmailAction::class,
+        #'AWeberEmailAction'=> App\Facades\AWeberEmailAction::class,
         'BrontoMapping' => App\Facades\BrontoMapping::class,
+        'Notify' => App\Facades\NotificationSchedule::class,
     ],
 ];

@@ -114,6 +114,10 @@ class Kernel extends ConsoleKernel
         Commands\GetFirstPartyRecords::class,
         Commands\ClearRedisKeysWithPatternCommand::class,
         Commands\ReprocessFeedFileCommand::class ,
+        Commands\ClearRedisKeysWithPatternCommand::class,
+        Commands\ReprocessFeedFileCommand::class ,
+        Commands\ScheduledNotificationsCommand::class,
+        Commands\BestMoneySearchGetResponseContactUploadCommand::class,
 ];
 
     /**
@@ -230,27 +234,27 @@ class Kernel extends ConsoleKernel
          *  MT1 data sync jobs
          *  Job names like: ImportMt1
          */
-        $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import creative')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import from')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import subject')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import deploy')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import offerCreativeMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import offerFromMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import offerSubjectMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import cakeEncryptedLinkMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import link 2')->cron('0 */2 * * * *');
-        $schedule->command('mt1Import feed')->cron('0 * * * * *');
-        $schedule->command('mt1Import offerTrackingLink')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import mailingTemplate')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import cakeOffer')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import cakeVertical')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import cakeOfferMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import client')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import vendorSuppressionInfo')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import offerSuppressionListMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import globalSuppression')->cron('45 */4 * * * *');
+        $schedule->command('mt1Import offer --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import advertiser --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import creative --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import from --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import subject --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import deploy --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import offerCreativeMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import offerFromMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import offerSubjectMap --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeEncryptedLinkMap --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import link 2 --runtime-threshold=1h')->cron('0 */2 * * * *');
+        $schedule->command('mt1Import feed --runtime-threshold=1m')->cron('0 * * * * *');
+        $schedule->command('mt1Import offerTrackingLink --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeOffer --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeVertical --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeOfferMap --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import vendorSuppressionInfo --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import offerSuppressionListMap --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *');
 
         /**
          * Attribution Jobs
@@ -270,14 +274,13 @@ class Kernel extends ConsoleKernel
         /**
          *  List profile jobs
          */
-
         $schedule->command('listprofile:dataEtl')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3
         $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
-        $schedule->command('listprofile:aggregateActions')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation
-        $schedule->command('listprofile:contentServerRawStats')->hourly(); // Job name: ProcessContentServerRawStats
-        $schedule->command('listprofile:getRecordAgentData 2')->hourly(); // Job name: ContentServerDeviceData
-        $schedule->command('listprofile:baseTables')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
+        $schedule->command('listprofile:aggregateActions --runtime-threshold=6h')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation
+        $schedule->command('listprofile:contentServerRawStats --runtime-threshold=5m')->hourly(); // Job name: ProcessContentServerRawStats
+        $schedule->command('listprofile:getRecordAgentData 2 --runtime-threshold=40m')->hourly(); // Job name: ContentServerDeviceData
+        $schedule->command('listprofile:baseTables --runtime-threshold=1h')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
         $schedule->command('listprofile:validateRedshift 1')->cron('0 6 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
@@ -294,6 +297,16 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyMinute(); // Job name like: BatchProcessingJob%
         $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
 
+        // Currently commented-out. Waiting for everything going live
+        // Process first party feeds, by feed id
+        #$schedule->command('feedRecords:process 1 --feed=2983')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2971')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2972')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2987')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2759')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2798')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
+        
         // Process first party feeds, by feed id. This list is dynamic.
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         
