@@ -33,7 +33,7 @@ class ScheduledNotificationController extends Controller
      */
     public function store(Request $request)
     {
-        $data = json_decode( ( $request->all() )[ 'data' ] , true );
+        $data = json_decode( $request->all()[ 'data' ] , true );
 
         return response()->json( $this->service->updateOrCreate( $data ) );
     }
