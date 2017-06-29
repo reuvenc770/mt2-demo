@@ -23,6 +23,7 @@ class RealtimeProcessingService extends RemoteFeedFileService {
     const UNEMPLOYMENT_FEED_ID = 3017;
 
     protected $serviceName = 'RealtimeProcessingService';
+    protected $logKeySuffix = '_realtime';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $currentCustomFields = [];
 

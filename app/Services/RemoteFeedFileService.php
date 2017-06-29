@@ -45,6 +45,7 @@ class RemoteFeedFileService {
     protected $missingMappingList = [];
 
     protected $serviceName = 'RemoteFeedFileService';
+    protected $logKeySuffix = '';
     protected $slackChannel = "#mt2team";
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
@@ -88,7 +89,7 @@ class RemoteFeedFileService {
         }
 
         if ( $this->processedFileCount > 0 ) {
-            Notify::log( 'batch_feed' , json_encode( [ "files" => $this->notificationCollection ] ) );
+            Notify::log( 'batch_feed' . $this->logKeySuffix , json_encode( [ "files" => $this->notificationCollection ] ) );
         }
 
         if ( count( $this->missingMappingList ) > 0 ) {
