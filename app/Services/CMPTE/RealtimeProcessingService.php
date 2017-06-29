@@ -294,8 +294,10 @@ class RealtimeProcessingService extends RemoteFeedFileService {
             $this->recordCounts[ $record[ 'feed_id' ] ] = [
                 "timestamp" => Carbon::now()->toDayDateTimeString() ,
                 "feedName" => $this->feedService->getFeedNameFromId( $record[ 'feed_id' ] ) ,
-                'success' => 0 ,
-                'fail' => 0
+
+                "party" => ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ? 1 : 3 ) , 
+                "success" => 0 ,
+                "fail" => 0
             ];
         }
 
@@ -304,6 +306,8 @@ class RealtimeProcessingService extends RemoteFeedFileService {
         } else {
             $this->recordCounts[ $record[ 'feed_id' ] ][ 'fail' ]++;
         }
+
+        return $valid;
     }
 
     protected function logProcessingComplete () {

@@ -435,8 +435,6 @@ class RemoteFeedFileService {
             }   
         }
 
-        \Log::info( json_encode( $directoryList ) );
-
         return $directoryList;
     }
 
