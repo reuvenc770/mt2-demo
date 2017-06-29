@@ -128,12 +128,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
-
         /**
-         * Runtime Monitor
+         * Alerts & Notifications
          */
+        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
         $schedule->command('monitors:runtime --mode=monitor --days-back=2 --runtime-threshold=30s')->cron('05 8,16 * * * *');
+        $schedule->command('notify:scheduled')->everyMinute();
 
 
         /**
