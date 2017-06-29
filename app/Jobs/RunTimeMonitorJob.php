@@ -36,7 +36,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
      * @param null $date1, integer indicating days back or start datetime, format YYYYMMDDhhmmss
      * @param null $date2, end datetime, format YYYYMMDDhhmmss
      */
-    public function __construct($mode,$runtimeThreshold,$date1,$date2=null)
+    public function __construct($mode,$runtimeThreshold=null,$date1,$date2=null)
     {
 
         parent::__construct(self::JOB_NAME.'_'.Carbon::now(),$runtimeThreshold);
@@ -174,13 +174,39 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         $pretty_report = implode("\n",$pretty);
         //print $pretty_report;
 
-        Slack::to($this->room)->attach(['text' => $pretty_report])->send('Runtime Monitoring Report');
+        $report_chunks = $this->chunkReport($pretty_report);
+        $system = config('systems.'.env('APP_ENV','local').'.name');
+
+        Slack::to($this->room)->send("Runtime Monitoring Report for $system BEGIN");
+        foreach($report_chunks AS $chunk){
+            Slack::to($this->room)->attach(['text' => $chunk])->send();
+        }
+        Slack::to($this->room)->send("Runtime Monitoring Report for $system END");
+
     }
 
-    /**
+    private function chunkReport($report){
+        $report_ar = explode("\n",$report);
+        $maxlength = 7000;
+        $chunks = array();
+        $chunk = "";
+
+        foreach($report_ar AS $line){
+            $chunk .= "\n".$line;
+
+            if(strlen($chunk) > $maxlength){
+                $chunks[] = $chunk;
+                $chunk = "";
+            }
+        }
+        $chunks[] = $chunk;
+        return $chunks;
+    }
+
+    /**"
      * reports execution failure to configured slack channel
      */
     private function sendRunTimeMonitorFailureAlert($error_message){
-        Slack::to(self::ROOM)->send('ERROR ALERT: RunTimeMonitor failed to properly execute! '.$error_message);
+        Slack::to($this->room)->send('ERROR ALERT: RunTimeMonitor failed to properly execute! '.$error_message);
     }
 }

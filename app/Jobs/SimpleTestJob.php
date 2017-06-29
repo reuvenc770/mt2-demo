@@ -28,7 +28,7 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     /**
      * @param  boolean $foo - acceptanceTest result relayed for testing
      */
-    public function __construct($foo,$runtimeThreshold,$tracking=null)
+    public function __construct($foo,$runtimeThreshold=null,$tracking=null)
     {
         parent::__construct(self::JOB_NAME,$runtimeThreshold,$tracking);
 

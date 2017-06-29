@@ -21,7 +21,7 @@ class DownloadSuppressionFromESP extends MonitoredJob implements ShouldQueue
     protected $date;
 
 
-    public function __construct($runtimeThreshold, $apiName, $espAccountId, $date, $tracking){
+    public function __construct($runtimeThreshold=null, $apiName, $espAccountId, $date, $tracking){
 
         $jobname = self::JOB_NAME."_".$apiName."_".$espAccountId;
         parent::__construct($jobname,$runtimeThreshold,$tracking);

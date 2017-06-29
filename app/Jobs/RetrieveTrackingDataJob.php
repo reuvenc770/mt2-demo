@@ -28,7 +28,7 @@ class RetrieveTrackingDataJob extends MonitoredJob implements ShouldQueue
 
     protected $isRecordProcessing = false;
 
-    public function __construct($source, $startDate, $endDate, $tracking, $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION, $runtimeThreshold ) {
+    public function __construct($source, $startDate, $endDate, $tracking, $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION, $runtimeThreshold=null ) {
        $this->source = $source;
        $this->startDate = $startDate;
        $this->endDate = $endDate;

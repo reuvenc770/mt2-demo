@@ -32,7 +32,7 @@ class RetrieveApiReports extends MonitoredJob implements ShouldQueue
         JobException::CRITICAL => 'critical'
     ];
 
-    public function __construct($runtimeThreshold,$apiName, $espAccountId, $date, $tracking, $apiLimit = null)
+    public function __construct($runtimeThreshold=null,$apiName, $espAccountId, $date, $tracking, $apiLimit = null)
     {
 
        $jobname = self::JOB_NAME."_".$apiName."_".$espAccountId;

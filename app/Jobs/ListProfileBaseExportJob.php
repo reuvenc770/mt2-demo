@@ -17,7 +17,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
     protected $jobName;
     private $cacheTagName;
 
-    public function __construct($profileId, $cacheTagName, $tracking, $runtimeThreshold) {
+    public function __construct($profileId, $cacheTagName, $tracking, $runtimeThreshold=null) {
         $this->profileId = $profileId;
         $this->tracking = $tracking;
         $this->jobName = 'ListProfileGeneration-' . $profileId;

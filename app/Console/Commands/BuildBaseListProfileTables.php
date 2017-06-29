@@ -18,7 +18,7 @@ class BuildBaseListProfileTables extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:baseTables {--runtime-threshold=}';
+    protected $signature = 'listprofile:baseTables {--runtime-threshold=default}';
 
     /**
      * The console command description.

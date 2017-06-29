@@ -4,134 +4,134 @@ return [
     "BlueHornet" => [
         "pipes" => [
             "actions" => [
-                'jobSetup' ,
-                'getCampaigns' ,
-                'startTicket' ,
-                'checkTicketStatus' ,
-                'downloadTicketFile' ,
-                'getTypeList' ,
-                'synchronousSaveTypeRecords' ,
-                'cleanUp'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getCampaigns', 'runtimeThreshold' => '1m'],
+                ['name' => 'startTicket' , 'runtimeThreshold' => '1m'],
+                ['name' => 'checkTicketStatus' , 'runtimeThreshold' => '1m'],
+                ['name' => 'downloadTicketFile' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList' , 'runtimeThreshold' => '1m'],
+                ['name' => 'synchronousSaveTypeRecords' , 'runtimeThreshold' => '1m'],
+                ['name' => 'cleanUp' , 'runtimeThreshold' => '1m']
             ] ,
             "delivered" => [
-                'jobSetup' ,
-                'getDeliverableCampaigns' ,
-                'startTicket' ,
-                'checkTicketStatus' ,
-                'downloadTicketFile' ,
-                'getTypeList' ,
-                'synchronousSaveTypeRecords' ,
-                'cleanUp'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getDeliverableCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'startTicket' , 'runtimeThreshold' => '1m'],
+                ['name' => 'checkTicketStatus' , 'runtimeThreshold' => '1m'],
+                ['name' => 'downloadTicketFile' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList' , 'runtimeThreshold' => '1m'],
+                ['name' => 'synchronousSaveTypeRecords' , 'runtimeThreshold' => '1m'],
+                ['name' => 'cleanUp' , 'runtimeThreshold' => '1m']
             ],
             "rerun" => [
-                'jobSetup' ,
-                'getRerunCampaigns' ,
-                'startTicket' ,
-                'checkTicketStatus' ,
-                'downloadTicketFile' ,
-                'getTypeList' ,
-                'synchronousSaveTypeRecords' ,
-                'removeDeploys',
-                'cleanUp'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getRerunCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'startTicket' , 'runtimeThreshold' => '1m'],
+                ['name' => 'checkTicketStatus' , 'runtimeThreshold' => '1m'],
+                ['name' => 'downloadTicketFile' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList' , 'runtimeThreshold' => '1m'],
+                ['name' => 'synchronousSaveTypeRecords' , 'runtimeThreshold' => '1m'],
+                ['name' => 'removeDeploys', 'runtimeThreshold' => '1m'],
+                ['name' => 'cleanUp',  'runtimeThreshold' => '1m']
             ]
         ]
     ] ,
     "Campaigner" => [
         "pipes" => [
             "delivered" => [
-                'getCampaigns' ,
-                'splitTypes' ,
-                'startTicket' ,
-                'saveRecords'
+                ['name' => 'getCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'startTicket' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords',  'runtimeThreshold' => '1m']
             ] ,
             "actions" => [
-                'getCampaigns' ,
-                'splitTypes' ,
-                'startTicket' ,
-                'saveRecords'
+                ['name' => 'getCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'startTicket' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords' ,  'runtimeThreshold' => '1m']
             ] ,
             "rerun" => [
-                'getRerunCampaigns' ,
-                'startTicket' ,
-                'splitTypes' ,
-                'saveRecords',
-                'removeDeploys'
+                ['name' => 'getRerunCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'startTicket' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords', 'runtimeThreshold' => '1m'],
+                ['name' => 'removeDeploys' ,  'runtimeThreshold' => '1m']
             ]
         ]
     ] ,
     "Maro" => [
         "pipes" => [
             "default" => [
-                'splitTypes' ,
-                'savePaginatedRecords'
-            ] , 
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'savePaginatedRecords' ,  'runtimeThreshold' => '1m']
+            ] ,
             "delivered" => [
-                'getDeliverableCampaigns',
-                'savePaginatedCampaignRecords'
+                ['name' => 'getDeliverableCampaigns', 'runtimeThreshold' => '1m'],
+                ['name' => 'savePaginatedCampaignRecords' ,  'runtimeThreshold' => '1m']
             ],
             "rerun" => [
-                'getRerunCampaigns',
-                'splitTypes',
-                'savePaginatedCampaignRecords',
-                'removeDeploys'
+                ['name' => 'getRerunCampaigns', 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes', 'runtimeThreshold' => '1m'],
+                ['name' => 'savePaginatedCampaignRecords', 'runtimeThreshold' => '1m'],
+                ['name' => 'removeDeploys' ,  'runtimeThreshold' => '1m']
             ]
         ]
     ] ,
     "EmailDirect" => [
         "pipes" => [
             "default" => [
-                'jobSetup' ,
-                'getCampaigns' ,
-                'getTypeList' ,
-                'splitTypes' ,
-                'saveRecords'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords' ,  'runtimeThreshold' => '1m']
             ]
         ]
     ],
     "Ymlp" => [
         "pipes" => [
             "default" => [
-                'getCampaigns',
-                'getTypeList',
-                'splitTypes' ,
-                'saveRecords'
+                ['name' => 'getCampaigns', 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList', 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords' ,  'runtimeThreshold' => '1m']
             ]
         ]
     ] ,
     "AWeber" => [
         "pipes" => [
             "default" => [
-                'jobSetup' ,
-                'getCampaigns' ,
-                'splitTypes' ,
-                'savePaginatedAWeberRecords',
-                'saveOpenAWeberRecords'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'savePaginatedAWeberRecords', 'runtimeThreshold' => '1m'],
+                ['name' => 'saveOpenAWeberRecords' ,  'runtimeThreshold' => '1m']
             ]
         ]
     ] ,
     "Publicators" => [
         "pipes" => [
             "actions" => [
-                'jobSetup' ,
-                'getCampaigns' ,
-                'getTypeList' ,
-                'splitTypes' ,
-                'saveRecords'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords' ,  'runtimeThreshold' => '1m']
             ] ,
             "delivers" => [
-                'jobSetup' ,
-                'getDeliverableCampaigns' ,
-                'getTypeList' ,
-                'splitTypes' ,
-                'saveRecords'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getDeliverableCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords' ,  'runtimeThreshold' => '1m']
             ] ,
             "rerun" => [
-                'jobSetup' ,
-                'getRerunCampaigns' ,
-                'getTypeList' ,
-                'splitTypes' ,
-                'saveRecords',
-                'removeDeploys'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getRerunCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getTypeList' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'saveRecords', 'runtimeThreshold' => '1m'],
+                ['name' => 'removeDeploys' ,  'runtimeThreshold' => '1m']
             ]
 
         ]
@@ -139,20 +139,20 @@ return [
     "Bronto" => [
         "pipes" => [
             "actions" => [
-                'jobSetup' ,
-                'getRawCampaigns' ,
-                'splitTypes' ,
-                'savePaginatedRecords'
+                ['name' => 'jobSetup' , 'runtimeThreshold' => '1m'],
+                ['name' => 'getRawCampaigns' , 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes' , 'runtimeThreshold' => '1m'],
+                ['name' => 'savePaginatedRecords' , 'runtimeThreshold' => '1m']
             ] ,
             "delivered" => [
-                'getSplitDeliverableCampaigns',
-                'savePaginatedCampaignRecords'
+                ['name' => 'getSplitDeliverableCampaigns', 'runtimeThreshold' => '1m'],
+                ['name' => 'savePaginatedCampaignRecords' , 'runtimeThreshold' => '1m']
             ],
             "rerun" => [
-                'getBrontoRerunCampaigns',
-                'splitTypes',
-                'savePaginatedCampaignRecords',
-                'removeDeploys'
+                ['name' => 'getBrontoRerunCampaigns', 'runtimeThreshold' => '1m'],
+                ['name' => 'splitTypes', 'runtimeThreshold' => '1m'],
+                ['name' => 'savePaginatedCampaignRecords', 'runtimeThreshold' => '1m'],
+                ['name' => 'removeDeploys' ,  'runtimeThreshold' => '1m']
             ]
         ]
     ] ,
