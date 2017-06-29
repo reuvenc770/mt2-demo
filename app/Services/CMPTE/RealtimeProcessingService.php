@@ -14,6 +14,8 @@ use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
 use App\Models\MT1Models\User as Feeds;
 use League\Csv\Reader;
+use Notify;
+use Carbon\Carbon;
 
 class RealtimeProcessingService extends RemoteFeedFileService {
     const FOODSTAMP_FEED_ID = 3016;
@@ -26,6 +28,7 @@ class RealtimeProcessingService extends RemoteFeedFileService {
     protected $logKeySuffix = '_realtime';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $currentCustomFields = [];
+    protected $recordCounts = [];
 
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         parent::__construct( $feedService , $systemService , $domainGroupService , $rawRepo );
@@ -282,5 +285,40 @@ class RealtimeProcessingService extends RemoteFeedFileService {
 
     protected function columnMatchCheck ( $lineColumns ) {
         return true;
+    }
+
+    protected function isValidRecord ( $record , $rawRecord , $lineNumber ) {
+        $valid = parent::isValidRecord( $record , $rawRecord , $lineNumber );
+
+        if ( !isset( $this->recordCounts[ $record[ 'feed_id' ] ] ) ) {
+            $this->recordCounts[ $record[ 'feed_id' ] ] = [
+                "timestamp" => Carbon::now()->toDayDateTimeString() ,
+                "feedName" => $this->feedService->getFeedNameFromId( $record[ 'feed_id' ] ) ,
+
+                "party" => ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ? 1 : 3 ) , 
+                "success" => 0 ,
+                "fail" => 0
+            ];
+        }
+
+        if ( $valid ) {
+            $this->recordCounts[ $record[ 'feed_id' ] ][ 'success' ]++;
+        } else {
+            $this->recordCounts[ $record[ 'feed_id' ] ][ 'fail' ]++;
+        }
+
+        return $valid;
+    }
+
+    protected function logProcessingComplete () {
+        Notify::log( 'batch_feed' . $this->logKeySuffix , json_encode( [ "counts" => $this->recordCounts ] ) );
+    }
+
+    protected function logMissingFieldMapping () {
+        #not needed, mapping is static.
+    }
+
+    protected function addFileToNotificationCollection () {
+        #not needed, many files are small counts. doing aggregate instead
     }
 }
