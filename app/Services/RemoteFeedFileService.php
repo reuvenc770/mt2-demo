@@ -37,7 +37,8 @@ class RemoteFeedFileService {
 
     protected $currentFile = null;
     protected $currentColumnMap = null;
-    protected $currentFileLineCount = null;
+    protected $currentFileLineCount = 0;
+    protected $currentFileErrorCount = 0;
     protected $currentLines = null;
 
     protected $processedFileCount = 0;
@@ -45,6 +46,7 @@ class RemoteFeedFileService {
     protected $missingMappingList = [];
 
     protected $serviceName = 'RemoteFeedFileService';
+    protected $logKeySuffix = '';
     protected $slackChannel = "#mt2team";
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
@@ -87,13 +89,9 @@ class RemoteFeedFileService {
             $this->processedFileCount++;
         }
 
-        if ( $this->processedFileCount > 0 ) {
-            Notify::log( 'batch_feed' , json_encode( [ "files" => $this->notificationCollection ] ) );
-        }
+        $this->logProcessingComplete();
 
-        if ( count( $this->missingMappingList ) > 0 ) {
-            Notify::log( 'batch_feed_mapping_missing' , json_encode( $this->missingMappingList ) );
-        }
+        $this->logMissingFieldMapping();
     }
 
     public function updateFeedDirectories () {
@@ -317,6 +315,8 @@ class RemoteFeedFileService {
         $validator = \Validator::make( $record , $this->feedService->generateValidationRules( $record ) );
 
         if ( $validator->fails() ) {
+            $this->currentFileErrorCount++;
+
             $log = $this->rawRepo->logBatchFailure(
                 $validator->errors()->toJson() ,
                 $rawRecord ,
@@ -349,17 +349,20 @@ class RemoteFeedFileService {
 
     protected function markFileAsProcessed () {
         $this->saveFileAsProcessed();
+        $this->addFileToNotificationCollection();
 
+        \Log::info( 'RemoteFeedFileService: processed ' . $this->currentFile[ 'path' ] );
+    }
+
+    protected function addFileToNotificationCollection () {
         $this->notificationCollection []= [
             "file" =>  substr( strrchr( $this->currentFile[ 'path' ] , "/" ) , 1 ) ,
             "feedId" => $this->currentFile[ 'feedId' ] ,
             "feedName" => $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] ) ,
             "recordCount" => $this->currentFileLineCount ,
+            "errorCount" => $this->currentFileErrorCount ,
             "timeFinished" => Carbon::now()->toDayDateTimeString()
         ];
-
-
-        \Log::info( 'RemoteFeedFileService: processed ' . $this->currentFile[ 'path' ] );
     }
 
     protected function saveFileAsProcessed () {
@@ -376,6 +379,7 @@ class RemoteFeedFileService {
 
     protected function resetCursor () {
         $this->lastLineNumber = 0;
+        $this->currentFileErrorCount = 0;
     }
 
     protected function addToBuffer ( $record ) {
@@ -430,8 +434,6 @@ class RemoteFeedFileService {
             }   
         }
 
-        \Log::info( json_encode( $directoryList ) );
-
         return $directoryList;
     }
 
@@ -456,6 +458,18 @@ class RemoteFeedFileService {
                 config('ssh.servers.mt1_feed_file_server.public_key'),
                 config('ssh.servers.mt1_feed_file_server.private_key')
             );
+        }
+    }
+
+    protected function logProcessingComplete () {
+        if ( $this->processedFileCount > 0 ) {
+            Notify::log( 'batch_feed' . $this->logKeySuffix , json_encode( [ "files" => $this->notificationCollection ] ) );
+        }
+    }
+
+    protected function logMissingFieldMapping () {
+        if ( count( $this->missingMappingList ) > 0 ) {
+            Notify::log( 'batch_feed_mapping_missing' , json_encode( $this->missingMappingList ) );
         }
     }
 }
