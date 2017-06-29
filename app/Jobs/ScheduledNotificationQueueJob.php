@@ -29,7 +29,7 @@ class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $contentType , $tracking , $runtimeThreshold )
+    public function __construct( $contentType , $tracking , $runtimeThreshold="10m" )
     {
         $this->contentType = $contentType;
         $this->jobName = $this->baseJobName . ":" . $this->contentType;

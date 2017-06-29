@@ -12,6 +12,7 @@ use App\Repositories\Traits\ToggleBooleanColumn;
 
 use Carbon\Carbon;
 use Cron\CronExpression;
+use Cache;
 
 class NotificationScheduleRepo {
     use ToggleBooleanColumn;
@@ -36,7 +37,9 @@ class NotificationScheduleRepo {
         if ( $result->count() ) {
             $scheduleCollection = $result->get();
 
-            foreach ( $scheduleCollection as $current ) {
+            $locks = [];
+
+            foreach ( $scheduleCollection as $index => $current ) {
                 $cron = CronExpression::factory( $current->cron_expression );
                 $current->nextRunDatetime = Carbon::parse( $cron->getNextRunDate()->format('Y-m-d H:i:s') );
 
@@ -50,6 +53,27 @@ class NotificationScheduleRepo {
                 }
 
                 $current->hasLogs = $this->hasLogs( $current->content_key , $current->content_lookback );
+
+                $locks []= [
+                    "index" => $index ,
+                    "content_key" => $current->content_key ,
+                    "nextRunDatetime" => $current->nextRunDatetime ,
+                    "isCritical" => $current->isCritical
+                ];
+            }
+
+            foreach ( $locks as $current ) {
+                if ( Cache::has( $current[ 'content_key' ] ) ) {
+                    $scheduleCollection->forget( $current[ 'index' ] );
+                } else {
+                    if ( $current[ 'isCritical' ] ) { #throttling critical notifications to send every 10 minutes.
+                        $expires = Carbon::now()->addMinutes( 10 );
+                    } else { #prevents queuing duplicate notifications
+                        $expires = Carbon::parse( $current[ 'nextRunDatetime' ] )->addSeconds( 30 );
+                    }
+
+                    Cache::put( $current[ 'content_key' ] , 1 , $expires );
+                }
             }
         }
 
