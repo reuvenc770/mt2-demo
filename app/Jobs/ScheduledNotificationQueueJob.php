@@ -29,7 +29,7 @@ class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $contentType , $tracking , $runtimeThreshold )
+    public function __construct( $contentType , $tracking , $runtimeThreshold="10m" )
     {
         $this->contentType = $contentType;
         $this->jobName = $this->baseJobName . ":" . $this->contentType;
@@ -61,12 +61,14 @@ class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
                 $jobDelay = $notification->nextRunInSeconds;
             }
 
-            $worker = ( \App::make( \App\Jobs\ScheduledNotificationWorkerJob::class , [
+            $worker = \App::make( \App\Jobs\ScheduledNotificationWorkerJob::class , [
                 $notification ,
                 str_random( 16 ) ,
                 self::DEFAULT_RUNTIME_THRESHOLD ,
                 $notification->isCritical
-            ] ) )->delay( $jobDelay )->onQueue( self::NOTIFICATION_QUEUE );
+            ] );
+
+            $worker->delay( $jobDelay )->onQueue( self::NOTIFICATION_QUEUE );
 
             $this->dispatch( $worker );
         }
