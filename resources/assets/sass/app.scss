@@ -197,6 +197,18 @@ ul.ivh-treeview ul.ivh-treeview {
     margin-bottom: -1px;
 }
 
+
+/**
+ * Angular Cron Jobs CSS
+ */
+@import "node_modules/angular-cron-jobs/dist/angular-cron-jobs.min";
+
+.cron-select { vertical-align: top; }
+.cron-select-wrap {
+    display: inline !important;
+    margin-bottom: 1em;
+}
+
 /**
  * Materials Overrides
  */

@@ -48,6 +48,11 @@ return [
             'root'   => storage_path('app'),
         ],
 
+        'views' => [
+            'driver' => 'local',
+            'root'   => '/home/vagrant/dev/MT2/resources/views',
+        ],
+
         'sprintUnsubCampaignFTP' => [
             'driver'   => 'ftp',
             'host'     => env( 'SPRINT_CAMPAIGN_FTP_HOST' ) , 
