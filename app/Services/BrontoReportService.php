@@ -141,7 +141,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
                 foreach ($processState['currentPageData'] as $key => $record) {
                     $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
                     
-                    if ( empty( $deployId ) || $deployId == 'unemplyment' || $deployId == 'unemployment ' ) {
+                    if ( empty( $deployId ) ) {
                         continue;
                     }
                     
@@ -445,6 +445,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
     }
 
     public function getRawCampaigns ( $processState ) {
-        return $this->reportRepo->getRawCampaignsFromDate( $processState[ 'date' ] , [ [ 'type' , '<>' , 'triggered' ] , [ 'type' , '<>' , 'test' ]] );
+        return $this->reportRepo->getRawCampaignsFromDate( $processState[ 'date' ] , [ [ 'type' , '<>' , 'transactional' ] , [ 'type' , '<>' , 'test' ]] );
     }
 }
