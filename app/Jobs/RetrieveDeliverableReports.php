@@ -264,7 +264,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
-            if ( !is_null( BrontoReport::find( $deploy->esp_internal_id ) ) ) {
+            if ( BrontoReport::where( [
+                    [ 'id' , '=' , $deploy->esp_internal_id ] ,
+                    [ 'type' , '<>' , 'transactional' ] ,
+                    [ 'type' , '<>' , 'test' ]
+                ] )->whereRaw( 'message_name REGEXP "^[[:digit:]]+\_"' )
+                 ->get()->count() > 0
+            ) {
                 $this->processState[ 'campaign' ] = BrontoReport::find( $deploy->esp_internal_id )->first();
                 $this->processState[ 'campaign' ]->delivers = $deploy->delivers;
                 $this->processState[ 'campaign' ]->opens = $deploy->opens;
