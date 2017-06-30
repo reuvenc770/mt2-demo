@@ -141,7 +141,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
                 foreach ($processState['currentPageData'] as $key => $record) {
                     $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
                     
-                    if ( empty( $deployId ) || $deployId == 'unemplyment' ) {
+                    if ( empty( $deployId ) || $deployId == 'unemplyment' || $deployId == 'unemployment ' ) {
                         continue;
                     }
                     
