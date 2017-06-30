@@ -89,7 +89,7 @@ class ListProfileController extends Controller
 
         if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
             $cacheTagName = null;
-            $this->dispatch(new ListProfileBaseExportJob($profileID, $cacheTagName, str_random(16)));
+            $this->dispatch(new ListProfileBaseExportJob($profileID, $cacheTagName, str_random(16), '1h'));
         }
 
         Flash::success("List Profile was Successfully Created");
@@ -143,7 +143,7 @@ class ListProfileController extends Controller
 
         if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
             $cacheTagName = null;
-            $this->dispatch(new ListProfileBaseExportJob($id, $cacheTagName, str_random(16)));
+            $this->dispatch(new ListProfileBaseExportJob($id, $cacheTagName, str_random(16), '1h'));
         }
 
         Flash::success("List Profile was Successfully Updated");
