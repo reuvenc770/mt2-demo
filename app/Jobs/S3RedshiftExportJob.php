@@ -49,7 +49,7 @@ class S3RedshiftExportJob extends MonitoredJob {
                 $rows = 0;
 
                 if(-1 == $this->version){
-                    JobTracking::addDiagnostic(array('notices' => 'checking connection only'));
+                    JobTracking::addDiagnostic(array('notices' => 'checking connection only'),$this->tracking);
                 }
                 elseif (1 === $this->version) {
                     $rows = $service->extractAll();

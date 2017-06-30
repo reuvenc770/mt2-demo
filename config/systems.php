@@ -11,6 +11,12 @@ return [
         'privateIP' => '127.0.0.1'
     ],
 
+    'development' => [
+        'host' => 'localhost',
+        'name' => 'Development Sandbox',
+        'privateIP' => '127.0.0.1'
+    ],
+
     'staging' => [
         'host' => env( 'RUNTIME_STG_HOST' ) ,
         'name' => env( 'RUNTIME_STG_NAME' ),
