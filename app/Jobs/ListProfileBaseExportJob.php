@@ -9,8 +9,10 @@ use App\Jobs\ExportDeployCombineJob;
 use Carbon\Carbon;
 use App\DataModels\CacheReportCard;
 use Cache;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class ListProfileBaseExportJob extends MonitoredJob {
+    use DispatchesJobs;
 
     protected $tracking;
     private $profileId;
