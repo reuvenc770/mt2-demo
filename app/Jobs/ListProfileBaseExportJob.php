@@ -9,19 +9,22 @@ use App\Jobs\ExportDeployCombineJob;
 use Carbon\Carbon;
 use App\DataModels\CacheReportCard;
 use Cache;
+use DB;
 
 class ListProfileBaseExportJob extends MonitoredJob {
 
     protected $tracking;
     private $profileId;
     protected $jobName;
+    protected $params;
     private $cacheTagName;
 
-    public function __construct($profileId, $cacheTagName, $tracking, $runtimeThreshold=null) {
+    public function __construct($profileId, $cacheTagName, $tracking, $runtimeThreshold=null, $params=null) {
         $this->profileId = $profileId;
         $this->tracking = $tracking;
         $this->jobName = 'ListProfileGeneration-' . $profileId;
         $this->cacheTagName = $cacheTagName;
+        $this->params = $params;
 
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
 
@@ -39,6 +42,11 @@ class ListProfileBaseExportJob extends MonitoredJob {
         $service = \App::make('\App\Services\ListProfileService');
         $schedule = \App::make('\App\Services\ListProfileScheduleService');
         $deployRepo = \App::make('\App\Repositories\DeployRepo');
+
+        if(isset($this->params['test-connection-only'])){
+           $this->testConnection();
+           return 0;
+        }
 
         $service->buildProfileTable($this->profileId);
         $this->dispatch(new ExportListProfileJob($this->profileId, str_random(16)));
@@ -62,4 +70,17 @@ class ListProfileBaseExportJob extends MonitoredJob {
 
 
     }
+
+    private function testConnection(){
+        try {
+            DB::connection('redshift')->getPdo();
+            JobTracking::addDiagnostic(array('notices' => 'Redshift DB connection test: success'),$this->tracking);
+            return 1;
+        } catch (\Exception $e) {
+            JobTracking::addDiagnostic(array('errors' => 'Redshift DB connection test: failed'),$this->tracking);
+            throw new \Exception("Could not connect to the Redshift DB");
+            return;
+        }
+    }
+
 }
