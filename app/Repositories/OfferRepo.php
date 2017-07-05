@@ -40,8 +40,7 @@ class OfferRepo {
     }
 
     public function fuzzySearchBack($term){
-        return $this->offer->whereRaw("name like '%$term%'")
-            ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
+        return $this->offer->whereRaw("(name like '%$term%' AND is_approved = 1 AND status = 'A') OR (name like '%$term%' AND name like '%SUPPRESSION%')")
             ->select("id","name")->orderBy('name')->get();
     }
 
