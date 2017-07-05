@@ -6,6 +6,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ModelTraits\ModelCacheControl;
 
 /**
  * App\Models\CakeAffiliate
@@ -23,6 +24,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CakeAffiliate extends Model
 {
+    use ModelCacheControl;
+
     protected $guarded = [ 'id' ];
 
     public function proxies () {
