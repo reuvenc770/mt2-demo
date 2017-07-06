@@ -494,7 +494,7 @@ TXT;
     private function createUnsubHtml($offer, $imageUrlPrefix, $offerUnsubLinkId) {
         $unsubText = '';
         if ($offer) {
-            if ('TEXT' === $offer->unsub_use) {
+            if ('TEXT' === $offer->unsub_type) {
                 $unsubText = $offer->unsub_text;
             }
             elseif ('' !== $offer->unsub_img) {
