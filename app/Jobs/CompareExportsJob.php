@@ -57,8 +57,8 @@ class CompareExportsJob extends SafeJob {
     }
 
     protected function handleJob() {
-        #$this->buildTable($this->mt1FileName, self::MT1_TABLE);
-        #$this->buildTable($this->cmpFileName, self::CMP_TABLE);
+        $this->buildTable($this->mt1FileName, self::MT1_TABLE);
+        $this->buildTable($this->cmpFileName, self::CMP_TABLE);
         $sharedCount = $this->getSharedCount(self::MT1_TABLE, self::CMP_TABLE);
 
         $this->recordDataRepo = App::make(\App\Repositories\EmailAttributableFeedLatestDataRepo::class);
@@ -506,8 +506,8 @@ TXT;
         while ($row = fgetcsv($f)) {
             $emailAddress = $row[0];
             $emailId = $row[1];
-            $feedId = $row[3];
-            $subscribeDate = $row[2];
+            $feedId = $row[10];
+            $subscribeDate = $row[4];
             
             DB::table($tableName)->insert([
                 'email_address' => $emailAddress,
