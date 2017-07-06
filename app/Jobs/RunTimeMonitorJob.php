@@ -36,7 +36,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
      * @param null $date1, integer indicating days back or start datetime, format YYYYMMDDhhmmss
      * @param null $date2, end datetime, format YYYYMMDDhhmmss
      */
-    public function __construct($mode,$runtimeThreshold=null,$date1,$date2=null)
+    public function __construct($mode,$runtimeThreshold,$date1,$date2=null)
     {
 
         parent::__construct(self::JOB_NAME.'_'.Carbon::now(),$runtimeThreshold);
@@ -171,14 +171,14 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         $pretty[] = implode("\n",$flat_warnings);
 
 
-        $pretty_report = implode("\n",$pretty);
-        //print $pretty_report;
+        $prettyReport = implode("\n",$pretty);
+        //print $prettyReport;
 
-        $report_chunks = $this->chunkReport($pretty_report);
+        $reportChunks = $this->chunkReport($prettyReport);
         $system = config('systems.'.env('APP_ENV','local').'.name');
 
         Slack::to($this->room)->send("Runtime Monitoring Report for $system BEGIN");
-        foreach($report_chunks AS $chunk){
+        foreach($reportChunks AS $chunk){
             Slack::to($this->room)->attach(['text' => $chunk])->send();
         }
         Slack::to($this->room)->send("Runtime Monitoring Report for $system END");
