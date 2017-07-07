@@ -22,10 +22,11 @@ class CakeAffiliateRepo {
     }
 
     public function getModel () {
-        return $this->aff
-            ->join( 'cake_redirect_domains' , 'cake_affiliates.id' , '=' , 'cake_redirect_domains.cake_affiliate_id' )
-            ->join( 'offer_payout_types' , 'cake_redirect_domains.offer_payout_type_id' , '=' , 'offer_payout_types.id' )
+        return $this->redirect
+            ->leftJoin( 'cake_affiliates' , 'cake_affiliates.id' , '=' , 'cake_redirect_domains.cake_affiliate_id' )
+            ->leftJoin( 'offer_payout_types' , 'cake_redirect_domains.offer_payout_type_id' , '=' , 'offer_payout_types.id' )
             ->select(
+                'cake_redirect_domains.id as cake_redirect_id' ,
                 'cake_affiliates.id' ,
                 'cake_affiliates.name' ,
                 'offer_payout_types.name as offer_type' ,
@@ -35,16 +36,15 @@ class CakeAffiliateRepo {
             );
     }
 
-    public function createOrUpdateAffiliate ( $data ) {
+    public function createAffiliate ( $data ) {
         $this->aff->id = $data[ 'id' ];
         $this->aff->name = $data[ 'name' ];
-
         $this->aff->save();
 
-        return $this->aff->id;
-    }
+        return $this->aff;
+    }  
 
     public function createOrUpdateRedirect ( $data ) {
-
+        return $this->redirect->updateOrCreate( [ 'id' => $data[ 'id' ] ] , $data );
     }
 }

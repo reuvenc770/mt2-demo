@@ -14,32 +14,25 @@ mt2App.service( 'CakeAffiliateApiService' , [ '$http' , 'paginationService' , fu
         } ).then( successCallback , failureCallback );
     };
 
-    self.loadAffiliates = function ( successCallback , failureCallback ) {
-        return $http( {
-            "method" : "GET" ,
-            "url" : self.baseApiUrl + '/affiliateslist'
-        } ).then( successCallback , failureCallback );
-    };
-
-    self.loadOfferTypes = function ( successCallback , failureCallback ) {
-        return $http( {
-            "method" : "GET" ,
-            "url" : self.baseApiUrl + '/offertypelist'
-        } ).then( successCallback , failureCallback );
-    };
-
-    self.saveRedirectAndAffiliate = function ( data , successCallback , failureCallback ) {
+    self.saveRedirectAndAffiliate = function ( data , newAffiliate , successCallback , failureCallback ) {
+        var requestData = angular.copy( data );
         var isUpdate = data.redirect_domain_id || false;
         var requestObj = {
             "method" : ( isUpdate ? "PUT" : "POST" ) ,
             "url" : self.baseApiUrl + ( isUpdate ? '/' + data.redirect_domain_id : '' )
         };
 
+
+        if ( newAffiliate ) {
+            delete requestData.id;
+            delete requestData.name;
+        }
+
         if ( isUpdate ) {
             requestObj.params = { "_method" : "PUT" };
-            requestObj.data = data;
+            requestObj.data = requestData;
         } else {
-            requestObj.params = { "data" : data };
+            requestObj.params = requestData;
         }
 
         return $http( requestObj ).then( successCallback , failureCallback );

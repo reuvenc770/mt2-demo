@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Services\CakeAffiliateService;
 use App\Services\OfferPayoutService;
+use App\Http\Requests\CakeAffiliateRedirectRequest;
+use Cache;
 
 class CakeAffiliateController extends Controller
 {
@@ -37,11 +39,10 @@ class CakeAffiliateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CakeAffiliateRedirectRequest $request)
     {
-        $data = json_decode( ( $request->all() )[ 'data' ] , true );
-
-        return response()->json( $this->service->updateOrCreate( $data ) );
+        Cache::tags( 'Builder' )->flush();
+        return response()->json( $this->service->updateOrCreate( $request->all() ) );
     }
 
     /**
@@ -51,13 +52,10 @@ class CakeAffiliateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(CakeAffiliateRedirectRequest $request, $id)
     {
-        $data = $request->all();
-        unset( $data[ 'created_at' ] );
-        unset( $data[ 'updated_at' ] );
-
-        return response()->json( $this->service->updateOrCreate( $data ) );
+        Cache::tags( 'Builder' )->flush();
+        return response()->json( $this->service->updateOrCreate( $request->all() ) );
     }
 
     /**

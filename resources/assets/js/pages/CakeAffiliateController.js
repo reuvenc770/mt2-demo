@@ -1,18 +1,23 @@
-mt2App.controller( 'CakeAffiliateController' , [ 'CakeAffiliateApiService' , 'paginationService' , '$mdDialog' , 'modalService' , function ( CakeAffiliateApiService , paginationService , $mdDialog , modalService ) {
+mt2App.controller( 'CakeAffiliateController' , [ 'CakeAffiliateApiService' , 'paginationService' , 'formValidationService' , '$mdDialog' , 'modalService' , function ( CakeAffiliateApiService , paginationService , formValidationService , $mdDialog , modalService ) {
     var self = this;
 
     self.affiliatePromise = null;
     self.affiliateRedirects = [];
-    self.currentRedirect = {};
+    self.currentRedirect = {
+        'id' : null , 
+        'offer_payout_type_id' : null ,
+        'redirect_domain' : null 
+    };
 
     self.currentPage = 1;
     self.paginationCount = 10;
-    self.sort = "-id";
+    self.sort = "-cake_redirect_id";
     self.affiliateTotal = 0;
     self.pageCount = 0;
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
 
     self.formSubmitted = false;
+    self.formErrors = [];
     self.addDialogTitle = 'Add New Redirect Domain';
     self.editDialogTitle = 'Edit Redirect Domain';
     self.currentDialogTitle = self.addDialogTitle;
@@ -35,14 +40,6 @@ mt2App.controller( 'CakeAffiliateController' , [ 'CakeAffiliateApiService' , 'pa
             function ( response ) { modalService.simpleToast( 'Failed to load Schedules' ); }
         );
     };
-    
-    self.loadAffiliates = function () {
-        CakeAffiliateApiService.loadAffiliates( function ( response ) { self.affiliates = response.data; } , function ( response ) {} ); 
-    };  
-    
-    self.loadOfferTypes = function () {
-        CakeAffiliateApiService.loadOfferTypes( function ( response ) { self.offerTypes = response.data; } , function ( response ) {} ); 
-    };  
 
     self.showAddDialog = function ( isEdit ) {
         if ( isEdit ) {
@@ -84,21 +81,49 @@ mt2App.controller( 'CakeAffiliateController' , [ 'CakeAffiliateApiService' , 'pa
 
     self.closeDialog = function () {
         self.clearForm();
+        formValidationService.resetFieldErrors( self );
 
         $mdDialog.hide();
     };
 
     self.showNewAffiliateFields = function () {
+        formValidationService.resetFieldErrors( self );
+
         if ( self.showNewAffiliateFieldsFlag ) {
             self.showNewAffiliateFieldsFlag = false; 
             self.showNewAffiliateButtonText = "New Affiliate";
+
+            delete self.currentRedirect.new_affiliate_id;
+            delete self.currentRedirect.new_affiliate_name;
         } else {
             self.showNewAffiliateFieldsFlag = true; 
             self.showNewAffiliateButtonText = "Select Affiliate";
+
+            self.currentRedirect.new_affiliate_id = null;
+            self.currentRedirect.new_affiliate_name = null;
         }
     };
 
     self.saveRedirect = function () {
-        CakeAffiliateApiService.saveRedirectAndAffiliate( self.currentRedirect , function ( response ) {} , function ( response ) {} );
+        formValidationService.resetFieldErrors( self );
+        self.formSubmitted = true;
+
+        CakeAffiliateApiService.saveRedirectAndAffiliate(
+            self.currentRedirect ,
+            self.showNewAffiliateFieldsFlag ,
+            function ( response ) {
+                formValidationService.loadFieldErrors( self , response );
+                self.formSubmitted = false;
+                self.closeDialog();
+                self.loadAffiliateRedirectDomains();
+                modalService.simpleToast( 'Successfully saved redirect.' );
+            } ,
+            function ( response ) {
+                self.formSubmitted = false;
+                formValidationService.loadFieldErrors( self , response );
+
+                modalService.simpleToast( 'Failed to save redirect.' );
+            }
+        );
     };
 } ] );

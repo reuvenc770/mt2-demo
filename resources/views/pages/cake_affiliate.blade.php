@@ -25,8 +25,9 @@
             <thead md-head class="mt2-theme-thead" md-order="aff.sort" md-on-reorder="aff.loadAffiliateRedirectDomains">
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
-                    <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
-                    <th md-column md-order-by="name" class="md-table-header-override-whitetext">Name</th>
+                    <th md-column md-order-by="cake_redirect_id" class="md-table-header-override-whitetext">ID</th>
+                    <th md-column md-order-by="id" class="md-table-header-override-whitetext">Affiliate ID</th>
+                    <th md-column md-order-by="name" class="md-table-header-override-whitetext">Affiliate Name</th>
                     <th md-column md-order-by="offer_type" class="md-table-header-override-whitetext">Offer Type</th>
                     <th md-column md-order-by="redirect_domain" class="md-table-header-override-whitetext">Redirect Domain</th>
                 </tr>
@@ -39,6 +40,7 @@
                             <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                         </a>
                     </td>
+                    <td md-cell ng-bind="record.cake_redirect_id"></td>
                     <td md-cell ng-bind="record.id"></td>
                     <td md-cell ng-bind="record.name"></td>
                     <td md-cell ng-bind="record.offer_type"></td>
@@ -47,7 +49,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <md-content class="md-mt2-zeta-theme">
                             <md-table-pagination md-limit="aff.paginationCount" md-limit-options="aff.paginationOptions" md-page="aff.currentPage" md-total="@{{aff.affiliateTotal}}" md-on-paginate="aff.loadAffiliateRedirectDomains" md-page-select></md-table-pagination>
                         </md-content>
@@ -90,6 +92,12 @@
                                                 <option value="{{ $affiliate[ 'id' ] }}">{{ $affiliate[ 'name' ] }}</option>
                                                 @endforeach
                                             </select>
+
+                                            <div class="help-block" ng-show="aff.formErrors.id">
+                                                <div ng-repeat="error in aff.formErrors.id">
+                                                    <span class="text-danger" ng-bind="error"></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -97,6 +105,12 @@
                                         <label class="control-label col-sm-2" for="newAffiliateId">New Affiliate ID</label>
                                         <div class="col-sm-9">
                                             <input type="text" id="newAffiliateId" class="form-control" ng-model="aff.currentRedirect.new_affiliate_id" placeholder="Affiliate ID" />
+
+                                            <div class="help-block" ng-show="aff.formErrors.new_affiliate_id">
+                                                <div ng-repeat="error in aff.formErrors.new_affiliate_id">
+                                                    <spa class="text-danger"n ng-bind="error"></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -104,6 +118,12 @@
                                         <label class="control-label col-sm-2" for="newAffiliateName">New Affiliate Name</label>
                                         <div class="col-sm-9">
                                             <input type="text" id="newAffiliateName" class="form-control" ng-model="aff.currentRedirect.new_affiliate_name" placeholder="Affiliate Name" />
+
+                                            <div class="help-block" ng-show="aff.formErrors.new_affiliate_name">
+                                                <div ng-repeat="error in aff.formErrors.new_affiliate_name">
+                                                    <span class="text-danger" ng-bind="error"></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -116,6 +136,12 @@
                                                 <option value="{{ $offerType[ 'id' ] }}">{{ $offerType[ 'name' ] }}</option>
                                                 @endforeach
                                             </select>
+
+                                            <div class="help-block" ng-show="aff.formErrors.offer_payout_type_id">
+                                                <div ng-repeat="error in aff.formErrors.offer_payout_type_id">
+                                                    <span class="text-danger" ng-bind="error"></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -123,6 +149,12 @@
                                         <label class="control-label col-sm-2" for="redirectDomain">Redirect Domain</label>
                                         <div class="col-sm-9">
                                             <input type="text" id="redirectDomain" class="form-control" ng-model="aff.currentRedirect.redirect_domain" placeholder="Redirect Domain" />
+
+                                            <div class="help-block" ng-show="aff.formErrors.redirect_domain">
+                                                <div ng-repeat="error in aff.formErrors.redirect_domain">
+                                                    <span class="text-danger" ng-bind="error"></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
