@@ -77,6 +77,7 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
         $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
         $record[ 'party' ] = $this->currentFile[ 'party' ];
         $record[ 'realtime' ] = 0;
+        $record[ 'file' ] = $this->currentFile[ 'file' ];
 
         if ( !isset( $record[ 'source_url' ] ) || $record[ 'source_url' ] == '' ) {
             $record[ 'source_url' ] = $this->feedService->getSourceUrlFromId( $record[ 'feed_id' ] );
