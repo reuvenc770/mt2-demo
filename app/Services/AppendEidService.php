@@ -8,7 +8,7 @@
 
 namespace App\Services;
 
-use App\Facades\Suppression;
+use App\Repositories\SuppressionGlobalOrangeRepo;
 use App\Repositories\EmailRepo;
 use App\Repositories\FeedRepo;
 use App\Repositories\EmailAttributableFeedLatestDataRepo;
@@ -20,12 +20,14 @@ class AppendEidService
     private $emailRepo;
     private $feedRepo;
     private $recordData;
+    private $suppressionRepo;
 
-    public function __construct(EmailRepo $emailRepo, FeedRepo $feedRepo, EmailAttributableFeedLatestDataRepo $recordDataRepo)
+    public function __construct(EmailRepo $emailRepo, FeedRepo $feedRepo, EmailAttributableFeedLatestDataRepo $recordDataRepo, SuppressionGlobalOrangeRepo $suppressionRepo)
     {
         $this->emailRepo = $emailRepo;
         $this->feedRepo = $feedRepo;
         $this->recordData = $recordDataRepo;
+        $this->suppressionRepo = $suppressionRepo;
     }
 
     public function createFile($file, $includeFeed, $includeFields, $includeSuppression)
@@ -41,8 +43,7 @@ class AppendEidService
         try {
             foreach ($rows as $row) {
                 $rowResult = array();
-                $suppressionInfo = Suppression::checkGlobalSuppression($row['email']);
-                $rowIsActive = count($suppressionInfo) == 0;
+                $rowIsActive = !($this->suppressionRepo->isSuppressed($row['email']));
                 if($rowIsActive || $includeSuppression) {
                     $emailReturn = $this->emailRepo->getEmailId($row['email']);
                     $emailExists = count($emailReturn);
@@ -66,8 +67,10 @@ class AppendEidService
                             $value = $rowIsActive ? "A" : "U";
                             $rowResult = array_merge($rowResult, ['status' => "$value"]);
                         }
-
-                        $csvData[] = $rowResult;
+                        
+                        if ($rowIsActive || $includeSuppression) {
+                            $csvData[] = $rowResult;
+                        }
                     }
                 }
             }
