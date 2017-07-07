@@ -29,7 +29,7 @@ class SuppressionListSuppression extends Model {
     protected $connection = 'suppression';
     protected $guarded = [''];
     
-    public function list() {
+    public function lists() {
         return $this->belongsTo('App\Models\SuppressionList');
     }
 }

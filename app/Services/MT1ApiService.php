@@ -82,8 +82,9 @@ class MT1ApiService
             $this->response = $this->api->postMT1Json($page, $data, $file);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
+            Log::error($e->getFile());
+            Log::error($e->getLine());
             return $e->getMessage();
-            return false;
         }
         return $this->processGuzzle($page, $data);
 

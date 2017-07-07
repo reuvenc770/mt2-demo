@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 use App\Repositories\EtlPickupRepo;
-
+use Log;
 class DataValidationService {
 
     private $trustedSourceRepo;
@@ -48,7 +48,7 @@ class DataValidationService {
             $segmentEnd = $this->trustedSourceRepo->nextNRows($startPoint, self::ROW_COUNT_LIMIT); // a nullable result
             $segmentEnd = $segmentEnd ?: $endPoint;
 
-            echo "Running the curent segment between $startPoint and $segmentEnd" . PHP_EOL;
+            echo "Running the current segment for {$this->pickupName} between $startPoint and $segmentEnd" . PHP_EOL;
 
             foreach ($this->reposToCheck as $repo) {
                 $newRows = $this->trustedSourceRepo->compareSourcesWithField($repo->getTableName(), $startPoint, $segmentEnd);

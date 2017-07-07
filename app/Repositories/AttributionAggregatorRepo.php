@@ -33,7 +33,7 @@ class AttributionAggregatorRepo {
         $reportTable = ( !is_null( $modelId ) ? AttributionFeedReport::BASE_TABLE_NAME . $modelId : AttributionFeedReport::LIVE_TABLE_NAME);
         $assignmentTable = ( !is_null( $modelId ) ? self::ASSIGNMENTS_BASE_TABLE_NAME . $modelId : self::ASSIGNMENTS_LIVE_TABLE_NAME );
 
-        return \DB::select( "INSERT INTO
+        return \DB::statement( "INSERT INTO
             {$attrDb}.{$reportTable} ( date , feed_id , cpa_revenue , cpa_revshare , cpc_revenue , cpc_revshare , uniques , updated_at )
             SELECT
                 rev.date ,
@@ -90,7 +90,7 @@ class AttributionAggregatorRepo {
         $reportTable = ( !is_null( $modelId ) ? AttributionFeedReport::BASE_TABLE_NAME . $modelId : AttributionFeedReport::LIVE_TABLE_NAME);
         $assignmentTable = ( !is_null( $modelId ) ? self::ASSIGNMENTS_BASE_TABLE_NAME . $modelId : self::ASSIGNMENTS_LIVE_TABLE_NAME );
 
-        return \DB::select( "INSERT INTO
+        return \DB::statement( "INSERT INTO
             {$attrDb}.{$reportTable} ( date , feed_id , cpm_revenue , cpm_revshare , updated_at )   
         SELECT
             aggr.`date`,

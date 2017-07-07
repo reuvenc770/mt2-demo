@@ -25,9 +25,11 @@ use App\Models\ActionType;
 use App\Models\EmailDomain;
 use App\Models\DomainGroup;
 use App\Models\EmailFeedInstance;
-use App\Models\RecordData;
 use App\Repositories\EmailRecordRepo;
 use App\Services\EmailRecordService;
+
+use GuzzleHttp\Client;
+use App;
 
 /**
  * Create different Services for APIS
@@ -50,7 +52,7 @@ class APIFactory
         $reportModel = new $reportModelName();
         $api = "App\\Services\\API\\{$apiName}Api";
 
-        $emailRecord = new EmailRecordService(new EmailRecordRepo(new Email()));
+        $emailRecord = App::make(EmailRecordService::class);
 
         $reportServiceName = "App\\Services\\{$reportName}Service";
         if (class_exists($reportServiceName)) {
@@ -80,14 +82,16 @@ class APIFactory
 
     public static function createTrackingApiService($source, $startDate, $endDate) 
     {
-        $dataName = "{$source}Data";
+        $dataName = "{$source}Action";
         $dataModelName = "App\\Models\\{$dataName}";
         $dataModel = new $dataModelName();
         $dataServiceName = "App\\Services\\TrackingDataService";
         $apiName = "App\\Services\\API\\{$source}Api";
 
         if (class_exists($dataServiceName)) {
-            return new $dataServiceName($source, new TrackingRepo($dataModel), new $apiName($startDate, $endDate));
+            return new $dataServiceName(new TrackingRepo($dataModel), 
+                new $apiName($startDate, $endDate), 
+                App::make(App\Repositories\EspApiAccountRepo::class));
         } else {
             throw new \Exception("That Tracking Service does not exist");
         }
@@ -127,6 +131,16 @@ class APIFactory
         $standardModel = new \App\Models\StandardReport();
         $standardReportRepo = new StandardApiReportRepo($standardModel);
         return new StandardReportService($standardReportRepo);
+    }
+
+    public static function createSharedCookieGuzzleClient () {
+        return new Client( [ 'cookies' => true ] );
+    }
+
+    public static function createESPApiAccountRepo(){
+       $model = new App\Models\EspAccount();
+       $hist = new App\Models\EspAccountCustomIdHistory();
+       return new App\Repositories\EspApiAccountRepo($model,$hist);
     }
 
 }

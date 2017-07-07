@@ -20,6 +20,8 @@ class ClientRepo implements IAwsRepo {
         $this->client->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function getModel () {
         return $this->client;
     }
@@ -52,6 +54,8 @@ class ClientRepo implements IAwsRepo {
         return $this->client;
     }
 
+    public function specialExtract($data) {}
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -71,5 +75,26 @@ class ClientRepo implements IAwsRepo {
 
     public function getConnection() {
         return $this->client->getConnectionName();
+    }
+
+    public function getCount() {
+        return $this->client->count();
+    }
+
+    public function getClientFeedMap () {
+        $map = [];
+        $clients = $this->get();
+
+        foreach ($clients as $client) {
+            $feeds = [];
+
+            foreach ($client->feeds as $feed) {
+                $feeds[] = $feed->id;
+            }
+
+            $map[$client->id] = $feeds;
+        }
+
+        return $map;
     }
 }

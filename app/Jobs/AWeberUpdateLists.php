@@ -28,8 +28,6 @@ class AWeberUpdateLists extends Job implements ShouldQueue
     }
 
     /**
-
-    /**
      * Execute the job.
      *
      * @return void

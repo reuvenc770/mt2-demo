@@ -21,8 +21,8 @@ class AttributionModelService {
         return $this->repo->getModel();
     }
 
-    public function create ( $name , $levels = null , $templateModelId = null ) {
-        return $this->repo->create( $name , $levels , $templateModelId );
+    public function create ( $name , $levels = null ) {
+        return $this->repo->create( $name , $levels );
     }
 
     public function getLevel ( $clientId , $modelId = null ) {
@@ -67,5 +67,23 @@ class AttributionModelService {
 
     public function getNonliveModels () {
         return $this->repo->getNonliveModels();
+    }
+
+    public function syncModelsWithNewFeeds () {
+        $this->repo->syncModelsWithNewFeeds();
+    }
+
+    public function modelExists ( $modelId ) {
+        return $this->repo->modelExists( $modelId );
+    }
+
+    public function quickReorder ( $modelId , $newOrder ) {
+        $currentFeeds = $this->levels->getAllLevels( $modelId );
+
+        $missingFeeds = array_diff( $currentFeeds , $newOrder );
+
+        $newFeedOrder = array_merge( $newOrder , $missingFeeds );
+
+        $this->repo->quickReorder ( $modelId , $newFeedOrder );
     }
 }

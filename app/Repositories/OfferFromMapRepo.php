@@ -21,4 +21,6 @@ class OfferFromMapRepo {
         ], $data);
     }
 
+    public function prepareTableForSync() {}
+
 }

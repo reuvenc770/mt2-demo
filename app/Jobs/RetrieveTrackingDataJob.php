@@ -13,12 +13,11 @@ use App\Factories\APIFactory;
  * Class RetrieveReports
  * @package App\Jobs
  */
-class RetrieveTrackingDataJob extends Job implements ShouldQueue
+class RetrieveTrackingDataJob extends MonitoredJob implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "RetrieveTrackingApiData-";
 
-    CONST PROCESS_TYPE_AGGREGATE = 1;
+    CONST PROCESS_TYPE_ACTION = 1;
     CONST PROCESS_TYPE_RECORD = 2;
 
     protected $startDate;
@@ -29,7 +28,7 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
 
     protected $isRecordProcessing = false;
 
-    public function __construct($source, $startDate, $endDate, $tracking , $processType = RetrieveTrackingDataJob::PROCESS_TYPE_AGGREGATE ) {
+    public function __construct($source, $startDate, $endDate, $tracking, $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION, $runtimeThreshold ) {
        $this->source = $source;
        $this->startDate = $startDate;
        $this->endDate = $endDate;
@@ -39,9 +38,11 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
           $this->isRecordProcessing = true;
        }
 
-       $fullJobName = self::JOB_NAME . $this->source . '-' . ( $processType == self::PROCESS_TYPE_AGGREGATE ? 'aggregate-' : 'record-' );
+       $fullJobName = self::JOB_NAME . $this->source . '-' . ( $processType == self::PROCESS_TYPE_ACTION ? 'action-' : 'record-' );
 
-       JobTracking::startTrackingJob( $fullJobName ,$this->startDate, $this->endDate, $this->tracking);
+       parent::__construct($fullJobName,$runtimeThreshold,$tracking);
+
+       JobTracking::startTrackingJob($fullJobName, $this->startDate, $this->endDate, $this->tracking);
     }
 
     /**
@@ -49,16 +50,21 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handleJob()
     {
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
-        $dataService= APIFactory::createTrackingApiService($this->source, $this->startDate,$this->endDate);
+        $affRepo = \App::make('App\Repositories\CakeAffiliateRepo');
 
-        $apiRequestData = null;
+        $dataService = APIFactory::createTrackingApiService($this->source, $this->startDate,$this->endDate);
+
+        $cakeIds = array_map(function($obj) { return $obj['id']; }, $affRepo->getAll()->toArray());
+        $apiRequestData = ['cakeids' => implode(',', $cakeIds)];
 
         if ( $this->isRecordProcessing ) {
-            $apiRequestData = [ "recordstats" => 1 ];
+            $apiRequestData["recordstats"] = 1;
+        }
+        else {
+            $apiRequestData['actions'] = 1;
         }
 
         $stats = $dataService->retrieveApiStats( $apiRequestData );
@@ -73,13 +79,8 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
                 $this->isRecordProcessing
             );
         }
+        return $dataLength;
 
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
-
-    public function failed()
-    {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
-    }
 }

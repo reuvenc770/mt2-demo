@@ -25,4 +25,22 @@ class OfferSuppressionListRepo {
 
             ]);
     }
+
+    public function prepareTableForSync() {}
+
+    public function getOfferForList($listId) {
+        // Just takes the first
+        $offer = $this->model
+                    ->whereRaw("suppression_list_id = $listId")
+                    ->select('offer_id')
+                    ->first();
+
+        
+        if ($offer) {
+            return $offer->offer_id;
+        }
+        else {
+            return null;
+        }
+    }
 }

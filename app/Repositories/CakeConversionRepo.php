@@ -12,11 +12,9 @@ use DB;
 
 class CakeConversionRepo {
     protected $model;
-    protected $api;
 
-    public function __construct ( CakeConversion $model , CakeConversionApi $api ) {
+    public function __construct ( CakeConversion $model ) {
         $this->model = $model; 
-        $this->api = $api;
     }
 
     public function getByDate ( $dateRange = null ) {
@@ -87,16 +85,5 @@ class CakeConversionRepo {
                 created_at = created_at ,
                 updated_at = NOW()
             " );
-    }
-
-    public function getConversionsByEmailId($dateRange = null) {
-        if ( is_null( $dateRange ) ) {
-            $dateRange = [ "start" => Carbon::today()->subDays(5)->toDateTimeString() , "end" => Carbon::today()->endOfDay()->ToDateTimeString() ];
-        }
-
-        return $this->model
-                    ->select( "email_id" , "s1 as deploy_id", DB::raw('DATE(conversion_date) as date'), DB::raw('COUNT(*) as conversions') )
-                    ->whereBetween( "conversion_date" , [ $dateRange[ "start" ] , $dateRange[ "end" ] ] )
-                    ->groupBy('email_id', 'deploy_id', 'date');
     }
 }

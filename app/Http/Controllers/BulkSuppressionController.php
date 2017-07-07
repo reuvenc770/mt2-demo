@@ -11,21 +11,22 @@ use App\Http\Requests\BulkSuppressionRequest;
 use Laracasts\Flash\Flash;
 use App\Facades\Suppression;
 use App\Http\Controllers\Controller;
-use App\Services\MT1ApiService;
+use App\Services\SuppressionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
+use Artisan;
 
 class BulkSuppressionController extends Controller
 {
 
-    protected $api;
+    protected $suppServ;
     protected $emailService;
-    const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
+    const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppress_save';
 
 
-    public function __construct(MT1ApiService $api, EmailRecordService $recordService)
+    public function __construct(SuppressionService $suppServ , EmailRecordService $recordService)
     {
-        $this->api = $api;
+        $this->suppServ = $suppServ;
         $this->emailService = $recordService;
     }
 
@@ -62,26 +63,20 @@ class BulkSuppressionController extends Controller
         $path = storage_path() . "/app/files/uploads/bulksuppression/$dateFolder/";
         $files = scandir($path);
 
-        $user = config('ssh.servers.mt1_file_upload.username');
-        $host = config('ssh.servers.mt1_file_upload.host');
-        $pass = config('ssh.servers.mt1_file_upload.password');
-        $port = config('ssh.servers.mt1_file_upload.port');
-        $remoteDir = config('ssh.servers.mt1_file_upload.remote_dir');
-
-        $conn = ssh2_connect($host, $port);
-        \ssh2_auth_password($conn, $user, $pass);
-
-        foreach ($files as $file) {
-            if (!preg_match('/^\./', $file)) {
-                $filename = $path . $file;
-                $fs[] = $filename;
-                $result = \ssh2_scp_send($conn, $filename, $remoteDir . $file); // returns a bool
-                if (!$result) {
-                    $failed[]= $file;
-                }
+        foreach ($files as $fileName) {
+            if (!preg_match('/^\./', $fileName)) {
+                Event::fire(new BulkSuppressionFileWasUploaded(
+                    $request->input( 'reason' ) ,
+                    $fileName ,
+                    date('Ymd')
+                ));
             }
-
         }
+
+        Artisan::queue( 'mt1Import' , [
+            'type' => 'globalSuppression' ,
+            '--delay' => 10 
+        ] );
 
         return $failed;
     }
@@ -120,24 +115,28 @@ class BulkSuppressionController extends Controller
         $type = 'eid';
         $records = $request->input('emails');
         $reason = $request->input('suppressionReasonCode');
+        $emails = [];
+
         if (preg_match("/@+/", $records)) $type = 'email';
         if(!empty($records)) {
             if ($type == "email") {
                 foreach (explode(',', $records) as $record) {
+                    $emails[] = $record;
+
                     Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $reason);
                 }
             } else {
                 foreach (explode(',', $records) as $record) {
                     $email = $this->emailService->getEmailAddress($record);
+
+                    $emails[] = $email;
+
                     Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $reason);
                 }
             }
         }
-        if (!empty($reason)) {
-            Event::fire(new BulkSuppressionFileWasUploaded($reason, $request->input('suppfile'), date('Ymd')));
-        }
-        return response($this->api->getJSON(self::BULK_SUPPRESSION_API_ENDPOINT,
-            $request->all()));
+
+        return response()->json( [ 'status' => true ] , 200 );
     }
 
     /**

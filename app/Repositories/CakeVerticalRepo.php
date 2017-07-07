@@ -19,4 +19,6 @@ class CakeVerticalRepo {
         $this->offer->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
 }

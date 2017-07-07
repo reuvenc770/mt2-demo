@@ -17,6 +17,8 @@ class CreativeRepo {
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function prepareTableForSync() {}
+
     public function getCreativeOfferClickRate($offerId) {
         $schema = config("database.connections.reporting_data.database");
         return $this->model

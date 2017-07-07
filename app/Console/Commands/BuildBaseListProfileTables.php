@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Jobs\ListProfileBaseExportJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\ListProfileScheduleRepo;
+use Cache;
 
 class BuildBaseListProfileTables extends Command
 {
@@ -17,7 +18,7 @@ class BuildBaseListProfileTables extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:baseTables';
+    protected $signature = 'listprofile:baseTables {--runtime-threshold=}';
 
     /**
      * The console command description.
@@ -44,8 +45,12 @@ class BuildBaseListProfileTables extends Command
     public function handle(ListProfileScheduleRepo $repo) {
         $profiles = $repo->getListProfilesForToday();
 
+        $cacheTagName = 'ListProfileBaseTable';
+        Cache::forget($cacheTagName);
+        Cache::forever($cacheTagName, count($profiles));
+
         foreach ($profiles as $profileSchedule) {
-            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, str_random(16), $profileSchedule->offers);
+            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, $cacheTagName, str_random(16), $this->option('runtime-threshold'));
             $this->dispatch($job);
         }
     }

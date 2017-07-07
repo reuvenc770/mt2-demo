@@ -29,7 +29,7 @@ class ThirdPartyEmailStatus extends Model
     protected $primaryKey = 'email_id';
 
     const DELIVERABLE = "None";
-    const OPENER = "Opener";
-    const CLICKER = "Clicker";
-    const CONVERTER = "Converter";
+    const OPENER = "Open";
+    const CLICKER = "Click";
+    const CONVERTER = "Conversion";
 }

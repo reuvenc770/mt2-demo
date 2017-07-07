@@ -16,7 +16,11 @@ class MtOfferCakeOfferMappingRepo {
     }
 
     public function updateOrCreate($data) {
-        $this->model->updateOrCreate(['offer_id' => $data['offer_id'], 'cake_offer_id' => $data['cake_offer_id']], $data);
+        $this->model->insert($data);
+    }
+
+    public function prepareTableForSync() {
+        $this->model->truncate();
     }
 
 }

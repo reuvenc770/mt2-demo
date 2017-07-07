@@ -15,14 +15,14 @@ class RunScheduledFilter extends Command
      *
      * @var string
      */
-    protected $signature = 'runFilter {filter} {daysback?}';
+    protected $signature = 'runFilter {filter} {runDate?} {--runtime-threshold=}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Run Scheduled Filters {filter} {days lookback} ';
+    protected $description = 'Run Scheduled Filters {filter} {runDate?}';
 
     /**
      * Create a new command instance.
@@ -41,9 +41,19 @@ class RunScheduledFilter extends Command
      */
     public function handle()
     {
-        $days = $this->argument('daysback');
-        $date = isset($days) ? Carbon::now()->subDays($days)->toDateString() : Carbon::today()->toDateString();
-        $job = new ScheduledFilterResolver( $this->argument( 'filter' ), $date , str_random(16));
+        $date = Carbon::today()->toDateString();
+
+        if ( $this->argument( 'runDate' ) ) {
+            try {
+                $date = Carbon::parse( $this->argument( 'runDate' ) )->toDateString();
+            } catch  ( \Exception $e ) {
+                \Log::error( $e );
+
+                throw $e;
+            }
+        }
+
+        $job = new ScheduledFilterResolver( $this->argument( 'filter' ), $date , str_random(16), $this->option('runtime-threshold'));
         $this->dispatch( $job );
     }
 }

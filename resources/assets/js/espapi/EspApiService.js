@@ -46,14 +46,6 @@ mt2App.service( 'EspApiService' , [ 'paginationService' , '$http' , '$log' , fun
         } ).then( successCallback , failureCallback );
     };
 
-    self.toggleSuppression = function ( recordId,toggle, successCallback, failureCallback ) {
-        $http( {
-            "method" : "DELETE" ,
-            "url" : this.baseApiUrl + '/' + recordId,
-            "params" : { "toggleSuppression" : toggle }
-        } ).then( successCallback , failureCallback );
-    };
-
     self.generateCustomId = function ( successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
@@ -61,4 +53,33 @@ mt2App.service( 'EspApiService' , [ 'paginationService' , '$http' , '$log' , fun
         } ).then( successCallback , failureCallback );
     };
 
+    self.toggleStats  = function ( id , currentStatus , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/toggleStats/' + id ,
+            "data" : { "currentStatus" : currentStatus }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.toggleSuppression  = function ( id , currentStatus , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/toggleSuppression/' + id ,
+            "data" : { "currentStatus" : currentStatus }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.activate  = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/activate/' + id
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.deactivate  = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/deactivate/' + id
+        } ).then( successCallback , failureCallback );
+    };
 } ] );

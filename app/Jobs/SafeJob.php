@@ -28,9 +28,11 @@ abstract class SafeJob extends Job implements ShouldQueue {
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
 
-                $this->handleJob();
+                $rows = $this->handleJob();
 
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+                $rows = $rows ?: 0;
+
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, $rows);
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;

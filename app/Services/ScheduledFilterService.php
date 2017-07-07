@@ -47,10 +47,10 @@ class ScheduledFilterService
     public function insertScheduleFilterBulk($emails,$days){
         $preppedData = array();
         foreach($emails as $email){
-            $date = isset($email['datetime']) ?
-                Carbon::parse($email['datetime'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
+            $date = isset($email['subscribe_date']) ?
+                Carbon::parse($email['subscribe_date'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
 
-            if(Carbon::parse($email['datetime'])->toDateString() > Carbon::today()->toDateString() ){
+            if(Carbon::parse($email['subscribe_date'])->toDateString() > Carbon::today()->toDateString() ){
                 $date = Carbon::today()->addDays($days)->toDateString();
             }
             
@@ -84,5 +84,21 @@ class ScheduledFilterService
 
     public function deleteSchedules($emails){
         return $this->scheduleRepo->bulkDelete($emails);
+    }
+
+    public function getExpiringRecordsBetweenIds($date, $startEmailId, $endEmailId) {
+        return $this->scheduleRepo->getExpiringRecordsBetweenIds($date, $startEmailId, $endEmailId);
+    }
+
+    public function getMinEmailIdForDate($date) {
+        return $this->scheduleRepo->getMinEmailIdForDate($date);
+    }
+
+    public function getMaxEmailIdForDate($date) {
+        return $this->scheduleRepo->getMaxEmailIdForDate($date);
+    }
+
+    public function nextNRows($startEmailId, $offset) {
+        return $this->scheduleRepo->nextNRows($startEmailId, $offset);
     }
 }

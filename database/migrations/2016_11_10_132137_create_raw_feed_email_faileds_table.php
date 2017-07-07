@@ -18,7 +18,11 @@ class CreateRawFeedEmailFailedsTable extends Migration
             $table->string( 'ip' );
             $table->string( 'email' );
             $table->bigInteger( 'feed_id' )->unsigned();
-            $table->json( 'errors' );
+            if (App::environment('testing')) {
+                $table->text('errors');
+            } else {
+                $table->json('errors');
+            }
             $table->timestamps();
 
             $table->index( 'email' , 'email_index' );

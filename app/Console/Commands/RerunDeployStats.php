@@ -22,7 +22,7 @@ class RerunDeployStats extends Command
      * @var string
      */
     protected $description = 'Rerun all stats-deficient deploys.';
-    protected $espsWithQueues = ['BlueHornet', 'Campaigner', 'Publicators'];
+    protected $espsWithQueues = ['BlueHornet', 'Campaigner', 'Publicators', 'Maro', 'Bronto'];
 
     /**
      * Create a new command instance.

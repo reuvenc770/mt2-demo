@@ -46,23 +46,58 @@ class BrontoApi extends EspBaseAPI
     public function getCampaigns($filter)
     {
         $this->setupBronto();
-        $deliveries = $this->brontoObject->readDeliveries(new readDeliveries($filter, 0, 0, 1, 0))->getReturn();
-        $return = array();
-        if(!isset($deliveries))
-        {
-            return $return;
-        }
-        foreach ($deliveries as $delivery) {
-            $filter = new messageFilter();
-            $filter->id = $delivery->getMessageId();
-            $message = $this->brontoObject->readMessages(new readMessages($filter, 0, 1, 10, 0))->getReturn()[0];
-            if(isset($message)) {
-                $delivery->messageName = $message->getName();
-                $return[] = $delivery;
-            }
-        }
-        return $return;
 
+        $records = [];
+        $pageNumber = 1;
+
+        try {
+            $deliveries = $this->brontoObject->readDeliveries(
+                new readDeliveries(
+                    $filter ,
+                    false ,
+                    false ,
+                    $pageNumber ,
+                    false
+                )
+            )->getReturn();
+
+            do {
+
+                foreach ( $deliveries as $currentDelivery ) {
+                    $messageFilter = new messageFilter();
+                    $messageFilter->id = $currentDelivery->getMessageId();
+
+                    $messages = $this->brontoObject->readMessages(
+                        new readMessages( $messageFilter , false , 1 , 10 , false )
+                    )->getReturn();
+
+                    if ( count( $messages ) ) {
+                        $message = array_pop( $messages );
+
+                        $currentDelivery->messageName = $message->getName();
+
+                        $records[] = $currentDelivery;
+                    }
+                }
+
+                $pageNumber++;
+
+                $deliveries = $this->brontoObject->readDeliveries(
+                    new readDeliveries(
+                        $filter ,
+                        false ,
+                        false ,
+                        $pageNumber ,
+                        false
+                    )
+                )->getReturn();
+            } while ( count( $deliveries ) > 0 );
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+            throw $e;
+        }
+
+        return $records;
     }
 
     public function getDeliverablesByType($filter)
@@ -82,7 +117,14 @@ class BrontoApi extends EspBaseAPI
             if ($e->getMessage() == "116: End of result set.") {
                 //nothing to see here, besides a exception to get out of a while loop.
             } else {
-                throw new JobException($e->getMessage());
+                if (
+                    (strpos( $e->getMessage() , 'Delivery does not exist' ) !== false )
+                    || (strpos( $e->getMessage() , 'Start date is invalid' ) !== false )
+                ) {
+                    \Log::warning( $e );
+                } else {
+                    throw new JobException($e->getMessage());
+                }
             }
         } finally {
             if(!isset($firstSet)){

@@ -36,7 +36,6 @@ class ZxSuppressionExportReport {
             $unsubs = $this->repo->getSuppressedForDeploys($deploys, $date, $this->repo->getUnsubId())->toArray();
 
             $writer = Writer::createFromFileObject(new \SplTempFileObject());
-
             $writer->setDelimiter( $this->formatStrategy->getDelimiter() );
 
             foreach ($unsubs as $row) {

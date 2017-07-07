@@ -19,6 +19,8 @@ class FeedService implements IFtpAdmin
 {
     use PaginateList;
 
+    const US_COUNTRY_ID = 1;
+
     private $feedRepo;
     private $verticals;
     private $feedTypes;
@@ -89,6 +91,14 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->getFeedIdByName( $name );
     }
 
+    public function getFeedIdByShortName ( $name ) {
+        return $this->feedRepo->getFeedIdByShortName( $name );
+    }
+
+    public function getFeedIdFromPassword ( $password ) {
+        return $this->feedRepo->getFeedIdFromPassword( $password );
+    }
+
     public function getVerticals() {
         return $this->verticals->orderBy('name')->get();
     }
@@ -99,6 +109,10 @@ class FeedService implements IFtpAdmin
 
     public function getCountries() {
         return $this->countryRepo->get();
+    }
+
+    public function getFeedCountry ( $feedId ) {
+        return $this->feedRepo->getFeedCountry( $feedId );
     }
 
     public function getModel( $searchData = null ) {
@@ -159,7 +173,11 @@ class FeedService implements IFtpAdmin
         $row = RecordProcessingFileField::find( $feedId );
 
         if ( is_null( $row ) ) {
-            return json_encode( [] );
+            if ( $simpleArray ) {
+                return [];
+            } else {
+                return json_encode( [] );
+            }
         }
 
         $row = $row->toArray();
@@ -247,33 +265,20 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->getActiveFeedNames();
     }
 
+    public function getActiveFeedShortNames () {
+        return $this->feedRepo->getActiveFeedShortNames();
+    }
+
     public function getFileColumnMap ( $feedId ) {
         return $this->getFeedFields( $feedId , true );
     }
 
     public function getCountryFeedMap(){
-        $map = [];
-        $feeds = $this->feedRepo->getFeeds();
-
-        foreach ($feeds as $feed) {
-
-            $map[$feed->country_id][] = $feed->id;
-        }
-
-        return $map;
+        return $this->feedRepo->getCountryFeedMap();
     }
 
     public function getPartyFeedMap(){
-
-        $map = [];
-        $feeds = $this->feedRepo->getFeeds();
-
-        foreach ($feeds as $feed) {
-
-            $map[$feed->party][] = $feed->id;
-        }
-
-        return $map;
+        return $this->feedRepo->getPartyFeedMap();
     }
 
     public function getPaginatedJson($page, $count, $params = null)
@@ -320,4 +325,61 @@ class FeedService implements IFtpAdmin
     }
 
     public function saveFtpUser ( $credentials ) {}
+
+    public function generateValidationRules ( $data ) {
+        $isRealtime = false;
+
+        $rules = [
+            'ip' => 'required|ip' ,
+            'source_url' => 'required'
+        ];
+
+        $emailRule = 'required|email';
+        $feedPasswordRule = 'required|exists:feeds,password';
+        $euroDateRule = 'required|euroDate';
+        $usDateRule = 'required|date';
+
+        if ( isset( $data[ 'pw' ] ) && $data[ 'pw' ] != '' ) {
+            $isRealtime = true;
+            $rules[ 'email' ] = $emailRule;
+            $rules[ 'pw' ] = $feedPasswordRule;
+        } else {
+            $rules[ 'email_address' ] = $emailRule; 
+        }
+
+        if ( $isRealtime ) {
+            $feedId = $this->feedRepo->getFeedIdFromPassword( $data[ 'pw' ] );
+        } else {
+            $feedId = $data[ 'feed_id' ];
+        }
+
+        #We only have US and UK feeds right now
+        $isBritishRecord = ( $this->feedRepo->getFeedCountry( $feedId ) !== self::US_COUNTRY_ID );
+        $realtimeDobExists = ( isset( $data[ 'birth_date' ] ) && $data[ 'birth_date' ] != '' ); 
+        $batchDobExists = ( isset( $data[ 'dob' ] ) && $data[ 'dob' ] != '' );
+
+        if ( $isBritishRecord ) {
+            $rules[ 'capture_date' ] = $euroDateRule . '|euroDateNotFuture';
+        } else {
+            $rules[ 'capture_date' ] = $usDateRule . '|before:tomorrow';
+        }
+
+        if ( $isBritishRecord && $realtimeDobExists ) {
+            $rules[ 'birth_date' ] = $euroDateRule;
+        } elseif ( !$isBritishRecord && $realtimeDobExists ) {
+            $rules[ 'birth_date' ] = $usDateRule;
+        }
+
+        if ( $isBritishRecord && $batchDobExists ) {
+            $rules[ 'dob' ] = $euroDateRule;
+        } elseif ( !$isBritishRecord && $batchDobExists ) {
+            $rules[ 'dob' ] = $usDateRule;
+        }
+
+        return $rules;
+    }
+
+    public function getFeedNameFromId ( $id ) {
+        return $this->feedRepo->getFeedNameFromId( $id );
+    }
 }

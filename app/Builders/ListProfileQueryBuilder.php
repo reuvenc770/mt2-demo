@@ -34,10 +34,9 @@ class ListProfileQueryBuilder {
     private $stateAttributes;
     private $deviceAttributes;
     private $carrierAttributes;
-    private $feedsWithSuppression;
 
     // Note already-prepared fields in ListProfileBaseTableService
-    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed'];
+    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed', 'feed_suppressed'];
 
 
     public function __construct() {
@@ -72,7 +71,10 @@ class ListProfileQueryBuilder {
             'device_type' => 'rd.device_type',
             'device_name' => 'rd.device_name',
             'carrier' => 'rd.carrier',
-            'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL OR sls.email_address IS NOT NULL) AS globally_suppressed")
+            'action_status' => DB::raw('rd.last_action_type as action_status'),
+            'action_date' => DB::raw('rd.last_action_date as action_date'),
+            'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
+            'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
         ];
     }
 
@@ -102,13 +104,11 @@ class ListProfileQueryBuilder {
             // We can add to selected columns because the writer will only use the selected columns
             $declaredColumns = json_decode($listProfile->columns, true);
             $this->columns = array_unique(array_merge(self::REQUIRED_PROFILE_FIELDS, $declaredColumns));
-
         }
 
         if (sizeof($this->columns) === 0) {
             throw new ValidationException("No columns selected");
         }
-
 
         if (empty($this->feedIds)) {
             $this->feedIds = $this->getFeedIds($listProfile);
@@ -119,10 +119,6 @@ class ListProfileQueryBuilder {
         if (empty($this->offerIds)) {
             $this->offerIds = $this->getofferIds($listProfile);
         }
-        if (empty($this->feedsWithSuppression)) {
-            $tmp = $this->getFeedsWithIneligibleEmails($listProfile);
-            $this->feedsWithSuppression = $tmp ?: [];
-        }
 
 
         // Setting up columns for selects
@@ -130,7 +126,7 @@ class ListProfileQueryBuilder {
         if (empty($this->recordDataColumns)) {
             $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2',
                 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date', 'source_url', 'capture_date',
-                'device_type', 'device_name', 'carrier'], $this->columns);
+                'device_type', 'device_name', 'carrier', 'action_status', 'action_date'], $this->columns);
         }
         if (empty($this->attributionColumns)) {
             $this->attributionColumns = array_intersect(['feed_id'], $this->columns);
@@ -199,7 +195,7 @@ class ListProfileQueryBuilder {
 
         $query = DB::connection('redshift')->table("{$this->dataTable} as rd")
                     ->whereRaw('is_deliverable = 1')
-                    ->whereRaw("subscribe_date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
+                    ->whereRaw("rd.subscribe_date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
 
         return $query;
     }
@@ -245,11 +241,11 @@ class ListProfileQueryBuilder {
             }
 
             $insert = count($listIds) > 0 ? $listIds : array("0");
-                $listIds = '(' . implode(',', $insert) . ')';
-                $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
-                    $join->on("e.email_address", '=', 'sls.email_address');
-                    $join->on('sls.suppression_list_id', 'in', DB::connection('redshift')->raw($listIds));
-                });
+            $listIds = '(' . implode(',', $insert) . ')';
+            $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
+                $join->on("e.email_address", '=', 'sls.email_address');
+                $join->on('sls.suppression_list_id', 'in', DB::connection('redshift')->raw($listIds));
+            });
 
         }
 
@@ -262,47 +258,26 @@ class ListProfileQueryBuilder {
             || $this->feedColumns
             || $this->clientColumns) {
 
-            $query = $query->join("email_feed_assignments as efa", "{$this->mainTableAlias}.email_id", '=', 'efa.email_id');
+            if ('first_party_record_data' === $this->dataTable) {
+                $attrAlias = $this->mainTableAlias;
+                $this->columnMapping['feed_id'] = "{$attrAlias}.feed_id";
+            } 
+            else {
+                $attrAlias = 'efa';
+                $query = $query->join("email_feed_assignments as $attrAlias", "{$this->mainTableAlias}.email_id", '=', "$attrAlias.email_id");
+            }
 
             if ($this->feedColumns || $this->clientColumns) {
-                $query = $query->join("feeds as f", 'efa.feed_id', '=', 'f.id');
+                $query = $query->join("feeds as f", "$attrAlias.feed_id", '=', 'f.id');
 
                 if ($this->clientColumns) {
                     $query = $query->join("clients as c", 'f.client_id', '=', 'c.id');
                 }
             }
-
-            $feedsWithoutIgnores = array_diff($this->feedIds, $this->feedsWithSuppression);
-            $feedsWithIgnores = $this->feedsWithSuppression;
-
-            if (sizeof($feedsWithoutIgnores) > 0 && sizeof($this->feedsWithSuppression) > 0) {
-                // Get everything from the selected feeds, less those deliberately ignored
-
-                $query = $query->join("email_feed_status as efs", function($join) {
-                    $join->on('efa.feed_id', '=', 'efs.feed_id');
-                    $join->on("{$this->mainTableAlias}.email_id", '=', 'efs.email_id');
-                })->where(function ($q) use ($feedsWithIgnores) {
-                    $q->whereIn('efs.feed_id', $feedsWithIgnores)->where('efs.status', 'Active');
-                })->orWhere(function ($q) use ($feedsWithoutIgnores) {
-                    $q->whereIn('efs.feed_id', $feedsWithoutIgnores);
-                });
-            }
-            elseif (sizeof($feedsWithoutIgnores) > 0) {
-                // Get everything from the selected feeds - no ignores required
-                $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $feedsWithoutIgnores) . ')');
-            }
-            elseif (sizeof($this->feedsWithSuppression) > 0) {
-                // Get data from all feeds, except those emails ignored for these
-                $query = $query->join("email_feed_status as efs", function($join) {
-                    $join->on('efa.feed_id', '=', 'efs.feed_id');
-                    $join->on("{$this->mainTableAlias}.email_id", '=', 'efs.email_id');
-                })->whereNotIn('efs.feed_id', $feedsWithIgnores)
-                  ->orWhere(function ($q) use ($feedsWithIgnores) {
-                    $q->whereIn('efs.feed_id', $feedsWithIgnores)->where('efs.status', 'Active');
-                });
-            }
-            else {
-                // Get everything - no conditions
+            
+            if (sizeof($this->feedIds) > 0) {
+                // Get everything from the selected feeds
+                $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $this->feedIds) . ')');
             }
         }
 
@@ -399,7 +374,7 @@ class ListProfileQueryBuilder {
     private function getOfferIds($listProfile) {
         $offerIds = [];
 
-        foreach($listProfile->offers as $offer) {
+        foreach($listProfile->offerAction as $offer) {
             $offerIds[] = $offer->id;
         }
 
@@ -410,11 +385,6 @@ class ListProfileQueryBuilder {
         }
 
         return $offerIds;
-    }
-
-
-    private function getFeedsWithIneligibleEmails($listProfile) {
-        return json_decode($listProfile->feeds_suppressed, true);
     }
 
 

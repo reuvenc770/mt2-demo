@@ -21,4 +21,6 @@ class OfferSubjectMapRepo {
         ], $data);
     }
 
+    public function prepareTableForSync() {}
+
 }

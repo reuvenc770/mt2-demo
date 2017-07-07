@@ -33,6 +33,6 @@ class CreateAdvertiserSuppressionsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('advertiser_suppressions');
+        Schema::connection('suppression')->drop('suppression_list_suppressions');
     }
 }

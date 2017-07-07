@@ -11,8 +11,15 @@ class AddDatabaseandDimaTables extends Migration
      * @return void
      */
     public function up()
-    {
-        DB::statement('CREATE DATABASE dima_data');
+    {/*
+        $createStatement = 'CREATE DATABASE dima_data';
+
+        if ( env( 'APP_ENV' ) == 'testing' ) {
+            $createStatement .= '_test';
+        }
+
+        DB::statement( $createStatement );
+
         Schema::connection("dima_data")->create('maro_raw_actions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('account_id');
@@ -28,6 +35,7 @@ class AddDatabaseandDimaTables extends Migration
             $table->unique(['contact_id','action_type','recorded_at']);
 
         });
+        */
     }
 
     /**
@@ -36,7 +44,13 @@ class AddDatabaseandDimaTables extends Migration
      * @return void
      */
     public function down()
-    {
-        DB::statement('Drop DATABASE dima_data');
+    {/*
+        $dropStatement = 'Drop DATABASE dima_data';
+
+        if ( env( 'APP_ENV' ) == 'testing' ) {
+            $dropStatement .= '_test';
+        }
+
+        DB::statement( $dropStatement );*/
     }
 }

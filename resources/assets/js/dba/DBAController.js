@@ -5,8 +5,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.accounts = [];
     self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: "", esp_account_names : [] , isp_names : [] , notes: ""};
     self.brand = "";
-    self.currentAccount = { id:"",  dba_name : "" , phone: "", password: "",
-    dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
+    self.currentAccount = { id:"",  dba_name : "" , phone: "", dba_email : "", po_boxes : [], 
+        address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
 
     self.isp_name = "";
     self.esp_account_name = "";

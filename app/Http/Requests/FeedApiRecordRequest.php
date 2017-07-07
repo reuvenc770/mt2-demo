@@ -6,14 +6,19 @@ use App\Http\Requests\Request;
 use Illuminate\Http\JsonResponse;
 
 use App\Repositories\RawFeedEmailRepo;
-use App\Repositories\FeedRepo;
+use App\Services\FeedService;
 
 class FeedApiRecordRequest extends Request
 {
-    protected $repo;
+    const US_COUNTRY_ID = 1;
 
-    public function __construct ( RawFeedEmailRepo $repo ) {
+    protected $repo;
+    protected $feedService;
+
+    public function __construct ( RawFeedEmailRepo $repo , FeedService $feedService ) {
+        parent::__construct();
         $this->repo = $repo;
+        $this->feedService = $feedService;
     }
     
     /**
@@ -33,13 +38,7 @@ class FeedApiRecordRequest extends Request
      */
     public function rules()
     {
-        return [
-            'email' => 'required|email' ,
-            'ip' => 'required|ip' ,
-            'capture_date' => 'required|date' ,
-            'source_url' => 'required' ,
-            'pw' => 'required|exists:feeds,password'
-        ];
+        return $this->feedService->generateValidationRules( $this->all() );
     }
 
     public function messages () {
@@ -49,14 +48,29 @@ class FeedApiRecordRequest extends Request
     }
 
     public function response ( array $errors ) {
-        $this->repo->logFailure(
+        $log = $this->repo->logRealtimeFailure(
             $errors ,
             $this->fullUrl() ,
             json_encode( $this->ips() ) ,
-            $this->input( 'email' ) ,
-            FeedRepo::getFeedIdFromPassword( $this->input( 'pw' ) )
+            ( $this->input( 'email' ) != '' ? $this->input( 'email' ) : '' ) ,
+            $this->feedService->getFeedIdFromPassword( $this->input( 'pw' ) )
         );
 
-        return new JsonResponse( $errors , 422 );
+        foreach ( $errors as $field => $errorList ) {
+            foreach ( $errorList as $currentError ) {
+                if ( preg_match( "/required/" , $currentError ) === 0 ) {
+                    $this->repo->logFieldFailure(
+                        $field ,
+                        $this->input( $field ) ,
+                        $errorList ,
+                        $log->id
+                    );
+
+                    break;
+                }
+            }
+        }
+
+        return new JsonResponse( [ "status" => false , "messages" => $errors ] , 422 );
     }
 }

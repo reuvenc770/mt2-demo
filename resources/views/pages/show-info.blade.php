@@ -47,7 +47,7 @@
                     <th md-column class="md-table-header-override-whitetext">Current Attribution?</th>
                     <th md-column class="md-table-header-override-whitetext">Action</th>
                     <th md-column class="md-table-header-override-whitetext">Action Date</th>
-                    <th md-column class="md-table-header-override-whitetext">Subscribe Date</th>
+                    <th md-column class="md-table-header-override-whitetext">Capture Date</th>
                     <th md-column class="md-table-header-override-whitetext">Status</th>
                     <th md-column class="md-table-header-override-whitetext">Removal Date</th>
                     <th md-column class="md-table-header-override-whitetext">Suppressed</th>
@@ -63,7 +63,7 @@
                     <td md-cell ng-bind="record.address" nowrap></td>
                     <td md-cell ng-bind="record.source_url"></td>
                     <td md-cell ng-bind="record.ip"></td>
-                    <td md-cell ng-bind="record.date" nowrap></td>
+                    <td md-cell ng-bind="record.subscribe_datetime" nowrap></td>
                     <td md-cell nowrap>@{{ record.birthdate == '0000-00-00' ? '' : record.birthdate }}</td>
                     <td md-cell ng-bind="record.gender"></td>
                     <td md-cell ng-bind="record.feed_name"></td>
@@ -73,7 +73,7 @@
                     <td md-cell ng-bind="record.attributed_feed"></td>
                     <td md-cell ng-bind="record.action"></td>
                     <td md-cell ng-bind="record.action_date" nowrap></td>
-                    <td md-cell ng-bind="record.subscribe_datetime" nowrap></td>
+                    <td md-cell ng-bind="record.date" nowrap></td>
                     <td md-cell ng-bind="record.status"></td>
                     <td md-cell nowrap>@{{ record.removal_date == '0000-00-00 00:00:00' ? '' : record.removal_date}}</td>
                     <td md-cell ng-bind="record.suppressed ? 'Suppressed' : ''"></td>

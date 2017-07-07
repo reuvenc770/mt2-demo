@@ -10,13 +10,15 @@ use App\Repositories\FeedRepo;
 
 class FeedApiService {
     protected $repo;
+    protected $feedRepo;
 
     protected $feedId = 0;
     protected $currentUrl = '';
     protected $referrerIp = '';
 
-    public function __construct ( RawFeedEmailRepo $repo ) {
+    public function __construct ( RawFeedEmailRepo $repo , FeedRepo $feedRepo ) {
         $this->repo = $repo;
+        $this->feedRepo = $feedRepo;
     }
 
     public function setRequestInfo ( $feedId , $currentUrl , $referrerIp ) {
@@ -26,7 +28,7 @@ class FeedApiService {
     }
 
     public function getFeedIdFromPassword ( $password ) {
-        return FeedRepo::getFeedIdFromPassword( $password );
+        return $this->feedRepo->getFeedIdFromPassword( $password );
     } 
 
     public function ingest ( $record ) {
@@ -42,13 +44,8 @@ class FeedApiService {
             $this->repo->create( $cleanRecord );
 
         } catch ( \Exception $e ) {
-            $this->repo->logFailure(
-                [
-                    'message' => $e->getMessage() ,
-                    'file' => $e->getFile() ,
-                    'line' => $e->getLine() ,
-                    'trace' => $e->getTraceAsString()
-                ] ,
+            $this->repo->logRealtimeFailure(
+                $e->getTrace() ,
                 $this->currentUrl ,
                 $this->referrerIp ,
                 isset( $record[ 'email_address' ] ) ? $record[ 'email_address' ] : '' ,
@@ -68,13 +65,13 @@ class FeedApiService {
         $record[ 'email_address' ] = $record[ 'email' ];
         unset( $record[ 'email' ] );
 
-        $record[ 'first_name' ] = $record[ 'firstname' ];
-        unset( $record[ 'firstname' ] );
+        $record[ 'first_name' ] = ( isset( $record[ 'firstname' ] ) ? $record[ 'firstname' ] : '' );
+        unset( $record[ 'firstname' ] ); 
 
-        $record[ 'last_name' ] = $record[ 'lastname' ];
+        $record[ 'last_name' ] =  ( isset( $record[ 'lastname' ] ) ? $record[ 'lastname' ] : '' );
         unset( $record[ 'lastname' ] );
 
-        $record[ 'dob' ] = $record[ 'birth_date' ];
+        $record[ 'dob' ] = ( isset( $record[ 'birth_date' ] ) ? $record[ 'birth_date' ] : '' );
         unset( $record[ 'birth_date' ] );
 
         return $record;

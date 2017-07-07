@@ -38,20 +38,7 @@ class ClientService {
     }
 
     public function getClientFeedMap () {
-        $map = [];
-        $clients = $this->clientRepo->get();
-
-        foreach ($clients as $client) {
-            $feeds = [];
-
-            foreach ($client->feeds as $feed) {
-                $feeds[] = $feed->id;
-            }
-
-            $map[$client->id] = $feeds;
-        }
-
-        return $map;
+        return $this->clientRepo->getClientFeedMap();
     }
 
     public function getAccount ( $id ) {

@@ -45,8 +45,12 @@ class UpdateAWeberLists extends Command
     {
         $espAccounts = $this->espRepo->getAccountsByESPName("AWeber");
         foreach($espAccounts as $espAccount){
-            $job = new AWeberUpdateLists($espAccount->id,str_random(16));
-            $this->dispatch($job);
+            if ( $espAccount->enable_stats ) {
+                $job = new AWeberUpdateLists($espAccount->id,str_random(16));
+                $this->dispatch($job);
+            } else {
+                $this->info( 'Stats Not Enabled for ESP Account ' . $espAccount->id );
+            }
         }
     }
 }

@@ -30,7 +30,11 @@ class CreateRawFeedEmailsTable extends Migration
             $table->string( 'gender' )->nullable()->default( '' );
             $table->string( 'phone' )->nullable()->default( '' );
             $table->date( 'dob' )->nullable();
-            $table->json( 'other_fields' );
+            if (App::environment('testing')) {
+                $table->text('other_fields');
+            } else {
+                $table->json('other_fields');
+            }
             $table->timestamps();
 
             $table->index( [ 'feed_id' , 'email_address' ] , 'feed_email_index' );

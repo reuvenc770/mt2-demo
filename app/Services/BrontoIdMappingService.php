@@ -14,7 +14,7 @@ use Cache;
 class BrontoIdMappingService
 {
     protected $repo;
-
+    CONST DUMB_ID = "0bce03ee";
     public function __construct(BrontoIdMappingRepo $mappingRepo)
     {
         $this->repo = $mappingRepo;
@@ -35,11 +35,29 @@ class BrontoIdMappingService
     }
 
     public function returnOriginalId($id, $espAccountId){
-       if(Cache::has("Bronto.{$espAccountId}.{$id}")){
+        if(Cache::has("Bronto.{$espAccountId}.{$id}")){
            return Cache::get("Bronto.{$espAccountId}.{$id}");
-       } else {
-           $mapping = $this->repo->getOriginalId($id, $espAccountId);
-           Cache::put("Bronto.{$espAccountId}.{$id}",$mapping->primary_id);
-       }
+        } else {
+            $mapping = $this->repo->getOriginalId($id, $espAccountId);
+            
+            if ($mapping) {
+                Cache::put("Bronto.{$espAccountId}.{$id}", $mapping->primary_id);
+                return $mapping->primary_id;
+            }
+            else {
+                return null;
+            }   
+        }
+    }
+
+    public function makeDumbInternalId($id,$espAccountId){
+        $realId = $this->returnOriginalId($id,$espAccountId);
+        if(isset($realId)){
+            return $realId;
+        } else {
+            $converted = base_convert($id, 10, 16);
+            $padded = str_pad($converted, 28, '0', STR_PAD_LEFT);
+            return self::DUMB_ID . $padded;
+        }
     }
 }

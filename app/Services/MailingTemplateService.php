@@ -48,6 +48,11 @@ class MailingTemplateService
         return $this->mailingTemplateRepo->getModel();
     }
 
+    public function getTemplateIdFromName($name){
+        $templateId = $this->mailingTemplateRepo->getTemplateIdFromName($name);
+        return ( is_null( $templateId )? 0 : $templateId->id );
+    }
+
     // return model so its a builder not a deploy
     public function getType()
     {

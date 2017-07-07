@@ -18,8 +18,12 @@ class LinkRepo implements Mt1Import {
     }
 
     public function pullForSync($lookback) {
+        $minId = $this->model
+                    ->selectRaw('min(link_id) as min')
+                    ->whereRaw('date_added >= curdate() - interval 5 day')->first()->min;
+        
         return $this->model
-                    ->where('date_added', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"));
+                    ->whereRaw("link_id >= $minId");
     }
 
     public function updateOrCreate($data) {
@@ -33,7 +37,10 @@ class LinkRepo implements Mt1Import {
     }
 
     public function getLinkId($url) {
-        return $this->liveModel->firstOrCreate(['refurl' => $url], ['refurl' => $url])->link_id;
+        return $this->liveModel->firstOrCreate(['refurl' => $url], [
+            'refurl' => $url, 
+            'date_added' => Carbon::now()->toDateTimeString()
+        ])->link_id;
     }
 
     public function insertToMt1($data) {

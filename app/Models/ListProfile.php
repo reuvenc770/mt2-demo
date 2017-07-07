@@ -111,8 +111,12 @@ class ListProfile extends Model
         return $this->belongsToMany('App\Models\DomainGroup', 'list_profile.list_profile_domain_groups');
     }
 
-    public function offers() {
-        return $this->belongsToMany('App\Models\Offer', 'list_profile.list_profile_offers');
+    public function offerSuppression() {
+        return $this->belongsToMany('App\Models\Offer', 'list_profile.list_profile_offer_suppression');
+    }
+
+    public function offerAction() {
+        return $this->belongsToMany('App\Models\Offer', 'list_profile.list_profile_offer_actions');
     }
 
     public function verticals() {
@@ -136,7 +140,7 @@ class ListProfile extends Model
     }
 
     public function canModelBeDeleted () {
-        return $this->deploys()->isEmpty();
+        return ( $this->deploys()->count() <= 0 );
     }
 
 
@@ -172,7 +176,8 @@ class ListProfile extends Model
             $listProfile->feeds()->detach();
             $listProfile->feedGroups()->detach();
             $listProfile->domainGroups()->detach();
-            $listProfile->offers()->detach();
+            $listProfile->offerAction()->detach();
+            $listProfile->offerSuppression()->detach();
             $listProfile->verticals()->detach();
             
             $listProfile->baseCombine()->delete();

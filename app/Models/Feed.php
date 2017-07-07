@@ -70,4 +70,8 @@ class Feed extends Model {
     public function suppressionList() {
         return $this->belongsTo('App\Models\SuppressionList');
     }
+
+    public function fileFields () {
+        return $this->hasOne( 'App\Models\RecordProcessingFileField' );
+    }
 }

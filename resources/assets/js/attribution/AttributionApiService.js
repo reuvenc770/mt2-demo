@@ -94,7 +94,7 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
             "method" : "GET" ,
             "url" : self.projectionApiUrl + '/chart/' + modelId 
         } ).then( successCallback , failureCallback );
-    }
+    };
 
     self.getProjectionRecords = function ( data , successCallback , failureCallback ) {
         return $http( {
@@ -102,5 +102,13 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
             "url" : self.projectionApiUrl + '/report/' ,
             "data" : data
         } ).then( successCallback , failureCallback );
-    }
+    };
+
+    self.manualFeedOrder = function ( modelId , data , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "POST" ,
+            "url" : '/api/attribution/quickReorder/' + modelId ,
+            "data" : { "newFeedOrder" : data }
+        } ).then( successCallback , failureCallback );
+    };
 } );

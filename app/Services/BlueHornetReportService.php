@@ -8,18 +8,15 @@
 
 namespace App\Services;
 
-#use App\Services\API\BlueHornet;
-use App\Facades\CampaignActionsEntry;
+
 use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
-use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
-use App\Services\EmailRecordService;
 use Carbon\Carbon;
 use Storage;
 use App\Exceptions\JobException;
@@ -219,21 +216,25 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             if (1 == $processState['campaign']->bounces) {
                 $typeList[] = 'bounce';
             }
+
+            return $typeList;
         }
         else {
-            $typeList = [ 'open' , 'click' , 'optout' , 'bounce' ];
-            if($this->emailRecord->withinTwoDays($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
-                array_unshift($typeList, "deliverable");
+            if (isset($processState['recordType']) && 'delivered' === $processState['recordType']) {
+                return ['deliverable', 'optout', 'bounce'];
+            }
+            else {
+                return ['open', 'click'];
             }
         }
-
-        return $typeList;
     }
 
     public function startTicket ( $espAccountId , $campaign , $recordType, $isRerun = false ) {
+        $actionTypes = $recordType === 'delivered' ? 'sent,bounce,optout' : 'open,click';
+
         try {
             return [
-                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout', $isRerun ) ,
+                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , $actionTypes, $isRerun ) ,
                 "deployId" => $campaign->external_deploy_id,
                 "espInternalId" => $campaign->esp_internal_id ,
                 "deliveryTime" => $campaign->datetime,
@@ -258,7 +259,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->esp_internal_id . "/" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
 
         Storage::put( $filePath , $fileContents );
-
         return $filePath;
     }
 
@@ -369,7 +369,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             if ($reason == "5-Timeout" || $reason == "5-Spam Block" || "5-Mail Block" === $reason){
                 continue;
             }
-            Log::info("BH REASON IS {$reason}");
             Suppression::recordRawHardBounce(
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $email , 

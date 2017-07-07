@@ -54,7 +54,7 @@ abstract class AbstractReportService implements IDataService  {
 
     protected function insertStats($espAccountId, $report) {
         try {
-            $this->reportRepo->insertStats($espAccountId, $report);
+            return $this->reportRepo->insertStats($espAccountId, $report);
         } catch (\Exception $e){
             throw new \Exception($e->getMessage());
         }

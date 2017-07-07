@@ -43,4 +43,25 @@ SQL;
     public function clearAndReloadEntity($entity) {
         $this->loadEntity($entity);
     }
+
+    public function getActionDateDistribution() {
+        $output = [];
+        // 15 days is the attribution import shield
+        $data = $this->model
+                    ->selectRaw("date(updated_at) as day, sum(is_deliverable) as deliverable_count")
+                    ->whereRaw("updated_at >= current_date - interval '3 DAY'")
+                    ->groupBy(DB::raw('date(updated_at)'))
+                    ->get();
+
+        foreach($data as $row) {
+            $output[$row->day] = $row->deliverable_count;
+        }
+
+        return $output;
+    }
+
+    public function getRandomSample($number) {
+        // So this is actually quite efficient and fast in redshift
+        return $this->model->inRandomOrder()->take($number)->get();
+    }
 }

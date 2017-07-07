@@ -47,8 +47,12 @@ class UpdateMissingCampaignerCampaigns extends Command
         $accounts = EspApiAccount::getAllAccountsByESPName( self::ESP_NAME );
 
         foreach ( $accounts as $current ) {
-            $job = new UpdateMissingCampaignerCampaignsJob( $current->id , str_random( 16 ) );
-            $this->dispatch( $job );
+            if ( $current->enable_stats ) {
+                $job = new UpdateMissingCampaignerCampaignsJob( $current->id , str_random( 16 ) );
+                $this->dispatch( $job );
+            } else {
+                $this->info( 'Campaigner Account ' . $current->id . ' stats disabled. Aborting missing campaign job.' );
+            }
         } 
     }
 }

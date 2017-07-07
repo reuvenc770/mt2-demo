@@ -49,10 +49,13 @@ class CampaignerSubscriberService
 
     }
 
-    private function createUnsubReport($lookback)
+
+    private function createUnsubReport( $lookback )
     {
         $manager = new ContactManagement();
         $searchQuery = $this->api->buildUnsubSearchQuery($lookback);
+
+
         $report = new RunReport($this->api->getAuth(), $searchQuery);
 
         $reportHandle = $manager->RunReport($report);

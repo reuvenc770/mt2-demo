@@ -35,4 +35,6 @@ class CakeEncryptedLinkRepo {
             'creative_id' => $data['creative_id']
             ], $data);
     }
+
+    public function prepareTableForSync() {}
 }

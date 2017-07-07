@@ -134,6 +134,10 @@ class DomainRepo
         return $this->domain->where('domains.domain_type', $domainType)->pluck('domain_name')->toArray();
     }
 
+    public function getDomainIdByTypeAndName($type, $name){
+        return $this->domain->where('domain_type', $type)->where('domain_name', $name)->first();
+    }
+
     private function mapQuery($searchData, $query){
 
         if (isset($searchData['esp'])) {

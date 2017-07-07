@@ -8,7 +8,6 @@
 
 namespace App\Services;
 
-use App\Facades\BrontoMapping;
 use App\Services\AbstractReportService;
 use App\Repositories\ReportRepo;
 use App\Services\API\BrontoApi;
@@ -19,12 +18,14 @@ use App\Exceptions\JobException;
 use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Events\RawReportDataWasInserted;
+use App\Models\BrontoReport;
 use Event;
+use Log;
 
 class BrontoReportService extends AbstractReportService implements IDataService
 {
     public $pageNumber = 1;
-    CONST DUMB_ID = "0bce03ee";
+
     public $pageType;
     public $currentPageData = array();
 
@@ -35,8 +36,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
     public function retrieveApiStats($data)
     {
-        $filter = array('start' =>
-            array('operator' => 'After', 'value' => $data),
+        $filter = array(
+            'start' => array('operator' => 'After', 'value' => Carbon::parse( $data )->toAtomString() ),
             'status' => 'sent'
         );
 
@@ -49,7 +50,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $espAccountId = $this->api->getEspAccountId();
         foreach ($data as $report) {
             $convertedReport = $this->mapToRawReport($report);
-            $this->insertStats($espAccountId, $convertedReport);
+            $rawRecord = $this->insertStats($espAccountId, $convertedReport);
+            $convertedReport[ 'internal_id' ] = $rawRecord->id;
             $arrayReportList[] = $convertedReport;
         }
         Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
@@ -63,12 +65,13 @@ class BrontoReportService extends AbstractReportService implements IDataService
         foreach ($data->toArray() as $key => $field) {
             $return[snake_case($key)] = $field;
         }
-        
+
         $return['message_name'] = $data->messageName;
         return $return;
     }
 
-    public function splitTypes($processState) {
+    public function splitTypes($processState)
+    {
         if ('rerun' === $processState['pipe']) {
             $typeList = [];
             // data in $processState['campaign']
@@ -90,13 +93,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
             }
             return $typeList;
         }
-        else {
-            return ['open','click','bounce','unsubscribe'];
+        if (isset($processState['recordType']) && 'delivered' === $processState['recordType']) {
+            return ['delivered', 'bounce', 'unsubscribe'];
+        } else {
+            return ['open', 'click'];
         }
-        
     }
 
-    public function saveActionPage($processState, $map) {
+    public function saveActionPage($processState, $map)
+    {
         $type = "";
         $internalIds = array();
 
@@ -117,24 +122,62 @@ class BrontoReportService extends AbstractReportService implements IDataService
                 $deployActionType = 'click';
                 break;
 
-	    //TODO - bounces, unsubs
+            case 'bounce' :
+                $type = false;
+                $deployActionType = "bounce";
+                break;
+
+            case 'unsubscribe' :
+                $type = false;
+                $deployActionType = "unsubscribe";
+                break;
+
             default:
                 throw new \Exception("Inappropriate type record type {$processState['recordType']} in saveActionPage"); // THIS SHOULD BE SOMETHING ELSE
         }
 
         try {
-            foreach ($processState['currentPageData'] as $key => $record) {
-                $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
-                $this->emailRecord->queueDeliverable(
-                    $type,
-                    $record->getEmailAddress(),
-                    $this->api->getId(),
-                    $deployId,
-                    $this->parseInternalId($record->getDeliveryId()), // esp_internal_id
-                    $record->getCreatedDate()->format('Y-m-d H:i:s')
-                );
-                $internalIds[] = $this->parseInternalId($record->getDeliveryId());
+            if ($type) {
+                foreach ($processState['currentPageData'] as $key => $record) {
+                    $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
+                    
+                    if ( empty( $deployId ) ) {
+                        continue;
+                    }
+                    
+                    $this->emailRecord->queueDeliverable(
+                        $type,
+                        $record->getEmailAddress(),
+                        $this->api->getId(),
+                        $deployId,
+                        $this->parseInternalId($record->getDeliveryId()), // esp_internal_id
+                        $record->getCreatedDate()->format('Y-m-d H:i:s')
+                    );
+                    $internalIds[] = $this->parseInternalId($record->getDeliveryId());
+                }
+            } else {
+                foreach ($processState['currentPageData'] as $bounce) {
+                    $espInternalId = $this->parseInternalId($bounce->getDeliveryId());
+                    if ("bounce" == $deployActionType) {
+                        Suppression::recordRawHardBounce(
+                            $this->api->getId(),
+                            $bounce->getEmailAddress(),
+                            $espInternalId,
+                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
+                        );
+                    } else {
+                        Suppression::recordRawUnsub(
+                            $this->api->getId(),
+                            $bounce->getEmailAddress(),
+                            $espInternalId,
+                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
+                        );
+                    }
+                    $internalIds[] = $espInternalId;
+                }
+
             }
+
         } catch (\Exception $e) {
             DeployActionEntry::recordFailedRunArray($this->api->getEspAccountId(), array_unique($internalIds), $deployActionType);
             $jobException = new JobException('Failed to retrieve records. ' . $e->getMessage(), JobException::NOTICE);
@@ -151,35 +194,19 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $internalIds = array();
         try {
             switch ($processState['recordType']) {
-
-                case 'delivered' :
-                    foreach ($processState['currentPageData'] as $opener) {
-                        $espInternalId = $this->parseInternalId($opener->getDeliveryId());
-                        $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
-
-                        if ($opener->getDeliveryType() != 'bulk') {
-                            continue;
-                        }
-                        $this->emailRecord->queueDeliverable(
-                            self::RECORD_TYPE_DELIVERABLE,
-                            $opener->getEmailAddress(),
-                            $this->api->getId(),
-                            $deployId,
-                            $espInternalId,
-                            $opener->getCreatedDate()->format('Y-m-d H:i:s')
-                        );
-                        $internalIds[] = $espInternalId;
-                    }
-                    $type = "deliverable";
-                    break;
                 case 'open' :
                     foreach ($processState['currentPageData'] as $opener) {
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
                         $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
                         
+                        if ( empty( $deployId ) ) {
+                                continue;
+                        }
+                        
                         if ($opener->getDeliveryType() != 'bulk') {
                             continue;
                         }
+                        
                         $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_OPENER,
                             $opener->getEmailAddress(),
@@ -197,8 +224,14 @@ class BrontoReportService extends AbstractReportService implements IDataService
                         if ($opener->getDeliveryType() != 'bulk') {
                             continue;
                         }
+                        
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
                         $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
+                        
+                        if ( empty( $deployId ) ) {
+                                continue;
+                        }
+                        
                         $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_CLICKER,
                             $opener->getEmailAddress(),
@@ -210,33 +243,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
                         $internalIds[] = $espInternalId;
                     }
                     $type = "click";
-                    break;
-                case 'bounce' :
-                    foreach ($processState['currentPageData'] as $bounce) {
-                        $espInternalId = $this->parseInternalId($bounce->getDeliveryId());
-                        Suppression::recordRawHardBounce(
-                            $this->api->getId(),
-                            $bounce->getEmailAddress(),
-                            $espInternalId,
-                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
-                        );
-                        $internalIds[] = $espInternalId;
-                    }
-                    $type = "optout";
-                    break;
-
-                case 'unsubscribe' :
-                    foreach ($processState['currentPageData'] as $bounce) {
-                        $espInternalId = $this->parseInternalId($bounce->getDeliveryId());
-                        Suppression::recordRawUnsub(
-                            $this->api->getId(),
-                            $bounce->getEmailAddress(),
-                            $espInternalId,
-                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
-                        );
-                        $internalIds[] = $espInternalId;
-                    }
-                    $type = "bounce";
                     break;
             }
         } catch (\Exception $e) {
@@ -255,14 +261,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return $this->currentPageData;
     }
 
-    public function pageHasData()
+    public function pageHasData( $processState )
     {
 
         if ($this->pageNumber != 1) {
             return false;
         }
         $filter = array(
-            "start" => Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "start" => Carbon::parse( $processState[ 'date' ] )->toAtomString() ,
+            "deliveryId" => $processState[ 'campaign' ]->internal_id ,
             "size" => "5000",
             "types" => $this->pageType,
             "readDirection" => $this->getPageNumber(),
@@ -301,26 +308,20 @@ class BrontoReportService extends AbstractReportService implements IDataService
         }
     }
 
-
     public function getUniqueJobId(&$processState)
     {
-        $jobId = (isset($processState['jobId']) ? $processState['jobId'] : '');
+        $jobId = '';
+        
+        if( isset($processState['campaign']) ){
+            $jobId .= "::{$processState['campaign']->message_name}";
 
-        if (
-            !isset($processState['jobIdIndex'])
-            || (isset($processState['jobIdIndex']) && $processState['jobIdIndex'] != $processState['currentFilterIndex'])
-        ) {
-            $filterIndex = $processState['currentFilterIndex'];
-            $pipe = $processState['pipe'];
-
-            if ($pipe == 'default' && $filterIndex == 1) {
-                $jobId .= '::Pipe-' . $pipe . '::' . $processState['recordType'] . '::Page-' . (isset($processState['pageNumber']) ? $processState['pageNumber'] : 1);
-            } elseif ($pipe == 'delivered' && $filterIndex == 1) {
-                $jobId .= (isset($processState['campaign']) ? '::Pipe-' . $pipe . '::Campaign-' . $processState['campaign']->esp_internal_id : '');
+            if ( isset( $processState['campaign']->internal_id ) ) {
+                $jobId .= "[{$processState['campaign']->internal_id}]" ;
             }
 
-            $processState['jobIdIndex'] = $processState['currentFilterIndex'];
-            $processState['jobId'] = $jobId;
+            if ( isset( $processState['campaign']->esp_internal_id ) ) {
+                $jobId .= "[{$processState['campaign']->esp_internal_id}]" ;
+            }
         }
 
         return $jobId;
@@ -330,15 +331,14 @@ class BrontoReportService extends AbstractReportService implements IDataService
     public function mapToStandardReport($data)
     {
         $deployId = $this->parseSubID($data['message_name']);
-        $espInternalId = $this->parseInternalId($data['internal_id']);
 
         return array(
             'campaign_name' => $data['message_name'],
             'external_deploy_id' => $deployId,
             'm_deploy_id' => $deployId,
             'esp_account_id' => $data['esp_account_id'],
-            'esp_internal_id' => $espInternalId,
-            'datetime' => $data['start'],
+            'esp_internal_id' => $data[ 'internal_id' ],
+            'datetime' => Carbon::parse($data['start'])->setTimezone('America/New_York')->toDateTimeString(), // They send us this in UTC
             //'subject' => $data['subject'],
             'from' => $data['from_name'],
             'from_email' => $data['from_email'],
@@ -356,38 +356,11 @@ class BrontoReportService extends AbstractReportService implements IDataService
     //I am not sure how to make this generic could use regex maybe. 
     public function parseInternalId($id)
     {
-        $pos = 0;
-        if (strrpos($id, '0001')) {
-            $pos = strrpos($id, '0001');
-            $hexId = substr($id, $pos + 3);
-            $id = base_convert($hexId, 16, 10);
-        } elseif (strrpos($id, '0002')) {
-            $pos = strrpos($id, '0002');
-            $hexId = substr($id, $pos + 3);
-            $id = base_convert($hexId, 16, 10);
-        } else {
-            $id = BrontoMapping::returnOrGenerateID($id, $this->api->getId());
-        }
-        if (empty($id)) {
-            throw new JobException("ID cannot be parsed");
-        } else {
-            return $id;
-        }
-
+        return BrontoReport::where( 'internal_id' , $id )->count() ? BrontoReport::where( 'internal_id' , $id )->first()->id : 0;
     }
 
-    public function makeDumbInternalId($id){
-        $realId = BrontoMapping::returnOriginalId($id,$this->api->getEspAccountId());
-        if(isset($realId)){
-            return $realId;
-        } else {
-            $converted = base_convert($id, 10, 16);
-            $padded = str_pad($converted, 28, '0', STR_PAD_LEFT);
-            return self::DUMB_ID . $padded;
-        }
-    }
-
-    public function pageHasCampaignData($processState){
+    public function pageHasCampaignData($processState)
+    {
 
         $formattedInternalId = $processState['campaign']->esp_internal_id;
         $type = $processState['recordType'];
@@ -410,7 +383,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $filter['start'] = Carbon::parse($datetime)->subDay(1)->toAtomString(); // 
         }
 
-        if($type == "delivered"){
+        if ($type == "delivered") {
             $filter['types'] = "send";
             $data = $this->api->getOutgoingSends($filter);
         } else {
@@ -420,44 +393,58 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return true;
     }
 
-    public function pullUnsubsEmailsByLookback($date){
+    public function pullUnsubsEmailsByLookback($date)
+    {
         $filter = array(
             "start" => Carbon::now()->subDay($date)->toAtomString(),
             "size" => "5000",
             "types" => "unsubscribe",
             "readDirection" => "FIRST",
         );
-       return $this->api->getDeliverablesByType($filter);
+        return $this->api->getDeliverablesByType($filter);
     }
 
     public function insertUnsubs($data, $espAccountId)
     {
         foreach ($data as $entry) {
-            $espInternalId = $this->parseInternalId($entry->getDeliveryId());
-            Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, $entry->getCreatedDate()->format('Y-m-d H:i:s'));
+            if ($entry->getDeliveryId()) {
+                $espInternalId = $this->parseInternalId($entry->getDeliveryId());
+                Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, $entry->getCreatedDate()->format('Y-m-d H:i:s'));
+            }
+            else {
+                Log::info($entry->getDeliveryId() . ', ' . $entry->getEmailAddress() . ' not found for Bronto');
+            }
         }
     }
 
-    protected function getDeployIdFromCampaignName($campaignName) {
+    protected function getDeployIdFromCampaignName($campaignName)
+    {
         return strstr($campaignName, '_', true);
     }
 
-    public function pushRecords(array $records, $targetId) {
+    public function pushRecords(array $records, $targetId)
+    {
         foreach ($records as $record) {
             $result = $this->api->addContact($record);
         }
     }
 
-    public function addContactToLists($emailAddress, $lists) {
+    public function addContactToLists($emailAddress, $lists)
+    {
         $contactInfo = [
             'email' => $emailAddress,
             'listIds' => $lists
         ];
         $this->api->addContact($contactInfo);
     }
-    
-    
-    public function getRawReportsForSplit($campaignName, $epsAccountId){
+
+
+    public function getRawReportsForSplit($campaignName, $epsAccountId)
+    {
         return $this->reportRepo->getRawCampaignsFromName($campaignName, $epsAccountId);
+    }
+
+    public function getRawCampaigns ( $processState ) {
+        return $this->reportRepo->getRawCampaignsFromDate( $processState[ 'date' ] , [ [ 'type' , '<>' , 'triggered' ] , [ 'type' , '<>' , 'test' ]] );
     }
 }

@@ -65,10 +65,6 @@ class AttributionConversionJob extends Job implements ShouldQueue
 
             $cakeService->updateConversionsFromAPI( $this->currentDate );
         } while ( $this->currentDate !== $this->dateRange[ 'end' ] ); 
-
-        \Log::info( 'conv job running..' );
-        \Log::info( 'model id:' );
-        \Log::info( $this->modelId );
         
         $this->dispatch( new AttributionAggregatorJob(
             AttributionAggregatorService::RUN_STANDARD ,

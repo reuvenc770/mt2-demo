@@ -43,4 +43,24 @@ SQL;
     public function clearAndReloadEntity($entity) {
         $this->loadEntity($entity);
     }
+
+    public function getAttributionDist() {
+        $output = [];
+
+        $result = $this->model
+                    ->selectRaw('feed_id, COUNT(*) as total')
+                    ->groupBy('feed_id')
+                    ->get();
+
+        foreach($result as $row) {
+            $output[$row->feed_id] = $row->total;
+        }
+
+        return $output;
+    }
+
+    public function getRandomSample($number) {
+        // So this is actually quite efficient and fast in redshift
+        return $this->model->inRandomOrder()->take($number)->get();
+    }
 }

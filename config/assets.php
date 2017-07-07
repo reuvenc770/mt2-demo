@@ -99,7 +99,8 @@ return [
             'node_modules/angular-cookies/angular-cookies.min.js',
             'node_modules/headroom.js/dist/headroom.js',
             'node_modules/headroom.js/dist/angular.headroom.js',
-
+            'node_modules/cronstrue/dist/cronstrue.min.js' ,
+            'node_modules/angular-cron-jobs/dist/angular-cron-jobs.min.js' ,
         ],
         'mt2AppBase' => [
             'resources/assets/js/app.js',

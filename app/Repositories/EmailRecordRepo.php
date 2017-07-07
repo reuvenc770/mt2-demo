@@ -28,7 +28,7 @@ class EmailRecordRepo {
         $this->email = $email;
     }
 
-    public function massRecordDeliverables ( $records = [] ) {
+    public function massRecordDeliverables ( $records = [], $boolRecordsHaveEID = false ) {
         $validRecords = [];
         $invalidRecords = [];
         $preppedData = array();
@@ -46,8 +46,8 @@ class EmailRecordRepo {
 
             $this->errorReason = '';
 
-            if ( $this->isValidRecord( false ) ) {
-                $currentId = $this->getEmailId();
+            if ( $this->isValidRecord(false, $boolRecordsHaveEID ) ) {
+                $currentId = $boolRecordsHaveEID ? $currentRecord['email'] : $this->getEmailId();
 
                 $validRecord = "( "
                     . join( " , " , [
@@ -189,7 +189,7 @@ class EmailRecordRepo {
     }
 
     public function isValidActionType ( $actionName ) {
-        return ActionType::where( 'name' , $actionName )->count() == 1;
+        return in_array($actionName, ['opener', 'clicker']);
     }
 
     public function emailExists () {
@@ -201,8 +201,16 @@ class EmailRecordRepo {
     }
 
     public function getEmailId ( $emailAddress = null ) {
-        return $this->email->select( 'id' )->where( 'email_address' , ( is_null( $emailAddress ) ? $this->emailAddress : $emailAddress ) )->first()->id;
+        $obj =  $this->email->select( 'id' )->where('email_address', ($emailAddress ?: $this->emailAddress))->first();
+
+        if ($obj) {
+            return $obj->id;
+        }
+        else {
+            return null;
+        }
     }
+
     public function getEmailAddress($eid){
         try {
             return $this->email->find($eid)->email_address;
@@ -220,11 +228,11 @@ class EmailRecordRepo {
         $this->date = $recordData[ 'date' ];
     }
 
-    protected function isValidRecord ( $saveOrphan = true ) {
+    protected function isValidRecord ( $saveOrphan = true, $recordsHaveEids = false) {
         $orphan = new OrphanEmail();
         $errorFound = false;
 
-        if ( !$this->emailExists() ) {
+        if ( !$this->emailExists() && !$recordsHaveEids) {
             $orphan->missing_email_record = 1;
             $this->errorReason = 'missing_email_record';
 
@@ -267,4 +275,5 @@ class EmailRecordRepo {
         }
         return $delivered;
     }
+    
 }

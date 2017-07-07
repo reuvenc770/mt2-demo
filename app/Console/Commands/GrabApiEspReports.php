@@ -16,7 +16,7 @@ class GrabApiEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadApi {espName} {--D|daysBack=} {--Q|queueName=default} {--E|espAccountId=} {--L|apiLimit=}}';
+    protected $signature = 'reports:downloadApi {espName} {--D|daysBack=} {--Q|queueName=default} {--E|espAccountId=} {--L|apiLimit=} {--runtime-threshold=}';
     protected $espRepo;
 
     protected $espName;
@@ -54,14 +54,22 @@ class GrabApiEspReports extends Command
         $this->processOptions();
 
         if( $this->isSingleAccountGrab() ) {
-            $this->fireJob();
+            if ( $this->espRepo->statsEnabledForAccount( $this->currentAccountId ) ) {
+                $this->fireJob();
+            } else {
+                $this->info( 'Stats Not Enabled for ESP Account ' . $this->currentAccountId );
+            }
         } else{
             $espAccounts = $this->espRepo->getAccountsByESPName( $this->espName );
 
             foreach ($espAccounts as $account) {
-                $this->setCurrentAccountId( $account->id );
+                if ( $account->enable_stats ) {
+                    $this->setCurrentAccountId( $account->id );
 
-                $this->fireJob();
+                    $this->fireJob();
+                } else {
+                    $this->info( 'Stats Not Enabled for ESP Account ' . $account->id );
+                }
             }
         }
 
@@ -93,9 +101,9 @@ class GrabApiEspReports extends Command
     public function fireJob () {
 
         if ( $this->limitCallSize() ) {
-            $job = new RetrieveApiReports( $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) , $this->apiLimit );
+            $job = new RetrieveApiReports($this->option('runtime-threshold'), $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) , $this->apiLimit );
         } else {
-            $job = new RetrieveApiReports( $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) );
+            $job = new RetrieveApiReports($this->option('runtime-threshold'), $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) );
         }
 
         $job->onQueue( $this->queueName );

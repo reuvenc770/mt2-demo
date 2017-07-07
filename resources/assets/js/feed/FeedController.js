@@ -163,7 +163,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         if ( self.recordListStatus === 'search' ) {
             self.searchFeeds();
         }
-    }
+    };
 
     self.searchFeeds = function() {
         self.recordListStatus = 'search';
@@ -187,7 +187,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         self.recordListStatus = 'index';
         self.loadFeeds();
         self.search = {};
-    }
+    };
 
 
     /**

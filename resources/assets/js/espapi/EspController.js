@@ -91,9 +91,21 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.toggle = function(recordId,direction) {
         EspApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
-    
-    self.toggleSuppression = function(recordId,toggleBoolean) {
-        EspApiService.toggleSuppression(recordId, toggleBoolean,  self.toggleRowSuccess, self.toggleRowFailure)
+
+    self.toggleStats = function ( recordId , currentStatus ) {
+        EspApiService.toggleStats( recordId , currentStatus , function ( r ) { $log.info( r ); self.loadAccounts() } , function ( r ) { $log.info( r ); } );
+    };
+
+    self.toggleSuppression = function ( recordId , currentStatus ) {
+        EspApiService.toggleSuppression( recordId , currentStatus , function ( r ) { $log.info( r ); self.loadAccounts() } , function ( r ) { $log.info( r ); } );
+    };
+
+    self.activate = function ( recordId ) {
+        EspApiService.activate( recordId , function ( r ) { $log.info( r ); self.loadAccounts() } , function ( r ) { $log.info( r ); } );
+    };
+
+    self.deactivate = function ( recordId ) {
+        EspApiService.deactivate( recordId , function ( r ) { $log.info( r ); self.loadAccounts() } , function ( r ) { $log.info( r ); } );
     };
 
     self.generateCustomId = function() {

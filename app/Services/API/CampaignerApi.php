@@ -20,7 +20,7 @@ use App\Library\Campaigner\ImmediateUpload;
 use App\Library\Campaigner\ContactManagement;
 
 use Log;
-
+use App\Library\Campaigner\ArrayOfContactData;
 class CampaignerApi extends EspBaseAPI
 {
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
@@ -86,14 +86,19 @@ class CampaignerApi extends EspBaseAPI
             }
             throw new \Exception("{$header['errorFlag']} - {$this->getApiName()}::{$this->getEspAccountId()} Failed {$jobName} because {$header['returnMessage']} - {$header['returnCode']}");
         } else if ($header['returnCode'] == self::NO_CAMPAIGNS) {
-            Log::info("{$this->getApiName()}::{$this->getEspAccountId()} had no campaigns");
             return true;
         }
         return false;
     }
 
-    public function buildCampaignSearchQuery($campaign)
-    {
+    public function buildCampaignSearchQuery ( $campaign , $recordType = null )
+    { 
+        $operator = 'Sent';
+
+        if ( !is_null( $recordType ) && $recordType != '' ) {
+            $operator = $recordType;
+        }
+
         return "<contactssearchcriteria>
   <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\"/>
   <set>Partial</set>
@@ -106,7 +111,28 @@ class CampaignerApi extends EspBaseAPI
       </campaign>
       <action>
         <status>Do</status>
-        <operator>Sent</operator>
+        <operator>{$operator}</operator>
+      </action>
+    </filter>
+  </group>
+</contactssearchcriteria>";
+    }
+
+    public function buildHardbounceSearchQuery ()
+    { 
+        return "<contactssearchcriteria>
+  <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\"/>
+  <set>Partial</set>
+  <evaluatedefault>True</evaluatedefault>
+  <group>
+    <filter>
+      <filtertype>EmailAction</filtertype>
+      <campaign>
+        <anycampaign></anycampaign>
+      </campaign>
+      <action>
+        <status>Do</status>
+        <operator>HardBounce</operator>
       </action>
     </filter>
   </group>
@@ -179,6 +205,7 @@ class CampaignerApi extends EspBaseAPI
     }
 
     public function addContactToLists($emailAddress, $suppressionLists) {
+        $contactManager = new ContactManagement();
         $key = new ContactKey(0, $emailAddress);
         $emailId = 0;
         $attribute = new CustomAttribute($emailId, 3932683, false); // Not sure what these are

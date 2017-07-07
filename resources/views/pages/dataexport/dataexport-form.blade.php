@@ -218,7 +218,7 @@
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.UMD5" ng-true-value="'UMD5'">Uppercase Email MD5</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.ISP" ng-true-value="'ISP'">ISP</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.cdate" ng-true-value="'cdate'">Capture Date</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.sdate" ng-true-value="'sdate'">Subscribe Date</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.sdate" ng-true-value="'sdate'">Registration Date</md-checkbox>
           </div>
 
           <div class="col-sm-3">

@@ -19,6 +19,20 @@
             <span class="pull-right"><b>Displaying @{{ attr.rowLimit }} of @{{ attr.feeds.length }} Feeds</b> </span></div>
     </div>
     <div class="panel-body">
+        <div class="form-group">
+            <p>Manually enter levels and feeds for reordering. Must start from level 1 and work sequentially. Any additional feeds in the model will be appended. Line Format: [feedLevel,feedID]</p>
+            <label>Level Quick Sort</label>
+
+            <div class="help-block"  ng-show="attr.formErrors.newFeedOrder">
+                <div ng-repeat="error in attr.formErrors.newFeedOrder">
+                    <span ng-bind="error"></span>
+                </div>
+            </div>
+
+            <textarea class="form-control" rows="5" ng-model="attr.newFeedOrder"></textarea>
+            <button class="btn mt2-theme-btn-primary btn-block" ng-click="attr.manualFeedOrder()">Reorder</button>
+        </div>
+
         <ul class="list-group" ng-cloak>
             <li ng-repeat="feed in attr.feeds track by $index"
                 class="list-group-item clearfix cmp-list-item-condensed" ng-class="{ 'list-group-item-success' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ feed.id ] < ( $index + 1 )}">

@@ -45,7 +45,7 @@ class ReprocessFirstPartyActions extends Command
         $activeWorkflows = $repo->getActiveWorkflows();
 
         foreach ($activeWorkflows as $workflow) {
-            $job = new FirstPartyReprocessingJob($workflow, $lookback, str_random(16));
+            $job = new FirstPartyReprocessingJob($workflow, $lookBack, str_random(16));
             $this->dispatch($job);
         }
         

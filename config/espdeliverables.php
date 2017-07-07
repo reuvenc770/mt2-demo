@@ -3,7 +3,7 @@
 return [
     "BlueHornet" => [
         "pipes" => [
-            "default" => [
+            "actions" => [
                 'jobSetup' ,
                 'getCampaigns' ,
                 'startTicket' ,
@@ -13,6 +13,16 @@ return [
                 'synchronousSaveTypeRecords' ,
                 'cleanUp'
             ] ,
+            "delivered" => [
+                'jobSetup' ,
+                'getDeliverableCampaigns' ,
+                'startTicket' ,
+                'checkTicketStatus' ,
+                'downloadTicketFile' ,
+                'getTypeList' ,
+                'synchronousSaveTypeRecords' ,
+                'cleanUp'
+            ],
             "rerun" => [
                 'jobSetup' ,
                 'getRerunCampaigns' ,
@@ -28,14 +38,22 @@ return [
     ] ,
     "Campaigner" => [
         "pipes" => [
-            "default" => [
+            "delivered" => [
                 'getCampaigns' ,
+                'splitTypes' ,
+                'startTicket' ,
+                'saveRecords'
+            ] ,
+            "actions" => [
+                'getCampaigns' ,
+                'splitTypes' ,
                 'startTicket' ,
                 'saveRecords'
             ] ,
             "rerun" => [
                 'getRerunCampaigns' ,
                 'startTicket' ,
+                'splitTypes' ,
                 'saveRecords',
                 'removeDeploys'
             ]
@@ -93,9 +111,16 @@ return [
     ] ,
     "Publicators" => [
         "pipes" => [
-            "default" => [
+            "actions" => [
                 'jobSetup' ,
                 'getCampaigns' ,
+                'getTypeList' ,
+                'splitTypes' ,
+                'saveRecords'
+            ] ,
+            "delivers" => [
+                'jobSetup' ,
+                'getDeliverableCampaigns' ,
                 'getTypeList' ,
                 'splitTypes' ,
                 'saveRecords'
@@ -113,7 +138,9 @@ return [
     ],
     "Bronto" => [
         "pipes" => [
-            "default" => [
+            "actions" => [
+                'jobSetup' ,
+                'getRawCampaigns' ,
                 'splitTypes' ,
                 'savePaginatedRecords'
             ] ,

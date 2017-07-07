@@ -26,7 +26,7 @@ class IpValidator implements IValidate {
     public function validate() {
         
         if ('' === $this->ip) {
-            $this->ip = '10.1.2.3';
+            $this->ip = '10.1.2.3'; // Default "Not provided" ip address
         }
         elseif (!filter_var($this->ip, FILTER_VALIDATE_IP)) {
             throw new ValidationException("Invalid IP format detected {$this->ip}");

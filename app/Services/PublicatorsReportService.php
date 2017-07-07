@@ -147,16 +147,17 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             if (1 == $processState['campaign']->bounces) {
                 $typeList[] = 'bounce';
             }
+            return $typeList;
         }
         else {
-            $typeList = [ "open" , "click" , "unsub" , "bounce" ];
-
-            if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id) || 'rerun' === $processState['pipe'] ){
-                $typeList[] = "sent";
+            if (isset($processState['recordType']) && 'delivered' === $processState['recordType']) {
+                return ['sent', 'unsub', 'bounce'];
             }
-        }
+            else {
+                return ['open', 'click'];
+            }
 
-        return $typeList;
+        }
     }
 
     public function splitTypes ( $processState ) {
@@ -194,21 +195,21 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
             switch ( $processState[ "recordType" ] ) {
                 case "sent" :
+                    $type = "deliverable";
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_SENT_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_DELIVERABLE;
-                    $type = "deliverable";
                 break;
 
                 case "open" :
+                    $type = "open";
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_OPENER;
-                    $type = "open";
                 break;
 
                 case "click" :
+                    $type = "click";
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_CLICKS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_CLICKER;
-                    $type = "click";
                 break;
 
                 default:
@@ -228,7 +229,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             foreach ( $records as $record ) {
 
                 /*
-                    Publicators timestamps are of the form YYYY/MM/DD HH:MM:SS
+                    Publicators timestamps are of the form YYYY/MM/DD HH:ii:ss
                     Additionally, they often record multiple actions within a second
                     (5 or more is not unheard of). Levelocity wants to preserve
                     each of these actions (they would overwrite each other) so we
@@ -237,10 +238,15 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
                     edit: we've now seen >60 actions per minute, so we're capping it at that
                     with Levelocity's approval
+
+                    Additionally, they send over their actions in UTC. For the sake
+                    of consistency, we want them to be in Eastern time.
+
                 */
 
-                $trimmedTimestamp = date('Y-m-d H:i', strtotime($record->TimeStamp));
-                $key = md5($record->Email . $recordType . $trimmedTimestamp);
+                // Simply appending 'UTC' converts this to UTC for this
+                $trimmedTimestamp = Carbon::parse($record->TimeStamp.'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i');
+                $key = 'Pub' . md5($record->Email . $recordType . $trimmedTimestamp);
 
                 // If the tag already exists, get the (already-incremented) second, and increment again
                 if (Cache::tags([$recordType, $deployId])->has($key)) {

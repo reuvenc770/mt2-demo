@@ -12,7 +12,8 @@ class UpdateListProfileLastRunType extends Migration
      */
     public function up()
     {
-        \DB::statement( 'alter table list_profile.list_profile_schedules modify last_run DATETIME' );
+        $schema = config('database.connections.list_profile.database');
+        \DB::statement( "alter table {$schema}.list_profile_schedules modify last_run DATETIME" );
     }
 
     /**
@@ -22,6 +23,7 @@ class UpdateListProfileLastRunType extends Migration
      */
     public function down()
     {
-        \DB::statement( 'alter table list_profile.list_profile_schedules modify last_run DATE' );
+        $schema = config('database.connections.list_profile.database');
+        \DB::statement( "alter table {$schema}.list_profile_schedules modify last_run DATE" );
     }
 }

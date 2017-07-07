@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+
 /**
  *
  */
 class FeedRepo implements Mt2Export, IAwsRepo {
-
     private $feed;
 
     public function __construct(Feed $feed) {
@@ -20,6 +20,10 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
     public function getFeeds () {
         return $this->feed->orderBy('short_name')->get();
+    }
+
+    public function getFeedsForParty($party) {
+        return $this->feed->where('party', $party)->get();
     }
 
     public function getAllFeedsArray() {
@@ -104,16 +108,24 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed->where( 'status' , 'Active'  )->pluck( 'name' )->toArray();
     }
 
+    public function getActiveFeedShortNames () {
+        return $this->feed->where( 'status' , 'Active'  )->pluck( 'short_name' )->toArray();
+    }
+
     public function getFeedIdByName ( $name ) {
         return ( $record = $this->feed->where( 'name' , $name )->pluck( 'id' ) ) ? $record->pop() : null;
+    }
+
+    public function getFeedIdByShortName ( $name ) {
+        return ( $record = $this->feed->where( 'short_name' , $name )->pluck( 'id' ) ) ? $record->pop() : null;
     }
 
     public function passwordExists ( $password ) {
         return $this->feed->where( 'password' , $password )->count() > 0;
     }
 
-    static public function getFeedIdFromPassword ( $password ) {
-        $feed = Feed::where( 'password' , $password )->first();
+    public function getFeedIdFromPassword ( $password ) {
+        $feed = $this->feed->where( 'password' , $password )->first();
 
         if ( is_null( $feed ) ) {
             return 0;
@@ -206,6 +218,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed;
     }
 
+    public function specialExtract($data) {}
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -239,4 +253,48 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         $currentFeed->password = $password;
         $currentFeed->save();
     }
+
+    public function getCount() {
+        return $this->feed->count();
+    }
+
+    public function getFeedCountry ( $feedId ) {
+        return $this->feed->where( 'id' , $feedId )->pluck( 'country_id'  )->first();
+    }
+
+    public function getCountryFeedMap () {
+        $map = [];
+        $feeds = $this->getFeeds();
+
+        foreach ($feeds as $feed) {
+
+            $map[$feed->country_id][] = $feed->id;
+        }
+
+        return $map;
+    }
+
+    public function getPartyFeedMap () {
+        $map = [];
+        $feeds = $this->getFeeds();
+
+        foreach ($feeds as $feed) {
+
+            $map[$feed->party][] = $feed->id;
+        }
+
+        return $map;
+    }
+
+    public function getFeedNameFromId ( $id ) {
+        $feedResult = $this->feed->where( 'id' , $id )->first();
+
+        if ( count( $feedResult ) !== 1 ) {
+            return null;
+        }
+
+        return $feedResult->name;
+    }
+    
+    public function prepareTableForSync() {}
 }

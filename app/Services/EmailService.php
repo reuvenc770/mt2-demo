@@ -17,7 +17,7 @@ class EmailService {
     }
 
     public function getEmailAddress($id) {
-        return $this->repo->getEmaiAddress($id);
+        return $this->repo->getEmailAddress($id);
     }
 
     public function getRecordInfo($identifier, $type) {

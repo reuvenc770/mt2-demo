@@ -1,6 +1,8 @@
 <?php
 namespace App\Services;
 use Aws\S3\S3Client;
+use Aws\S3\MultipartUploader;
+use Aws\Exception\MultipartUploadException;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use App\Repositories\EtlPickupRepo;
@@ -18,6 +20,9 @@ class S3RedshiftExportService {
     const WRITE_THRESHOLD = 10000;
     private $rows = [];
     private $rowCount;
+    const SINGLE_UPLOAD_MAX_SIZE_BYTES = 1073741824; // 1 GiB. 5GiB is currently the max in a single upload.
+    private $tries = 1;
+    const MAX_TRIES = 5;
 
     private $strat;
 
@@ -42,6 +47,11 @@ class S3RedshiftExportService {
     public function extractAll() {
         $resource = $this->repo->extractAllForS3();
         return $this->write($resource, 0);   
+    }
+
+    public function specialExtract($data) {
+        $resource = $this->repo->specialExtract($data);
+        return $this->write($resource, 0);
     }
 
     private function write($resource, $stopPoint) {
@@ -88,16 +98,49 @@ class S3RedshiftExportService {
     }
 
     public function loadAll() {
-        $result = $this->s3Client->putObject([
-            'Bucket' => config('aws.s3.fileUploadBucket'),
-            'Key' => "{$this->entity}.csv",
-            'SourceFile' => $this->filePath,
-        ]);
+        if (filesize($this->filePath) > self::SINGLE_UPLOAD_MAX_SIZE_BYTES) {
+
+            $uploader = new MultipartUploader($this->s3Client, $this->filePath, [
+                'key' => "{$this->entity}.csv",
+                'bucket' => config('aws.s3.fileUploadBucket'),
+                'acl' => 'public-read'
+            ]);
+
+            do {
+                try {
+                    $result = $uploader->upload();
+                    echo "Multi-part upload for {$this->entity} complete" . PHP_EOL;
+                } 
+                catch (MultipartUploadException $e) {
+                    if ($this->tries <= self::MAX_TRIES) {
+                        $this->tries++;
+
+                        echo "Upload for {$this->entity} failed with {$e->getMessage()}. Retrying {$this->tries}." . PHP_EOL;
+                        $uploader = new MultipartUploader($s3Client, $source, [
+                            'state' => $e->getState(),
+                        ]);
+                    }
+                    else {
+                        throw new Exception("Multi-part upload for {$this->entity} failed completely with {$e->getMessage()}.");
+                    }
+                }
+            } while (!isset($result));
+
+        }
+        else {
+            $result = $this->s3Client->putObject([
+                'Bucket' => config('aws.s3.fileUploadBucket'),
+                'Key' => "{$this->entity}.csv",
+                'SourceFile' => $this->filePath,
+            ]);
+        }
 
         $this->redshiftRepo->clearAndReloadEntity($this->entity);
 
         // And then delete the file
         File::delete($this->filePath);
+
+        return true;
     }
 
 

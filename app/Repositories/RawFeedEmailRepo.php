@@ -7,10 +7,21 @@ namespace App\Repositories;
 
 use App\Models\RawFeedEmail;
 use App\Models\RawFeedEmailFailed;
+use App\Models\RawFeedFieldErrors;
+use App\Models\Email;
+use App\Repositories\FeedRepo;
+
+use Carbon\Carbon;
 
 class RawFeedEmailRepo {
+    const US_COUNTRY_ID = 1;
+
     protected $rawEmail;
     protected $failed;
+    protected $failedFields;
+    private $email;
+
+    protected $feed;
 
     protected $standardFields = [
         'feed_id' => 0 ,
@@ -31,9 +42,12 @@ class RawFeedEmailRepo {
         'dob' => 0
     ];
 
-    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed ) {
+    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedRepo $feed , RawFeedFieldErrors $failedFields ) {
         $this->rawEmail = $rawEmail;
         $this->failed = $failed;
+        $this->email = $email;
+        $this->feed = $feed;
+        $this->failedFields = $failedFields;
     }
 
     public function create ( $data ) {
@@ -93,8 +107,9 @@ class RawFeedEmailRepo {
         return $cleanRecord;
     }
 
-    public function logFailure ( $errors , $fullUrl , $referrerIp , $email = '' , $feedId = 0 ) {
-        $this->failed->create( [
+    public function logRealtimeFailure ( $errors , $fullUrl , $referrerIp , $email = '' , $feedId = 0 ) {
+        return $this->failed->create( [
+            'realtime' => 1 ,
             'errors' => json_encode( $errors ) ,
             'url' => $fullUrl ,
             'ip' => $referrerIp ,
@@ -103,30 +118,110 @@ class RawFeedEmailRepo {
         ] );
     }
 
+    public function logBatchFailure ( $errors , $csv , $file , $lineNumber , $email = '' , $feedId = 0 ) {
+        return $this->failed->create( [
+            'realtime' => 0 ,
+            'errors' => json_encode( $errors ) ,
+            'csv' => $csv ,
+            'file' => $file ,
+            'line_number' => $lineNumber ,
+            'url' => '' ,
+            'ip' => 'sftp-01.mtroute.com' ,
+            'email' => $email ,
+            'feed_id' => $feedId
+        ] );
+    }
+
+    public function logFieldFailure ( $field , $value , $errors , $rawFeedEmailFailedId = 0 ) {
+        $this->failedFields->create( [
+            'field' => $field ,
+            'value' => $value ,
+            'errors' => json_encode( $errors ) ,
+            'raw_feed_email_failed_id' => $rawFeedEmailFailedId
+        ] );
+    }
+
     public function getFirstPartyRecordsFromFeed($startPoint, $feedId) {
-        return $this->rawEmail
-                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id")
-                    ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
-                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
+        $output = [];
+
+        $records = $this->rawEmail
                     ->where('feed_id', $feedId)
-                    ->where('raw_feed_emails.id', '>', $startPoint)
-                    ->orderBy('raw_feed_emails.id')
-                    ->limit(1000)
+                    ->where('id', '>', $startPoint)
+                    ->orderBy('id')
+                    ->limit(1500)
                     ->get();
+
+        foreach ($records as $record) {
+            $search = $this->email
+                ->selectRaw("email_domain_id, domain_group_id, emails.id as email_id")
+                ->where('email_address', $record->email_address)
+                ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                ->first();
+
+            if ($search) {
+                $record->email_domain_id = $search->email_domain_id;
+                $record->domain_group_id = $search->domain_group_id;
+                $record->email_id = $search->email_id;
+            }
+            else {
+                $record->email_domain_id = null;
+                $record->domain_group_id = null;
+                $record->email_id = null;
+            }
+
+            $output[] = $record;
+        }
+
+        return $output;
     }
 
     public function getThirdPartyRecordsWithChars($startPoint, $startChars) {
         $charsRegex = '^[' . $startChars . ']';
 
-        return $this->rawEmail
-                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id")
-                    ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
-                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
+        $output = [];
+
+        $emails = $this->rawEmail
                     ->whereRaw("raw_feed_emails.email_address RLIKE '$charsRegex'")
                     ->where('raw_feed_emails.id', '>', $startPoint)
+                    ->whereRaw('party = 3')
                     ->orderBy('raw_feed_emails.id')
-                    ->limit(1000)
+                    ->limit(1500)
                     ->get();
+
+        foreach ($emails as $record) {
+            $search = $this->email
+                        ->selectRaw("email_domain_id, domain_group_id, emails.id as email_id")
+                        ->where('email_address', $record->email_address)
+                        ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                        ->first();
+
+            if ($search) {
+                $record->email_domain_id = $search->email_domain_id;
+                $record->domain_group_id = $search->domain_group_id;
+                $record->email_id = $search->email_id;
+            }
+            else {
+                $record->email_domain_id = null;
+                $record->domain_group_id = null;
+                $record->email_id = null;
+            }
+
+            $suppressed = \DB::connection('suppression')
+                            ->table('suppression_global_orange')
+                            ->where('email_address', $record->email_address)
+                            ->first();
+
+            if ($suppressed) {
+                $record->suppressed = 1;
+            }
+            else {
+                $record->suppressed = 0;
+            }
+
+            $output[] = $record;
+        }
+
+        return $output;
     }
 
     protected function formatRecord ( $record ) {
@@ -136,7 +231,7 @@ class RawFeedEmailRepo {
             . $pdo->quote( $record[ 'feed_id' ] ) . ","
             . $pdo->quote( $record[ 'email_address' ] ) . ","
             . $pdo->quote( $record[ 'source_url' ] ) . ","
-            . $pdo->quote( $record[ 'capture_date' ] ) . ","
+            . ( isset( $record[ 'capture_date' ] ) ? $pdo->quote( $record[ 'capture_date' ] ) : 'NULL' ) . ","
             . $pdo->quote( $record[ 'ip' ] ) . ","
             . ( isset( $record[ 'first_name' ] ) ? $pdo->quote( $record[ 'first_name' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'last_name' ] ) ? $pdo->quote( $record[ 'last_name' ] ) : 'NULL' ) . ","
@@ -162,6 +257,69 @@ class RawFeedEmailRepo {
 
         $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
 
+        $this->formatDates( $rawEmailRecord );
+
         return $rawEmailRecord;
+    }
+
+    protected function formatDates ( &$rawEmailRecord ) {
+        $isEuroDateFormat = ( $this->feed->getFeedCountry( $rawEmailRecord[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
+
+        try {
+            if ( $isEuroDateFormat ) {
+                $rawEmailRecord[ 'capture_date' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'capture_date' ] );
+            } else {
+                $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+            }
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
+            unset( $rawEmailRecord[ 'capture_date' ] );
+        }
+
+        try {
+            if( isset( $rawEmailRecord[ 'dob' ] ) && $rawEmailRecord[ 'dob' ] == '' ) {
+                unset( $rawEmailRecord[ 'dob' ] );
+            }
+
+            if ( isset( $rawEmailRecord[ 'dob' ] ) ) {
+
+                if ( $isEuroDateFormat ) {
+                    $rawEmailRecord[ 'dob' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'dob' ] );
+                } else {
+                    $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
+                }
+            }
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
+            unset( $rawEmailRecord[ 'dob' ] );
+        }
+
+    }
+
+    public function convertEuropeanDate ( $dateString ) {
+        $date = null;
+
+        try { #trying international standard format
+            if ( preg_match( "/\-/" , $dateString ) === 0 ) {
+                #not hyphen date format, skip down to forward slash format
+                throw new \Exception();
+            }
+
+            $date = Carbon::parse( $dateString )->toDateString();
+        } catch ( \Exception $e ) {   
+            try { #trying forward slash format with year first
+                $date = Carbon::createFromFormat( 'Y/d/m' , $dateString )->toDateString();
+            } catch ( \Exception $e ) {   
+                try { #trying forward slash format with day first
+                    $date = Carbon::createFromFormat( 'd/m/Y' , $dateString )->toDateString();
+                } catch ( \Exception $e ) {
+                    #all format parsing failed, leave null
+                }
+            }
+        }
+
+        return $date;
     }
 }

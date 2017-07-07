@@ -2,60 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ListProfileCombineExportJob;
-use App\Services\FeedGroupService;
-use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Laracasts\Flash\Flash;
+use Cache;
+use AdrianMejias\States\States;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use App\Services\MT1Services\CountryService;
-use AdrianMejias\States\States;
-use App\Services\DomainGroupService;
-use App\Models\CakeVertical;
-use App\Services\OfferService;
-use App\Services\ClientService;
-use App\Jobs\ListProfileBaseExportJob;
-use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
 use App\Http\Requests\SubmitListCombineRequest;
-use Laracasts\Flash\Flash;
+
+use App\DataModels\CacheReportCard;
+use App\Models\CakeVertical;
+
+use App\Jobs\ExportSimpleCombineJob;
+use App\Jobs\ListProfileBaseExportJob;
+
+use App\Services\ListProfileService;
+use App\Services\EntityCacheService;
+use App\Services\DomainGroupService;
 use App\Services\ListProfileCombineService;
-use Cache;
+
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
+
     protected $listProfile;
     protected $states;
     protected $ispService;
-    protected $offerService;
-    protected $clientService;
-    protected $feedService;
     protected $combineService;
-    protected $feedGroupService;
 
     public function __construct (
         ListProfileService $listProfileService ,
-        CountryService $mt1CountryService ,
         States $states ,
-        DomainGroupService $ispService ,
-        OfferService $offerService,
-        ClientService $clientService,
-        FeedService $feedService,
-        FeedGroupService $feedGroupService,
+        DomainGroupService $ispService,
         ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
-        $this->mt1CountryService = $mt1CountryService;
         $this->states = $states;
         $this->ispService = $ispService;
-        $this->offerService = $offerService;
-        $this->clientService = $clientService;
-        $this->feedService = $feedService;
         $this->combineService = $combineService;
-        $this->feedGroupService = $feedGroupService;
     }
 
     /**
@@ -102,7 +88,8 @@ class ListProfileController extends Controller
         $profileID = $this->listProfile->create( $data );
 
         if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
-            $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16)));
+            $cacheTagName = null;
+            $this->dispatch(new ListProfileBaseExportJob($profileID, $cacheTagName, str_random(16)));
         }
 
         Flash::success("List Profile was Successfully Created");
@@ -130,7 +117,7 @@ class ListProfileController extends Controller
     {
         return response()->view(
             'pages.listprofile.list-profile-edit' ,
-            $this->getFormFieldOptions( [ 'id' => $id , 'prepop' => $this->listProfile->getFullProfileJson( $id ) ] )
+            $this->getFormFieldOptions( $id )
         );
     }
 
@@ -155,7 +142,8 @@ class ListProfileController extends Controller
         $this->listProfile->formUpdate( $id , $data );
 
         if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
-            $this->dispatch(new ListProfileBaseExportJob($id, str_random(16)));
+            $cacheTagName = null;
+            $this->dispatch(new ListProfileBaseExportJob($id, $cacheTagName, str_random(16)));
         }
 
         Flash::success("List Profile was Successfully Updated");
@@ -184,20 +172,25 @@ class ListProfileController extends Controller
         );
     }
 
-    protected function getFormFieldOptions ( $addOptions = [] ) {
+    protected function getFormFieldOptions ( $id = 0 , $addOptions = [] ) {
+        if ( $id > 0 ) {
+            $addOptions[ 'id' ] = $id;
+            $addOptions[ 'prepop' ] = $this->listProfile->getFullProfileJson( $id );
+        }
 
-        return array_merge( [
-            'feeds' => $this->feedService->getAllFeedsArray() ,
-            'feedGroups' => $this->feedGroupService->getAllFeedGroupsArray(),
-            'clients' => $this->clientService->getAllClientsArray() ,
-            'clientFeedMap' => $this->clientService->getClientFeedMap() ,
-            'partyFeedMap' => $this->feedService->getPartyFeedMap(),
-            'countryFeedMap' => $this->feedService->getCountryFeedMap(),
-            'countries' => $this->mt1CountryService->getAll() ,
+        $formFields = array_merge( [
+            'feeds' => EntityCacheService::get( \App\Repositories\FeedRepo::class , 'array' ) ,
+            'feedGroups' => EntityCacheService::get( \App\Repositories\FeedGroupRepo::class , 'array' ) ,
+            'clients' => EntityCacheService::get( \App\Repositories\ClientRepo::class , 'array' ) ,
+            'clientFeedMap' => EntityCacheService::get( \App\Repositories\ClientRepo::class , 'feedMap' ) ,
+            'partyFeedMap' => EntityCacheService::get( \App\Repositories\FeedRepo::class , 'partyMap' ) ,
+            'countryFeedMap' =>  EntityCacheService::get( \App\Repositories\FeedRepo::class , 'countryMap' ) ,
             'states' => $this->states->all() ,
             'isps' => $this->ispService->getAllActive() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
+
+        return $formFields;
     }
 
 
@@ -219,8 +212,10 @@ class ListProfileController extends Controller
     }
 
     public function exportListCombine(Request $request){
-        $id = $request->input("id");
-        $this->dispatch(new ListProfileCombineExportJob($id, str_random(16)));
+        $combineId = $request->input("id");
+        $ran = str_random(10);
+        $reportCard = CacheReportCard::makeNewReportCard("Combine-{$combineId}-{$ran}");
+        $this->dispatch(new ExportSimpleCombineJob($combineId, $reportCard, str_random(16)));
     }
 
     public function editListCombine( $id ) {
@@ -237,7 +232,7 @@ class ListProfileController extends Controller
             'ftpFolder' => $combineData->ftp_folder ,
             'combineParty' => $combineData->party,
             'listProfileIds' => $listProfileIds
-            ]);
+        ]);
     }
 
     public function updateListCombine( SubmitListCombineRequest $request ) {

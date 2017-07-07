@@ -26,14 +26,13 @@ class ProfileUpdate extends Request
      */
     public function rules()
     {
-        $user = Sentinel::getUser();
         return  array(
             'email' => 'required|email|unique:users,email,'.$this->get('id'),
             'username' => 'required|unique:users,username,'.$this->get('id'),
             'first_name' => 'required',
             'last_name' => 'required',
             'roles'      => 'required',
-            'password' => 'hash:' . $user->getUserPassword(),
+            'password' => 'hash:userPassword' ,
             'newpass' => 'different:password|confirmed'
         );
 

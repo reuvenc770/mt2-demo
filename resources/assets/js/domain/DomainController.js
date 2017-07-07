@@ -47,7 +47,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.createUrl = 'domain/create/';
     self.espAccounts = [];
-    self.selectedProxy = [];
     self.formErrors = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
@@ -147,7 +146,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.saveNewAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
-        self.currentAccount.proxy = self.selectedProxy.id;
         DomainService.saveNewAccount(self.currentAccount, self.SuccessCallBackRedirect, self.saveNewAccountFailureCallback);
 
     };
@@ -226,6 +224,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.formSubmitted = false;
         self.updateDomains();
     };
+
+
+    self.editRowFailure = function ( response ) {
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
+    };
+
     self.loadAccountFailureCallback = function (response){
         modalService.simpleToast("Failed to load domain.");
         self.rowBeingEdited = 0;

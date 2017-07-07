@@ -3,15 +3,18 @@
 namespace App\Services\MT1Services;
 
 use App\Repositories\MT1Repositories\LinkRepo;
+use App\Repositories\LinkRepo as CmpLinkRepo;
 use Exception;
 use Guzzle;
 
 class LinkService {
     
     private $repo;
+    private $cmpRepo;
 
-    public function __construct(LinkRepo $repo) {
+    public function __construct(LinkRepo $repo, CmpLinkRepo $cmpRepo) {
         $this->repo = $repo;
+        $this->cmpRepo = $cmpRepo;
     }
 
     /**
@@ -47,7 +50,12 @@ class LinkService {
 
 
     public function getLinkId($url) {
-        return $this->repo->getLinkId($url);
+        $linkId = $this->repo->getLinkId($url);
+        $this->cmpRepo->updateOrCreate([
+            'id' => $linkId,
+            'url' => $url
+        ]);
+        return $linkId;
     }
 
 }

@@ -6,7 +6,7 @@ use App\Models\SuppressionListSuppression;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use DB;
 
-class SuppressionListSuppressionRepo implements IAwsRepo{
+class SuppressionListSuppressionRepo implements IAwsRepo {
 
     private $model;
 
@@ -22,6 +22,10 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function clearList($listId) {
+        $this->model->where('suppression_list_id', $listId)->delete();
+    }
+
     public function returnSuppressedWithFeedIds($emails, $listIds) {
         return $this->model
                     ->whereIn('suppression_list_id', $listIds)
@@ -29,6 +33,15 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
                     ->selectRaw('email_address, GROUP_CONCAT(DISTINCT suppression_list_id SEPARATOR ",") as suppression_lists')
                     ->groupBy('email_address')
                     ->get();
+    }
+
+    public function isSuppressedInLists($emailAddress, array $listIds) {
+        if (count($listIds) > 0) {
+            return $this->model->where('email_address', $emailAddress)->whereIn('suppression_list_id', $listIds)->count() > 0;
+        }
+        else {
+            return false;
+        }
     }
 
     public function addToSuppressionList($emailAddress, $listId) {
@@ -49,6 +62,8 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
         return $this->model->whereRaw("id > $stopPoint");
     }
 
+    public function specialExtract($data) {}
+
     public function mapForS3Upload($row)
     {
         $pdo = DB::connection('redshift')->getPdo();
@@ -68,7 +83,17 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
 
     public function getConnection()
     {
-        return $this->model->getConnection();
+        return $this->model->getConnectionName();
+    }
+
+    public function getAllQuery($lookback) {
+        return $this->model->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")->toSql();
+    }
+
+    public function getCount($lookback) {
+        return $this->model
+                    ->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")
+                    ->count();
     }
 
 }

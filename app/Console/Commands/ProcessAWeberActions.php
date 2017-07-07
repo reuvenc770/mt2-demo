@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\AWeberActionImmigration;
-use App\Models\AWeberEmailActionsStorage;
+use App\Repositories\AWeberEmailActionsStorageRepo;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;
@@ -31,8 +31,7 @@ class ProcessAWeberActions extends Command
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
@@ -41,12 +40,22 @@ class ProcessAWeberActions extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
-        AWeberEmailActionsStorage::chunk(10000, function ($chunk) {
-                $this->info("Processing another chunk");
-                $job = (new AWeberActionImmigration($chunk, str_random(16)))->onQueue("AWeber");
-                $this->dispatch($job);
-            });
+    public function handle(AWeberEmailActionsStorageRepo $repo) {
+        $start = $repo->getMinId();
+        $end = $repo->getMaxId();
+
+        while ($start < $end) {
+            $segmentSize = 5000;
+            $segmentEnd = $repo->nextNRows($start, $segmentSize);
+            $segmentEnd = $segmentEnd ?: $end;
+
+            $segment = $repo->getOrphansBetweenIds($start, $segmentEnd);
+
+            $this->info("Processing another chunk");
+            $job = (new AWeberActionImmigration($segment, str_random(16)))->onQueue("AWeber");
+            $this->dispatch($job);
+
+            $start = $segmentEnd;
+        }
     }
 }

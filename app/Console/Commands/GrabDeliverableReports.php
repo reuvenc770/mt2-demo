@@ -66,18 +66,22 @@ class GrabDeliverableReports extends Command
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
 
         foreach ($espAccounts as $account){
-            $espLogLine = "{$account->name}::{$account->account_name}";
-            $this->info($espLogLine);
+            if ( $account->enable_stats ) {
+                $espLogLine = "{$account->name}::{$account->account_name}";
+                $this->info($espLogLine);
 
-            $job = (new RetrieveDeliverableReports(
-                $account->name ,
-                $account->id ,
-                $date ,
-                str_random(16) ,
-                $processState ,
-                $queue ) )->onQueue( $queue );
+                $job = (new RetrieveDeliverableReports(
+                    $account->name ,
+                    $account->id ,
+                    $date ,
+                    str_random(16) ,
+                    $processState ,
+                    $queue ) )->onQueue( $queue );
 
-            $this->dispatch($job);
+                $this->dispatch($job);
+            } else {
+                $this->info( 'Stats Not Enabled for ' . $account->account_name );
+            }
         }
     }
 }

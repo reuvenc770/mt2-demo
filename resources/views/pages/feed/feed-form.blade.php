@@ -43,9 +43,9 @@
     </div>
     @if ( Sentinel::inRole( 'fleet-admiral' ) )
     <div class="form-group">
-            <label class="col-sm-2 control-label">Feed FTP Host</label>
+            <label class="col-sm-2 control-label">Feed FTP Host <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Due to security concerns, all new feeds must use the SFTP server.  There will be a separate process to move existing feeds files to the new server while migrating">lock</md-icon></label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="host_ip" value=""  ng-model="feed.current.host_ip" />
+                <input type="text" class="form-control" disabled id="host_ip" value="sftp-01.mtroute.com"  ng-model="feed.current.host_ip" />
             </div>
     </div>
     <div class="form-group">

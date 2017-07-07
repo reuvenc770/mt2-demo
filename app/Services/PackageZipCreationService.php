@@ -239,8 +239,8 @@ class PackageZipCreationService {
             libxml_use_internal_errors($errors);
 
             // n used to be clientId - removed, should be safe
-            #$openPixel = "<IMG SRC='http://{$this->contentDomain}/resources/img/spacer.png?eid={$openEmailIdField}&cid=1&em={$openEmailAddressField}&n=0&f={$fromId}&s={$subjectId}&c={$creativeId}&did=&binding=&tid={$templateId}&openflag=1&nod=1&espID={$espId}&subaff={$deploy->id}' border=0 height=1 width=1>";
-            $openPixel = "<IMG SRC='" . $this->urlFormatter->formatOpenUrl( $this->contentDomain , $deploy->espAccount->esp , $deploy->espAccount , $deploy->id , $openEmailIdField , $openEmailAddressField ) . "' border=0 height=1 width=1>";
+            $openPixel = "<IMG SRC='http://{$this->contentDomain}/resources/img/spacer.png?eid={$openEmailIdField}&cid=1&em={$openEmailAddressField}&n=0&f={$fromId}&s={$subjectId}&c={$creativeId}&did=&binding=&tid={$templateId}&openflag=1&nod=1&espID={$espId}&subaff={$deploy->id}' border=0 height=1 width=1>";
+            #$openPixel = "<IMG SRC='" . $this->urlFormatter->formatOpenUrl( $this->contentDomain , $deploy->espAccount->esp , $deploy->espAccount , $deploy->id , $openEmailIdField , $openEmailAddressField ) . "' border=0 height=1 width=1>";
 
             $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
             $fullHtml = str_replace("{{TRACKING}}", $openPixel, $fullHtml);
@@ -314,10 +314,8 @@ class PackageZipCreationService {
             $fullHtml = $this->parseImageLinks($fullHtml);
 
             // Unfortunately, BH's email id token includes an entity (%cf) that gets converted
-            // We've placed another html entity (a zero-width joiner) between the % and cf
-            // to prevent this from happening during the call to parseImageLinks()
-            // additionally, when this gets decoded or displayed, the &zwj; - true to its name - disappears
-            $fullHtml = str_replace('%%&zwj;cf', '%%cf', $fullHtml);
+            // We've placed some text between the two to break this up.
+            $fullHtml = str_replace('%-cf', '%cf', $fullHtml);
             return $fullHtml;
         }
         catch (UrlValidationException $e) {
@@ -496,7 +494,7 @@ TXT;
     private function createUnsubHtml($offer, $imageUrlPrefix, $offerUnsubLinkId) {
         $unsubText = '';
         if ($offer) {
-            if ('TEXT' === $offer->unsub_use) {
+            if ('TEXT' === $offer->unsub_type) {
                 $unsubText = $offer->unsub_text;
             }
             elseif ('' !== $offer->unsub_img) {
@@ -729,7 +727,6 @@ TXT;
             "{{HEADER}}" => "",
             "{{BINDING}}" => "",
             "{{FID}}" => "",
-            "{{BINDING}}" => "",
             "{{NID}}" => ""
         ];
 

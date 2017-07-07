@@ -7,6 +7,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.feeds = [];
     self.lastFeedOrder = [];
     self.clientLevels = {};
+    self.newFeedOrder = '';
 
     self.levelCopySideNavId = 'levelCopy';
     self.levelCopyModelId = 0;
@@ -640,4 +641,19 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         modalService.setPopover(4000);
     };
 
+    self.manualFeedOrder = function () {
+        formValidationService.resetFieldErrors(self);
+
+        AttributionApiService.manualFeedOrder(
+            self.getModelId() ,
+            self.newFeedOrder ,
+            function ( response ) {
+                modalService.simpleToast( 'Successfully reordered feeds using quick sort.' );
+            } ,
+            function ( response ) {
+                modalService.simpleToast( 'Failed to reorder feeds using quick sort.' );
+
+                formValidationService.loadFieldErrors(self,response);
+            } );
+    };
 } ] );

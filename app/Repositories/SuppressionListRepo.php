@@ -20,4 +20,20 @@ class SuppressionListRepo {
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getListForName($name) {
+        $obj = $this->model
+                    ->where('suppression_list_name', $name)
+                    ->where('status', 'A')
+                    ->first();
+
+        if ($obj) {
+            return $obj->id;
+        }
+        else {
+            return null;
+        }
+    }
+
+    public function prepareTableForSync() {}
+
 }

@@ -134,7 +134,7 @@ class EmailActionsRepo {
         return DB::select("SELECT
             ea.email_id,
             ea.deploy_id,
-            d.esp_account_id,
+            ea.esp_account_id,
             ea.date,
             e.email_address,
             e.lower_case_md5,
@@ -157,7 +157,7 @@ class EmailActionsRepo {
                 email_id,
                 deploy_id,
                 DATE(datetime) as date,
-                
+                MAX(esp_account_id) as esp_account_id,
                 SUM(IF(action_id = 4, 1, 0)) as deliveries,
                 SUM(IF(action_id = 1, 1, 0)) as opens,
                 SUM(IF(action_id = 2, 1, 0)) as clicks,
@@ -206,6 +206,7 @@ class EmailActionsRepo {
                 action_id IN (1, 2, 4)
                 AND
                 std.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 5 DAY
+                AND deploy_id <> 0
               GROUP BY
                 deploy_id) ea ON ea.deploy_id = sr.external_deploy_id
                
@@ -223,7 +224,7 @@ class EmailActionsRepo {
     public function pullEspAccount($espAccounts, $date) {
         $date .= ' 00:00:00';
         return DB::table('mt2_reports.email_actions AS ea')
-            ->join('mt2_data.emails AS e', 'ea.email_id', '=', 'e.id')
+            ->join('emails AS e', 'ea.email_id', '=', 'e.id')
             ->whereIn('esp_account_id', $espAccounts)
             ->whereIn('ea.action_id', [1,2])
             ->where('ea.created_at', '>=', $date)
@@ -237,7 +238,7 @@ class EmailActionsRepo {
 
         return $this->actions
                     ->join("$dataSchema.deploys as d", 'email_actions.deploy_id', '=', 'd.id')
-                    ->whereRaw("created_at >= CURDATE() - INTERVAL $lookback DAY")
+                    ->whereRaw("email_actions.created_at >= CURDATE() - INTERVAL $lookback DAY")
                     ->whereIn('action_id', [1,2])
                     ->select('email_actions.email_id', 
                         'party', 
@@ -256,4 +257,32 @@ class EmailActionsRepo {
                     ->whereIn('action_id', [1,2])
                     ->groupBy('email_id');
     }
+
+    public function upsertDelivered($records) {
+        if (sizeof($records) > 0) {
+            $inserts = implode(',', $records);
+
+            DB::connection('reporting_data')->statement("INSERT INTO email_actions
+                (email_id, deploy_id, esp_account_id, esp_internal_id, action_id, datetime, created_at)
+
+                VALUES
+
+                $inserts
+
+                ON DUPLICATE KEY UPDATE
+
+                email_id = email_id,
+                deploy_id = deploy_id,
+                esp_account_id = esp_account_id,
+                esp_internal_id = esp_internal_id,
+                action_id = action_id,
+                datetime = datetime,
+                created_at = created_at,
+                updated_at = now()
+            ");
+        }
+
+
+    }
+    
 }
