@@ -118,7 +118,7 @@ class FeedProcessingService {
                     $validatedRecords[] = $record;
                     $updateArray[$record->feedId][$domainGroupId]['validRecords']++;
 
-                    if ($record->phone) {
+                    if ('' !== $record->phone) {
                         $updateArray[$record->feedId][$domainGroupId]['phoneCount']++;
                     }
 

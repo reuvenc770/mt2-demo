@@ -191,4 +191,51 @@ class FeedDateEmailBreakdownRepo {
                     ->uniques;
     }
 
+    public function updateRawErrors(array $insert) {
+        $updates = [];
+
+        foreach($insert as $feed) {
+            foreach($feed as $emailClass) {
+                foreach($emailClass as $day) {
+                   $updates[] = '(' (int)$feed . ", '{$day}', " . (int)$emailClass . (int)$day['bad_ip_addresses'] . ',' . (int)$day['other_invalid'] . ')';
+                }
+            }
+        }
+
+        if (count($updates) == 0) {
+            return;
+        }
+
+        $done = false;
+        $attempts = 0;
+
+        while ($attempts < self::MAX_RETRY_ATTEMPTS) {
+            try {
+                DB::statement("INSERT INTO feed_date_email_breakdowns
+                    (feed_id, date, domain_group_id, bad_ip_addresses, other_invalid)
+                    VALUES
+
+                    $inserts
+
+                    ON DUPLICATE KEY UPDATE
+                    feed_id = feed_id,
+                    date = date,
+                    domain_group_id = domain_group_id,
+                    total_emails = total_emails,
+                    valid_emails = valid_emails,
+                    suppressed_emails = suppressed_emails,
+                    bad_source_urls = bad_source_urls,
+                    full_postal_counts = full_postal_counts,
+                    bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
+                    other_invalid = other_invalid + VALUES(other_invalid),
+                    suppressed_domains = suppressed_emails,
+                    phone_counts = phone_counts");
+            }
+            catch (\Exception $e) {
+                $attempts++;
+                sleep(2);
+            }
+        }
+    }
+
 }
