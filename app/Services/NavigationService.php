@@ -88,7 +88,6 @@ class NavigationService
             $this->menuList[$section->name]['glyth'] = $section->glyth;
 
             $permissions = $this->permissionRepo->getAllPermissionsWithParent($section->id);
-            \Log::info( $permissions );
             foreach ($permissions as $permission) {
                 $route = $this->routeList->getByName($permission->name);
                 $this->loadPrefix($route);
@@ -135,8 +134,6 @@ class NavigationService
 
     protected function loadPrefix($route)
     {
-        \Log::info( $route->getName() );
-
         $this->currentRoute['prefix'] = $route->getPrefix();
     }
 
