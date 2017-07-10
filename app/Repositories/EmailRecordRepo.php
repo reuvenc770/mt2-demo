@@ -14,6 +14,7 @@ use Illuminate\Database\Query\Builder;
 use App\Services\AbstractReportService;
 use Log;
 use App\Events\NewActions;
+
 class EmailRecordRepo {
     protected $email;
     protected $emailAddress = '';
@@ -32,6 +33,7 @@ class EmailRecordRepo {
         $validRecords = [];
         $invalidRecords = [];
         $preppedData = array();
+        $pdo = DB::connection()->getPdo();
 
         foreach ( $records as $currentIndex => $currentRecord ) {
             
@@ -77,10 +79,10 @@ class EmailRecordRepo {
             } else {
                 $invalidRecord = "( " 
                     .join( " , " , [
-                        "'" . $currentRecord[ 'email' ] . "'" ,
+                        $pdo->quote($currentRecord[ 'email' ]) ,
                         $currentRecord[ 'espId' ] ,
-                        $currentRecord['deployId'],
-                        $currentRecord[ 'espInternalId' ] ,
+                        is_numeric($currentRecord['deployId']) ? $currentRecord['deployId'] : 0,
+                        is_numeric($currentRecord['espInternalId']) ? $currentRecord[ 'espInternalId' ] : 0,
                         $this->getActionId( $currentRecord[ 'recordType' ] ) ,
                         ( empty( $currentRecord[ 'date' ] ) ? "''" : "'" . $currentRecord[ 'date' ] . "'" ) ,
                         ( $this->errorReason == 'missing_email_record' ? 1 : 0 ) ,

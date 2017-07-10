@@ -22,7 +22,7 @@ class GrabDeliverableReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadDeliverables {espName} {lookBack?} {queueName?}';
+    protected $signature = 'reports:downloadDeliverables {espName} {lookBack?} {queueName?} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -53,6 +53,7 @@ class GrabDeliverableReports extends Command
         $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : config('jobs.defaultLookback');
         $queue = (string) $this->argument('queueName') ? $this->argument('queueName') : "default";
         $date = Carbon::now()->subDay($this->lookBack)->toDateString();
+        $runtimeThreshold = $this->option('runtime-threshold');
 
         $espName = $this->argument('espName');
         $processState = null;
@@ -76,7 +77,9 @@ class GrabDeliverableReports extends Command
                     $date ,
                     str_random(16) ,
                     $processState ,
-                    $queue ) )->onQueue( $queue );
+                    $queue,
+                    $runtimeThreshold
+                ) )->onQueue( $queue );
 
                 $this->dispatch($job);
             } else {
