@@ -95,7 +95,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 }
             }
 
-            $statuses[$record->feedId][$domainGroupId[$filename][$record->uniqueStatus]++;
+            $statuses[$record->feedId][$domainGroupId][$filename][$record->uniqueStatus]++;
 
             // Update record per-feed data for all records that are not currently attributed to the same feed
             if ('duplicate' !== $record->uniqueStatus) {
