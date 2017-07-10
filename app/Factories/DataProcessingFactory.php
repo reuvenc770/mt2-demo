@@ -67,6 +67,9 @@ class DataProcessingFactory {
             case ('AttributionValidation'):
                 return self::createAttributionValidationService();
 
+            case('UpdateFeedProcessingErrors'):
+                return \App::make(\App\Services\FeedDateEmailErrorUpdateService::class)
+
             # Export from MT2 to MT1
 
             case('Mt1Export-email_list'):

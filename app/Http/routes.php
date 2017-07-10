@@ -162,6 +162,11 @@ Route::group(
             'uses' => 'ShowInfoController@index'
         ] );
 
+        Route::get( '/notifications' , [
+            'as' => 'tools.notifications' ,
+            'uses' => 'ScheduledNotificationController@index'
+        ] );
+
         Route::get( '/seed' , [
             'as' => 'tools.seed' ,
             'uses' => 'SeedEmailController@index'
@@ -192,6 +197,7 @@ Route::group(
             'uses' => 'SourceUrlSearchController@index'
         ] );
 
+        /*
         Route::get( '/awebermapping' , [
             'as' => 'tools.awebermapping' ,
             'uses' => 'AWeberDeployMappingController@mapDeploys'
@@ -201,6 +207,7 @@ Route::group(
             'as' => 'tools.aweberlists' ,
             'uses' => 'AWeberListController@edit'
         ] );
+         */
 
     }
 );
@@ -822,6 +829,7 @@ Route::group(
             'uses' => 'NavigationController@returnValidOrphanNavigation'
         ] );
 
+        /*
         Route::get('/tools/getunmappedreports', [
             'as' => 'api.tools.awebermapping.unmapped' ,
             'uses' => 'AWeberDeployMappingController@getOrphanReports'
@@ -831,12 +839,15 @@ Route::group(
             'as' => 'api.tools.awebermapping.convertreport' ,
             'uses' => 'AWeberDeployMappingController@convertReport'
         ] );
+         */
+
         Route::resource(
             'tools/seed' ,
             'SeedEmailController' ,
             [ 'only' => [ 'store' , 'destroy' ] ]
         );
 
+        /*
         Route::post('/tools/aweberlists/update', [
             'as' => 'api.tools.aweberlists.update' ,
             'uses' => 'AWeberListController@store'
@@ -845,6 +856,7 @@ Route::group(
             'as' => 'api.tools.aweberlists.getLists' ,
             'uses' => 'AWeberListController@getList'
         ] );
+         */
 
         Route::post('/navigation', [
             'as' => 'api.tools.navigation.update' ,
@@ -1388,6 +1400,32 @@ Route::group(
             'MailingTemplateController',
             [ 'except' => ['create', 'edit']]
         );
+
+        Route::resource(
+            'notifications',
+            'ScheduledNotificationController',
+            [ 'except' => ['index','show','create', 'edit']]
+        );
+
+        Route::get('/notifications/unscheduled', [
+            'as' => 'api.notifications.unscheduled',
+            'uses' => 'ScheduledNotificationController@getUnscheduledLogs'
+        ]);
+
+        Route::get('/notifications/emailtemplates', [
+            'as' => 'api.notifications.emailtemplates',
+            'uses' => 'ScheduledNotificationController@getEmailTemplates'
+        ]);
+
+        Route::get('/notifications/slacktemplates', [
+            'as' => 'api.notifications.slacktemplates',
+            'uses' => 'ScheduledNotificationController@getSlackTemplates'
+        ]);
+
+        Route::get('/notifications/contentkey', [
+            'as' => 'api.notifications.contentkey',
+            'uses' => 'ScheduledNotificationController@getContentKeys'
+        ]);
 
         /**
          * Admin Level API Group
