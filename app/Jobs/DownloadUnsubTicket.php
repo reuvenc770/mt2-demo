@@ -18,12 +18,11 @@ class DownloadUnsubTicket extends MonitoredJob implements ShouldQueue
     protected $espAccountId;
     protected $data;
     protected $maxAttempts;
-    protected $runtimeThreshold='6m';
 
     public function __construct($apiName, $espAccountId, $data, $tracking){
 
         $jobname = self::JOB_NAME."_".$apiName."_".$espAccountId;
-        parent::__construct($jobname,$this->runtimeThreshold,$tracking);
+        parent::__construct($jobname,null,$tracking);
 
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;

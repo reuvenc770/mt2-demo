@@ -44,6 +44,7 @@ class AppendEidService
             foreach ($rows as $row) {
                 $rowResult = array();
                 $rowIsActive = !($this->suppressionRepo->isSuppressed($row['email']));
+
                 if($rowIsActive || $includeSuppression) {
                     $emailReturn = $this->emailRepo->getEmailId($row['email']);
                     $emailExists = count($emailReturn);

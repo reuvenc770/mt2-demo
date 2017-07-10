@@ -182,7 +182,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         if ($report['run_on']) {
             // Campaigner gives us UTC but pretends that it's ET
             $dateString = $report['run_on']->format('Y-m-d') . 'T' . $report['run_on']->format('H:i:s') . 'UTC';
-            $datetime = Carbon::parse($dateString)->setTimezone('America/New_York')->toDatetimeString();
+            $datetime = Carbon::parse($dateString)->setTimezone('America/New_York')->toDateTimeString();
         }
         else {
             $datetime = null;

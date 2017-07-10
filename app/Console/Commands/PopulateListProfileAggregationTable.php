@@ -11,7 +11,7 @@ use App\Console\Traits\PreventOverlapping;
 class PopulateListProfileAggregationTable extends Command {
     use DispatchesJobs, PreventOverlapping;
 
-    protected $signature = 'listprofile:aggregateActions {lookback?} {--runtime-threshold=}';
+    protected $signature = 'listprofile:aggregateActions {lookback?} {--runtime-threshold=default}';
     protected $description = 'Populate the aggregation table for list profile action lookups';
     protected $lookback = 3;
 
