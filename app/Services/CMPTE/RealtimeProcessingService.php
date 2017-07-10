@@ -245,7 +245,7 @@ class RealtimeProcessingService extends RemoteFeedFileService {
             if ( $this->isSimplyJobs()   )  { $feedId = self::SIMPLYJOBS_FEED_ID; }
             if ( $this->isUnemployment() )  { $feedId = self::UNEMPLOYMENT_FEED_ID; }
 
-            $this->rawRepo->logBatchFailure(
+            $this->logFailure(
                 'Error when parsing line. Zipping columns with values failed.' ,
                 json_encode( $lineColumns ) ,
                 $this->currentFile[ 'path' ] , 
@@ -283,6 +283,17 @@ class RealtimeProcessingService extends RemoteFeedFileService {
 
         return $record;
     }  
+
+    protected function logFailure ( $errors , $record , $file , $lineNumber , $email , $feedId ) {
+        return $this->rawRepo->logBatchRealtimeFailure(
+            $errors ,
+            $record ,
+            $file ,
+            $lineNumber ,
+            $email ,
+            $feedId
+        );
+    }
 
     protected function columnMatchCheck ( $lineColumns ) {
         return true;

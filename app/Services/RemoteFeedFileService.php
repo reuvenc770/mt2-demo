@@ -318,7 +318,7 @@ class RemoteFeedFileService {
         if ( $validator->fails() ) {
             $this->currentFileErrorCount++;
 
-            $log = $this->rawRepo->logBatchFailure(
+            $log = $this->logFailure(
                 $validator->errors()->toJson() ,
                 $rawRecord ,
                 $this->currentFile[ 'path' ] ,
@@ -346,6 +346,17 @@ class RemoteFeedFileService {
         }
 
         return true;
+    }
+
+    protected function logFailure ( $errors , $record , $file , $lineNumber , $email , $feedId ) {
+        return $this->rawRepo->logBatchFailure(
+            $errors ,
+            $record ,
+            $file ,
+            $lineNumber ,
+            $email ,
+            $feedId
+        );
     }
 
     protected function markFileAsProcessed () {
