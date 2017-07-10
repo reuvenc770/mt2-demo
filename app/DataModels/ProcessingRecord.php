@@ -34,6 +34,7 @@ class ProcessingRecord {
     private $otherFieldsJson = '';
     private $attrStatus;
     private $processDateTime;
+    private $file = '';
 
     // Metadata
     private $uniqueStatus = null; // unique, duplicate, non-unique
@@ -86,6 +87,7 @@ class ProcessingRecord {
         $this->sourceUrl = $record->source_url;
         $this->otherFieldsJson = $record->other_fields ?: '{}';
         $this->otherFields = json_decode($record->other_fields, true);
+        $this->file = $this->stripFile($record->file);
     }
 
     public function __get($prop) {
@@ -99,6 +101,21 @@ class ProcessingRecord {
     }
 
     public function validateConsistency() {}
+
+    private function stripFile($filePath) {
+        // given a filepath like
+        // /var/local/programdata/done/mt2_realtime/realtime_dev.aspiremail.mtroute.net_201777174.dat (for realtime)
+        // /home/orangegenesis/Zeta Interactive 2017_07_07_085004.csv (for batch)
+        $paths = explode('/', $filePath);
+        $index = sizeof($paths) - 1;
+
+        if ($index >= 0) {
+            return $paths[$index];
+        }
+        else {
+            return '';
+        }
+    }
 
     public function mapToEmails() {
         return [
