@@ -42,6 +42,7 @@ class FeedDateEmailErrorUpdateService {
             $domainGroupInfo = $this->emailDomainRepo->getDomainAndClassInfo($record->email_address);
             $domainGroupId = $domainGroupInfo ? $domainGroupInfo->domain_group_id : 0;
             $errorType = $this->getErrorType($record->errors);
+            $filename = $record->realtime === 0 ? $this->stripFile($record->file) : 'Realtime';
 
             if (!isset($insert[$record->feed_id])) {
                 $insert[$record->feed_id] = [];
@@ -51,7 +52,11 @@ class FeedDateEmailErrorUpdateService {
                 $insert[$record->feed_id][$domainGroupId] = [];
             }
 
-            if (!isset($insert[$record->feed_id][$domainGroupId][$date])) {
+            if (!isset($insert[$record->feed_id][$domainGroupId][$date][$filename])) {
+                $insert[$record->feed_id][$domainGroupId][$date] = [];
+            }
+
+            if (!isset($insert[$record->feed_id][$domainGroupId][$date][$filename])) {
                 $insert[$record->feed_id][$domainGroupId][$date] = [
                     'bad_source_urls' => 0,
                     'bad_ip_addresses' => 0,
@@ -59,7 +64,7 @@ class FeedDateEmailErrorUpdateService {
                 ];
             }
 
-            $insert[$record->feed_id][$domainGroupId][$date][$errorType]++;
+            $insert[$record->feed_id][$domainGroupId][$date][$filename][$errorType]++;
         }
 
         $this->reportRepo->updateRawErrors($insert);
@@ -86,6 +91,21 @@ class FeedDateEmailErrorUpdateService {
         }
         else {
             return 'other_invalid';
+        }
+    }
+
+    private function stripFile($filePath) {
+        // given a filepath like
+        // /var/local/programdata/done/mt2_realtime/realtime_dev.aspiremail.mtroute.net_201777174.dat (for realtime)
+        // /home/orangegenesis/Zeta Interactive 2017_07_07_085004.csv (for batch)
+        $paths = explode('/', $filePath);
+        $index = sizeof($paths) - 1;
+
+        if ($index >= 0) {
+            return $paths[$index];
+        }
+        else {
+            return '';
         }
     }
 }

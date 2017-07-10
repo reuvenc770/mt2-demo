@@ -87,7 +87,7 @@ class ProcessingRecord {
         $this->sourceUrl = $record->source_url;
         $this->otherFieldsJson = $record->other_fields ?: '{}';
         $this->otherFields = json_decode($record->other_fields, true);
-        $this->file = $this->stripFile($record->file);
+        $this->file = $record->realtime === 0 ? $this->stripFile($record->file) : 'Realtime';
     }
 
     public function __get($prop) {
