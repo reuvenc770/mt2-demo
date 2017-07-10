@@ -15,7 +15,7 @@ class CleanUpRawContentServerActions extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:contentServerRawStats {--runtime-threshold=}';
+    protected $signature = 'listprofile:contentServerRawStats {--runtime-threshold=default}';
 
     /**
      * The console command description.

@@ -23,7 +23,7 @@ class ScheduledFilterResolver extends MonitoredJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($filterName, $date, $tracking, $runtimeThreshold)
+    public function __construct($filterName, $date, $tracking, $runtimeThreshold=null)
     {
         $jobname = "Scheduled Filter {$filterName}";
 

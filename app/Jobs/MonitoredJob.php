@@ -33,8 +33,10 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
      * @param null $tracking
      * tracking is generated if not provided. $jobName and $this->runtimeSecondsThreshold are required.
      */
-    public function __construct($jobName,$runtimeThreshold,$tracking=null) {
+    public function __construct($jobName,$runtimeThreshold=null,$tracking=null) {
 
+        $className = preg_replace("~App\\\Jobs\\\~","",get_class($this));
+        $runtimeThreshold = is_null($runtimeThreshold) || $runtimeThreshold=='default' ? config('jobs.runtimeThreshold.'.$className) : $runtimeThreshold;
         $this->runtimeSecondsThreshold = $this->parseRuntimeThreshold($runtimeThreshold);
         $this->jobName = $jobName;
         $this->runtimeSecondsThreshold = $this->runtimeSecondsThreshold;
