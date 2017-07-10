@@ -41,7 +41,8 @@ class RawFeedEmailRepo {
         'country' => 0 ,
         'gender' => 0 ,
         'phone' => 0 ,
-        'dob' => 0
+        'dob' => 0 ,
+        'file' => 0
     ];
 
     public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedRepo $feed , RawFeedFieldErrors $failedFields ) {
@@ -81,6 +82,7 @@ class RawFeedEmailRepo {
                     phone ,
                     dob ,
                     other_fields ,
+                    file ,
                     created_at ,
                     updated_at
                 )
@@ -251,6 +253,7 @@ class RawFeedEmailRepo {
             . ( isset( $record[ 'phone' ] ) ? $pdo->quote( $record[ 'phone' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'dob' ] ) ? $pdo->quote( $record[ 'dob' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'other_fields' ] ) ? $pdo->quote( $record[ 'other_fields' ] ) : '{}' ) . ","
+            . ( isset( $record[ 'file' ] ) ? $pdo->quote( $record[ 'file' ] ) : '' ) . ","
             . "NOW() ,"
             . "NOW()"
         . ")";

@@ -15,7 +15,7 @@ class ReprocessFeedFileCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:rerunFile {--F|filePath= : Absolute path to the file for processing.} {--I|feedId= : Feed ID to process file as.} {--p|party=3 : Party to process file as.} {--H|host= : Remote server\'s host where file lives.} {--P|port= : SSH Port on target server.} {--U|user= : User to use when grabbing data from server. } {--k|publicKey= : Public key to use for SSH connection.} {--K|privateKey= : Private key to use for SSH Connection.}';
+    protected $signature = 'feedRecords:rerunFile {--F|filePath= : Absolute path to the file for processing.} {--I|feedId= : Feed ID to process file as.} {--p|party=3 : Party to process file as.} {--H|host= : Remote server\'s host where file lives.} {--P|port= : SSH Port on target server.} {--U|user= : User to use when grabbing data from server. } {--k|publicKey= : Public key to use for SSH connection.} {--K|privateKey= : Private key to use for SSH Connection.} {--R|realtime=0 : Realtime record file flag. }';
 
     /**
      * The console command description.
@@ -30,6 +30,7 @@ class ReprocessFeedFileCommand extends Command
     protected $user;
     protected $publicKey;
     protected $privateKey;
+    protected $realtime = 0;
 
     /**
      * Create a new command instance.
@@ -50,7 +51,13 @@ class ReprocessFeedFileCommand extends Command
     {
         $this->processOptions();
 
-        $service = \App::make( \App\Services\CMPTE\ReprocessBatchProcessingService::class );
+        if ( $this->realtime === 1 ) {
+            \Log::info( 'Running realtime.....' );
+            $service = \App::make( \App\Services\CMPTE\ReprocessRealtimeProcessingService::class );
+        } else {
+            \Log::info( 'Running batch.....' );
+            $service = \App::make( \App\Services\CMPTE\ReprocessBatchProcessingService::class );
+        }
 
         $service->setCreds( $this->host , $this->port , $this->user , $this->publicKey , $this->privateKey );
 
@@ -71,7 +78,11 @@ class ReprocessFeedFileCommand extends Command
             $this->filePath = $this->option( 'filePath' );
         }
 
-        if ( is_null( $this->option( 'feedId' ) ) ) {
+        $this->realtime = (int)$this->option( 'realtime' );
+
+        if ( is_null( $this->option( 'feedId' ) ) && $this->realtime ) {
+            $this->feedId = 0;
+        } elseif ( is_null( $this->option( 'feedId' ) ) ) {
             $this->error( 'Missing Feed ID for processing...' );
 
             exit();

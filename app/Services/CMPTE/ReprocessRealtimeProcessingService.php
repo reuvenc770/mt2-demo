@@ -5,7 +5,7 @@
 
 namespace App\Services\CMPTE;
 
-use App\Services\RemoteFeedFileService;
+use App\Services\CMPTE\RealtimeProcessingService;
 use Maknz\Slack\Facades\Slack;
 use App\Services\FeedService;
 use App\Services\DomainGroupService;
@@ -14,8 +14,8 @@ use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
 use Illuminate\Support\Facades\Redis;
 
-class ReprocessBatchProcessingService extends RemoteFeedFileService {
-    protected $serviceName = 'ReprocessBatchProcessingService';
+class ReprocessRealtimeProcessingService extends RealtimeProcessingService {
+    protected $serviceName = 'ReprocessRealtimeProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
 
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
@@ -58,35 +58,5 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
                 config( $this->privateKeyConfig )
             );  
         }   
-    }
-
-    protected function mapRecord ( $lineColumns ) {
-        $record = [];
-        
-        if ( count( $this->currentColumnMap ) <= 0 || !is_array( $this->currentColumnMap ) ) {
-            \Log::error( 'Column mapping failed due to invalid mapping for file: ' . $this->currentFile[ 'path' ] );
-            return null;
-        }
-
-        foreach ( $this->currentColumnMap as $index => $columnName ) {
-            if ( isset( $lineColumns[ $index ] ) ) {
-                $record[ $columnName ] = $lineColumns[ $index ];
-            }
-        }
-
-        $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
-        $record[ 'party' ] = $this->currentFile[ 'party' ];
-        $record[ 'realtime' ] = 0;
-        $record[ 'file' ] = $this->currentFile[ 'file' ];
-
-        if ( !isset( $record[ 'source_url' ] ) || $record[ 'source_url' ] == '' ) {
-            $record[ 'source_url' ] = $this->feedService->getSourceUrlFromId( $record[ 'feed_id' ] );
-        }
-
-        if ( isset( $record[ 'dob' ] ) &&  $record[ 'dob' ] == '0000-00-00' ) {
-            unset( $record[ 'dob' ] );
-        } 
-
-        return $record;
     }
 }

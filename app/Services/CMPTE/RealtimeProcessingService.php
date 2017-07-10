@@ -259,6 +259,7 @@ class RealtimeProcessingService extends RemoteFeedFileService {
 
         $record = array_combine( $currentColumnMap , $lineColumns );
         $record[ 'realtime' ] = 1;
+        $record[ 'file' ] = $this->currentFile[ 'path' ];
 
         if ( $this->isSimplyJobs() || $this->isOtherFirstPartyFormat() ) { 
             $record[ 'party' ] = 1;
