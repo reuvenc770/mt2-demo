@@ -10,7 +10,7 @@ class DataProcessingJob extends MonitoredJob {
 
     private $lookback;
 
-    public function __construct($jobName, $tracking, $lookback = null, $runtimeThreshold=null) {
+    public function __construct($jobName, $tracking, $lookback = null, $runtimeThreshold = null) {
         $this->lookback = $lookback;
 
         parent::__construct($jobName, $runtimeThreshold, $tracking);

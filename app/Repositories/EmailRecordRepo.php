@@ -32,7 +32,6 @@ class EmailRecordRepo {
     public function massRecordDeliverables ( $records = [], $boolRecordsHaveEID = false ) {
         $validRecords = [];
         $invalidRecords = [];
-        $preppedData = array();
         $pdo = DB::connection()->getPdo();
 
         foreach ( $records as $currentIndex => $currentRecord ) {
@@ -65,17 +64,6 @@ class EmailRecordRepo {
                     . " )";
 
                 $validRecords []= $validRecord;
-
-                if($currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
-                    || $currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
-                    
-                    $preppedData[] = [
-                        "email_id" => $currentId, 
-                        "datetime" => $currentRecord['date'], 
-                        "type" => $currentRecord['recordType'], 
-                        "deployId" => $currentRecord['deployId']
-                    ];
-                }
             } else {
                 $invalidRecord = "( " 
                     .join( " , " , [
@@ -118,15 +106,6 @@ class EmailRecordRepo {
                         updated_at = NOW()"
                     );
             }
-        }
-
-        if(count($preppedData) > 0) {
-            // Not a perfect identifier, but enough to tell us what to rerun in case of failure
-            $time = Carbon::now()->toDateTimeString();
-            $id = (isset($currentRecord['espId']) ? $currentRecord['espId'] : '0') 
-                . '-' . (isset($currentRecord['espInternalId']) ? $currentRecord['espInternalId'] : '0')
-                . '-' . $time . '-' . str_random(8);
-            #\Event::fire(new NewActions($preppedData, $id));
         }
 
         if ( !empty( $invalidRecords ) ) {
@@ -237,9 +216,6 @@ class EmailRecordRepo {
         if ( !$this->emailExists() && !$recordsHaveEids) {
             $orphan->missing_email_record = 1;
             $this->errorReason = 'missing_email_record';
-
-            //Log::error( "Email '{$this->emailAddress}' does not exist." );
-
             $errorFound = true;
         } elseif (!$this->hasDeployId()) {
             $this->errorReason = 'missing_deploy_id';
