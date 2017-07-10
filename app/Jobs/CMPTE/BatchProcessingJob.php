@@ -21,8 +21,6 @@ class BatchProcessingJob extends ProcessFeedRawFilesJob {
         $service->setFileProcessedCallback( function ( $file , $systemService , $meta ) {
             $newPath = '/home/mt1' . str_replace( '/home' , '' , $file[ 'path' ] );
             $output = $systemService->moveFile( $file[ 'path' ] , $newPath );
-
-            \Log::info( $output );
         } );
 
         parent::handle( $service );
