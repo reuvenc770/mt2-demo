@@ -19,7 +19,7 @@ class BestMoneySearchGetResponseContactUploadCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'EspContactUpload:BestMoneySearch {--D|daysBack= : How far back to look for new records.} {--runtime-threshold=}';
+    protected $signature = 'EspContactUpload:BestMoneySearch {--D|daysBack= : How far back to look for new records.} {--runtime-threshold=default}';
 
     /**
      * The console command description.
