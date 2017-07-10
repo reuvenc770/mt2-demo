@@ -14,7 +14,6 @@ use Illuminate\Database\Query\Builder;
 use App\Services\AbstractReportService;
 use Log;
 use App\Events\NewActions;
-use DB;
 
 class EmailRecordRepo {
     protected $email;
@@ -80,7 +79,7 @@ class EmailRecordRepo {
             } else {
                 $invalidRecord = "( " 
                     .join( " , " , [
-                        pdo->quote($currentRecord[ 'email' ]) ,
+                        $pdo->quote($currentRecord[ 'email' ]) ,
                         $currentRecord[ 'espId' ] ,
                         is_numeric($currentRecord['deployId']) ? $currentRecord['deployId'] : 0,
                         is_numeric($currentRecord['espInternalId']) ? $currentRecord[ 'espInternalId' ] : 0,
