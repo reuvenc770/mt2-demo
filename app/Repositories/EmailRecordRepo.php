@@ -14,6 +14,7 @@ use Illuminate\Database\Query\Builder;
 use App\Services\AbstractReportService;
 use Log;
 use App\Events\NewActions;
+use DB;
 
 class EmailRecordRepo {
     protected $email;
@@ -33,6 +34,7 @@ class EmailRecordRepo {
         $validRecords = [];
         $invalidRecords = [];
         $preppedData = array();
+        $pdo = DB::connection()->getPdo();
 
         foreach ( $records as $currentIndex => $currentRecord ) {
             
