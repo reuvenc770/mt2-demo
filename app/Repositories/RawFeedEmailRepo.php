@@ -124,6 +124,20 @@ class RawFeedEmailRepo {
         ] );
     }
 
+    public function logBatchRealtimeFailure ( $errors , $csv , $file , $lineNumber , $email = '' , $feedId = 0 ) {
+        return $this->failed->create( [
+            'realtime' => 1 ,
+            'errors' => json_encode( $errors ) ,
+            'csv' => $csv ,
+            'file' => $file ,
+            'line_number' => $lineNumber ,
+            'url' => '' ,
+            'ip' => 'sftp-01.mtroute.com' ,
+            'email' => $email ,
+            'feed_id' => $feedId
+        ] );
+    }
+
     public function logBatchFailure ( $errors , $csv , $file , $lineNumber , $email = '' , $feedId = 0 ) {
         return $this->failed->create( [
             'realtime' => 0 ,
