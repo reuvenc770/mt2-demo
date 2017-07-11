@@ -18,9 +18,11 @@ class BatchProcessingJob extends ProcessFeedRawFilesJob {
     public function handle( RemoteFeedFileService $service ) {
         $service = \App::make( \App\Services\CMPTE\BatchProcessingService::class );
 
-        $service->setFileProcessedCallback( function ( $file , $systemService , $meta ) {
-            $newPath = '/home/mt1' . str_replace( '/home' , '' , $file[ 'path' ] );
-            $output = $systemService->moveFile( $file[ 'path' ] , $newPath );
+        $service->setFileProcessedCallback( function ( $files , $systemService , $meta ) {
+            foreach ( $files as $file ) {
+                $newPath = '/home/mt1' . str_replace( '/home' , '' , $file[ 'path' ] );
+                $output = $systemService->moveFile( $file[ 'path' ] , $newPath );
+            }
         } );
 
         parent::handle( $service );
