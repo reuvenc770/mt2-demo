@@ -132,7 +132,6 @@ class Kernel extends ConsoleKernel
          * Alerts & Notifications
          */
         $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
-        $schedule->command('monitors:runtime --mode=monitor --days-back=2 --runtime-threshold=30s')->cron('05 8,16 * * * *');
         $schedule->command('notify:scheduled')->everyMinute();
         $schedule->command('monitors:runtime --mode=monitor --days-back=2 --runtime-threshold=30s')->cron('05 8,16 * * * *'); //job class: RunTimeMonitorJob bb
 
