@@ -42,6 +42,7 @@ class RemoteFeedFileService {
     protected $currentLines = null;
 
     protected $processedFileCount = 0;
+    protected $filesProcessed = [];
     protected $notificationCollection = [];
     protected $missingMappingList = [];
 
@@ -50,7 +51,6 @@ class RemoteFeedFileService {
     protected $slackChannel = "#mt2team";
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
-    protected $lastFileProcessed;
     protected $fileProcessedCallback;
     protected $metaData = [];
 
@@ -79,14 +79,11 @@ class RemoteFeedFileService {
                 $this->rawRepo->massInsert( $recordSqlList );
             }
 
-            if ( !is_null( $this->lastFileProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
-                $callback = $this->fileProcessedCallback;
-                $callback( $this->lastFileProcessed , $this->systemService , $this->metaData );
+        }
 
-                $this->lastFileProcessed = null;
-            }
-
-            $this->processedFileCount++;
+        if ( count( $this->filesProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
+            $callback = $this->fileProcessedCallback;
+            $callback( $this->filesProcessed , $this->systemService , $this->metaData );
         }
 
         $this->logProcessingComplete();
@@ -134,16 +131,28 @@ class RemoteFeedFileService {
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if (
                     $newFileString !== ''
-                    && ProcessedFeedFile::find( trim( $newFile ) ) === null
-                    && $count < 10
+                    && $count < 20
                 ) {
-                    $this->newFileList[] = [ 'path' => trim( $newFile ) , 'feedId' => $dirInfo[ 'feedId' ] , 'party' => isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 ];
+                    $this->addToFileList(
+                        $newFile ,
+                        $dirInfo[ 'feedId' ] ,
+                        ( isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 )
+                    );
 
-                    Redis::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $newFile ) , getmypid() ] );
+                    $this->addFileLock( $newFile );
+
                     $count++;
                 }
             }
         }
+    }
+
+    public function addToFileList ( $file , $feedId , $party ) {
+        $this->newFileList[] = [
+            'path' => trim( $file ) ,
+            'feedId' => $feedId ,
+            'party' => $party 
+        ];
     }
 
     public function getRecentFiles ( $directory ) {
@@ -165,17 +174,15 @@ class RemoteFeedFileService {
 
             $this->currentFile = $this->newFileList[ 0 ];
 
-            if ( getmypid() != Redis::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) ) {
-                #\Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
+            if ( $this->lockExists() ) {
+                \Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
 
-                array_shift( $this->newFileList );
+                $this->removeCurrentFile();
 
                 $this->resetCursor();
 
                 continue;
             }
-
-            \Log::debug( getmypid() . ': ' . $this->currentFile[ 'path' ] );
 
             $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
@@ -191,7 +198,7 @@ class RemoteFeedFileService {
                     'feedName' => $feedName
                 ];
 
-                array_shift( $this->newFileList );
+                $this->removeCurrentFile();
                 $this->resetCursor();
                 continue;
             }
@@ -205,12 +212,6 @@ class RemoteFeedFileService {
             if ( $this->currentFileLineCount === 0 ) {
                 $this->markFileAsProcessed();
 
-                Redis::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
-
-                array_shift( $this->newFileList );
-
-                $this->resetCursor();
-
                 continue;
             }
 
@@ -223,12 +224,6 @@ class RemoteFeedFileService {
                 $this->processLines();
 
                 $this->markFileAsProcessed();
-
-                Redis::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
-                
-                $this->lastFileProcessed = array_shift( $this->newFileList );
-
-                $this->resetCursor();
             }
             else {
                 $this->currentLines = $this->systemService->getFileContentSlice( $this->currentFile[ 'path' ] , ( $this->lastLineNumber + 1 ) , ( $linesWanted + $this->lastLineNumber ) );
@@ -362,8 +357,35 @@ class RemoteFeedFileService {
     protected function markFileAsProcessed () {
         $this->saveFileAsProcessed();
         $this->addFileToNotificationCollection();
+        $this->incrementProcessedCount();
+        $this->storeCurrentProcessedFile();
+        $this->removeFileLock();
+        $this->removeCurrentFile();
+        $this->resetCursor();
+    }
 
-        \Log::info( 'RemoteFeedFileService: processed ' . $this->currentFile[ 'path' ] );
+    protected function incrementProcessedCount () {
+        $this->processedFileCount++;
+    }
+
+    protected function storeCurrentProcessedFile () {
+        $this->filesProcessed []= $this->currentFile[ 'path' ];
+    }
+
+    protected function removeCurrentFile () {
+        array_shift( $this->newFileList );
+    }
+
+    protected function addFileLock ( $newFile ) {
+        Redis::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $newFile ) , getmypid() ] );
+    }
+
+    protected function removeFileLock () {
+        Redis::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
+    }
+
+    protected function lockExists () {
+        return ( getmypid() != Redis::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) );
     }
 
     protected function addFileToNotificationCollection () {

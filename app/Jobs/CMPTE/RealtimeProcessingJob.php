@@ -19,11 +19,13 @@ class RealtimeProcessingJob extends ProcessFeedRawFilesJob {
     public function handle ( RemoteFeedFileService $service ) {
         $service = \App::make( \App\Services\CMPTE\RealtimeProcessingService::class );
 
-        $service->setFileProcessedCallback( function ( $file , $systemService , $meta ) {
-            #only do this for normal realtime since there are so many more records and seems like mt1 overwrites these files.
-            if ( strpos( $file[ 'path' ] , 'mt2_realtime' ) !== false ) {
-                $newPath = self::ARCHIVE_DIR . basename( $file[ 'path' ] );
-                $output = $systemService->moveFile( $file[ 'path' ] , $newPath );
+        $service->setFileProcessedCallback( function ( $files , $systemService , $meta ) {
+            foreach ( $files as $file ) {
+                #only do this for normal realtime since there are so many more records and seems like mt1 overwrites these files.
+                if ( strpos( $file[ 'path' ] , 'mt2_realtime' ) !== false ) {
+                    $newPath = self::ARCHIVE_DIR . basename( $file[ 'path' ] );
+                    $output = $systemService->moveFile( $file[ 'path' ] , $newPath );
+                }
             }
         } );
 
