@@ -369,7 +369,7 @@ class RemoteFeedFileService {
     }
 
     protected function storeCurrentProcessedFile () {
-        $this->filesProcessed []= $this->currentFile[ 'path' ];
+        $this->filesProcessed []= $this->currentFile;
     }
 
     protected function removeCurrentFile () {
