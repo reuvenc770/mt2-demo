@@ -108,6 +108,10 @@ class CheckBatchFeedProcessingCommand extends Command
 
                 foreach ( explode( "\n" , $newFileString ) as $orangeFile ) {
                     if ( $orangeFile !== '' ) {
+                        if ( !$this->remote->directoryExists( '/home/mt1/' . $currentFeedName ) ) {
+                            $this->remote->createDirectory( '/home/mt1/' . $currentFeedName );
+                        }
+
                         \Log::info( 'Moving orange file ' . $orangeFile );
                         $newPath = '/home/mt1' . str_replace( '/home' , '' , $orangeFile ); 
                         $output = $this->remote->moveFile( $orangeFile , $newPath );
