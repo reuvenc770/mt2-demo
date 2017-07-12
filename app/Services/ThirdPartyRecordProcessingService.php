@@ -65,6 +65,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             $lastEmail = $record->emailAddress;
             $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
             $filename = $record->file;
+            $lastActionType = $this->emailStatusRepo->getActionStatus($record->emailId);
 
             // Note structure
             if (!isset($statuses[$record->feedId])) {
@@ -79,7 +80,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 $statuses[$record->feedId][$domainGroupId][$filename] = [
                     'unique' => 0,
                     'non-unique' => 0,
-                    'duplicate' => 0
+                    'duplicate' => 0,
+                    'prev_responder_count' => 0
                 ];
             }
 
@@ -100,6 +102,10 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             // Update record per-feed data for all records that are not currently attributed to the same feed
             if ('duplicate' !== $record->uniqueStatus) {
                 $this->latestDataRepo->batchInsert($record->mapToRecordData());
+            }
+
+            if (!is_null($lastActionType) && 'None' !== $lastActionType) {
+                $statuses[$record->feedId][$domainGroupId][$filename]['prev_responder_count']++;
             }
             
         }

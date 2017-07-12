@@ -32,7 +32,8 @@ class FeedDateEmailBreakdownRepo {
                         . $pdo->quote($filename) . ','
                         . $pdo->quote($row['unique']) . ','
                         . $pdo->quote($row['duplicate']) . ','
-                        . $pdo->quote($row['non-unique'])
+                        . $pdo->quote($row['non-unique']) . ','
+                        . $pdo->quote($row['prev_responder_count'])
                         .')';
 
                     $updates[] = $insertString;
@@ -52,7 +53,7 @@ class FeedDateEmailBreakdownRepo {
                     try {
                         DB::statement(
                             "INSERT INTO feed_date_email_breakdowns 
-                            (feed_id, date, domain_group_id, filename, unique_emails, feed_duplicates, cross_feed_duplicates)
+                            (feed_id, date, domain_group_id, filename, unique_emails, feed_duplicates, cross_feed_duplicates, prev_responder_count)
 
                             VALUES 
 
@@ -65,7 +66,17 @@ class FeedDateEmailBreakdownRepo {
                                 filename = filename,
                                 unique_emails = unique_emails + VALUES(unique_emails),
                                 feed_duplicates = feed_duplicates + VALUES(feed_duplicates),
-                                cross_feed_duplicates = cross_feed_duplicates + VALUES(cross_feed_duplicates)");
+                                cross_feed_duplicates = cross_feed_duplicates + VALUES(cross_feed_duplicates),
+                                prev_responder_count = prev_responder_count + VALUES(prev_responder_count),
+                                total_emails = total_emails,
+                                valid_emails = valid_emails,
+                                suppressed_emails = suppressed_emails,
+                                phone_counts = phone_counts,
+                                full_postal_counts = full_postal_counts,
+                                bad_source_urls = bad_source_urls,
+                                bad_ip_addresses = bad_ip_addresses,
+                                other_invalid = other_invalid,
+                                suppressed_domains = suppressed_domains");
                         $done = true;
                     }
                     catch (\Exception $e) {
@@ -138,7 +149,11 @@ class FeedDateEmailBreakdownRepo {
                             bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
                             other_invalid = other_invalid + VALUES(other_invalid),
                             suppressed_domains = suppressed_emails + VALUES(suppressed_emails),
-                            phone_counts = phone_counts + VALUES(phone_counts)");
+                            phone_counts = phone_counts + VALUES(phone_counts)
+                            prev_responder_count = prev_responder_count,
+                            unique_emails = unique_emails,
+                            feed_duplicates = feed_duplicates,
+                            cross_feed_duplicates = cross_feed_duplicates");
                         $done = true;
                     }
                     catch (\Exception $e) {
@@ -168,10 +183,12 @@ class FeedDateEmailBreakdownRepo {
     public function updateRawErrors(array $insert) {
         $updates = [];
 
-        foreach($insert as $feed) {
-            foreach($feed as $emailClass) {
-                foreach($emailClass as $day) {
-                   $updates[] = '(' (int)$feed . ", '{$day}', " . (int)$emailClass . (int)$day['bad_ip_addresses'] . ',' . (int)$day['other_invalid'] . ')';
+        foreach($insert as $feedId => $feedData) {
+            foreach($feedData as $emailClassId => $emailClassData) {
+                foreach($emailClassData as $day) {
+                    foreach ($day as $filename => $data) {
+                        $updates[] = '(' (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$fileName'" . ', ' (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
+                    }
                 }
             }
         }
@@ -186,7 +203,7 @@ class FeedDateEmailBreakdownRepo {
         while ($attempts < self::MAX_RETRY_ATTEMPTS) {
             try {
                 DB::statement("INSERT INTO feed_date_email_breakdowns
-                    (feed_id, date, domain_group_id, bad_ip_addresses, other_invalid)
+                    (feed_id, date, domain_group_id, filename, bad_ip_addresses, other_invalid)
                     VALUES
 
                     $inserts
@@ -195,6 +212,7 @@ class FeedDateEmailBreakdownRepo {
                     feed_id = feed_id,
                     date = date,
                     domain_group_id = domain_group_id,
+                    filename = filename,
                     total_emails = total_emails,
                     valid_emails = valid_emails,
                     suppressed_emails = suppressed_emails,
@@ -203,7 +221,11 @@ class FeedDateEmailBreakdownRepo {
                     bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
                     other_invalid = other_invalid + VALUES(other_invalid),
                     suppressed_domains = suppressed_emails,
-                    phone_counts = phone_counts");
+                    phone_counts = phone_counts,
+                    prev_responder_count = prev_responder_count,
+                    unique_emails = unique_emails,
+                    feed_duplicates = feed_duplicates,
+                    cross_feed_duplicates = cross_feed_duplicates");
             }
             catch (\Exception $e) {
                 $attempts++;
