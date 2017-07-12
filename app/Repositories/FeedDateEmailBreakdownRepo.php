@@ -187,7 +187,7 @@ class FeedDateEmailBreakdownRepo {
             foreach($feedData as $emailClassId => $emailClassData) {
                 foreach($emailClassData as $day) {
                     foreach ($day as $filename => $data) {
-                        $updates[] = '(' (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$fileName'" . ', ' (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
+                        $updates[] = '(' . (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$fileName'" . ', ' . (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
                     }
                 }
             }
