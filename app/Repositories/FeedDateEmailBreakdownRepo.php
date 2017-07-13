@@ -185,9 +185,9 @@ class FeedDateEmailBreakdownRepo {
 
         foreach($insert as $feedId => $feedData) {
             foreach($feedData as $emailClassId => $emailClassData) {
-                foreach($emailClassData as $day) {
-                    foreach ($day as $filename => $data) {
-                        $updates[] = '(' . (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$fileName'" . ', ' . (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
+                foreach($emailClassData as $day => $dayData) {
+                    foreach ($dayData as $filename => $data) {
+                        $updates[] = '(' . (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$filename'" . ', ' . (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
                     }
                 }
             }
@@ -199,6 +199,7 @@ class FeedDateEmailBreakdownRepo {
 
         $done = false;
         $attempts = 0;
+        $inserts = implode(',', $updates);
 
         while ($attempts < self::MAX_RETRY_ATTEMPTS) {
             try {
