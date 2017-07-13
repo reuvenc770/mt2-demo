@@ -187,7 +187,7 @@ class FeedDateEmailBreakdownRepo {
             foreach($feedData as $emailClassId => $emailClassData) {
                 foreach($emailClassData as $day => $dayData) {
                     foreach ($dayData as $filename => $data) {
-                        $updates[] = '(' . (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$filename'" . ', ' . (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
+                        $updates[] = '(' . (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$filename'" . ', ' . (int)$data['total'] . ','  . (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
                     }
                 }
             }
@@ -205,7 +205,7 @@ class FeedDateEmailBreakdownRepo {
             if ($attempts < self::MAX_RETRY_ATTEMPTS) {
                 try {
                     DB::statement("INSERT INTO feed_date_email_breakdowns
-                        (feed_id, date, domain_group_id, filename, bad_ip_addresses, other_invalid)
+                        (feed_id, date, domain_group_id, filename, total_emails, bad_ip_addresses, other_invalid)
                         VALUES
 
                         $inserts
@@ -215,7 +215,7 @@ class FeedDateEmailBreakdownRepo {
                         date = date,
                         domain_group_id = domain_group_id,
                         filename = filename,
-                        total_emails = total_emails,
+                        total_emails = total_emails + values(total_emails),
                         valid_emails = valid_emails,
                         suppressed_emails = suppressed_emails,
                         bad_source_urls = bad_source_urls,
