@@ -131,6 +131,7 @@ class RemoteFeedFileService {
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if (
                     $newFileString !== ''
+                    && strpos( $newFile , "find:" ) != 0 #contention issue caused by another process
                     && $count < 20
                 ) {
                     $this->addToFileList(
