@@ -12,9 +12,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 
 
 class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
-
-    use DispatchesJobs;
-    
     use DispatchesJobs;
 
     private $badEmailSegments = [];
