@@ -118,6 +118,7 @@ class Kernel extends ConsoleKernel
         Commands\ReprocessFeedFileCommand::class ,
         Commands\ScheduledNotificationsCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
+        Commands\UpdateRecordProcessingReportWithErrors::class,
 ];
 
     /**
@@ -332,6 +333,9 @@ class Kernel extends ConsoleKernel
         
         // Re-run first party actives against suppression
         #$schedule->command('feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
+
+        // Feed processing reporting
+        $schedule->command('feedRecords:updateReportWithErrors --runtime-threshold=10m')->everyFiveMinutes();
 
         /**
          * AWeber Jobs
