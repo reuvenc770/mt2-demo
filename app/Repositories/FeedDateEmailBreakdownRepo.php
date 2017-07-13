@@ -200,37 +200,40 @@ class FeedDateEmailBreakdownRepo {
         $done = false;
         $attempts = 0;
         $inserts = implode(',', $updates);
+       
+        while (!$done) { 
+            if ($attempts < self::MAX_RETRY_ATTEMPTS) {
+                try {
+                    DB::statement("INSERT INTO feed_date_email_breakdowns
+                        (feed_id, date, domain_group_id, filename, bad_ip_addresses, other_invalid)
+                        VALUES
 
-        while ($attempts < self::MAX_RETRY_ATTEMPTS) {
-            try {
-                DB::statement("INSERT INTO feed_date_email_breakdowns
-                    (feed_id, date, domain_group_id, filename, bad_ip_addresses, other_invalid)
-                    VALUES
+                        $inserts
 
-                    $inserts
-
-                    ON DUPLICATE KEY UPDATE
-                    feed_id = feed_id,
-                    date = date,
-                    domain_group_id = domain_group_id,
-                    filename = filename,
-                    total_emails = total_emails,
-                    valid_emails = valid_emails,
-                    suppressed_emails = suppressed_emails,
-                    bad_source_urls = bad_source_urls,
-                    full_postal_counts = full_postal_counts,
-                    bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
-                    other_invalid = other_invalid + VALUES(other_invalid),
-                    suppressed_domains = suppressed_domains,
-                    phone_counts = phone_counts,
-                    prev_responder_count = prev_responder_count,
-                    unique_emails = unique_emails,
-                    feed_duplicates = feed_duplicates,
-                    cross_feed_duplicates = cross_feed_duplicates");
-            }
-            catch (\Exception $e) {
-                $attempts++;
-                sleep(2);
+                        ON DUPLICATE KEY UPDATE
+                        feed_id = feed_id,
+                        date = date,
+                        domain_group_id = domain_group_id,
+                        filename = filename,
+                        total_emails = total_emails,
+                        valid_emails = valid_emails,
+                        suppressed_emails = suppressed_emails,
+                        bad_source_urls = bad_source_urls,
+                        full_postal_counts = full_postal_counts,
+                        bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
+                        other_invalid = other_invalid + VALUES(other_invalid),
+                        suppressed_domains = suppressed_domains,
+                        phone_counts = phone_counts,
+                        prev_responder_count = prev_responder_count,
+                        unique_emails = unique_emails,
+                        feed_duplicates = feed_duplicates,
+                        cross_feed_duplicates = cross_feed_duplicates");
+                    $done = true;
+                }
+                catch (\Exception $e) {
+                    $attempts++;
+                    sleep(2);
+                }
             }
         }
     }
