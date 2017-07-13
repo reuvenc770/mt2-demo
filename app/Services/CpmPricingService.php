@@ -6,36 +6,25 @@
 namespace App\Services;
 
 use App\Repositories\CpmPricingRepo;
+use App\Services\ServiceTraits\PaginateList;
 
 class CpmPricingService {
-    protected $repo;
+    use PaginateList;
 
     public function __construct ( CpmPricingRepo $repo ) {
         $this->repo = $repo;
     }
 
-    public function getPricings ( $search = [] ) {
-        return $this->repo->getPricings( $search );
+    public function getModel () {
+        return $this->repo->getModel();
     }
 
     public function create ( $record ) {
-        if ( $this->isOverride( $record ) ) {
-            $this->createOverride( $record );
-        } else {
             $this->createPricing( $record );
-        }
     }
 
     public function update ( $id , $record ) {
-        if ( $this->isOverride( $record ) ) {
-            $this->updateOverride( $id , $record );
-        } else {
             $this->updatePricing( $id , $record );
-        }
-    }
-
-    protected function isOverride ( $record ) {
-        return ( isset( $record[ 'deploy_id' ] ) && is_numeric( $record[ 'deploy_id' ] ) && $record[ 'deploy_id' ] > 0 );
     }
 
     protected function createPricing ( $record ) {
@@ -44,13 +33,5 @@ class CpmPricingService {
 
     protected function updatePricing ( $id , $record ) {
         return $this->repo->updatePricing( $id , $record );
-    }
-
-    protected function createOverride ( $record ) {
-        return $this->repo->createOverride( $record );
-    }
-
-    protected function updateOverride ( $id , $record ) {
-        return $this->repo->updateOverride( $id , $record );
     }
 }

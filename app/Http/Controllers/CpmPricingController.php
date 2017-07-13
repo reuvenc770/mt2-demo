@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
+use Cache;
 
 use App\Services\CpmPricingService;
 
@@ -21,16 +21,6 @@ class CpmPricingController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return response()->json( $this->pricing->getPricings() );
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -38,6 +28,8 @@ class CpmPricingController extends Controller
      */
     public function store(Request $request)
     {
+        Cache::tags( 'Builder' )->flush();
+
         $status = $this->pricing->create( $request->all() );
 
         response()->json( $status );
@@ -52,6 +44,8 @@ class CpmPricingController extends Controller
      */
     public function update(Request $request, $id)
     {
+        Cache::tags( 'Builder' )->flush();
+
         $status = $this->pricing->update( $id , $request->all() );
 
         response()->json( $status );

@@ -1417,7 +1417,7 @@ Route::group(
         Route::resource(
             'cpm',
             'CpmPricingController',
-            [ 'except' => ['create', 'edit', 'show' , 'destroy']]
+            [ 'except' => [ 'index' , 'create', 'edit', 'show' , 'destroy']]
         );
 
         Route::resource(

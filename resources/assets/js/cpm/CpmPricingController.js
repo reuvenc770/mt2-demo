@@ -1,68 +1,59 @@
-mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialog' , '$timeout' , '$log' , 'formValidationService' , 'modalService' , function ( CpmPricingApiService , $mdDialog , $timeout , $log , formValidationService , modalService ) {
+mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialog' , '$timeout' , '$log' , 'formValidationService' , 'modalService' , 'paginationService' , function ( CpmPricingApiService , $mdDialog , $timeout , $log , formValidationService , modalService , paginationService ) {
     var self = this;
 
     self.queryPromise = undefined;
     self.pricings = [];
 
     self.currentPricing = {};
-    self.currentOverride = {};
 
     self.startDateState = undefined;
     self.endDateState = undefined;
 
     self.isNewRecord = false;
     self.formSubmitting = false;
-    self.formType = 'schedule';
     self.prepopOfferName = '';
     self.currentId = 0;
 
-    self.modalInfo = {
-        'title' : { "schedule" : 'Add CPM Pricing' , "override" : 'Add Deploy ID Override' } ,
-        'panel_title' : { "schedule" : 'Pricing Details' , "override" : 'Override Details' } ,
-        'submit_text' : { "schedule" : 'Pricing' , "override" : 'Override' }
-    };
+    self.currentPage = 1;
+    self.paginationCount = 10;
+    self.sort = "-id";
+    self.pricingsTotal = 0;
+    self.pageCount = 0;
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
 
     self.loadPricings = function () {
-        self.queryPromise = CpmPricingApiService.getPricings( {} , self.loadPricingsSuccessCallback , self.loadPricingsFailureCallback );
+        self.queryPromise = CpmPricingApiService.getPricings( 
+            self.currentPage ,
+            self.paginationCount ,
+            self.sort ,
+            self.loadPricingsSuccessCallback ,
+            self.loadPricingsFailureCallback
+        );
 
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
     self.loadPricingsSuccessCallback = function ( response ) {
-        self.pricings = response.data;
+        self.pricings = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.pricingsTotal = response.data.total;
     };
 
     self.loadPricingsFailureCallback = function ( response ) {
-        $log.error( response );
+         modalService.simpleToast( 'Failed to load Pricings' ); 
     };
 
     self.addSchedule = function () {
         self.isNewRecord = true;
 
-        self.switchToScheduleForm();
-
-        self.showModal();
-    };
-
-    self.addOverride = function () {
-        self.isNewRecord = true;
-
-        self.switchToOverrideForm();
-
         self.showModal();
     };
 
     self.edit = function ( record ) {
-        if ( typeof( record.deploy_id ) != undefined && record.deploy_id != '' ) {
-            self.editOverride( record );
-        } else {
-            self.editSchedule( record );
-        }
+        self.editSchedule( record );
     };
 
     self.editSchedule = function ( record ) {
-        self.switchToScheduleForm();
-
         self.isNewRecord = false;
 
         self.prepopOfferName = record.name;
@@ -77,31 +68,6 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
         self.prepopDate( record.start_date , record.end_date );
 
         self.showModal();
-    };
-
-    self.editOverride = function ( record ) {
-        self.switchToOverrideForm();
-
-        self.isNewRecord = false;
-
-        self.currentOverride = {
-            "deploy_id" : record.deploy_id ,
-            "amount" : record.amount
-        };
-
-        self.currentId = record.id;
-        
-        self.prepopDate( record.start_date , record.end_date );
-
-        self.showModal();
-    };
-
-    self.switchToScheduleForm = function () {
-        self.formType = 'schedule';
-    };
-
-    self.switchToOverrideForm = function () {
-        self.formType = 'override';
     };
 
     self.showModal = function () {
@@ -119,7 +85,6 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
 
     self.closeModal = function () {
         self.currentPricing = {};
-        self.currentOverride = {};
         self.startDateState = undefined;
         self.endDateState = undefined;
         self.prepopOfferName = '';
@@ -142,31 +107,21 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
     };
 
     self.updateDateRange = function () {
-        var formObjectName = ( self.formType === 'schedule' ? 'currentPricing' : 'currentOverride' );
-
         if ( self.startDateState ) {
-            self[ formObjectName ].startDate = moment( self.startDateState ).format( 'YYYY-MM-DD' );
+            self.currentPricing.startDate = moment( self.startDateState ).format( 'YYYY-MM-DD' );
         }
 
         if ( self.endDateState ) {
-            self[ formObjectName ].endDate = moment( self.endDateState ).format( 'YYYY-MM-DD' );
+            self.currentPricing.endDate = moment( self.endDateState ).format( 'YYYY-MM-DD' );
         }
     };
 
     self.saveForm = function () {
         self.formSubmitting = true;
 
-        var data = {};
-
-        if ( self.formType == 'schedule' ) {
-            data = self.currentPricing;
-        } else {
-            data = self.currentOverride;
-        }
-
         if ( self.isNewRecord ) {
             CpmPricingApiService.create(
-                data ,
+                self.currentPricing ,
                 function ( response ) {
                     self.formSubmitting = false;
 
@@ -175,11 +130,12 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
                 } ,
                 function ( response ) {
                     self.formSubmitting = false;
-                } );
+                }
+            );
         } else {
             CpmPricingApiService.update(
                 self.currentId ,
-                data ,
+                self.currentPricing ,
                 function ( response ) {
                     self.formSubmitting = false;
 
@@ -188,7 +144,8 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
                 } ,
                 function ( response ) {
                     self.formSubmitting = false;
-                } );
+                }
+            );
         }
     };
 } ] );

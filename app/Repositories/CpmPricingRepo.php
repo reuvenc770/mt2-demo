@@ -9,66 +9,46 @@ use DB;
 use Log;
 use App\Models\OfferPayout;
 use App\Models\CpmOfferSchedule;
-use App\Models\CpmDeployOverride;
 
 class CpmPricingRepo {
     const CPM_PAYOUT_TYPE_ID = 1;
 
     protected $payout;
     protected $schedule;
-    protected $override;
 
-    public function __construct ( OfferPayout $payout , CpmOfferSchedule $schedule , CpmDeployOverride $override ) {
+    public function __construct ( OfferPayout $payout , CpmOfferSchedule $schedule ) {
         $this->payout = $payout;
         $this->schedule = $schedule;
-        $this->override = $override;
     }
 
-    public function getPricings ( $search ) {
-        $db = config('database.connections.mysql.database');
-
-        return DB::select("
-            SELECT
-                *
-            FROM
-                (
-                SELECT
-                    cos.id as `id` ,
-                    o.name ,
-                    op.offer_id ,
-                    '' as `deploy_id` ,
-                    op.amount ,
-                    cos.start_date ,
-                    cos.end_date
-                FROM
-                    {$db}.offer_payouts op
-                    INNER JOIN {$db}.cpm_offer_schedules cos ON( op.offer_id = cos.cake_offer_id )
-                    LEFT JOIN {$db}.offers o ON( op.offer_id = o.id )
-                WHERE
-                    op.`offer_payout_type_id` = 1
-                
-                UNION
-
-                SELECT
-                    cdo.id as `id` ,
-                    o.name ,
-                    COALESCE( d.offer_id , '' ) ,
-                    cdo.deploy_id as `deploy_id` ,
-                    cdo.amount ,
-                    cdo.start_date ,
-                    cdo.end_date
-                FROM
-                    {$db}.cpm_deploy_overrides cdo
-                    LEFT JOIN {$db}.deploys d ON( cdo.deploy_id = d.id )
-                    LEFT JOIN {$db}.offers o ON( d.offer_id = o.id )
-                ) as cpm_pricing
-            ORDER BY
-                start_date desc;
-        ");
+    public function getModel () {
+        return $this->payout
+                    ->select(
+                        'cpm_offer_schedules.id as id' , 
+                        'offers.name as name' ,
+                        'offer_payouts.offer_id as offer_id' ,
+                        'mt_offer_cake_offer_mappings.cake_offer_id as cake_offer_id' ,
+                        'offer_payouts.amount as amount' ,
+                        'cpm_offer_schedules.start_date as start_date' ,
+                        'cpm_offer_schedules.end_date as end_date'
+                    )
+                    ->join( 'mt_offer_cake_offer_mappings' , 'offer_payouts.offer_id' , '=' , 'mt_offer_cake_offer_mappings.offer_id' )
+                    ->join( 'cpm_offer_schedules' , 'mt_offer_cake_offer_mappings.cake_offer_id' , '=' , 'cpm_offer_schedules.cake_offer_id' )
+                    ->leftJoin( 'offers' , 'offer_payouts.offer_id' , '=' , 'offers.id' )
+                    ->where( 'offer_payouts.offer_payout_type_id' , '1' );
     }
 
     public function createPricing ( $record ) {
         try {
+            $cakeOfferId = $record[ 'offer_id' ]
+
+            /**
+             * Finish check here and fail if no cake id is found.
+             */
+            if ( is_null( $cakeOfferId ) ) {
+
+            }
+
             $newPayout = new OfferPayout();
             $newPayout->offer_id = $record[ 'offer_id' ];
             $newPayout->offer_payout_type_id = self::CPM_PAYOUT_TYPE_ID;
@@ -76,7 +56,7 @@ class CpmPricingRepo {
             $newPayout->save();
 
             $newSchedule = new CpmOfferSchedule();
-            $newSchedule->cake_offer_id = $record[ 'offer_id' ];
+            $newSchedule->cake_offer_id = $cakeOfferId;
             $newSchedule->start_date = $record[ 'startDate' ];
             $newSchedule->end_date = $record[ 'endDate' ];
             $newSchedule->save();
@@ -103,40 +83,6 @@ class CpmPricingRepo {
                 ] );
         } catch ( \Exception $e ) {
             Log::error( $e );
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public function createOverride ( $record ) {
-        try {
-            $newOverride = new CpmDeployOverride();
-            $newOverride->deploy_id = $record[ 'deploy_id' ];
-            $newOverride->amount = $record[ 'amount' ];
-            $newOverride->start_date = $record[ 'startDate' ];
-            $newOverride->end_date = $record[ 'endDate' ];
-            $newOverride->save();
-        } catch ( \Exception $e ) {
-            Log::error( $e );
-
-            return false;
-        }
-
-        return true;
-    }
-    
-    public function updateOverride ( $id , $record ) {
-        try {
-            $this->override->where( 'id' , $id )
-                ->update( [
-                    'amount' => $record[ 'amount' ] ,
-                    'start_date' => $record[ 'startDate' ] ,
-                    'end_date' => $record[ 'endDate' ]
-                ] );
-        } catch ( \Exception $e ) {
-            Log::error( $e ) ;
 
             return false;
         }

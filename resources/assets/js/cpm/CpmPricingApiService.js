@@ -1,12 +1,16 @@
-mt2App.service( 'CpmPricingApiService' , [ '$http' , '$log' , function ( $http , $log ) {
+mt2App.service( 'CpmPricingApiService' , [ '$http' , '$log' , 'paginationService' , function ( $http , $log , paginationService ) {
     var self = this;
 
+    self.pagerApiUrl = '/api/pager/CpmPricing';
     self.baseApiUrl = '/api/cpm';
 
-    self.getPricings = function ( search , successCallback , failureCallback ) {
+    self.getPricings = function ( page , count , sortField , successCallback , failureCallback ) {
+        var sort = paginationService.sortPage( sortField );
+
         return $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : page , "count" : count , 'sort' : sort }
         } ).then( successCallback , failureCallback );
     };
 
