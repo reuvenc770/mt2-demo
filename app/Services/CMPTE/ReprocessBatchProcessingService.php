@@ -59,6 +59,10 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
             );  
         }   
     }
+    
+    protected function columnMatchCheck ( $lineColumns ) {
+        #columns have a chance to not match. parsing is overridden in this class
+    }
 
     protected function mapRecord ( $lineColumns ) {
         $record = [];
