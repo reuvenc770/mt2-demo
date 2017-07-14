@@ -7,6 +7,7 @@ use App\Models\MT1Models\User as Feeds;
 use Maknz\Slack\Facades\Slack;
 use Carbon\Carbon;
 use Notify;
+use App\Models\ProcessedFeedFile;
 
 class CheckBatchFeedProcessingCommand extends Command
 {
@@ -74,6 +75,8 @@ class CheckBatchFeedProcessingCommand extends Command
         );
 
         $this->findUnprocessedRealtimeFiles();
+        
+        $this->checkForNoDataStream();
     }
 
     protected function createNewFeedMt1Directories () {
@@ -118,6 +121,12 @@ class CheckBatchFeedProcessingCommand extends Command
                     }
                 }
             }
+        }
+    }
+    
+    protected function checkForNoDataStream () {
+        if ( ProcessedFeedFile::whereRaw( 'created_at >= NOW() - interval 2 HOUR' )->count() == 0 ) {
+            Slack::to( self::SLACK_CHANNEL )->send( "No Record Data coming in...please investigate!" );
         }
     }
 
