@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CpmReportingAction extends Model
 {
+    protected $connection = "reporting_data";
+
     public static function boot () {
        parent::boot();
 
