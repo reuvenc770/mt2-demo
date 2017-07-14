@@ -16,7 +16,7 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
 
     self.currentPage = 1;
     self.paginationCount = 10;
-    self.sort = "-id";
+    self.sort = "-offer_id";
     self.pricingsTotal = 0;
     self.pageCount = 0;
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
@@ -130,6 +130,8 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
                 } ,
                 function ( response ) {
                     self.formSubmitting = false;
+
+                    modalService.simpleToast( response.data.message ); 
                 }
             );
         } else {
@@ -144,6 +146,8 @@ mt2App.controller( 'CpmPricingController' , [ 'CpmPricingApiService' , '$mdDialo
                 } ,
                 function ( response ) {
                     self.formSubmitting = false;
+
+                    modalService.simpleToast( response.data.message ); 
                 }
             );
         }

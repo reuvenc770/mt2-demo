@@ -40,11 +40,12 @@ class OfferRepo {
     }
 
     public function fuzzyCpmSearchBack ( $term ) {
-        return $this->offer->where( 'name' , 'LIKE' , "%{$term}%" )
+        return $this->offer->whereRaw("name like '%$term%'")
             ->where( 'name' , 'NOT LIKE' , "PAUSED%" )
             ->where( 'name' , 'NOT LIKE' , "%INACTIVE%" )
             ->where( 'offer_payout_type_id' , 1 )
-            ->select( "id" , "name" )->get();
+            ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
+            ->select( "id" , "name" )->orderBy('name')->get();
     }
 
     public function fuzzySearchBack($term){

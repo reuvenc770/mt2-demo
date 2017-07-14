@@ -5,88 +5,99 @@
 
 namespace App\Repositories;
 
-use DB;
 use Log;
-use App\Models\OfferPayout;
 use App\Models\CpmOfferSchedule;
+use App\Models\MtOfferCakeOfferMapping;
+use App\Services\OfferPayoutService;
 
 class CpmPricingRepo {
     const CPM_PAYOUT_TYPE_ID = 1;
 
-    protected $payout;
+    protected $payoutService;
     protected $schedule;
+    protected $offerMapper;
 
-    public function __construct ( OfferPayout $payout , CpmOfferSchedule $schedule ) {
-        $this->payout = $payout;
+    public function __construct (
+        OfferPayoutService $payoutService ,
+        CpmOfferSchedule $schedule ,
+        MtOfferCakeOfferMapping $offerMapper
+    ) {
+        $this->payoutService = $payoutService;
         $this->schedule = $schedule;
+        $this->offerMapper = $offerMapper;
     }
 
     public function getModel () {
-        return $this->payout
+        return $this->schedule
                     ->select(
-                        'cpm_offer_schedules.id as id' , 
-                        'offers.name as name' ,
-                        'offer_payouts.offer_id as offer_id' ,
-                        'mt_offer_cake_offer_mappings.cake_offer_id as cake_offer_id' ,
-                        'offer_payouts.amount as amount' ,
-                        'cpm_offer_schedules.start_date as start_date' ,
-                        'cpm_offer_schedules.end_date as end_date'
+                        'offers.name' ,
+                        'cpm_offer_schedules.offer_id' ,
+                        'cpm_offer_schedules.cake_offer_id' ,
+                        'cpm_offer_schedules.amount' ,
+                        'cpm_offer_schedules.start_date' ,
+                        'cpm_offer_schedules.end_date'
                     )
-                    ->join( 'mt_offer_cake_offer_mappings' , 'offer_payouts.offer_id' , '=' , 'mt_offer_cake_offer_mappings.offer_id' )
-                    ->join( 'cpm_offer_schedules' , 'mt_offer_cake_offer_mappings.cake_offer_id' , '=' , 'cpm_offer_schedules.cake_offer_id' )
-                    ->leftJoin( 'offers' , 'offer_payouts.offer_id' , '=' , 'offers.id' )
-                    ->where( 'offer_payouts.offer_payout_type_id' , '1' );
+                    ->leftJoin( 'offers' , 'offers.id' , '=' , 'cpm_offer_schedules.offer_id' );
     }
 
     public function createPricing ( $record ) {
         try {
-            $cakeOfferId = $record[ 'offer_id' ]
-
-            /**
-             * Finish check here and fail if no cake id is found.
-             */
-            if ( is_null( $cakeOfferId ) ) {
-
+            $offerMapResult = $this->offerMapper->where( 'offer_id' , $record[ 'offer_id' ] )->first();
+        
+            if ( is_null( $offerMapResult ) ) {
+                throw new \Exception( 'Cake Offer ID cannot be found. Please contact tech support.' );
             }
 
-            $newPayout = new OfferPayout();
-            $newPayout->offer_id = $record[ 'offer_id' ];
-            $newPayout->offer_payout_type_id = self::CPM_PAYOUT_TYPE_ID;
-            $newPayout->amount = $record[ 'amount' ];
-            $newPayout->save();
+            $this->payoutService->setPayout(
+                $record[ 'offer_id' ] ,
+                self::CPM_PAYOUT_TYPE_ID ,
+                $record[ 'amount' ]
+            );
 
-            $newSchedule = new CpmOfferSchedule();
-            $newSchedule->cake_offer_id = $cakeOfferId;
-            $newSchedule->start_date = $record[ 'startDate' ];
-            $newSchedule->end_date = $record[ 'endDate' ];
-            $newSchedule->save();
+            $this->updateOrCreate( [
+                'cake_offer_id' => $offerMapResult->cake_offer_id ,
+                'offer_id' => $record[ 'offer_id' ] ,
+                'offer_payout_type_id' => self::CPM_PAYOUT_TYPE_ID ,
+                'amount' => $record[ 'amount' ] ,
+                'start_date' => $record[ 'startDate' ] ,
+                'end_date' => $record[ 'endDate' ] ,
+            ] );
         } catch ( \Exception $e ) {
             Log::error( $e );
 
-            return false;
+            return [ "status" => false , "message" => $e->getMessage() ];
         }
 
-        return true;
+        return [ "status" => true ];
     }
 
     public function updatePricing ( $id , $record ) {
         try {
-            $this->payout->where( 'offer_id' , $record[ 'offer_id' ] )
-                ->update( [
-                    'amount' => $record[ 'amount' ]
-                ] );
+            $this->payoutService->setPayout(
+                $record[ 'offer_id' ] ,
+                self::CPM_PAYOUT_TYPE_ID ,
+                $record[ 'amount' ]
+            );
 
-            $this->schedule->where( 'id' , $id )
-                ->update( [
-                    'start_date' => $record[ 'startDate' ] ,
-                    'end_date' => $record[ 'endDate' ]
-                ] );
+            $this->updateOrCreate( [
+                'id' => $id ,
+                'amount' => $record[ 'amount' ] ,
+                'start_date' => $record[ 'startDate' ] ,
+                'end_date' => $record[ 'endDate' ] ,
+            ] );
         } catch ( \Exception $e ) {
             Log::error( $e );
 
-            return false;
+            return [ "status" =>false , "message" => $e->getMessage() ];
         }
 
-        return true;
+        return [ "status" => true ];
+    }
+
+    protected function updateOrCreate ( $record ) {
+        return $this->schedule->updateOrCreate(
+            [ "id" => isset( $record[ 'id' ] ) ? $record[ 'id' ] : null ] ,
+            $record            
+        );
     }
 }

@@ -18,6 +18,9 @@ class CreateCpmOfferScheduleTable extends Migration
         Schema::create( 'cpm_offer_schedules' , function ( Blueprint $table ) {
             $table->increments( 'id' );
             $table->integer( 'cake_offer_id' );
+            $table->integer( 'offer_id' );
+            $table->integer( 'offer_payout_type_id' )->unsigned();
+            $table->decimal( 'amount' , 11 , 3 );
             $table->date( 'start_date' );
             $table->date( 'end_date' );
             $table->timestamps();

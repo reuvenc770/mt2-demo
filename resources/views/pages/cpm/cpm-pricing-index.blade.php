@@ -20,7 +20,7 @@
                     <th md-column md-order-by="name" class="md-table-header-override-whitetext">Name</th>
                     <th md-column md-order-by="offer_id" class="md-table-header-override-whitetext">Offer ID</th>
                     <th md-column md-order-by="cake_offer_id" class="md-table-header-override-whitetext">Cake Offer ID</th>
-                    <th md-column md-order-by="pricing" class="md-table-header-override-whitetext">Pricing</th>
+                    <th md-column md-order-by="amount" class="md-table-header-override-whitetext">Pricing</th>
                     <th md-column md-order-by="start_date" class="md-table-header-override-whitetext">Start Date</th>
                     <th md-column md-order-by="end_date" class="md-table-header-override-whitetext">End Date</th>
                 </tr>

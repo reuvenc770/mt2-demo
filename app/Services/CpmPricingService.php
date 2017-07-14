@@ -20,11 +20,11 @@ class CpmPricingService {
     }
 
     public function create ( $record ) {
-            $this->createPricing( $record );
+        return $this->createPricing( $record );
     }
 
     public function update ( $id , $record ) {
-            $this->updatePricing( $id , $record );
+        return $this->updatePricing( $id , $record );
     }
 
     protected function createPricing ( $record ) {

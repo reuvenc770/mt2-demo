@@ -30,9 +30,9 @@ class CpmPricingController extends Controller
     {
         Cache::tags( 'Builder' )->flush();
 
-        $status = $this->pricing->create( $request->all() );
+        $result = $this->pricing->create( $request->all() );
 
-        response()->json( $status );
+        return response()->json( $result , ( $result[ 'status' ] === false ? 422 : 200 ) );
     }
 
     /**
@@ -46,8 +46,8 @@ class CpmPricingController extends Controller
     {
         Cache::tags( 'Builder' )->flush();
 
-        $status = $this->pricing->update( $id , $request->all() );
+        $result = $this->pricing->update( $id , $request->all() );
 
-        response()->json( $status );
+        return response()->json( $result , ( $result[ 'status' ] === false ? 422 : 200 ) );
     }
 }
