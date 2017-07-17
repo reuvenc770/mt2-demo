@@ -44,30 +44,29 @@ class S3RedshiftExportJob extends MonitoredJob {
     }
 
     public function handleJob() {
+        $service = ServiceFactory::createAwsExportService($this->entity);
+        $rows = 0;
 
-                $service = ServiceFactory::createAwsExportService($this->entity);
-                $rows = 0;
+        if(-1 == $this->version){
+            JobTracking::addDiagnostic(array('notices' => 'checking connection only'),$this->tracking);
+            return 0;
+        }
+        elseif (1 === $this->version) {
+            $rows = $service->extractAll();
+            $service->loadAll();
+        }
+        elseif (2 === $this->version) {
+            // Not available from command line.
+            $rows = $service->specialExtract($this->extraData);
+            $service->loadAll();
+        }
+        else {
+            $rows = $service->extract();
+            $service->load();
+        }
 
-                if(-1 == $this->version){
-                    JobTracking::addDiagnostic(array('notices' => 'checking connection only'),$this->tracking);
-                    return 0;
-                }
-                elseif (1 === $this->version) {
-                    $rows = $service->extractAll();
-                    $service->loadAll();
-                }
-                elseif (2 === $this->version) {
-                    // Not available from command line.
-                    $rows = $service->specialExtract($this->extraData);
-                    $service->loadAll();
-                }
-                else {
-                    $rows = $service->extract();
-                    $service->load();
-                }
-
-                self::updateNotificationTally( $this->entity , false );
-                return $rows;
+        self::updateNotificationTally( $this->entity , false );
+        return $rows;
     }
 
     static public function clearNotificationTally () {
