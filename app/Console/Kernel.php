@@ -226,7 +226,7 @@ class Kernel extends ConsoleKernel
          *
          */
         $schedule->command('ftp:admin -H ' . config('ssh.servers.mt1_feed_file_server.host') . ' -U ' . config('ssh.servers.mt1_feed_file_server.username') . ' -k ' . config('ssh.servers.mt1_feed_file_server.public_key') . ' -K ' . config('ssh.servers.mt1_feed_file_server.private_key') . ' -u -s Feed')->everyFiveMinutes();
-        $schedule->command( 'attribution:syncModelsWithNewFeeds' )->everyThirtyMinutes();
+        #$schedule->command( 'attribution:syncModelsWithNewFeeds' )->everyThirtyMinutes();
 
         /**
          *  MT1 data sync jobs
@@ -234,30 +234,25 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('mt1Import offer --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('emails:download 0')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 1')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 2')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 3')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 4')->cron('*/2 * * * * *');
         $schedule->command('mt1Import creative --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import from --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import subject --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import deploy --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import deploy --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerCreativeMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeEncryptedLinkMap --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import link 2 --runtime-threshold=1h')->cron('0 */2 * * * *');
-        $schedule->command('mt1Import feed --runtime-threshold=1m')->cron('0 * * * * *');
+        #$schedule->command('mt1Import link 2 --runtime-threshold=1h')->cron('0 */2 * * * *');
+        #$schedule->command('mt1Import feed --runtime-threshold=1m')->cron('0 * * * * *');
         $schedule->command('mt1Import offerTrackingLink --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOffer --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeVertical --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOfferMap --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import vendorSuppressionInfo --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *'); //bb all mt1 above
+        #$schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *'); //bb all mt1 above
 
         /**
          * Attribution Jobs
