@@ -38,7 +38,11 @@ class ProcessFeedRawFilesJob extends MonitoredJob
      */
     public function handleJob ()
     {
-        $this->service = \App::make( RemoteFeedFileService::class );
+        $this->service = $this->getService();
         $this->service->processNewFiles();
+    }
+
+    protected function getService () {
+        return \App::make( RemoteFeedFileService::class );
     }
 }

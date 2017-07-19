@@ -3,7 +3,7 @@
  * @author Adam Chin <achin@zetaglobal.com>
  */
 
-namespace App\Services\CMPTE;
+namespace App\Services;
 
 use App\Services\RemoteFeedFileService;
 use Maknz\Slack\Facades\Slack;
@@ -14,7 +14,7 @@ use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
 use App\Models\MT1Models\User as Feeds;
 
-class BatchProcessingService extends RemoteFeedFileService {
+class Mt1BatchProcessingService extends RemoteFeedFileService {
     protected $serviceName = 'BatchProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $rootFileDirectory = '/home';

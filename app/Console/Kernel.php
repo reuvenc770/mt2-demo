@@ -80,6 +80,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
+        Commands\ProcessMt1BatchFeedFiles::class ,
         Commands\UpdateActionStatus::class,
         Commands\ExportThirdPartyData::class,
         Commands\SuppressFeed::class,
@@ -293,13 +294,9 @@ class Kernel extends ConsoleKernel
         /**
          * Feed File Processing
          */
-        #$schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
+        $schedule->command( 'feedRecords:processMt1BatchFiles' )->everyFiveMinutes(); // Job name like: ProcessMt1BatchFeedFilesJob%
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
-
-        /**
-         * CMPTE Feed Ingestion
-         */
         $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); // Job name like: CheckMt1RealtimeFeedProcessingJob%
         $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); // Job name like: CheckMt1BatchFeedProcessingJob%
 
