@@ -7,7 +7,7 @@ use App\Jobs\DataProcessingJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\EtlPickupRepo;
 
-class CleanUpRawContentServerActions extends Command
+class UpdateRecordProcessingReportWithErrors extends Command
 {
     use DispatchesJobs;
     /**
@@ -15,15 +15,15 @@ class CleanUpRawContentServerActions extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:contentServerRawStats {--runtime-threshold=default}';
+    protected $signature = 'feedRecords:updateReportWithErrors {--runtime-threshold=10m}';
+    const JOB_NAME = 'UpdateFeedProcessingErrors';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process content server raw stats';
-    private $jobName = 'ProcessContentServerRawStats';
+    protected $description = 'Update the record processing report table with errors caught in prior stages of record processing.';
 
     /**
      * Create a new command instance.
@@ -40,8 +40,9 @@ class CleanUpRawContentServerActions extends Command
      * @return mixed
      */
     public function handle(EtlPickupRepo $pickupRepo) {
-        $lookback = $pickupRepo->getLastInsertedForName($this->jobName);
-        $job = new DataProcessingJob($this->jobName, str_random(16), $lookback, $this->option('runtime-threshold'));
+        $lookback = $pickupRepo->getLastInsertedForName(self::JOB_NAME);
+        $runtimeThreshold = $this->option('runtime-threshold');
+        $job = new DataProcessingJob(self::JOB_NAME, str_random(16), $lookback, $runtimeThreshold);
         $this->dispatch($job);
     }
 }

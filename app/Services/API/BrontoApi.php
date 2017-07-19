@@ -62,7 +62,7 @@ class BrontoApi extends EspBaseAPI
             )->getReturn();
 
             do {
-
+                $deliveries = $deliveries ?: [];
                 foreach ( $deliveries as $currentDelivery ) {
                     $messageFilter = new messageFilter();
                     $messageFilter->id = $currentDelivery->getMessageId();

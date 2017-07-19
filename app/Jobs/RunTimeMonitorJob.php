@@ -171,16 +171,42 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         $pretty[] = implode("\n",$flat_warnings);
 
 
-        $pretty_report = implode("\n",$pretty);
-        //print $pretty_report;
+        $prettyReport = implode("\n",$pretty);
+        //print $prettyReport;
 
-        Slack::to($this->room)->attach(['text' => $pretty_report])->send('Runtime Monitoring Report');
+        $reportChunks = $this->chunkReport($prettyReport);
+        $system = config('systems.'.env('APP_ENV','local').'.name');
+
+        Slack::to($this->room)->send("Runtime Monitoring Report for $system BEGIN");
+        foreach($reportChunks AS $chunk){
+            Slack::to($this->room)->attach(['text' => $chunk])->send();
+        }
+        Slack::to($this->room)->send("Runtime Monitoring Report for $system END");
+
     }
 
-    /**
+    private function chunkReport($report){
+        $report_ar = explode("\n",$report);
+        $maxlength = 7000;
+        $chunks = array();
+        $chunk = "";
+
+        foreach($report_ar AS $line){
+            $chunk .= "\n".$line;
+
+            if(strlen($chunk) > $maxlength){
+                $chunks[] = $chunk;
+                $chunk = "";
+            }
+        }
+        $chunks[] = $chunk;
+        return $chunks;
+    }
+
+    /**"
      * reports execution failure to configured slack channel
      */
     private function sendRunTimeMonitorFailureAlert($error_message){
-        Slack::to(self::ROOM)->send('ERROR ALERT: RunTimeMonitor failed to properly execute! '.$error_message);
+        Slack::to($this->room)->send('ERROR ALERT: RunTimeMonitor failed to properly execute! '.$error_message);
     }
 }

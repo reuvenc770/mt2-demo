@@ -19,7 +19,7 @@ class ExportDeployCombineJob extends MonitoredJob {
      *
      * @return void
      */
-    public function __construct(array $deploys, CacheReportCard $reportCard, $tracking, $runtimeThreshold) {
+    public function __construct(array $deploys, CacheReportCard $reportCard, $tracking, $runtimeThreshold=null) {
         $this->deploys = $deploys;
         $this->reportCard = $reportCard;
         $this->tracking = $tracking;

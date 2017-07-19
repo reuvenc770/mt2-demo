@@ -357,4 +357,14 @@ class RawFeedEmailRepo {
 
         return $date;
     }
+
+    public function getMaxInvalidId() {
+        return (int)$this->failed->max('id');
+    }
+
+    public function getInvalidBetweenIds($startId, $endId) {
+        $startId = (int)$startId;
+        $endId = (int)$endId;
+        return $this->failed->whereBetween('id', [$startId, $endId])->orderBy('id');
+    }
 }

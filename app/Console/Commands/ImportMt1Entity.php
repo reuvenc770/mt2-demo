@@ -15,7 +15,7 @@ class ImportMt1Entity extends Command
      *
      * @var string
      */
-    protected $signature = 'mt1Import {type} {lookback?} {--d|delay= : Delay in minutes } {--runtime-threshold=}';
+    protected $signature = 'mt1Import {type} {lookback?} {--d|delay= : Delay in minutes } {--runtime-threshold=default}';
 
     /**
      * The console command description.

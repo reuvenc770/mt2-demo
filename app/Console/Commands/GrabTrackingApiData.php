@@ -17,7 +17,7 @@ class GrabTrackingApiData extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?} {--s|startDate=none} {--e|endDate=none} {--runtime-threshold=}';
+    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?} {--s|startDate=none} {--e|endDate=none} {--runtime-threshold=default}';
 
     /**
      * The console command description.
