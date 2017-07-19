@@ -90,6 +90,11 @@ class NavigationService
             $permissions = $this->permissionRepo->getAllPermissionsWithParent($section->id);
             foreach ($permissions as $permission) {
                 $route = $this->routeList->getByName($permission->name);
+                
+                if ( is_null( $route ) ) {
+                    continue;
+                }
+                
                 $this->loadPrefix($route);
                 $this->loadName($route);
                 $this->loadUri($route);
