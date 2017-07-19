@@ -107,7 +107,8 @@ class Kernel extends ConsoleKernel
         Commands\ResetUserPasswordCommand::class,
         Commands\SimpleTestCommand::class,
         Commands\RunTimeMonitorCommand::class,
-        Commands\CheckBatchFeedProcessingCommand::class,
+        Commands\CheckMt1BatchFeedProcessingCommand::class,
+        Commands\CheckMt1RealtimeFeedProcessingCommand::class ,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\ClearRedisKeysWithPatternCommand::class,
         Commands\ReprocessFeedFileCommand::class ,
@@ -299,9 +300,8 @@ class Kernel extends ConsoleKernel
         /**
          * CMPTE Feed Ingestion
          */
-        $schedule->command( 'feedRecords:checkBatchCmpte' )->everyThirtyMinutes(); // Job name like: BatchProcessingJob%
-        $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyMinute(); // Job name like: BatchProcessingJob%
-        $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
+        $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); // Job name like: CheckMt1RealtimeFeedProcessingJob%
+        $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); // Job name like: CheckMt1BatchFeedProcessingJob%
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id
