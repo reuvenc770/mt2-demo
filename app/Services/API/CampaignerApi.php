@@ -222,5 +222,14 @@ class CampaignerApi extends EspBaseAPI
 
         $contactList = new ImmediateUpload($this->auth, $updateExistingContacts, $triggerWorkflow, $arrayOfData, new ArrayOfInt($suppressionLists), null);
         $result = $contactManager->ImmediateUpload($contactList);
+
+        $response = $this->parseOutResultHeader($result);
+        
+        if (!$response['errorFlag']) {
+            return 'Success';
+        }
+        else {
+            return $response['returnMessage'];
+        }
     }
 }

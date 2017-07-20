@@ -19,7 +19,8 @@ class EspWorkflowLogRepo {
         $end = $date . ' 23:59:59';
 
         return $this->model
-                    ->select(DB::raw("SUM(IF(times_sent > 1, 1, 0)) as duplicates"), 
+                    ->select(DB::raw("COUNT(*) as total_sent"),
+                            DB::raw("SUM(IF(times_sent > 1, 1, 0)) as duplicates"),
                             DB::raw("SUM(IF(times_sent > 1, 1, 0)) as egregious_duplicates"))
                     ->where('target_list', $list)
                     ->whereBetween('created_at', [$start, $end])
@@ -43,5 +44,9 @@ class EspWorkflowLogRepo {
                     ->selectRaw("distinct target_list")
                     ->whereBetween('created_at', [$start, $end])
                     ->get();
+    }
+
+    public function insert(array $data) {
+        $this->model->insert($data);
     }
 }

@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Repositories\EspWorkflowRepo;
+use App\Repositories\EspDataExportRepo;
 use App\Repositories\EspWorkflowLogRepo;
 use Carbon\Carbon;
+use Mail;
 
 class FirstPartyDailyReport extends Command
 {
@@ -14,14 +16,17 @@ class FirstPartyDailyReport extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:name';
+    protected $signature = 'feedRecords:dailyExportReport';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '';
+    protected $description = "Send out report of yesterday's user exports";
+
+    CONST LVL_MAIL = "alphateam@zetainteractive.com";
+    const TECH_EMAIL = "tech.team.mt2@zetaglobal.com";
 
     /**
      * Create a new command instance.
@@ -37,64 +42,36 @@ class FirstPartyDailyReport extends Command
      *
      * @return mixed
      */
-    public function handle(EspWorkflowRepo $repo, EspWorkflowLogRepo $logRepo) {
-        // Build out something like a report card ... need to get all active 1st party feeds
+    public function handle(EspWorkflowRepo $repo, EspDataExportRepo $dataExportRepo, EspWorkflowLogRepo $logRepo) {
+        // Build out an assoc array to populate a daily reporting email
 
+        $workflows = $repo->getActiveWorkflows();
         $yesterday = Carbon::yesterday()->toDateString();
-        $lists = $logRepo->getActiveLists($yesterday);
+        $data = [];
 
-        // need lists here instead
+        foreach ($workflows as $workflow) {
+            $exportLists = $dataExportRepo->getForEspAccountId($workflow->esp_account_id);
+            $data[] = ['workflow' => $workflow->name, 'lists' => []];
 
-        foreach($lists as $list) {
-            $data = $logRepo->getDataForDate($list->target_list, $yesterday);
-            $mtdCount = $logRepo->monthToDateCount($list->target_list, $yesterday);
+            foreach ($exportLists as $list) {
+                $data = $logRepo->getDataForDate($list->target_list, $yesterday);
+                $mtdCount = $logRepo->monthToDateCount($list->target_list, $yesterday);
+                $received = $recordProcRepo->getFeedDateCount($list->feed_id, $yesterday);
 
-            // So, how to handle when the target list belongs to a group?
-            // Is this why we had workflow earlier?
-
-            // Different data streams can use the same workflow
-            // 
-            So is it for each workflow for each ... stream?
-
-            No.
-
-            There are many streams. Many can belong to a workflow.
-
-            So yes, this is for each workflow for each stream.
-            What does a stream consist of?
-            - BelongTo a workflow
-            - 
+                $data[$workflow->name]['lists'][] = [
+                    'listName' => $list->target_list,
+                    'usersReceived' => $received,
+                    'usersSent' => $data->total_sent,
+                    'duplicates' => $data->duplicates,
+                    '3xDuplicates' => $data->egregious_duplicates,
+                    'mtdCount' => $mtdCount
+                ];
+            }
         }
 
-        Notify::sendData($data);
+        Mail::send('emails.firstPartyEmail', $data, function ($message) {
+            $message->to(self::TECH_EMAIL);
+            $message->subject("Daily Export Report");
+        });
     }
 }
-
-
-        // 1. total count for date
-        // 2. 
-        /*
-Foodstamps Count
-Users Received from Foodstamps: 3450
-Users Sent To Foodstamps List - 3413
-Dupe - 23
-Total Duplicates who have signed up 3X or More - 1
-Users Received Month to Date from Foodstamps: 71121
----------------------------------------------------
-HealthPlansOfAmerica Counts
-Users Received from 0bce03ec00000000000000000000000fe75d: 416
-Users Received from 0bce03ec000000000000000000000010cb84: 157
-Users Received from 0bce03ec000000000000000000000010cb85: 262
-Users Sent To Bronto by Status
-    0bce03ec00000000000000000000000fe75d - Created - 353
-    0bce03ec00000000000000000000000fe75d - Duplicate - 63
-    0bce03ec000000000000000000000010cb84 - Created - 132
-    0bce03ec000000000000000000000010cb84 - Duplicate - 25
-    0bce03ec000000000000000000000010cb85 - Created - 209
-    0bce03ec000000000000000000000010cb85 - Duplicate - 52
-    0bce03ec000000000000000000000010cb85 - Other Error - 1
-Users Received Month To Date from 0bce03ec00000000000000000000000fe75d: 23559
-Users Received Month To Date from 0bce03ec000000000000000000000010cb84: 9818
-Users Received Month To Date from 0bce03ec000000000000000000000010cb85: 10070
-
-        */
