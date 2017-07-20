@@ -429,6 +429,16 @@ class BrontoReportService extends AbstractReportService implements IDataService
             'listIds' => [$targetId]
         ];
 
+        $this->api->addContact($contactInfo);
+    }
+
+    public function addContactToLists($emailAddress, array $lists)
+    {
+        $contactInfo = [
+            'email' => $emailAddress,
+            'listIds' => $lists
+        ];
+
         $returned = $this->api->addContact($contactInfo);
 
         if (!$returned) {
@@ -451,16 +461,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
         else {
             return $result->getErrorString();
         }
-
-    }
-
-    public function addContactToLists($emailAddress, array $lists)
-    {
-        $contactInfo = [
-            'email' => $emailAddress,
-            'listIds' => $lists
-        ];
-        $this->api->addContact($contactInfo);
     }
 
 
