@@ -14,7 +14,7 @@ class PullContentServerRecordData extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:getRecordAgentData {lookback} {--runtime-threshold=}';
+    protected $signature = 'listprofile:getRecordAgentData {lookback} {--runtime-threshold=default}';
     private $jobName = 'ContentServerDeviceData';
 
     /**

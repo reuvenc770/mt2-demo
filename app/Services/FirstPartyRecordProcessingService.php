@@ -9,14 +9,15 @@ use App\Services\AbstractReportService;
 use Carbon\Carbon;
 
 class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
-    private $emailCache = [];
     private $espApiService;
-    private $targetId;
-    private $feedId;
     private $emailRepo;
     private $statsRepo;
     private $recordDataRepo;
 
+    private $emailCache = [];
+    private $targetId;
+    private $feedId;
+    private $workflowId;
     private $processingDate;
 
     public function __construct(AbstractReportService $espApiService, 
@@ -33,7 +34,18 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
 
     public function processPartyData(array $records) {
         $postingRecords = $this->postingStrategy->prepareForPosting($records, $this->targetId);
-        $count = $this->espApiService->pushRecords($postingRecords, $this->targetId);
+
+        foreach($postingRecords as $record) {
+            $result = $this->espApiService->addContactToLists($record->email_address, [$this->targetId]);
+
+            $this->workflowLogRepo->insert([
+                'workflow_id' => $this->workflowId,
+                'email_id' => $record->emailId,
+                'target_list' => $this->targetId,
+                'status_received' => $result
+            ]);
+        }
+
         $this->updateStats($records);
     }
 
@@ -43,6 +55,10 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
 
     public function setFeedId($feedId) {
         $this->feedId = $feedId;
+    }
+
+    public function setWorkflowId($workflowId) {
+        $this->workflowId = $workflowId;
     }
 
     private function updateStats($records) {
@@ -55,18 +71,19 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
         foreach($records as $record) {
             $domainGroupId = $record->domainGroupId;
             $this->recordDataRepo->insert($record->mapToRecordData());
+            $filename = $record->file;
 
             // Note structure
             if (!isset($statuses[$record->feedId])) {
                 $statuses[$record->feedId] = [];
-                $statuses[$record->feedId][$domainGroupId] = [
-                    'unique' => 0,
-                    'non-unique' => 0,
-                    'duplicate' => 0
-                ];
             }
-            elseif (!isset($statuses[$record->feedId][$domainGroupId])) {
-                $statuses[$record->feedId][$domainGroupId] = [
+
+            if (!isset($statuses[$record->feedId][$domainGroupId])) {
+                $statuses[$record->feedId][$domainGroupId] = [];
+            }
+
+            if (!isset( $statuses[$record->feedId][$domainGroupId][$filename])) {
+                $statuses[$record->feedId][$domainGroupId][$filename] = [
                     'unique' => 0,
                     'non-unique' => 0,
                     'duplicate' => 0
@@ -74,10 +91,10 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
             }
 
             if ($this->recordDataRepo->isUnique($record->emailId, $this->feedId)) {
-                $statuses[$record->feedId][$domainGroupId]['unique']++;
+                $statuses[$record->feedId][$domainGroupId][$filename]['unique']++;
             }
             else {
-                $statuses[$record->feedId][$domainGroupId]['duplicate']++;
+                $statuses[$record->feedId][$domainGroupId][$filename]['duplicate']++;
             }
         }
 

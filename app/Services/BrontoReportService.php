@@ -422,20 +422,45 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return strstr($campaignName, '_', true);
     }
 
-    public function pushRecords(array $records, $targetId)
-    {
-        foreach ($records as $record) {
-            $result = $this->api->addContact($record);
-        }
+
+    public function addContact($emailAddress, $targetId) {
+        $contactInfo = [
+            'email' => $emailAddress,
+            'listIds' => [$targetId]
+        ];
+
+        $this->api->addContact($contactInfo);
     }
 
-    public function addContactToLists($emailAddress, $lists)
+    public function addContactToLists($emailAddress, array $lists)
     {
         $contactInfo = [
             'email' => $emailAddress,
             'listIds' => $lists
         ];
-        $this->api->addContact($contactInfo);
+
+        $returned = $this->api->addContact($contactInfo);
+
+        if (!$returned) {
+            return 'No response';
+        }
+
+        if (!$returned->getReturn()) {
+            return 'Nothing returned';
+        }
+
+        if (!$returned->getReturn()->getResults()) {
+            return 'No results';
+        }
+
+        $result = $returned->getReturn()->getResults()[0];
+
+        if (!$result->getIsError() || $result->getIsNew()) {
+            return 'Success';
+        }
+        else {
+            return $result->getErrorString();
+        }
     }
 
 

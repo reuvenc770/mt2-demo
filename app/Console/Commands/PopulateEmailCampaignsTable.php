@@ -11,7 +11,7 @@ use App\Console\Traits\PreventOverlapping;
 class PopulateEmailCampaignsTable extends Command {
     use DispatchesJobs, PreventOverlapping;
 
-    protected $signature = 'reports:populateStats';
+    protected $signature = 'reports:populateStats {--runtime-threshold=default}';
     protected $description = 'Populate the email_campaign_statistics aggregate table';
     protected $lookBack = 5;
     protected $trackingSource = 'Cake';
@@ -23,7 +23,7 @@ class PopulateEmailCampaignsTable extends Command {
 
     public function handle() {
         foreach ($this->jobs as $job) {
-            $this->dispatch(new DataProcessingJob($job, str_random(16)));
+            $this->dispatch(new DataProcessingJob($job, str_random(16),null,$this->option('runtime-threshold')));
         }
     }
 }

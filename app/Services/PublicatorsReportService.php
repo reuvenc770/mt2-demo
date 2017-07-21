@@ -345,5 +345,5 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         Cache::forget( self::LOCK_NAME . '_' . $this->api->getEspAccountId() );
     }
 
-    public function pushRecords(array $records, $targetId) {}
+    public function addContactToLists($emailAddress, array $lists) {}
 }
