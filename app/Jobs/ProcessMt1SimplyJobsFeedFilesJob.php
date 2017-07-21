@@ -7,9 +7,9 @@ namespace App\Jobs;
 
 use App\Jobs\ProcessMt1RealtimeFeedFilesJob;
 
-class ProcessMt1SimpleJobsFeedFilesJob extends ProcessMt1RealtimeFeedFilesJob { 
-    protected $jobName = 'ProcessMt1SimpleJobsFeedFilesJob-';
-    protected $serviceName = '\\App\\Services\\Mt1SimpleJobsProcessingService';
+class ProcessMt1SimplyJobsFeedFilesJob extends ProcessMt1RealtimeFeedFilesJob { 
+    protected $jobName = 'ProcessMt1SimplyJobsFeedFilesJob-';
+    protected $serviceName = '\\App\\Services\\Mt1SimplyJobsProcessingService';
     protected $folderName = 'mt2_simplyjobs';
     protected $archiveDir = '/var/local/programdata/done/mt2_simplyjobs_archive/';
 

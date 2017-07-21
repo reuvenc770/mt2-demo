@@ -301,7 +301,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=unemployment --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1UnemploymentFeedFilesJob%
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=section8 --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1Section8FeedFilesJob%
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=medicaid --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1MedicaidFeedFilesJob%
-        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=simplejobs --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1SimpleJobsFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=simplyjobs --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1SimplyJobsFeedFilesJob%
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=foodstamps --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1FoodstampsFeedFilesJob%
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );

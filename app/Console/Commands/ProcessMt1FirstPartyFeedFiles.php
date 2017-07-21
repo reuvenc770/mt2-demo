@@ -16,7 +16,7 @@ class ProcessMt1FirstPartyFeedFiles extends Command
     const JOB_NAME_UNEMPLOYMENT = 'ProcessMt1UnemploymentFeedFilesJob';
     const JOB_NAME_MEDICAID = 'ProcessMt1MedicaidFeedFilesJob';
     const JOB_NAME_SECTION8 = 'ProcessMt1Section8FeedFilesJob';
-    const JOB_NAME_SIMPLEJOBS = 'ProcessMt1SimpleJobsFeedFilesJob';
+    const JOB_NAME_SIMPLYJOBS = 'ProcessMt1SimplyJobsFeedFilesJob';
     const JOB_NAME_FOODSTAMPS = 'ProcessMt1FoodstampsFeedFilesJob';
 
     /**
@@ -67,7 +67,7 @@ class ProcessMt1FirstPartyFeedFiles extends Command
             'unemployment' => self::JOB_NAME_UNEMPLOYMENT ,
             'medicaid' => self::JOB_NAME_MEDICAID , 
             'section8' => self::JOB_NAME_SECTION8 ,
-            'simplejobs' => self::JOB_NAME_SIMPLEJOBS ,
+            'simplyjobs' => self::JOB_NAME_SIMPLYJOBS ,
             'foodstamps' => self::JOB_NAME_FOODSTAMPS
         ];
 

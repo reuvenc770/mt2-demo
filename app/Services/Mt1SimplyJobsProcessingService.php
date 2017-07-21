@@ -11,9 +11,9 @@ use App\Services\DomainGroupService;
 use App\Services\RemoteLinuxSystemService;
 use App\Repositories\RawFeedEmailRepo;
 
-class Mt1SimpleJobsProcessingService extends Mt1FoodstampsProcessingService {
-    protected $serviceName = 'Mt1SimpleJobsProcessingService';
-    protected $logKeySuffix = '_realtime_simplejobs';
+class Mt1SimplyJobsProcessingService extends Mt1FoodstampsProcessingService {
+    protected $serviceName = 'Mt1SimplyJobsProcessingService';
+    protected $logKeySuffix = '_realtime_simplyjobs';
 
     protected $realtimeDirectory = '/var/local/programdata/done/mt2_simplyjobs';
     protected $realtimeFeedId = 2983;
