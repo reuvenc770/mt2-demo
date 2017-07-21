@@ -20,6 +20,7 @@ class SuppressionService implements IFeedSuppression
 {
     protected $repo;
     protected $statRepo;
+    protected $globalRepo;
 
     public function __construct(SuppressionRepo $repo, SuppressionGlobalOrangeRepo $globalRepo, EmailCampaignStatisticRepo $statRepo )
     {
