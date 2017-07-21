@@ -289,6 +289,7 @@ class ListProfileService
             $queryNumber++;
         }
 
+        Cache::tags('ListProfile')->flush();
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
     }
 
