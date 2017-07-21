@@ -7,9 +7,9 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Jobs\ProcessMt1BatchFeedFilesJob;
+use App\Jobs\ProcessMt1RealtimeFeedFilesJob;
 
-class ProcessMt1BatchFeedFiles extends Command
+class ProcessMt1RealtimeFeedFiles extends Command
 {
     use DispatchesJobs;
 
@@ -18,14 +18,14 @@ class ProcessMt1BatchFeedFiles extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:processMt1BatchFiles { --runtime-threshold=15m : Threshold for monitoring. }';
+    protected $signature = 'feedRecords:processMt1RealtimeFiles { --runtime-threshold=15m : Threshold for monitoring. }';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Processes new batch feed files from MT1 FTP server.';
+    protected $description = 'Processes new realtime feed files from MT1 posts server.';
 
     /**
      * Create a new command instance.
@@ -44,7 +44,7 @@ class ProcessMt1BatchFeedFiles extends Command
      */
     public function handle()
     {
-        $job = \App::make( ProcessMt1BatchFeedFilesJob::class , [
+        $job = \App::make( ProcessMt1RealtimeFeedFilesJob::class , [
             str_random( 16 ) ,
             $this->option( 'runtime-threshold' )
         ] );

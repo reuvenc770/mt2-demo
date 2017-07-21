@@ -20,8 +20,18 @@ class Mt1BatchProcessingService extends RemoteFeedFileService {
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
 
-    public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
-        parent::__construct( $feedService , $systemService , $domainGroupService , $rawRepo );
+    public function __construct (
+        FeedService $feedService , 
+        RemoteLinuxSystemService $systemService ,
+        DomainGroupService $domainGroupService ,
+        RawFeedEmailRepo $rawRepo
+    ) {
+        parent::__construct(
+            $feedService ,
+            $systemService ,
+            $domainGroupService ,
+            $rawRepo
+        );
     }
 
     public function fireAlert ( $message ) {

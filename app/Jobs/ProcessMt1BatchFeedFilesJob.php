@@ -14,10 +14,6 @@ class ProcessMt1BatchFeedFilesJob extends ProcessFeedRawFilesJob {
         parent::__construct( $tracking , $runtimeThreshold );
     }
 
-    public function handleJob () {
-        parent::handleJob();
-    }
-
     protected function getService () {
         $service = \App::make( \App\Services\Mt1BatchProcessingService::class );
 

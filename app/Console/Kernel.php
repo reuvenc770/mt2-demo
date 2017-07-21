@@ -81,6 +81,8 @@ class Kernel extends ConsoleKernel
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
         Commands\ProcessMt1BatchFeedFiles::class ,
+        Commands\ProcessMt1RealtimeFeedFiles::class ,
+        Commands\ProcessMt1FirstPartyFeedFiles::class ,
         Commands\UpdateActionStatus::class,
         Commands\ExportThirdPartyData::class,
         Commands\SuppressFeed::class,
@@ -294,7 +296,13 @@ class Kernel extends ConsoleKernel
         /**
          * Feed File Processing
          */
-        $schedule->command( 'feedRecords:processMt1BatchFiles' )->everyFiveMinutes(); // Job name like: ProcessMt1BatchFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1BatchFiles --runtime-threshold=15m' )->everyFiveMinutes(); // Job name like: ProcessMt1BatchFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1RealtimeFiles --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1RealtimeFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=unemployment --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1UnemploymentFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=section8 --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1Section8FeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=medicaid --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1MedicaidFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=simplejobs --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1SimpleJobsFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=foodstamps --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1FoodstampsFeedFilesJob%
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
         $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); // Job name like: CheckMt1RealtimeFeedProcessingJob%

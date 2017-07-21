@@ -3,9 +3,9 @@
  * @author Adam Chin <achin@zetaglobal.com>
  */
 
-namespace App\Services\CMPTE;
+namespace App\Services;
 
-use App\Services\CMPTE\RealtimeProcessingService;
+use App\Services\Mt1RealtimeProcessingService;
 use Maknz\Slack\Facades\Slack;
 use App\Services\FeedService;
 use App\Services\DomainGroupService;
@@ -14,7 +14,7 @@ use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
 use Illuminate\Support\Facades\Redis;
 
-class ReprocessRealtimeProcessingService extends RealtimeProcessingService {
+class ReprocessRealtimeProcessingService extends Mt1RealtimeProcessingService {
     protected $serviceName = 'ReprocessRealtimeProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
 

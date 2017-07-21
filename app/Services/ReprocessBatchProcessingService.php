@@ -3,7 +3,7 @@
  * @author Adam Chin <achin@zetaglobal.com>
  */
 
-namespace App\Services\CMPTE;
+namespace App\Services;
 
 use App\Services\RemoteFeedFileService;
 use Maknz\Slack\Facades\Slack;
