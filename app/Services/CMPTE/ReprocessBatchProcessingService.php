@@ -75,6 +75,8 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
         foreach ( $this->currentColumnMap as $index => $columnName ) {
             if ( isset( $lineColumns[ $index ] ) ) {
                 $record[ $columnName ] = $lineColumns[ $index ];
+            } else {
+                $record[ $columnName ] = '';
             }
         }
 
