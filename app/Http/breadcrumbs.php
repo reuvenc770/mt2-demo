@@ -370,3 +370,8 @@ Breadcrumbs::register('tools.notifications', function($breadcrumbs) {
     $breadcrumbs->push('Scheduled Notifications', route('tools.notifications'));
 });
 
+Breadcrumbs::register('cpm.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('CPM Pricing', route('cpm.list'));
+});
+
