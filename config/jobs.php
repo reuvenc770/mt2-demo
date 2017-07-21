@@ -26,6 +26,7 @@ return [
             'RetrieveTrackingDataJob' => '1m',
             'RunTimeMonitorJob' => '1m',
             'S3RedshiftExportJob' => '1h',
-            'ScheduledFilterResolver' => '20m'
+            'ScheduledFilterResolver' => '20m',
+            
     ]
 ];

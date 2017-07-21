@@ -316,7 +316,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
-        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%
+        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessFeedRecordsJob
         $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
