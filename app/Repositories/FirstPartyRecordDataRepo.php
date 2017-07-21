@@ -237,11 +237,11 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))->model;
+        return $this->model->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))->model;
     }
 
     public function specialExtract($data) {
-        return $this->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))->model;
+        return $this->model->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))->model;
     }
 
     public function mapForS3Upload($row) {
