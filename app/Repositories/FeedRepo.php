@@ -295,6 +295,16 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
         return $feedResult->name;
     }
+
+    public function getPartyFromId ( $id ) {
+        $party = $this->feed->where( 'id' , $id )->pluck( 'party' )->first();
+
+        if ( count( $party ) !== 1 ) {
+            return null;
+        }
+
+        return $party;
+    } 
     
     public function prepareTableForSync() {}
 }

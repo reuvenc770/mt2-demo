@@ -80,6 +80,9 @@ class Kernel extends ConsoleKernel
         Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
+        Commands\ProcessMt1BatchFeedFiles::class ,
+        Commands\ProcessMt1RealtimeFeedFiles::class ,
+        Commands\ProcessMt1FirstPartyFeedFiles::class ,
         Commands\UpdateActionStatus::class,
         Commands\ExportThirdPartyData::class,
         Commands\SuppressFeed::class,
@@ -107,6 +110,11 @@ class Kernel extends ConsoleKernel
         Commands\ResetUserPasswordCommand::class,
         Commands\SimpleTestCommand::class,
         Commands\RunTimeMonitorCommand::class,
+        Commands\CheckMt1BatchFeedProcessingCommand::class,
+        Commands\CheckMt1RealtimeFeedProcessingCommand::class ,
+        Commands\BestMoneySearchGetResponseContactUploadCommand::class,
+        Commands\ClearRedisKeysWithPatternCommand::class,
+        Commands\ReprocessFeedFileCommand::class ,
         Commands\ScheduledNotificationsCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\GetFirstPartyRecords::class,
@@ -121,13 +129,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
-
         /**
-         * Runtime Monitor
+         * Alerts & Notifications
          */
+        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+        $schedule->command('notify:scheduled')->everyMinute();
         $schedule->command('monitors:runtime --mode=monitor --days-back=2 --runtime-threshold=30s')->cron('05 8,16 * * * *'); //job class: RunTimeMonitorJob bb
-
 
         /**
          * Orphan Adoption
@@ -289,10 +296,28 @@ class Kernel extends ConsoleKernel
         /**
          * Feed File Processing
          */
-        $schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
+        $schedule->command( 'feedRecords:processMt1BatchFiles --runtime-threshold=15m' )->everyFiveMinutes(); // Job name like: ProcessMt1BatchFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1RealtimeFiles --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1RealtimeFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=unemployment --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1UnemploymentFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=section8 --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1Section8FeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=medicaid --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1MedicaidFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=simplyjobs --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1SimplyJobsFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=foodstamps --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1FoodstampsFeedFilesJob%
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
+        $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); // Job name like: CheckMt1RealtimeFeedProcessingJob%
+        $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); // Job name like: CheckMt1BatchFeedProcessingJob%
 
+        // Currently commented-out. Waiting for everything going live
+        // Process first party feeds, by feed id
+        #$schedule->command('feedRecords:process 1 --feed=2983')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2971')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2972')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2987')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2759')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2798')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
+        
         // Process first party feeds, by feed id. This list is dynamic.
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         

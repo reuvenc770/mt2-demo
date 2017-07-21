@@ -50,7 +50,7 @@ return [
 
         'views' => [
             'driver' => 'local',
-            'root'   => '/home/vagrant/dev/MT2/resources/views',
+            'root'   => env( 'VIEW_PATH' ) ,
         ],
 
         'sprintUnsubCampaignFTP' => [
