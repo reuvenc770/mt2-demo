@@ -13,11 +13,15 @@ use App\Repositories\RawFeedEmailRepo;
 use App\Facades\SlackLevel;
 
 use Carbon\Carbon;
+use League\Csv\Reader;
+use Cache;
+use Illuminate\Support\Facades\Redis;
 use Mail;
 use Notify;
 
 class RemoteFeedFileService {
-    const SLACK_CHANNEL = "#mt2team";
+    const REDIS_LOCK_KEY_PREFIX = 'feedlock_';
+
     const DEV_TEAM_EMAIL = 'tech.team.mt2@zetaglobal.com';
     const STAKEHOLDERS_EMAIL = 'orangeac@zetaglobal.com';
     const CLIENT_OPERATOR_EMAIL = 'jherlihy@zetaglobal.com';
@@ -33,12 +37,22 @@ class RemoteFeedFileService {
 
     protected $currentFile = null;
     protected $currentColumnMap = null;
-    protected $currentFileLineCount = null;
+    protected $currentFileLineCount = 0;
+    protected $currentFileErrorCount = 0;
     protected $currentLines = null;
 
     protected $processedFileCount = 0;
+    protected $filesProcessed = [];
     protected $notificationCollection = [];
     protected $missingMappingList = [];
+
+    protected $serviceName = 'RemoteFeedFileService';
+    protected $logKeySuffix = '';
+    protected $slackChannel = "#mt2team";
+    protected $rootFileDirectory = '/home';
+    protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
+    protected $fileProcessedCallback;
+    protected $metaData = [];
 
     public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         $this->feedService = $feedService;
@@ -47,50 +61,34 @@ class RemoteFeedFileService {
         $this->rawRepo = $rawRepo;
     }
 
+    public function setFileProcessedCallback ( Callable $callback ) {
+        $this->fileProcessedCallback = $callback;
+    }
+
     public function processNewFiles () {
         $this->loadNewFilePaths();
 
         if ( !$this->newFilesPresent() ) {
-            Notify::log( 'batch_feed_no_files' , json_encode( [ "message" => "No new files to process." ] ) );
-            \Log::info( 'RemoteFeedFileService: No new files to process....' );
+            \Log::info( $this->serviceName . ': No new files to process....' );
         }
 
         while ( $this->newFilesPresent() ) {
             $recordSqlList = $this->getNewRecords();
-
-            if ( count( $recordSqlList ) > 0 ) {
+    
+            if ( !empty( $recordSqlList ) ) {
                 $this->rawRepo->massInsert( $recordSqlList );
-
-                $this->processedFileCount++;
             }
+
         }
 
-        if ( $this->processedFileCount > 0 ) {
-            Notify::log( 'batch_feed' , json_encode( [ "files" => $this->notificationCollection ] ) );
-            /*
-            Mail::raw( implode( PHP_EOL , $this->notificationCollection )  , function ( $message ) {
-                $message->to( self::DEV_TEAM_EMAIL );
-                $message->to( self::STAKEHOLDERS_EMAIL );
-                
-                $message->subject( 'Feed Files Processed - ' . Carbon::now()->toCookieString() );
-                $message->priority(1);
-            } );
-             */
+        if ( count( $this->filesProcessed ) && is_callable( $this->fileProcessedCallback ) ) {
+            $callback = $this->fileProcessedCallback;
+            $callback( $this->filesProcessed , $this->systemService , $this->metaData );
         }
 
-        if ( count( $this->missingMappingList ) > 0 ) {
-            Notify::log( 'batch_feed_mapping_missing' , json_encode( $this->missingMappingList ) );
-            /*
-            Mail::send( 'emails.feedNoMappingAlert'  , [ 'fileList' => $this->missingMappingList ] , function ( $message ) {
-                $message->to( self::DEV_TEAM_EMAIL );
-                $message->to( self::CLIENT_OPERATOR_EMAIL );
-                
-                $message->subject( 'Feed File Processing Error - No Column Mapping for Feed - ' . Carbon::now()->toCookieString() );
+        $this->logProcessingComplete();
 
-                $message->priority(1);
-            } );
-             */
-        }
+        $this->logMissingFieldMapping();
     }
 
     public function updateFeedDirectories () {
@@ -127,14 +125,39 @@ class RemoteFeedFileService {
         $feedDirList = $this->getValidDirectories();
 
         foreach ( $feedDirList as $dirInfo ) {
-            $newFileString = $this->systemService->getRecentFiles( $dirInfo[ 'directory' ] );
+            $newFileString = $this->getRecentFiles( $dirInfo[ 'directory' ] );
             
+            $count = 0;
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
-                if ( $newFile !== '' && ProcessedFeedFile::find( $newFile ) === null ) {
-                    $this->newFileList[] = [ 'path' => $newFile , 'feedId' => $dirInfo[ 'feedId' ] ];
+                if (
+                    $newFileString !== ''
+                    && strpos( $newFile , "find:" ) != 0 #contention issue caused by another process
+                    && $count < 20
+                ) {
+                    $this->addToFileList(
+                        $newFile ,
+                        $dirInfo[ 'feedId' ] ,
+                        ( isset( $dirInfo[ 'party' ] ) ? $dirInfo[ 'party' ] : 3 )
+                    );
+
+                    $this->addFileLock( $newFile );
+
+                    $count++;
                 }
             }
         }
+    }
+
+    public function addToFileList ( $file , $feedId , $party ) {
+        $this->newFileList[] = [
+            'path' => trim( $file ) ,
+            'feedId' => $feedId ,
+            'party' => $party 
+        ];
+    }
+
+    public function getRecentFiles ( $directory ) {
+        return $this->systemService->getRecentFiles( $directory );
     }
 
     public function newFilesPresent () {
@@ -146,12 +169,23 @@ class RemoteFeedFileService {
 
         while ( $this->getBufferSize () < $chunkSize ) {
             if ( count( $this->newFileList ) <= 0 ) {
-                \Log::info( 'RemoteFeedFileService: No more files to process....' );
+                \Log::info( $this->serviceName . ': No more files to process....' );
                 break;
             }
 
             $this->currentFile = $this->newFileList[ 0 ];
-            $this->currentColumnMap = $this->feedService->getFileColumnMap( $this->currentFile[ 'feedId' ] );
+
+            if ( $this->lockExists() ) {
+                \Log::debug( 'Reprocess prevented for ' . getmypid() . ' w/ file ' . $this->currentFile[ 'path' ] . '. Lock found....' );
+
+                $this->removeCurrentFile();
+
+                $this->resetCursor();
+
+                continue;
+            }
+
+            $this->currentColumnMap = $this->getFileColumnMap( $this->currentFile[ 'feedId' ] );
 
             if ( count( $this->currentColumnMap ) <= 0 ) {
                 $feedName = $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] );
@@ -165,7 +199,7 @@ class RemoteFeedFileService {
                     'feedName' => $feedName
                 ];
 
-                array_shift( $this->newFileList );
+                $this->removeCurrentFile();
                 $this->resetCursor();
                 continue;
             }
@@ -179,10 +213,6 @@ class RemoteFeedFileService {
             if ( $this->currentFileLineCount === 0 ) {
                 $this->markFileAsProcessed();
 
-                array_shift( $this->newFileList );
-
-                $this->resetCursor();
-
                 continue;
             }
 
@@ -195,10 +225,6 @@ class RemoteFeedFileService {
                 $this->processLines();
 
                 $this->markFileAsProcessed();
-                
-                array_shift( $this->newFileList );
-
-                $this->resetCursor();
             }
             else {
                 $this->currentLines = $this->systemService->getFileContentSlice( $this->currentFile[ 'path' ] , ( $this->lastLineNumber + 1 ) , ( $linesWanted + $this->lastLineNumber ) );
@@ -212,38 +238,21 @@ class RemoteFeedFileService {
         return $this->getBufferContent();
     }
 
+    protected function getFileColumnMap ( $feedId ) {
+        return $this->feedService->getFileColumnMap( $feedId );
+    } 
+
     protected function processLines () {
         $lineNumber = $this->lastLineNumber + 1;
 
         foreach( $this->currentLines as $currentLine ) {
-            $lineColumns = explode( ',' , trim( $currentLine ) );
+            $lineColumns = $this->extractData( $currentLine );
 
-            if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
-                $errorMessage = "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'.";
+            $this->columnMatchCheck( $lineColumns );
 
-                #SlackLevel::to(self::SLACK_CHANNEL)->send( $errorMessage );
+            $record = $this->mapRecord( $lineColumns );
 
-                Notify::log( 'batch_feed_mismatch' , json_encode( [ "files" => [
-                    'file' => $this->currentFile[ 'path' ] ,
-                    'feedId' => $this->currentFile[ 'feedId' ] ,
-                    'feedName' => $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
-                ] ] ) );
-                /*
-                Mail::raw( $errorMessage  , function ( $message ) {
-                    $message->to( self::CLIENT_OPERATOR_EMAIL );
-                    
-                    $message->subject( 'Feed File Processing Error - Column Mismatch - ' . Carbon::now()->toCookieString() );
-                    $message->priority(1);
-                } );
-                 */
-
-                throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
-            } 
-
-            $record = array_combine( $this->currentColumnMap , $lineColumns );
-            $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
-
-            if ( $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
+            if ( !is_null( $record ) && $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
                 $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
             }
 
@@ -251,16 +260,66 @@ class RemoteFeedFileService {
         }
     }
 
+    protected function extractData ( $csvLine ) {
+        $reader = Reader::createFromString( trim( $csvLine ) );
+
+        if ( strpos( $csvLine , "\t" ) !== false ) {
+            $reader->setDelimiter( "\t" );
+        }
+
+        return $reader->stripBOM( true )->fetchOne();
+    }
+
+    protected function columnMatchCheck ( $lineColumns ) {
+        if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
+            $errorMessage = $this->serviceName . " Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'.";
+
+            $this->fireAlert( $errorMessage );
+
+            Notify::log( 'batch_feed_mismatch' , json_encode( [ "files" => [
+                'file' => $this->currentFile[ 'path' ] ,
+                'feedId' => $this->currentFile[ 'feedId' ] ,
+                'feedName' => $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
+            ] ] ) );
+
+            throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\n{$this->serviceName}:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
+        } 
+    }
+
+    protected function mapRecord ( $lineColumns ) {
+        $record = array_combine( $this->currentColumnMap , $lineColumns );
+        $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+        $record[ 'party' ] = $this->currentFile[ 'party' ];
+        $record[ 'realtime' ] = 0;
+        $record[ 'file' ] = $this->currentFile[ 'path' ];
+
+        if ( !isset( $record[ 'source_url' ] ) || $record[ 'source_url' ] == '' ) {
+            $record[ 'source_url' ] = $this->feedService->getSourceUrlFromId( $record[ 'feed_id' ] );
+        }
+
+        if ( $record[ 'dob' ] == '0000-00-00' ) {
+            unset( $record[ 'dob' ] );
+        }
+
+        return $record;
+    }
+
+    protected function fireAlert ( $message ) {
+        SlackLevel::to( $this->slackChannel )->send( $message );
+    }
+
     protected function isValidRecord ( $record , $rawRecord , $lineNumber ) {
         $validator = \Validator::make( $record , $this->feedService->generateValidationRules( $record ) );
 
         if ( $validator->fails() ) {
-            $log = $this->rawRepo->logBatchFailure(
+            $this->currentFileErrorCount++;
+
+            $log = $this->logFailure(
                 $validator->errors()->toJson() ,
                 $rawRecord ,
                 $this->currentFile[ 'path' ] ,
                 $lineNumber ,
-                ( $record[ 'email_address' ] ? : '' ) ,
+                ( isset( $record[ 'email_address' ] ) ? $record[ 'email_address' ] : '' ) ,
                 $record[ 'feed_id' ]
             );
 
@@ -285,33 +344,77 @@ class RemoteFeedFileService {
         return true;
     }
 
-    protected function markFileAsProcessed () {
-        ProcessedFeedFile::updateOrCreate( [ 'path' => $this->currentFile[ 'path' ] ] , [
-            'path' => $this->currentFile[ 'path' ] ,
-            'feed_id' => $this->currentFile[ 'feedId' ] ,
-            'line_count' => $this->currentFileLineCount
-        ] );
+    protected function logFailure ( $errors , $record , $file , $lineNumber , $email , $feedId ) {
+        return $this->rawRepo->logBatchFailure(
+            $errors ,
+            $record ,
+            $file ,
+            $lineNumber ,
+            $email ,
+            $feedId
+        );
+    }
 
-        /*
-        $this->notificationCollection []= "File {$this->currentFile[ 'path' ]} from '"
-            . $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] )
-            . "' ({$this->currentFile[ 'feedId' ]}) was processed at "
-            . Carbon::now()->toCookieString() . " with {$this->currentFileLineCount} records.";
-         */
+    protected function markFileAsProcessed () {
+        $this->saveFileAsProcessed();
+        $this->addFileToNotificationCollection();
+        $this->incrementProcessedCount();
+        $this->storeCurrentProcessedFile();
+        $this->removeFileLock();
+        $this->removeCurrentFile();
+        $this->resetCursor();
+    }
+
+    protected function incrementProcessedCount () {
+        $this->processedFileCount++;
+    }
+
+    protected function storeCurrentProcessedFile () {
+        $this->filesProcessed []= $this->currentFile;
+    }
+
+    protected function removeCurrentFile () {
+        array_shift( $this->newFileList );
+    }
+
+    protected function addFileLock ( $newFile ) {
+        Redis::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $newFile ) , getmypid() ] );
+    }
+
+    protected function removeFileLock () {
+        Redis::connection( 'cache' )->del( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] );
+    }
+
+    protected function lockExists () {
+        return ( getmypid() != Redis::connection( 'cache' )->get( self::REDIS_LOCK_KEY_PREFIX . $this->currentFile[ 'path' ] ) );
+    }
+
+    protected function addFileToNotificationCollection () {
         $this->notificationCollection []= [
             "file" =>  substr( strrchr( $this->currentFile[ 'path' ] , "/" ) , 1 ) ,
             "feedId" => $this->currentFile[ 'feedId' ] ,
             "feedName" => $this->feedService->getFeedNameFromId( $this->currentFile[ 'feedId' ] ) ,
             "recordCount" => $this->currentFileLineCount ,
+            "errorCount" => $this->currentFileErrorCount ,
             "timeFinished" => Carbon::now()->toDayDateTimeString()
         ];
+    }
 
+    protected function saveFileAsProcessed () {
+        $cleanPath = trim( $this->currentFile[ 'path' ] );
 
-        \Log::info( 'RemoteFeedFileService: processed ' . $this->currentFile[ 'path' ] );
+        \DB::insert( "
+            insert into
+                processed_feed_files( path , line_count , created_at , updated_at )
+            values
+                ( '{$cleanPath}' , '{$this->currentFileLineCount}' , NOW() , NOW()  )
+            on duplicate key update
+                processed_count = processed_count + 1" );
     }
 
     protected function resetCursor () {
         $this->lastLineNumber = 0;
+        $this->currentFileErrorCount = 0;
     }
 
     protected function addToBuffer ( $record ) {
@@ -331,35 +434,54 @@ class RemoteFeedFileService {
     }
 
     protected function getValidDirectories () {
-        $rawDirectoryList = $this->systemService->listDirectories( '/home' );    
+        $rawDirectoryList = $this->systemService->listDirectories( $this->rootFileDirectory );    
 
         array_pop( $rawDirectoryList );
         array_shift( $rawDirectoryList );
 
-        $validFeedList = $this->feedService->getActiveFeedShortNames();
+        $validFeedList = $this->getValidFeedList();
 
         $directoryList = [];
         
         foreach( $rawDirectoryList as $dir ) { 
             $matches = []; 
-            preg_match( '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/' , $dir , $matches );
+            preg_match( $this->validDirectoryRegex , $dir , $matches );
+
+            if ( empty( $matches ) ) {
+                continue;
+            }
 
             $notSystemUser = ( strpos( $dir , 'centos' ) === false );
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
             $notAdminUser = ( strpos( $dir , 'sftp-admin' ) === false );
-            $isValidFeed = ( strpos( $dir , 'upload' ) !== false ) && in_array( $matches[ 1 ] , $validFeedList );
+            $isValidFeed = $this->isCorrectDirectoryStructure( $dir ) && in_array( $matches[ 1 ] , $validFeedList );
 
             if ( $notAdminUser && $notSystemUser && $notCustomUser && $isValidFeed ) { 
                 // Need to switch 2430 and 2618 to 2979
-                $feedIdResult = $this->feedService->getFeedIdByShortName( $matches[ 1 ] );
+                $feedIdResult = $this->getFeedIdFromName( $matches[ 1 ] );
                 $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;
-                $directoryList[] = [ 'directory' => $dir , 'feedId' =>  $feedId];
+
+                $directoryList[] = [
+                    'directory' => $dir ,
+                    'feedId' =>  $feedId ,
+                    'party' => $this->feedService->getPartyFromId( $feedId )
+                ];
             }   
         }
 
-        \Log::info( json_encode( $directoryList ) );
-
         return $directoryList;
+    }
+
+    protected function isCorrectDirectoryStructure ( $directory ) {
+        return ( strpos( $directory , 'upload' ) !== false );
+    }
+
+    protected function getValidFeedList () {
+        return $this->feedService->getActiveFeedShortNames();
+    }
+
+    protected function getFeedIdFromName ( $name ) {
+        return $this->feedService->getFeedIdByShortName( $name );
     }
 
     protected function connectToServer () {
@@ -371,6 +493,18 @@ class RemoteFeedFileService {
                 config('ssh.servers.mt1_feed_file_server.public_key'),
                 config('ssh.servers.mt1_feed_file_server.private_key')
             );
+        }
+    }
+
+    protected function logProcessingComplete () {
+        if ( $this->processedFileCount > 0 ) {
+            Notify::log( 'batch_feed' . $this->logKeySuffix , json_encode( [ "files" => $this->notificationCollection ] ) );
+        }
+    }
+
+    protected function logMissingFieldMapping () {
+        if ( count( $this->missingMappingList ) > 0 ) {
+            Notify::log( 'batch_feed_mapping_missing' , json_encode( $this->missingMappingList ) );
         }
     }
 }

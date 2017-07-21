@@ -52,19 +52,21 @@ class FeedDateEmailErrorUpdateService {
                 $insert[$record->feed_id][$domainGroupId] = [];
             }
 
-            if (!isset($insert[$record->feed_id][$domainGroupId][$date][$filename])) {
+            if (!isset($insert[$record->feed_id][$domainGroupId][$date])) {
                 $insert[$record->feed_id][$domainGroupId][$date] = [];
             }
 
             if (!isset($insert[$record->feed_id][$domainGroupId][$date][$filename])) {
-                $insert[$record->feed_id][$domainGroupId][$date] = [
+                $insert[$record->feed_id][$domainGroupId][$date][$filename] = [
                     'bad_source_urls' => 0,
                     'bad_ip_addresses' => 0,
-                    'other_invalid' => 0
+                    'other_invalid' => 0,
+                    'total' => 0
                 ];
             }
 
             $insert[$record->feed_id][$domainGroupId][$date][$filename][$errorType]++;
+            $insert[$record->feed_id][$domainGroupId][$date][$filename]['total']++;
         }
 
         $this->reportRepo->updateRawErrors($insert);

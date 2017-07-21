@@ -44,7 +44,7 @@ class AppendEidService
             foreach ($rows as $row) {
                 $rowResult = array();
                 $rowIsActive = !($this->suppressionRepo->isSuppressed($row['email']));
-                
+
                 if($rowIsActive || $includeSuppression) {
                     $emailReturn = $this->emailRepo->getEmailId($row['email']);
                     $emailExists = count($emailReturn);
@@ -68,8 +68,10 @@ class AppendEidService
                             $value = $rowIsActive ? "A" : "U";
                             $rowResult = array_merge($rowResult, ['status' => "$value"]);
                         }
-
-                        $csvData[] = $rowResult;
+                        
+                        if ($rowIsActive || $includeSuppression) {
+                            $csvData[] = $rowResult;
+                        }
                     }
                 }
             }

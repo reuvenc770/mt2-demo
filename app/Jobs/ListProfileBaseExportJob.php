@@ -67,9 +67,10 @@ class ListProfileBaseExportJob extends MonitoredJob {
                     $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$deploy->id}-{$runId}");
                     $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtimeThreshold));
                 }
+ 
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
         }
-
 
     }
 
@@ -84,5 +85,4 @@ class ListProfileBaseExportJob extends MonitoredJob {
             return;
         }
     }
-
 }

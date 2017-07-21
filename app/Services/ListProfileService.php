@@ -25,6 +25,8 @@ class ListProfileService
     protected $profileRepo;
     protected $builder;
     private $rows = [];
+    private $cache1 = [];
+    private $cache2 = [];
     private $rowCount = 0;
     const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
     const ROW_STORAGE_TIME = 720;
@@ -405,7 +407,8 @@ class ListProfileService
 
     private function batchInsert($tag) {
         $this->baseTableService->massInsert($this->rows);
-        Cache::tags($tag)->flush();
+        $this->cache2 = $this->cache1;
+        $this->cache1 = [];
     }
 
 
@@ -416,12 +419,11 @@ class ListProfileService
 
 
     private function isUnique($tag, $field, $value) {
-        return $this->baseTableService->isUnique($field, $value) 
-            && is_null(Cache::tags($tag)->get($value));
+        return !isset($this->cache1[$value]) && !isset($this->cache2[$value]) && $this->baseTableService->isUnique($field, $value); 
     }
 
     private function saveToCache($tag, $value) {
-        Cache::tags($tag)->put($value, 1, self::ROW_STORAGE_TIME);
+        $this->cache1[$value] = 1;
     }
 
     private function buildDisplayColumns(array $columns) {
