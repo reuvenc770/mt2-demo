@@ -211,10 +211,12 @@ class ListProfileQueryBuilder {
         $count = $queryData['count'];
         $end = $queryData['end'];
         $start = $queryData['start'];
+        $party = $queryData['party'];
 
         $query = DB::connection('redshift')->table("list_profile_flat_table")->select('email_id')
                     ->groupBy('email_id')
-                    ->whereRaw("date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
+                    ->whereRaw("date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'")
+                    ->where('party', $party);
 
         $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
         $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query;
@@ -261,10 +263,16 @@ class ListProfileQueryBuilder {
             if ('first_party_record_data' === $this->dataTable) {
                 $attrAlias = $this->mainTableAlias;
                 $this->columnMapping['feed_id'] = "{$attrAlias}.feed_id";
+                $query = $query->whereRaw("{$attrAlias}.feed_id IN (" . implode(',', $this->feedIds) . ")");
             } 
             else {
                 $attrAlias = 'efa';
                 $query = $query->join("email_feed_assignments as $attrAlias", "{$this->mainTableAlias}.email_id", '=', "$attrAlias.email_id");
+
+                if (sizeof($this->feedIds) > 0) {
+                    // Get everything from the selected feeds
+                    $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $this->feedIds) . ')');
+                }
             }
 
             if ($this->feedColumns || $this->clientColumns) {
@@ -273,11 +281,6 @@ class ListProfileQueryBuilder {
                 if ($this->clientColumns) {
                     $query = $query->join("clients as c", 'f.client_id', '=', 'c.id');
                 }
-            }
-
-            if (sizeof($this->feedIds) > 0) {
-                // Get everything from the selected feeds
-                $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $this->feedIds) . ')');
             }
         }
 

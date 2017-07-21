@@ -28,4 +28,8 @@ class ListProfileBaseTable extends Model {
     public function isFeedSuppressed() {
         return (int)$this->feed_suppressed === 1;
     }
+
+    public function isSuppressed() {
+        return $this->isGloballySuppressed() || $this->isFeedSuppressed();
+    }
 }

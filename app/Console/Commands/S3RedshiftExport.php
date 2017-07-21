@@ -52,8 +52,9 @@ class S3RedshiftExport extends Command
         elseif($this->option('test-connection-only')){
             $version = -1;
         }
+        
         foreach ($this->entities as $entity) {
-            $job = new S3RedshiftExportJob($entity, $version, str_random(16),null,$this->option('runtime-threshold'));
+            $job = new S3RedshiftExportJob($entity, $version, str_random(16), null, $this->option('runtime-threshold'));
             $this->dispatch($job);
         }
     }

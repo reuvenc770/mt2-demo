@@ -276,9 +276,13 @@ class ListProfileService
             foreach ($resource as $row) {
                 if ($this->isUnique($listProfileTag, $this->uniqueColumn, $row->{$this->uniqueColumn})) {
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
-                    $row = $this->mapDataToColumns($columns, $row);
-                    $this->batch($row, $listProfileTag);
-                    $totalCount++;
+                    $mappedRow = $this->mapDataToColumns($columns, $row);
+                    $this->batch($mappedRow, $listProfileTag);
+
+                    if (!$row->isSuppressed()) {
+                        $totalCount++;
+                    }
+                    
                 }
             }
 
@@ -287,6 +291,7 @@ class ListProfileService
             $queryNumber++;
         }
 
+        Cache::tags('ListProfile')->flush();
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
     }
 
@@ -438,7 +443,6 @@ class ListProfileService
 
         return $output;
     }
-
 
     public function cloneProfile($id){
         $currentProfile = $this->profileRepo->getProfile($id);

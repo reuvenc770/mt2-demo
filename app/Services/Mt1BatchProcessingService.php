@@ -3,7 +3,7 @@
  * @author Adam Chin <achin@zetaglobal.com>
  */
 
-namespace App\Services\CMPTE;
+namespace App\Services;
 
 use App\Services\RemoteFeedFileService;
 use Maknz\Slack\Facades\Slack;
@@ -14,14 +14,24 @@ use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
 use App\Models\MT1Models\User as Feeds;
 
-class BatchProcessingService extends RemoteFeedFileService {
-    protected $serviceName = 'BatchProcessingService';
+class Mt1BatchProcessingService extends RemoteFeedFileService {
+    protected $serviceName = 'Mt1BatchProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
 
-    public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
-        parent::__construct( $feedService , $systemService , $domainGroupService , $rawRepo );
+    public function __construct (
+        FeedService $feedService , 
+        RemoteLinuxSystemService $systemService ,
+        DomainGroupService $domainGroupService ,
+        RawFeedEmailRepo $rawRepo
+    ) {
+        parent::__construct(
+            $feedService ,
+            $systemService ,
+            $domainGroupService ,
+            $rawRepo
+        );
     }
 
     public function fireAlert ( $message ) {
@@ -79,6 +89,8 @@ class BatchProcessingService extends RemoteFeedFileService {
         foreach ( $this->currentColumnMap as $index => $columnName ) {
             if ( isset( $lineColumns[ $index ] ) ) {
                 $record[ $columnName ] = $lineColumns[ $index ];
+            } else {
+                $record[ $columnName ] = '';
             }
         }
 

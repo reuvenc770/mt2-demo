@@ -53,10 +53,10 @@ class ReprocessFeedFileCommand extends Command
 
         if ( $this->realtime === 1 ) {
             \Log::info( 'Running realtime.....' );
-            $service = \App::make( \App\Services\CMPTE\ReprocessRealtimeProcessingService::class );
+            $service = \App::make( \App\Services\ReprocessRealtimeProcessingService::class );
         } else {
             \Log::info( 'Running batch.....' );
-            $service = \App::make( \App\Services\CMPTE\ReprocessBatchProcessingService::class );
+            $service = \App::make( \App\Services\ReprocessBatchProcessingService::class );
         }
 
         $service->setCreds( $this->host , $this->port , $this->user , $this->publicKey , $this->privateKey );

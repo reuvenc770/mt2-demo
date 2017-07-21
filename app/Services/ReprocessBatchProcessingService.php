@@ -3,7 +3,7 @@
  * @author Adam Chin <achin@zetaglobal.com>
  */
 
-namespace App\Services\CMPTE;
+namespace App\Services;
 
 use App\Services\RemoteFeedFileService;
 use Maknz\Slack\Facades\Slack;
@@ -59,6 +59,10 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
             );  
         }   
     }
+    
+    protected function columnMatchCheck ( $lineColumns ) {
+        #columns have a chance to not match. parsing is overridden in this class
+    }
 
     protected function columnMatchCheck ( $lineColumns ) {
         #columns have a chance to not match. parsing is overridden in this class
@@ -75,6 +79,8 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
         foreach ( $this->currentColumnMap as $index => $columnName ) {
             if ( isset( $lineColumns[ $index ] ) ) {
                 $record[ $columnName ] = $lineColumns[ $index ];
+            } else {
+                $record[ $columnName ] = '';
             }
         }
 

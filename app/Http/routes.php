@@ -167,6 +167,11 @@ Route::group(
             'uses' => 'ScheduledNotificationController@index'
         ] );
 
+        Route::get( '/affiliates' , [
+            'as' => 'tools.affiliates' ,
+            'uses' => 'CakeAffiliateController@index'
+        ] );
+
         Route::get( '/seed' , [
             'as' => 'tools.seed' ,
             'uses' => 'SeedEmailController@index'
@@ -780,6 +785,19 @@ Route::group(
             'uses' => 'EmailDomainController@edit'
         ] );
 
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'cpm' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'cpm.list' ,
+            'uses' => 'CpmPricingController@listAll'
+        ] );
     }
 );
 
@@ -1399,6 +1417,18 @@ Route::group(
             'mailingtemplate',
             'MailingTemplateController',
             [ 'except' => ['create', 'edit']]
+        );
+
+        Route::resource(
+            'affiliates',
+            'CakeAffiliateController',
+            [ 'except' => ['index','show','create', 'edit']]
+        );
+
+        Route::resource(
+            'cpm',
+            'CpmPricingController',
+            [ 'except' => [ 'index' , 'create', 'edit', 'show' , 'destroy']]
         );
 
         Route::resource(
