@@ -241,11 +241,6 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('mt1Import offer --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('emails:download 0')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 1')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 2')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 3')->cron('*/2 * * * * *');
-        $schedule->command('emails:download 4')->cron('*/2 * * * * *');
         $schedule->command('mt1Import creative --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import from --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import subject --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
