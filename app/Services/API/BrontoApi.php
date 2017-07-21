@@ -163,15 +163,15 @@ class BrontoApi extends EspBaseAPI
         return $records;
     }
 
-    //PHP cannot serialize SoapCLient
+    //PHP cannot serialize SoapClient
     private function setupBronto()
     {
         $this->brontoObject = new BrontoSoapApi();
         $sessionId = $this->brontoObject->login(new login($this->token))->getReturn();
-        $session_header = new \SoapHeader("http://api.bronto.com/v4",
+        $sessionHeader = new \SoapHeader("http://api.bronto.com/v4",
             'sessionHeader',
             array('sessionId' => $sessionId));
-        $this->brontoObject->__setSoapHeaders(array($session_header));
+        $this->brontoObject->__setSoapHeaders(array($sessionHeader));
     }
 
     public function getId()
@@ -182,7 +182,7 @@ class BrontoApi extends EspBaseAPI
     public function addContact($contactInfo)
     {
         $this->setupBronto();
-        $result = $this->brontoObject->addContacts(new addContacts($contactInfo));
+        return $this->brontoObject->addContacts(new addContacts($contactInfo));
     }
 
 }
