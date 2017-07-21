@@ -18,7 +18,7 @@ class BuildBaseListProfileTables extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:baseTables {--runtime-threshold=}';
+    protected $signature = 'listprofile:baseTables {--runtime-threshold=default} {--test-connection-only}';
 
     /**
      * The console command description.
@@ -49,8 +49,13 @@ class BuildBaseListProfileTables extends Command
         Cache::forget($cacheTagName);
         Cache::forever($cacheTagName, count($profiles));
 
+        $params = array();
+        if($this->option('test-connection-only')){
+            $params['test-connection-only'] = 1;
+        }
+
         foreach ($profiles as $profileSchedule) {
-            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, $cacheTagName, str_random(16), $this->option('runtime-threshold'));
+            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, $cacheTagName, str_random(16), $this->option('runtime-threshold'),$params);
             $this->dispatch($job);
         }
     }

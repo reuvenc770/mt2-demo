@@ -86,6 +86,7 @@ class FeedProcessingFactory
         }
 
         $exportInfo = EspDataExport::where('feed_id', $feedId)->first();
+        $workflow = EspWorkflowFeed::where('feed_id', $feedId)->first();
 
         $espAccount = EspApiAccount::getAccount($exportInfo->esp_account_id);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
@@ -101,6 +102,7 @@ class FeedProcessingFactory
 
         $processingService->setFeedId($feedId);
         $processingService->setTargetId($exportInfo->target_list);
+        $processingService->setWorkflowId($workflow->esp_workflow_id);
         $service->registerProcessing($processingService);
 
         return $service;

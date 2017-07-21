@@ -15,7 +15,7 @@ class S3RedshiftExport extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:dataEtl {--all}';
+    protected $signature = 'listprofile:dataEtl {--all} {--runtime-threshold=default} {--test-connection-only}';
 
     /**
      * The console command description.
@@ -45,9 +45,16 @@ class S3RedshiftExport extends Command
     public function handle() {
         S3RedshiftExportJob::clearNotificationTally();
 
-        $version = $this->option('all') ? 1 : 0;
+        $version = 0;
+        if($this->option('all')){
+            $version = 1;
+        }
+        elseif($this->option('test-connection-only')){
+            $version = -1;
+        }
+        
         foreach ($this->entities as $entity) {
-            $job = new S3RedshiftExportJob($entity, $version, str_random(16));
+            $job = new S3RedshiftExportJob($entity, $version, str_random(16), null, $this->option('runtime-threshold'));
             $this->dispatch($job);
         }
     }

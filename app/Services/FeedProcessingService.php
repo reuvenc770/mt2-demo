@@ -53,6 +53,7 @@ class FeedProcessingService {
 
             // Setting email info for the record
             $emailInfo = $this->emailRepo->getAllInfoForAddress($record->emailAddress);
+            $filename = $record->file;
 
             if (!$record->newEmail) {
                 // Email already exists
@@ -72,20 +73,14 @@ class FeedProcessingService {
             // Setting up array for the record processing report
             if (!isset($updateArray[$record->feedId])) {
                 $updateArray[$record->feedId] = [];
-                $updateArray[$record->feedId][$domainGroupId] = [
-                    'totalRecords' => 0,
-                    'badSourceUrls' => 0,
-                    'badIpAddresses' => 0,
-                    'otherInvalid' => 0,
-                    'suppressed' => 0,
-                    'suppressedDomains' => 0,
-                    'phoneCount' => 0,
-                    'fullPostalCount' => 0,
-                    'validRecords' => 0
-                ];
             }
-            elseif (!isset($updateArray[$record->feedId][$domainGroupId])) {
-                $updateArray[$record->feedId][$domainGroupId] = [
+
+            if (!isset($updateArray[$record->feedId][$domainGroupId])) {
+                $updateArray[$record->feedId][$domainGroupId] = [];
+            }
+
+            if (!isset($updateArray[$record->feedId][$domainGroupId][$filename])) {
+                $updateArray[$record->feedId][$domainGroupId][$filename] = [
                     'totalRecords' => 0,
                     'badSourceUrls' => 0,
                     'badIpAddresses' => 0,
@@ -98,7 +93,7 @@ class FeedProcessingService {
                 ];
             }
             
-            $updateArray[$record->feedId][$domainGroupId]['totalRecords']++;
+            $updateArray[$record->feedId][$domainGroupId][$filename]['totalRecords']++;
 
             // Process records and update reporting
             if (!$record->isSuppressed) {
@@ -116,14 +111,14 @@ class FeedProcessingService {
                     }
 
                     $validatedRecords[] = $record;
-                    $updateArray[$record->feedId][$domainGroupId]['validRecords']++;
+                    $updateArray[$record->feedId][$domainGroupId][$filename]['validRecords']++;
 
-                    if ($record->phone) {
-                        $updateArray[$record->feedId][$domainGroupId]['phoneCount']++;
+                    if ('' !== $record->phone) {
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['phoneCount']++;
                     }
 
                     if ('' !== $record->address && '' !== $record->zip && '' !== $record->city && '' !== $record->state) {
-                        $updateArray[$record->feedId][$domainGroupId]['fullPostalCount']++;
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['fullPostalCount']++;
                     }
 
                     $this->instanceRepo->batchInsert($record->mapToInstances());
@@ -132,27 +127,27 @@ class FeedProcessingService {
                     Log::info($record->emailAddress . ' failed validation due to ' . $record->invalidReason);
                     $invalidReasonId = null;
                     if (preg_match('/Canad/', $record->invalidReason)) {
-                        $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['otherInvalid']++;
                         $invalidReasonId = InvalidReason::CANADA;
                     }
                     elseif (preg_match('/Email/', $record->invalidReason)) {
-                        $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['otherInvalid']++;
                         $invalidReasonId = InvalidReason::EMAIL;
                     }
                     elseif(preg_match('/Source\surl/', $record->invalidReason)) {
-                        $updateArray[$record->feedId][$domainGroupId]['badSourceUrls']++;
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['badSourceUrls']++;
                         $invalidReasonId = InvalidReason::BAD_SOURCE_URL;
                     }
                     elseif(preg_match('/IP/', $record->invalidReason)) {
-                        $updateArray[$record->feedId][$domainGroupId]['badIpAddresses']++;
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['badIpAddresses']++;
                         $invalidReasonId = InvalidReason::BAD_IP_ADDRESS;
                     }
                     elseif(preg_match('/domain/', $record->invalidReason)) {
-                        $updateArray[$record->feedId][$domainGroupId]['suppressedDomains']++;
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['suppressedDomains']++;
                         $invalidReasonId = InvalidReason::BAD_DOMAIN;
                     }
                     else {
-                        $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
+                        $updateArray[$record->feedId][$domainGroupId][$filename]['otherInvalid']++;
                         $invalidReasonId = InvalidReason::OTHER_INVALIDATION;
                     }
 
@@ -166,7 +161,7 @@ class FeedProcessingService {
 
             }
             else {
-                $updateArray[$record->feedId][$domainGroupId]['suppressed']++;
+                $updateArray[$record->feedId][$domainGroupId][$filename]['suppressed']++;
             }
         }
 

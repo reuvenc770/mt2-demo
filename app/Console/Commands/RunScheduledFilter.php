@@ -15,7 +15,7 @@ class RunScheduledFilter extends Command
      *
      * @var string
      */
-    protected $signature = 'runFilter {filter} {runDate?} {--runtime-threshold=}';
+    protected $signature = 'runFilter {filter} {runDate?} {--runtime-threshold=default}';
 
     /**
      * The console command description.

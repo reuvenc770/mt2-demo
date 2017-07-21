@@ -15,5 +15,10 @@ class InsertEtlPickup extends Seeder
         $x->name = 'PopulateEmailCampaignStats';
         $x->stop_point = 0;
         $x->save();
+
+        $y = new EtlPickup();
+        $y->name = 'UpdateFeedProcessingErrors';
+        $y->stop_point = 0;
+        $y->save();
     }
 }
