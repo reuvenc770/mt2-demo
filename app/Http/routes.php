@@ -167,6 +167,11 @@ Route::group(
             'uses' => 'ScheduledNotificationController@index'
         ] );
 
+        Route::get( '/affiliates' , [
+            'as' => 'tools.affiliates' ,
+            'uses' => 'CakeAffiliateController@index'
+        ] );
+
         Route::get( '/seed' , [
             'as' => 'tools.seed' ,
             'uses' => 'SeedEmailController@index'
@@ -1412,6 +1417,12 @@ Route::group(
             'mailingtemplate',
             'MailingTemplateController',
             [ 'except' => ['create', 'edit']]
+        );
+
+        Route::resource(
+            'affiliates',
+            'CakeAffiliateController',
+            [ 'except' => ['index','show','create', 'edit']]
         );
 
         Route::resource(
