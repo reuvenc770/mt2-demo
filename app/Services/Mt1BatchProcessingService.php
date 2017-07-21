@@ -15,7 +15,7 @@ use App\Repositories\RawFeedEmailRepo;
 use App\Models\MT1Models\User as Feeds;
 
 class Mt1BatchProcessingService extends RemoteFeedFileService {
-    protected $serviceName = 'BatchProcessingService';
+    protected $serviceName = 'Mt1BatchProcessingService';
     protected $slackChannel = '#cmp_hard_start_errors';
     protected $rootFileDirectory = '/home';
     protected $validDirectoryRegex = '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/';
@@ -79,6 +79,8 @@ class Mt1BatchProcessingService extends RemoteFeedFileService {
         foreach ( $this->currentColumnMap as $index => $columnName ) {
             if ( isset( $lineColumns[ $index ] ) ) {
                 $record[ $columnName ] = $lineColumns[ $index ];
+            } else {
+                $record[ $columnName ] = '';
             }
         }
 
