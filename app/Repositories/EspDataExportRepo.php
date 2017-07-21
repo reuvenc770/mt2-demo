@@ -15,4 +15,12 @@ class EspDataExportRepo {
     public function getForFeedId($feedId) {
         return $this->model->where('feed_id', $feedId)->get();
     }
+
+    public function getAll() {
+        return $this->model->where('status', 1)->get();
+    }
+
+    public function getForEspAccountId($espAccountId) {
+        return $this->model->where('esp_account_id', $espAccountId)->get();
+    }
 }

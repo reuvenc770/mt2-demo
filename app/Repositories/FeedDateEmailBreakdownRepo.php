@@ -234,4 +234,8 @@ class FeedDateEmailBreakdownRepo {
         }
     }
 
+    public function getFeedDateCount($feedId, $date) {
+        return $this->model->where('feed_id', $feedId)->where('date', $date)->count();
+    }
+
 }

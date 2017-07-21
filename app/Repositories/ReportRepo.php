@@ -83,6 +83,6 @@ class ReportRepo
 
         $whereClause = array_merge( $base , $additionalConstraints );
 
-        return $this->report->where( $whereClause )->get();
+        return $this->report->where( $whereClause )->whereRaw( 'message_name REGEXP "^[[:digit:]]+\_"' )->get();
     }
 }

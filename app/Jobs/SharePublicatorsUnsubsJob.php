@@ -10,6 +10,7 @@ use App\Facades\JobTracking;
 use App\Factories\APIFactory;
 use App\Services\SuppressionService;
 use App\Repositories\EspApiAccountRepo;
+use Mail;
 
 class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels;
@@ -28,8 +29,10 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
     }
 
     public function handle(EspApiAccountRepo $accountRepo, SuppressionService $suppressionService) {
+        $missing = [];
+
         try {
-            JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+            JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
             $accounts = $accountRepo->getAccountsByESPName($this->espName);
             $emails = $suppressionService->espSuppressionsForDateRange($this->espId, $this->lookback)->toArray();
@@ -40,6 +43,12 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
                 echo "for {$account->id}" . PHP_EOL;
                 $subscriberService = APIFactory::createApiSubscriptionService($this->espName, $account->id);
                 $result = $accountRepo->getPublicatorsSuppressionListId($account->id);
+
+                if (!$result) {
+                    $missing[] = $account->account_name;
+                    continue;
+                }
+
                 $listId = $result->suppression_list_id;
                 
                 foreach ($segmentedEmails as $segment) {
@@ -52,16 +61,24 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
                 
             }
 
-            JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
+            if (count($missing) > 0) {
+                Mail::raw('Accounts names: ' . implode(',', $missing), function ($message) {
+                    $message->subject('Warning! Publicators accounts missing unsub lists');
+                    $message->to(config('contacts.tech'));
+                });
+            }
+
+            JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
         }
         catch (\Exception $e) {
             echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
             $this->failed();
         }
+        
     }
 
     public function failed() {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
+        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
 
     protected function returnEmailAddress($item) {
