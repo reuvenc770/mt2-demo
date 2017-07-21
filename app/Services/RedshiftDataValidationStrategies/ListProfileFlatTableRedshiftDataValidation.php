@@ -73,7 +73,8 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
                 Cache::tags('list_profile_flat_check')->put($date, $deploys, $this->cacheStorageTime);
             }
             
-            $deployId = array_rand($deploys);
+            $deployIndex = array_rand($deploys);
+            $deployId = $deploys[$deployIndex];
 
             $cmpObj = $this->cmpRepo->deployDateSyncCheck($deployId, $date);
             $cmpEnd = microtime(true);

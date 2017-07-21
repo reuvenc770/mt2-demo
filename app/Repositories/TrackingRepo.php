@@ -193,7 +193,7 @@ class TrackingRepo
                 Carbon::today()->endOfDay()->ToDateTimeString()
             ])
             ->join("$dataSchema.deploys as d", $table . '.deploy_id', '=', 'd.id')
-            ->join("$dataSchema.cake_offers as co", $table.'cake_offer_id', '=', 'co.id')
+            ->join("$dataSchema.cake_offers as co", $table.'.cake_offer_id', '=', 'co.id')
             ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id');
     }
 

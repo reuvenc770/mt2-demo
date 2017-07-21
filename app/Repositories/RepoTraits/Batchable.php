@@ -9,6 +9,7 @@ trait Batchable {
     private $batchDataCount = 0;
     private $insertThreshold = 10000;
     private $batchInsertQuery = '';
+    protected $maxRetryAttempts = 20;
     
     public function batchInsert($row) {
         if ($this->batchDataCount >= $this->insertThreshold) {
@@ -24,9 +25,27 @@ trait Batchable {
     
     public function insertStored() {
         if ($this->batchDataCount > 0) {
+            $done = false;
+            $attempts = 0;
             $this->batchData = implode(', ', $this->batchData);
-            $query = $this->buildBatchedQuery($this->batchData);    
-            DB::connection($this->model->getConnectionName())->statement($query);
+            $query = $this->buildBatchedQuery($this->batchData);
+
+            while (!$done) {
+                if ($attempts < $this->maxRetryAttempts) {
+                    try {
+                        DB::connection($this->model->getConnectionName())->statement($query);
+                        $done = true;
+                    }
+                    catch (\Exception $e) {
+                        $attempts++;
+                        sleep(2);
+                    }
+                }
+                else {
+                    throw new \Exception(get_called_class() . " method insertStored() failed too many times with {$e->getMessage()}");
+                }
+                
+            }
 
             $this->batchData = [];
             $this->batchDataCount = 0;

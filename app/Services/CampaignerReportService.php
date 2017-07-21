@@ -179,6 +179,15 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function mapToStandardReport($report)
     {
+        if ($report['run_on']) {
+            // Campaigner gives us UTC but pretends that it's ET
+            $dateString = $report['run_on']->format('Y-m-d') . 'T' . $report['run_on']->format('H:i:s') . 'UTC';
+            $datetime = Carbon::parse($dateString)->setTimezone('America/New_York')->toDateTimeString();
+        }
+        else {
+            $datetime = null;
+        }
+        
         $deployId = $this->parseSubID($report['name']);
         return array(
             'campaign_name' => $report['name'],
@@ -186,7 +195,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'm_deploy_id' => $deployId,
             'esp_account_id' => $report['esp_account_id'],
             'esp_internal_id' => $report['internal_id'],
-            'datetime' => $report['run_on'],
+            'datetime' => $datetime,
             'name' => $report['name'],
             'subject' => $report['subject'],
             'from' => $report['from_name'],
@@ -480,10 +489,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return $this->reportRepo->getRunId($espInternalId);
     }
 
-
-    public function pushRecords(array $records, $targetId) {
-        return $this->api->pushRecords($records, $targetId);
-    }
 
     public function addContactToLists($emailAddress, $lists) {
         $this->api->addContactToLists($emailAddress, $lists);

@@ -3,9 +3,6 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 use DB;
 use Log;
@@ -19,11 +16,10 @@ use Carbon\Carbon;
 use App\Models\StandardReport;
 use App\Models\BrontoReport;
 use App\Repositories\StandardApiReportRepo;
-use Storage;
 use App\Exceptions\JobCompletedException;
-class RetrieveDeliverableReports extends Job implements ShouldQueue
+class RetrieveDeliverableReports extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels, DispatchesJobs;
+    use DispatchesJobs;
 
     CONST JOB_NAME = "RetrieveDeliverableReports";
 
@@ -56,7 +52,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null, $defaultQueue = "default")
+    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null, $defaultQueue = "default", $runtimeThreshold=null)
     {
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
@@ -76,6 +72,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         } else {
             $this->processState = $this->defaultProcessState;
         }
+        parent::__construct($this->getJobName(),$runtimeThreshold,$tracking);
         $this->initJobEntry();
     }
 
@@ -84,7 +81,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle () {
+    public function handleJob () {
         if(isset($this->processState['retryFailures']) && $this->processState['retryFailures'] >= 5){
             $this->failed();
             exit;
@@ -113,6 +110,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             throw $e;
         }
+
+        return 1;
     }
 
     protected function jobSetup () {
@@ -483,10 +482,22 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $pipe = $this->processState[ 'pipe' ];
             $filterIndex = $this->processState[ 'currentFilterIndex' ];
 
-            $this->currentFilter = $filters[ $pipe ][ $filterIndex ];
+            $this->currentFilter = $filters[ $pipe ][ $filterIndex ]['name'];
         }
 
         return $this->currentFilter;
+    }
+
+    protected function currentFilterRunTimeThreshold() {
+        if ( is_null( $this->currentFilterRuntimeThreshold ) ) {
+            $filters = config( 'espdeliverables.' . $this->apiName . '.pipes' );
+            $pipe = $this->processState[ 'pipe' ];
+            $filterIndex = $this->processState[ 'currentFilterIndex' ];
+
+            $this->currentFilterRuntimeThreshold = $filters[ $pipe ][ $filterIndex ]['runtimeThreshold'];
+        }
+
+        return $this->currentFilterRuntimeThreshold;
     }
 
     protected function releaseJob ( JobException $e ) {

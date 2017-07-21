@@ -13,7 +13,7 @@ class ProcessUserAgents extends Command
      *
      * @var string
      */
-    protected $signature = 'process:useragents';
+    protected $signature = 'process:useragents {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -38,7 +38,7 @@ class ProcessUserAgents extends Command
      * @return mixed
      */
     public function handle() {
-        $job = new DataProcessingJob(self::JOB_NAME, str_random(16));
+        $job = new DataProcessingJob(self::JOB_NAME, str_random(16),null,$this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }

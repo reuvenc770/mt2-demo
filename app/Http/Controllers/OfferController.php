@@ -20,6 +20,7 @@ class OfferController extends Controller
     public function typeAheadSearch(Request $request){
         $day = $request->input("day");
         $term = $request->input("searchTerm");
+
         if(isset($term)) {
             $offers = $this->offerService->autoCompleteSearch($term);
         } else {

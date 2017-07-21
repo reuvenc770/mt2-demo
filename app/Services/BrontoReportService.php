@@ -338,7 +338,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
             'm_deploy_id' => $deployId,
             'esp_account_id' => $data['esp_account_id'],
             'esp_internal_id' => $data[ 'internal_id' ],
-            'datetime' => $data['start'],
+            'datetime' => Carbon::parse($data['start'])->setTimezone('America/New_York')->toDateTimeString(), // They send us this in UTC
             //'subject' => $data['subject'],
             'from' => $data['from_name'],
             'from_email' => $data['from_email'],
@@ -422,20 +422,45 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return strstr($campaignName, '_', true);
     }
 
-    public function pushRecords(array $records, $targetId)
-    {
-        foreach ($records as $record) {
-            $result = $this->api->addContact($record);
-        }
+
+    public function addContact($emailAddress, $targetId) {
+        $contactInfo = [
+            'email' => $emailAddress,
+            'listIds' => [$targetId]
+        ];
+
+        $this->api->addContact($contactInfo);
     }
 
-    public function addContactToLists($emailAddress, $lists)
+    public function addContactToLists($emailAddress, array $lists)
     {
         $contactInfo = [
             'email' => $emailAddress,
             'listIds' => $lists
         ];
-        $this->api->addContact($contactInfo);
+
+        $returned = $this->api->addContact($contactInfo);
+
+        if (!$returned) {
+            return 'No response';
+        }
+
+        if (!$returned->getReturn()) {
+            return 'Nothing returned';
+        }
+
+        if (!$returned->getReturn()->getResults()) {
+            return 'No results';
+        }
+
+        $result = $returned->getReturn()->getResults()[0];
+
+        if (!$result->getIsError() || $result->getIsNew()) {
+            return 'Success';
+        }
+        else {
+            return $result->getErrorString();
+        }
     }
 
 

@@ -25,7 +25,7 @@ class ProcessNewActionsJob extends MonitoredJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $dateRange , $tracking, $runtimeThreshold )
+    public function __construct( $dateRange , $tracking, $runtimeThreshold=null )
     {
         $this->dateRange = $dateRange;
         $this->tracking = $tracking;
