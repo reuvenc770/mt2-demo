@@ -262,5 +262,5 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
 
-    public function pushRecords(array $records, $targetId) {}
+    public function addContactToLists($emailAddress, array $lists) {}
 }

@@ -35,7 +35,7 @@ abstract class AbstractReportService implements IDataService  {
 
     abstract public function mapToStandardReport($data);
 
-    abstract public function pushRecords(array $records, $targetId);
+    abstract public function addContactToLists($emailAddress, array $lists);
 
     public function setRetrieveApiLimit ( $limit ) {
         $this->limit = $limit;
@@ -67,16 +67,6 @@ abstract class AbstractReportService implements IDataService  {
             throw new \Exception($e->getMessage());
         }
     }
-
-    /*
-    public function getCampaigns ( $espAccountId , $date ) {
-    try {
-    return $this->standardRepo->getCampaigns($espAccountId, $date );
-    } catch ( \Exception $e ) {
-    throw new \Exception( $e->getMessage() );
-    }
-    }
-    */
 
     public function insertSegmentedApiRawStats($data, $length) {
         $start = 0;
