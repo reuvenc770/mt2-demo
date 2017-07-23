@@ -15,7 +15,7 @@ return [
     'runtimeThreshold' => [
             'SimpleTestJob' => '10s',
             'BestMoneySearchGetResponseContactUploadJob' => '30m',
-            'DataProcessingJob' => '10m',
+            'DataProcessingJob' => '20m',
             'DownloadSuppressionFromESP' => '10m',
             'DownloadUnsubTicket' => '6m',
             'ExportDeployCombineJob' => '1h',
@@ -27,6 +27,8 @@ return [
             'RunTimeMonitorJob' => '1m',
             'S3RedshiftExportJob' => '1h',
             'ScheduledFilterResolver' => '20m',
-            
+            'ProcessFeedRecordsJob' => '1h',
+            'GenerateEspUnsubReport' => '10m',
+            'SendSuppressionsToMT1' => '20m'
     ]
 ];

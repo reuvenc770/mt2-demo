@@ -14,7 +14,7 @@ class SendSuppressionsToMT1 extends Command
      * @var string
      */
     protected $lookBack;
-    protected $signature = 'suppression:sendToMT1 {lookBack}';
+    protected $signature = 'suppression:sendToMT1 {lookBack} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -42,7 +42,7 @@ class SendSuppressionsToMT1 extends Command
     {
         $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : config('jobs.defaultLookback');
         $date = Carbon::now()->subDay($this->lookBack)->startOfDay()->toDateString();
-        $job = (new SendSuppressionJob($date, str_random(16)));
+        $job = (new SendSuppressionJob($date, str_random(16),$this->option('runtime-threshold')));
         $this->dispatch($job);
     }
 }

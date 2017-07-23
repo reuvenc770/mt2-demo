@@ -157,13 +157,13 @@ class Kernel extends ConsoleKernel
         #$schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=4m')->cron('0 */4 * * * *'); //bb
         #$schedule->command('suppression:downloadESP AWeber 5 --runtime-threshold=1h')->cron('0 */4 * * * *');
 
-        #$schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
+        #$schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME); //comand ESPUnsubsReport, job GenerateEspUnsubReport, job name GenerateEspUnsubReport
         #$schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
         #$schedule->command('exportUnsubs ZxSprintUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
         #$schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
         #$unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        #$schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *'); //FTPSuppressionsToMT1
+        #$schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *'); //job name FTPSuppressionsToMT1, command SendSuppresionstoMT1, job SendSuppressionJob //bb
         #$schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
         
         /**
@@ -180,7 +180,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath); //bb
         #$schedule->command('reports:downloadApi Bronto --daysBack=5 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath); //bb
         $schedule->command('reports:downloadTrackingData Cake 5 --runtime-threshold=1m')->hourly()->sendOutputTo($filePath); //job class: RetrieveTrackingDataJob bb
-        $schedule->command('process:cfsStats')->cron('0 */4 * * *'); // Job name like: ProcessCfsStats
+        $schedule->command('process:cfsStats')->cron('0 */4 * * *'); //command PopulateCfsStatsTable , job DataProcessingJob, Job name like: ProcessCfsStats //bb
         
         
 
@@ -316,7 +316,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
-        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessFeedRecordsJob
+        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessFeedRecordsJob //bb all :process below
         $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
@@ -363,6 +363,6 @@ class Kernel extends ConsoleKernel
         /**
          * Custom Stuff
          */
-        #$schedule->command("EspContactUpload:BestMoneySearch")->everyMinute(); //Job name: BestMoneySearchGetResponseContactUploadJob
+        #$schedule->command("EspContactUpload:BestMoneySearch")->everyMinute(); //Job name/class: BestMoneySearchGetResponseContactUploadJob, command BestMoneySearchGetResponseContactUploadCommand //bb
     }
 }

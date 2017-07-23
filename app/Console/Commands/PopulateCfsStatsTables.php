@@ -14,7 +14,7 @@ class PopulateCfsStatsTables extends Command
      *
      * @var string
      */
-    protected $signature = 'process:cfsStats {lookback?}';
+    protected $signature = 'process:cfsStats {lookback?} {--runtimeThreshold=default}';
     protected $name = 'ProcessCfsStats';
     const DEFAULT_LOOKBACK = 5;
 
@@ -41,7 +41,7 @@ class PopulateCfsStatsTables extends Command
      */
     public function handle() {
         $lookback = $this->argument('lookback') ?: self::DEFAULT_LOOKBACK;
-        $job = new DataProcessingJob($this->name, str_random(16), $lookback);
+        $job = new DataProcessingJob($this->name, str_random(16), $lookback, $this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }
