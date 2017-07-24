@@ -457,7 +457,7 @@ class DeployRepo implements Mt2Export
     }
 
     public function getCakeVerticalId($deployId) {
-        $cakeOffers = $this->deploy->offer->cakeOffers->first();
+        $cakeOffers = $this->deploy->find($deployId)->offer->cakeOffers->first();
         if ($cakeOffers) {
             $cakeOffer = $cakeOffers->first();
 
