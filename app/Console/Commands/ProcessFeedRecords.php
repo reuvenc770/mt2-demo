@@ -87,7 +87,7 @@ class ProcessFeedRecords extends Command
         }
         
         if ($maxId > 0) {
-            $job = new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16));
+            $job = (new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16)))->onQueue('RecordProcessing');
             $this->dispatch($job);
         }
     }
