@@ -3,20 +3,19 @@
  * @author Adam Chin <achin@zetaglobal.com>
  */
 
-namespace App\Jobs\CMPTE;
+namespace App\Jobs;
 
 use App\Jobs\ProcessFeedRawFilesJob;
-use App\Services\RemoteFeedFileService;
 
-class BatchProcessingJob extends ProcessFeedRawFilesJob {
-    protected $jobName = 'BatchProcessingJob-';
+class ProcessMt1BatchFeedFilesJob extends ProcessFeedRawFilesJob {
+    protected $jobName = 'ProcessMt1BatchFeedFilesJob-';
 
-    public function __construct ( $tracking ) {
-        parent::__construct( $tracking );
+    public function __construct ( $tracking , $runtimeThreshold="15m" ) {
+        parent::__construct( $tracking , $runtimeThreshold );
     }
 
-    public function handle( RemoteFeedFileService $service ) {
-        $service = \App::make( \App\Services\CMPTE\BatchProcessingService::class );
+    protected function getService () {
+        $service = \App::make( \App\Services\Mt1BatchProcessingService::class );
 
         $service->setFileProcessedCallback( function ( $files , $systemService , $meta ) {
             foreach ( $files as $file ) {
@@ -25,6 +24,6 @@ class BatchProcessingJob extends ProcessFeedRawFilesJob {
             }
         } );
 
-        parent::handle( $service );
+        return $service;
     }
 }

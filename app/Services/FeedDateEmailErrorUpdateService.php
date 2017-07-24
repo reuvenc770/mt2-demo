@@ -16,6 +16,7 @@ class FeedDateEmailErrorUpdateService {
     private $emailDomainRepo;
     const ETL_NAME = 'UpdateFeedProcessingErrors';
     private $data;
+    private $startPoint = 0;
     
     public function __construct(RawFeedEmailRepo $rawEmailRepo, 
         FeedDateEmailBreakdownRepo $reportRepo, 
@@ -31,10 +32,12 @@ class FeedDateEmailErrorUpdateService {
     public function extract($startId) {
         $maxId = $this->rawEmailRepo->getMaxInvalidId();
         $this->data = $this->rawEmailRepo->getInvalidBetweenIds($startId, $maxId);
+        $this->startPoint = $startId;
     }
 
     public function load() {
         $insert = [];
+        $position = $this->startPoint;
 
         foreach($this->data->cursor() as $record) {
             $position = $record->id;

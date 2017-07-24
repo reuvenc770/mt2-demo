@@ -183,12 +183,14 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
-        return $this->flatTable->whereRaw("updated_at > $startPoint");
+        $dataSchema = config('database.connections.mysql.database');
+        return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("list_profile_flat_table.updated_at > $startPoint");
     }
 
     public function extractAllForS3() {
         // This will be the current default
-        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
+        $dataSchema = config('database.connections.mysql.database');
+        return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
     }
 
     public function specialExtract($data) {}
@@ -197,13 +199,10 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         $pdo = DB::connection('redshift')->getPdo();
         return $pdo->quote($row->email_id) . ','
             . $pdo->quote($row->deploy_id) . ','
+            . $pdo->quote($row->party) . ','
             . $pdo->quote($row->esp_account_id) . ','
             . $pdo->quote($row->date) . ','
-            . $pdo->quote($row->email_address) . ','
-            . $pdo->quote($row->lower_case_md5) . ','
-            . $pdo->quote($row->upper_case_md5) . ','
             . $pdo->quote($row->email_domain_id) . ','
-            . $pdo->quote($row->email_domain_group_id) . ','
             . $pdo->quote($row->offer_id) . ','
             . $pdo->quote($row->cake_vertical_id) . ','
             . $pdo->quote($row->has_esp_open) . ','

@@ -295,7 +295,11 @@ class RawFeedEmailRepo {
                 try {
                     $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
                 } catch ( \Exception $e ) {
-                    $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'Y.m.d' , $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                    try {
+                        $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'Y.m.d' , $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                    } catch ( \Exception $e ) {
+                        $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'm/d/Y His A' , $rawEmailRecord[ 'capture_date' ] )->toDateString();
+                    }
                 }
             }
         } catch ( \Exception $e ) {

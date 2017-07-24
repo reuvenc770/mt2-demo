@@ -14,7 +14,7 @@ class PopulateCfsStatsTables extends Command
      *
      * @var string
      */
-    protected $signature = 'process:cfsStats {lookback?} {--runtimeThreshold=default}';
+    protected $signature = 'process:cfsStats {lookback?} {--runtime-threshold=default}';
     protected $name = 'ProcessCfsStats';
     const DEFAULT_LOOKBACK = 5;
 

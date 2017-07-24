@@ -80,6 +80,9 @@ class Kernel extends ConsoleKernel
         Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
+        Commands\ProcessMt1BatchFeedFiles::class ,
+        Commands\ProcessMt1RealtimeFeedFiles::class ,
+        Commands\ProcessMt1FirstPartyFeedFiles::class ,
         Commands\UpdateActionStatus::class,
         Commands\ExportThirdPartyData::class,
         Commands\SuppressFeed::class,
@@ -107,9 +110,8 @@ class Kernel extends ConsoleKernel
         Commands\ResetUserPasswordCommand::class,
         Commands\SimpleTestCommand::class,
         Commands\RunTimeMonitorCommand::class,
-	Commands\PopulateMappingTable::class,
-        Commands\CompareMt1AndCmpExports::class,
-        Commands\CheckBatchFeedProcessingCommand::class,
+        Commands\CheckMt1BatchFeedProcessingCommand::class,
+        Commands\CheckMt1RealtimeFeedProcessingCommand::class ,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\GetFirstPartyRecords::class,
         Commands\ClearRedisKeysWithPatternCommand::class,
@@ -291,16 +293,17 @@ class Kernel extends ConsoleKernel
         /**
          * Feed File Processing
          */
-        #$schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
+        $schedule->command( 'feedRecords:processMt1BatchFiles --runtime-threshold=15m' )->everyFiveMinutes(); // Job name like: ProcessMt1BatchFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1RealtimeFiles --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1RealtimeFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=unemployment --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1UnemploymentFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=section8 --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1Section8FeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=medicaid --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1MedicaidFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=simplyjobs --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1SimplyJobsFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=foodstamps --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1FoodstampsFeedFilesJob%
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
-
-        /**
-         * CMPTE Feed Ingestion
-         */
-        $schedule->command( 'feedRecords:checkBatchCmpte' )->everyThirtyMinutes(); // Job name like: BatchProcessingJob%
-        $schedule->command( 'feedRecords:processRawFiles -M 1' )->everyMinute(); // Job name like: BatchProcessingJob%
-        $schedule->command( 'feedRecords:processRawFiles -M 2' )->everyMinute(); // Job name like: RealtimeProcessingJob%
+        $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); // Job name like: CheckMt1RealtimeFeedProcessingJob%
+        $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); // Job name like: CheckMt1BatchFeedProcessingJob%
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id
