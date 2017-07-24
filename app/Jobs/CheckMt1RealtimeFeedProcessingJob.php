@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Notify;
 
 class CheckMt1RealtimeFeedProcessingJob extends MonitoredJob {
+    const SLACK_CHANNEL = '#cmp_hard_start_errors';
+    
     protected $jobName = 'CheckMt1RealtimeFeedProcessingJob';
     protected $tracking;
 
