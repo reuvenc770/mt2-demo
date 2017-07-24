@@ -151,12 +151,12 @@ class Kernel extends ConsoleKernel
          * Suppression Jobs
          */
         # NOT NEEDED IN CMPTE
-	#$schedule->command('suppression:downloadESP BlueHornet 5 --runtime-threshold=2m')->cron('0 */4 * * * *'); //job class: DownloadSuppressionFromESP bb
-        #$schedule->command('suppression:downloadESP Maro 5 --runtime-threshold=4m')->cron('0 */4 * * * *'); //bb
-        #$schedule->command('suppression:downloadESP Campaigner 5 --runtime-threshold=1m')->cron('0 */4 * * * *'); //bb
-        #$schedule->command('suppression:downloadESP EmailDirect 5 --runtime-threshold=2m')->cron('0 */4 * * * *'); //bb
-        #$schedule->command('suppression:downloadESP Publicators 5 --runtime-threshold=6m')->cron('0 */4 * * * *'); //bb
-        #$schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=4m')->cron('0 */4 * * * *'); //bb
+	#$schedule->command('suppression:downloadESP BlueHornet 5 --runtime-threshold=5m')->cron('0 */4 * * * *'); //job class: DownloadSuppressionFromESP bb
+        #$schedule->command('suppression:downloadESP Maro 5 --runtime-threshold=10m')->cron('0 */4 * * * *'); //bb
+        #$schedule->command('suppression:downloadESP Campaigner 5 --runtime-threshold=5m')->cron('0 */4 * * * *'); //bb
+        #$schedule->command('suppression:downloadESP EmailDirect 5 --runtime-threshold=5m')->cron('0 */4 * * * *'); //bb
+        #$schedule->command('suppression:downloadESP Publicators 5 --runtime-threshold=10m')->cron('0 */4 * * * *'); //bb
+        #$schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=10m')->cron('0 */4 * * * *'); //bb
         #$schedule->command('suppression:downloadESP AWeber 5 --runtime-threshold=1h')->cron('0 */4 * * * *');
 
         #$schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME); //comand ESPUnsubsReport, job GenerateEspUnsubReport, job name GenerateEspUnsubReport
