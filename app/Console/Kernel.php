@@ -110,6 +110,8 @@ class Kernel extends ConsoleKernel
         Commands\ResetUserPasswordCommand::class,
         Commands\SimpleTestCommand::class,
         Commands\RunTimeMonitorCommand::class,
+        Commands\PopulateMappingTable::class,
+        Commands\CompareMt1AndCmpExports::class,
         Commands\CheckMt1BatchFeedProcessingCommand::class,
         Commands\CheckMt1RealtimeFeedProcessingCommand::class ,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,

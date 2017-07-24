@@ -8,6 +8,7 @@ namespace App\Jobs;
 use App\Jobs\MonitoredJob;
 use App\Models\MT1Models\User as Feeds;
 use Maknz\Slack\Facades\Slack;
+use App\Models\ProcessedFeedFile;
 
 class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
     const SLACK_CHANNEL = '#cmp_hard_start_errors';
@@ -86,6 +87,12 @@ class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
                     }
                 }
             }
+        }
+    }
+
+    protected function checkForNoDataStream () {
+        if ( ProcessedFeedFile::whereRaw( 'created_at >= NOW() - interval 2 HOUR' )->count() == 0 ) {
+            Slack::to( self::SLACK_CHANNEL )->send( "No Record Data coming in...please investigate!" ); 
         }
     }
 
