@@ -16,7 +16,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.combineError = null;
     self.ftpFolderError = null;
     self.combineName = "";
-    self.ftpFolder = "lp_combine";
+    self.ftpFolder = "lp_combines";
     self.combineParty = '';
 
     self.current = {
@@ -1179,7 +1179,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
         self.loadListCombines();
         self.combineName = "";
-        self.ftpFolder = "lp_combine";
+        self.ftpFolder = "lp_combines";
     };
 
     self.loadCombineFail = function (response) {

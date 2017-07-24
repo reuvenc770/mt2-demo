@@ -14,6 +14,7 @@ class RemoteLinuxSystemService {
     const FIND_RECENT_FILES_COMMAND = "sudo find %s %s"; 
     const LIST_DIRECTORIES_COMMAND = "sudo find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
+    const FILE_EXISTS_COMMAND = "[ -f %s ] && echo 1";
     const GET_CONTENT_SLICE_COMMAND = "sudo sed -n %d,%dp %s";
     const GET_FILE_LINE_COUNT_COMMAND = "sudo cat %s | wc -l";
     const APPEND_EOF_COMMAND = "sudo sed -i -e '\$a\' %s";
@@ -140,6 +141,14 @@ class RemoteLinuxSystemService {
 
     public function directoryExists ( $directory ) {
         $command = sprintf( self::DIRECTORY_EXISTS_COMMAND , $this->cleanPath( $directory ) );
+
+        $stream = ssh2_exec( $this->sshConnection , $command );
+
+        return ( $this->getOutput( $stream ) == 1 );
+    }
+
+    public function fileExists ( $filepath ) {
+        $command = sprintf( self::FILE_EXISTS_COMMAND , $this->cleanPath( $filepath ) );
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 

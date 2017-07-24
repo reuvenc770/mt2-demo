@@ -362,7 +362,7 @@ class FeedService implements IFtpAdmin
         if ( $isBritishRecord ) {
             $rules[ 'capture_date' ] = $euroDateRule . '|euroDateNotFuture';
         } else {
-            $rules[ 'capture_date' ] = ( strpos( $data[ 'capture_date' ] , '.' ) !== false ? $usAltDateRule : $usDateRule ) . '|before:tomorrow';
+            $rules[ 'capture_date' ] = ( isset( $data[ 'capture_date' ] ) && strpos( $data[ 'capture_date' ] , '.' ) !== false ? $usAltDateRule : $usDateRule ) . '|before:tomorrow';
         }
 
         if ( $isBritishRecord && $realtimeDobExists ) {

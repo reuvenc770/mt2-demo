@@ -90,7 +90,7 @@ class S3RedshiftExportJob extends MonitoredJob {
 
         $allJobsCompleted = ( 0 === (int)Cache::get( self::TALLY_KEY ) );
         if ( $allJobsCompleted ) {
-            Mail::raw( 'List Profile Preprocessing Finished.' , function ($message) {
+            Mail::raw( 'List Profile Preprocessing Finished. Debug: Last entity was: ' . $entity, function ($message) {
                 $message->to( 'GTDDev@zetaglobal.com' );
                 $message->to( 'orangeac@zetaglobal.com' );
 

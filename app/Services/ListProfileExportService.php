@@ -19,6 +19,7 @@ use Storage;
 use File;
 use App\Models\Deploy;
 use DB;
+use Log;
 
 class ListProfileExportService {
 
@@ -146,7 +147,6 @@ class ListProfileExportService {
     private function writeBatchSuppression($fileName) {
         $string = implode(PHP_EOL, $this->suppressedRows) . PHP_EOL;
         File::append($fileName, $string);
-
         $this->suppressedRows = [];
         $this->suppressedRowCount = 0;
     }
@@ -364,7 +364,7 @@ class ListProfileExportService {
 
         // Generate the query for this set (deduped and made generic).
         $query = $this->generateCombineQuery($listProfiles, $header);
-
+        
         if ($writeHeaderCount > 0) {
             // Remove fields from the actual file header
             $this->batch($localCombineFileName, implode(',', array_diff($header, ['globally_suppressed', 'feed_suppressed'])));

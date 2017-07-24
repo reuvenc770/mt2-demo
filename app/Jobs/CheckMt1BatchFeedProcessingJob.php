@@ -8,6 +8,7 @@ namespace App\Jobs;
 use App\Jobs\MonitoredJob;
 use App\Models\MT1Models\User as Feeds;
 use Maknz\Slack\Facades\Slack;
+use App\Models\ProcessedFeedFile;
 
 class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
     const SLACK_CHANNEL = '#cmp_hard_start_errors';
@@ -89,6 +90,12 @@ class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
         }
     }
 
+    protected function checkForNoDataStream () {
+        if ( ProcessedFeedFile::whereRaw( 'created_at >= NOW() - interval 2 HOUR' )->count() == 0 ) {
+            Slack::to( self::SLACK_CHANNEL )->send( "No Record Data coming in...please investigate!" ); 
+        }
+    }
+
     protected function moveRedFiles () {
         $homeDirectoryNames = Feeds::where( [ [ 'status' , '=' , 'A'] , [ 'OrangeClient' , '=' , 'N' ] ] )->pluck( 'username' )->toArray();
 
@@ -108,7 +115,7 @@ class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
             if ( $newFileString = $this->remote->getRecentFiles( '/home/' . $currentFeedName , $findOptions ) ) {
                 foreach ( explode( "\n" , $newFileString ) as $redFile ) {
                     if ( $redFile !== '' ) {
-                        \Log::info( 'Moving red file ' . $redFile );
+                        \Log::debug( 'Moving red file ' . $redFile );
                         $newPath = '/home/mt1' . str_replace( '/home' , '' , $redFile ); 
                         $output = $this->remote->moveFile( $redFile , $newPath );
                     }

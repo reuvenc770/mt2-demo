@@ -16,7 +16,7 @@ var mt2App = angular.module( 'mt2App' , [
     'angular-cron-jobs'
 ] );
 
-mt2App.config( function ( $locationProvider ,$mdThemingProvider, ivhTreeviewOptionsProvider ) {
+mt2App.config( function ( $locationProvider ,$mdThemingProvider, ivhTreeviewOptionsProvider , $qProvider ) {
     $locationProvider.html5Mode( true );
     $mdThemingProvider.generateThemesOnDemand( true );
     //Need to replace
@@ -26,6 +26,8 @@ mt2App.config( function ( $locationProvider ,$mdThemingProvider, ivhTreeviewOpti
         "twistieExpandedTpl" : '<md-icon md-svg-icon="img/icons/ic_expand_more_black_24px.svg"></md-icon>',
         "twistieLeafTpl" : '<span style="cursor: default;">&#8192;&#8192;</span>'
     } );
+
+    $qProvider.errorOnUnhandledRejections(false);
 } );
 
 mt2App.filter( 'bytes' , function() {

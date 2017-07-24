@@ -282,8 +282,6 @@ class ListProfileQueryBuilder {
                     $query = $query->join("clients as c", 'f.client_id', '=', 'c.id');
                 }
             }
-            
-            
         }
 
         return $query;

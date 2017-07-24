@@ -2,12 +2,12 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     var self = this;
 
     self.pagerApiUrl = '/api/pager/Domain';
-    self.baseApiUrl = '/api/domain/';
+    self.baseApiUrl = '/api/domain';
     self.baseEspApiUrl = '/api/espapi/espAccounts/';
     self.baseProxyUrl = '/api/proxy/active';
 
     self.getAccount = function ( id , successCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl + id } )
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
             .then( successCallback );
     };
 
@@ -21,7 +21,7 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     self.getDomains = function ( type, espAccountId, successCallback, failureCallback){
         $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl + "listDomains/" + type + "/" + espAccountId
+            "url" : self.baseApiUrl + "/listDomains/" + type + "/" + espAccountId
         } ).then( successCallback , failureCallback );
     };
 
@@ -44,14 +44,14 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     self.editAccount = function ( account , successCallback , failureCallback  ) {
         $http( {
             "method" : "PUT" ,
-            "url" : this.baseApiUrl  + account.id ,
+            "url" : this.baseApiUrl  + '/' + account.id ,
             "data" : account
         } ).then( successCallback , failureCallback );
     };
     self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
         $http( {
             "method" : "DELETE" ,
-            "url" : this.baseApiUrl + recordId,
+            "url" : this.baseApiUrl + '/' + recordId,
             "params" : { "direction" : direction }
         } ).then( successCallback , failureCallback );
     };
