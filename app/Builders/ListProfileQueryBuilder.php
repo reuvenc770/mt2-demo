@@ -216,7 +216,7 @@ class ListProfileQueryBuilder {
         $query = DB::connection('redshift')->table("list_profile_flat_table")->select('email_id')
                     ->groupBy('email_id')
                     ->whereRaw("date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'")
-                    ->where('party', $party);
+                    ->whereRaw("party = $party");
 
         $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
         $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query;
