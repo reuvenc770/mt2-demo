@@ -95,7 +95,7 @@ return [
             'node_modules/angular-ivh-treeview/dist/ivh-treeview.min.js',
             'node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js',
             'node_modules/angular-material-data-table/dist/md-data-table.min.js',
-            'node_modules/angu-complete/v3/dist/angucomplete-alt.min.js' , #'node_modules/angu-complete/angucomplete-alt.js',
+            'node_modules/angu-complete/angucomplete-alt.js',
             'node_modules/angular-cookies/angular-cookies.min.js',
             'node_modules/headroom.js/dist/headroom.js',
             'node_modules/headroom.js/dist/angular.headroom.js',
