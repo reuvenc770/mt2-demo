@@ -27,7 +27,7 @@ mt2App.config( function ( $locationProvider ,$mdThemingProvider, ivhTreeviewOpti
         "twistieLeafTpl" : '<span style="cursor: default;">&#8192;&#8192;</span>'
     } );
 
-    $qProvider.errorOnUnhandledRejections(false);
+    //$qProvider.errorOnUnhandledRejections(false); //Added this to silence a particular error. commenting out but leaving here.
 } );
 
 mt2App.filter( 'bytes' , function() {
