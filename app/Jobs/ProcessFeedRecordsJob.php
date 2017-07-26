@@ -20,7 +20,6 @@ class ProcessFeedRecordsJob extends MonitoredJob {
         $this->feedId = $feedId;
         $this->maxId = $maxId;
 
-        //got here
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
     }
 
