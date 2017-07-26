@@ -51,7 +51,7 @@ FROM
             cos.start_date ,
             cos.end_date ) o
         INNER JOIN `mt2_reports`.`cpm_deploy_snapshots` cds ON( o.deploy_id = cds.deploy_id )
-        LEFT JOIN `suppressions` s ON( cds.email_address = s.email_address AND date >= DATE_SUB(now(), INTERVAL 4 MONTH) )
+        LEFT JOIN `suppression`.`suppression_global_orange` s ON( cds.email_address = s.email_address AND date >= DATE_SUB(now(), INTERVAL 4 MONTH) )
     WHERE
         s.id IS NULL
     GROUP BY
