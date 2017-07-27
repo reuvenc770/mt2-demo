@@ -22,7 +22,7 @@ class ProcessFeedRecords extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:process {party} {--feed=} {--startChars=}';
+    protected $signature = 'feedRecords:process {party} {--feed=} {--startChars=} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -87,7 +87,7 @@ class ProcessFeedRecords extends Command
         }
         
         if ($maxId > 0) {
-            $job = (new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16)))->onQueue('RecordProcessing');
+            $job = (new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16), $this->option('runtime-threshold')))->onQueue('RecordProcessing');
             $this->dispatch($job);
         }
     }

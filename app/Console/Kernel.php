@@ -150,12 +150,12 @@ class Kernel extends ConsoleKernel
         /**
          * Suppression Jobs
          */
-	    $schedule->command('suppression:downloadESP BlueHornet 5 --runtime-threshold=2m')->cron('0 */4 * * * *'); //job class: DownloadSuppressionFromESP bb
-        $schedule->command('suppression:downloadESP Maro 5 --runtime-threshold=4m')->cron('0 */4 * * * *'); //bb
-        $schedule->command('suppression:downloadESP Campaigner 5 --runtime-threshold=1m')->cron('0 */4 * * * *'); //bb
-        $schedule->command('suppression:downloadESP EmailDirect 5 --runtime-threshold=2m')->cron('0 */4 * * * *'); //bb
-        $schedule->command('suppression:downloadESP Publicators 5 --runtime-threshold=6m')->cron('0 */4 * * * *'); //bb
-        $schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=4m')->cron('0 */4 * * * *'); //bb
+	    $schedule->command('suppression:downloadESP BlueHornet 5 --runtime-threshold=5m')->cron('0 */4 * * * *'); //job class: DownloadSuppressionFromESP bb
+        $schedule->command('suppression:downloadESP Maro 5 --runtime-threshold=10m')->cron('0 */4 * * * *'); //bb
+        $schedule->command('suppression:downloadESP Campaigner 5 --runtime-threshold=5m')->cron('0 */4 * * * *'); //bb
+        $schedule->command('suppression:downloadESP EmailDirect 5 --runtime-threshold=5m')->cron('0 */4 * * * *'); //bb
+        $schedule->command('suppression:downloadESP Publicators 5 --runtime-threshold=10m')->cron('0 */4 * * * *'); //bb
+        $schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=10m')->cron('0 */4 * * * *'); //bb
         $schedule->command('suppression:downloadESP AWeber 5 --runtime-threshold=1h')->cron('0 */4 * * * *');
 
         $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
@@ -181,7 +181,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath); //bb
         $schedule->command('reports:downloadApi Bronto --daysBack=5 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath); //bb
         $schedule->command('reports:downloadTrackingData Cake 5 --runtime-threshold=1m')->hourly()->sendOutputTo($filePath); //job class: RetrieveTrackingDataJob bb
-        $schedule->command('process:cfsStats')->cron('0 */4 * * *'); // Job name like: ProcessCfsStats
+        $schedule->command('process:cfsStats')->cron('0 */4 * * *'); //command PopulateCfsStatsTable , job DataProcessingJob, Job name like: ProcessCfsStats //bb
         
         
 
@@ -309,7 +309,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
-        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%
+        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessFeedRecordsJob //bb all :process below
         $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
@@ -356,6 +356,6 @@ class Kernel extends ConsoleKernel
         /**
          * Custom Stuff
          */
-        #$schedule->command("EspContactUpload:BestMoneySearch")->everyMinute(); //Job name: BestMoneySearchGetResponseContactUploadJob
+        #$schedule->command("EspContactUpload:BestMoneySearch")->everyMinute(); //Job name/class: BestMoneySearchGetResponseContactUploadJob, command BestMoneySearchGetResponseContactUploadCommand //bb
     }
 }

@@ -18,7 +18,7 @@ class CheckMt1RealtimeFeedProcessingCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:checkMt1Realtime { --runtime-threshold=15m : Threshold for monitoring. }';
+    protected $signature = 'feedRecords:checkMt1Realtime { --runtime-threshold=30m : Threshold for monitoring. }';
 
     /**
      * The console command description.

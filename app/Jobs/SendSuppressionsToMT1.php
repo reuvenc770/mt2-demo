@@ -2,22 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use App\Services\SuppressionService;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use League\Csv\Writer;
 use App\Models\JobEntry;
 use Storage;
-use DB;
 use Mail;
 use Carbon\Carbon;
 
-class SendSuppressionsToMT1 extends Job implements ShouldQueue
+class SendSuppressionsToMT1 extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels;
     protected $tracking;
     protected $date;
     CONST JOB_NAME = "FTPSuppressionsToMT1";
@@ -29,11 +23,11 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($date, $tracking)
+    public function __construct($date, $tracking, $runtimeThreshold)
     {
         $this->date = $date;
         $this->tracking = $tracking;
-        JobTracking::startEspJob(self::JOB_NAME,"", "", $this->tracking);
+        parent::__construct(self::JOB_NAME,$runtimeThreshold,$this->tracking);
     }
 
     /**
@@ -41,8 +35,8 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(SuppressionService $service) {
-        JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
+    public function handleJob() {
+        $service = \App::make(\App\Services\SuppressionService::class);
 
         $yesterday = Carbon::yesterday()->toDateString();
         $mailAssoc = $service->createDailyMailAssoc($yesterday);
@@ -84,12 +78,8 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
         });
 
         echo "Email sent" . PHP_EOL;
-        
-        JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-    }
 
-    public function failed()
-    {
-        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
+        return $count;
+        
     }
 }
