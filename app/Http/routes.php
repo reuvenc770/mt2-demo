@@ -801,6 +801,24 @@ Route::group(
     }
 );
 
+Route::group(
+    [
+        'prefix' => 'workflow',
+        'middleware' => ['auth', 'pageLevel']
+    ], 
+    function () {
+        Route::get('/', [
+            'as' => 'workflow.list',
+            'uses' => 'WorkflowController@listAll'
+        ]);
+
+        Route::get('/edit/{id}', [
+            'as' => 'workflow.edit',
+            'uses' => 'WorkflowController@edit'
+        ]);
+    }
+);
+
 
 
 /**
@@ -1248,6 +1266,20 @@ Route::group(
             'as' => 'api.feed.exportlist' ,
             'uses' => 'FeedController@exportList'
         ] );
+
+        /**
+         * Workflow API Routes
+         */
+        Route::post('/workflow/pause/{id}', [
+            'as' => 'workflow.list',
+            'uses' => 'WorkflowController@pause'
+        ]);
+
+        Route::post('/workflow/activate/{id}', [
+            'as' => 'workflow.list',
+            'uses' => 'WorkflowController@activate'
+        ]);
+        Route::get('/workflow/update', []);
 
         /**
          * API Resources

@@ -17,46 +17,46 @@ class PopulateAttributionMappingJob extends SafeJob {
 
     protected function handleJob() {
         $start = $this->pickupRepo->getLastInsertedForName(self::NAME);
-	$final = $this->getMaxId();
-	// Get all more recent than this that either:
-	// 1. Are imported from the target feeds
-	// 2. Are currently attributed to the target feeds
-	// 3. Already exist in the current mapping table
+    	$final = $this->getMaxId();
+    	// Get all more recent than this that either:
+    	// 1. Are imported from the target feeds
+    	// 2. Are currently attributed to the target feeds
+    	// 3. Already exist in the current mapping table
 
-	// This is a temporary job so we'll be more lax with standards
-	while ($start < $final) { 
-		$rows = $this->next10kRows($start);
-		foreach ($rows as $row) {
-		    if ($this->inTable($row->email_addr)) {
-			$cmpFeedId = $this->getCmpFeedId($row->email_addr, $row->current_attributed_feed);
-			DB::table('mt2_shuttle.mt1_cmp_attribution_map')->where('email_address', $row->email_addr)
-			    ->update([
-				'mt1_feed_id' => $row->current_attributed_feed,
-				'cmp_feed_id' => $cmpFeedId,
-				'last_mt1_action' => $row->last_action_date
-			]);
+    	// This is a temporary job so we'll be more lax with standards
+    	while ($start < $final) { 
+    		$rows = $this->next10kRows($start);
+    		foreach ($rows as $row) {
+    		    if ($this->inTable($row->email_addr)) {
+        			$cmpFeedId = $this->getCmpFeedId($row->email_addr, $row->current_attributed_feed);
+        			DB::table('mt2_shuttle.mt1_cmp_attribution_map')->where('email_address', $row->email_addr)
+        			    ->update([
+        				'mt1_feed_id' => $row->current_attributed_feed,
+        				'cmp_feed_id' => $cmpFeedId,
+        				'last_mt1_action' => $row->last_action_date
+        			]);
 
-		    }
-		    elseif (in_array($row->client_id, $this->feeds) || in_array($row->current_attributed_feed, $this->feeds)) {
-			$cmpFeedId = $this->getCmpFeedId($row->email_addr, $row->current_attributed_feed);
-			DB::statement("INSERT INTO mt2_shuttle.mt1_cmp_attribution_map 
-				(email_address, mt1_feed_id, cmp_feed_id, last_mt1_action)
-			VALUES
-			(:email, :mt1feed, :cmpfeed, :date)
-			ON DUPLICATE KEY UPDATE
-				email_address = email_address,
-				mt1_feed_id = values(mt1_feed_id),
-				cmp_feed_id = values(cmp_feed_id),
-				last_mt1_action = values(last_mt1_action)",
-			[
-				':email' => $row->email_addr,
-				':mt1feed' => $row->current_attributed_feed,
-				':cmpfeed' => $cmpFeedId,
-				':date' => $row->last_action_date
-			]);
-		    }
-		    $start = $row->ID;
-		}
+    		    }
+    		    elseif (in_array($row->client_id, $this->feeds) || in_array($row->current_attributed_feed, $this->feeds)) {
+    			$cmpFeedId = $this->getCmpFeedId($row->email_addr, $row->current_attributed_feed);
+    			DB::statement("INSERT INTO mt2_shuttle.mt1_cmp_attribution_map 
+    				(email_address, mt1_feed_id, cmp_feed_id, last_mt1_action)
+        			VALUES
+        			(:email, :mt1feed, :cmpfeed, :date)
+        			ON DUPLICATE KEY UPDATE
+        				email_address = email_address,
+        				mt1_feed_id = values(mt1_feed_id),
+        				cmp_feed_id = values(cmp_feed_id),
+        				last_mt1_action = values(last_mt1_action)",
+        			[
+        				':email' => $row->email_addr,
+        				':mt1feed' => $row->current_attributed_feed,
+        				':cmpfeed' => $cmpFeedId,
+        				':date' => $row->last_action_date
+        			]);
+    		    }
+    		    $start = $row->ID;
+    		}
 
 	    }
 	    $this->pickupRepo->updatePosition(self::NAME, $final);

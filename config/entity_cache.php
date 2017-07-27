@@ -6,6 +6,7 @@ return [
         'array' => 'getAllFeedsArray' ,
         'partyMap' => 'getPartyFeedMap' ,
         'countryMap' => 'getCountryFeedMap' ,
+        'shortname' => 'getShortNames',
     ] ,
     \App\Repositories\FeedGroupRepo::class => [
         'models' => [ App\Models\FeedGroup::class ] ,

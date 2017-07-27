@@ -34,6 +34,10 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed->find($id);
     }
 
+    public function getShortNames() {
+        return $this->feed->select('id', 'short_name')->orderBy('short_name')->get()->toArray();
+    }
+
     public function isActive($id) {
         $result = $this
                 ->feed
