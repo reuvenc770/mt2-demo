@@ -50,8 +50,13 @@ return [
 
         'views' => [
             'driver' => 'local',
-            'root'   => env( 'VIEW_PATH' ) ,
+            'root'   => base_path() . '/resources/views' ,
         ],
+
+        'routePartials' => [
+            'driver'    => 'local' ,
+            'root'      => app_path() . '/Http/RoutePartials'
+        ] ,
 
         'sprintUnsubCampaignFTP' => [
             'driver'   => 'ftp',
