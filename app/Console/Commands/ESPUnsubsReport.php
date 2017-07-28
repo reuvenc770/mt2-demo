@@ -13,7 +13,7 @@ class ESPUnsubsReport extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:generateEspUnsubReport {--lookback=}';
+    protected $signature = 'reports:generateEspUnsubReport {--lookback=} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -41,7 +41,7 @@ class ESPUnsubsReport extends Command
     {
         $lookback = $this->option('lookback') ? $this->option('lookback') : 1;
         $date = Carbon::now()->subDay($lookback)->startOfDay()->toDateString();
-        $job = (new GenerateEspUnsubReport($date, str_random(16)));
+        $job = (new GenerateEspUnsubReport($date, str_random(16), $this->option('runtime-threshold')));
         $this->dispatch($job);
     }
 }

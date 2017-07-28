@@ -134,7 +134,7 @@
         </select>
     </div>
 </div>
-
+@if (Sentinel::inRole('admiral'))
 <div class="row form-group" id="feedClientWidget">
     <div class="col-sm-6">
         <label>Available Clients</label>
@@ -162,7 +162,7 @@
         </select>
     </div>
 </div>
-
+@endif
 <div class="form-group" id="actionRanges">
     <label>
         <h4>Deliverables Day Range</h4>

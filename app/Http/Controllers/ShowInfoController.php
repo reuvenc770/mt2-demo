@@ -4,24 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Facades\Suppression;
 use App\Services\EmailService;
+use App\Services\GlobalSuppressionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Jobs\S3RedshiftExportJob;
 
 use App\Http\Requests;
 use App\Http\Requests\ShowInfoRecordRequest;
 use App\Http\Requests\ShowInfoSuppressRecordRequest;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class ShowInfoController extends Controller
 {
+    use DispatchesJobs;
+
     const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
     protected $emailService;
     protected $api;
+    private $globalSuppService;
 
-    public function __construct ( EmailService $emailService, MT1ApiService $api) {
+    public function __construct ( EmailService $emailService, MT1ApiService $api, GlobalSuppressionService $globalSuppService) {
         $this->emailService = $emailService;
         $this->api = $api;
+        $this->globalSuppService = $globalSuppService;
     }
 
     /**
@@ -59,12 +66,14 @@ class ShowInfoController extends Controller
         if($type == "email"){
             foreach(explode(',',$records) as $record) {
                 Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('selectedReason'));
+                $this->globalSuppService->insertSuppression($record, Carbon::now()->toDateTimeString(), $request->input('selectedReason'));
             }
         }
         else {
             foreach(explode(',',$records) as $record) {
                 $email = $this->emailService->getEmailAddress($record);
                 Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('selectedReason'));
+                $this->globalSuppService->insertSuppression($email, Carbon::now()->toDateTimeString(), $request->input('selectedReason'));
             }
         }
         $payload = array(
@@ -72,8 +81,19 @@ class ShowInfoController extends Controller
             'suppressionReasonCode' => 'MT2IM',
             'suppfile' => ''
         );
+
+        // Update list profile db
+        $this->dispatchSuppressionUpdateJob();
+
         return response( $this->api->getJSON( self::BULK_SUPPRESSION_API_ENDPOINT,
             $payload ) );
+    }
+
+    private function dispatchSuppressionUpdateJob() {
+        $version = 0;
+        $tracking = str_random(16);
+        $job = new S3RedshiftExportJob('SuppressionGlobalOrange', $version, $tracking);
+        $this->dispatch($job);
     }
 
     /**
