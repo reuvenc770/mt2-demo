@@ -39,11 +39,11 @@ class CpmDeploySnapshotJob extends MonitoredJob
      */
     public function handleJob()
     {
-        $this->service = \App::make( \App\Services\CpmDeploySnapshotService::class );
+        $this->repo = \App::make( \App\Repositories\CpmDeploySnapshotRepo::class );
 
-        $this->service->clearForDeploy( $this->deployId );
+        $this->repo->clearForDeploy( $this->deployId );
 
-        $listProfileExports = $this->service->getListProfileExportsFromDeploy( $this->deployId );
+        $listProfileExports = $this->repo->getListProfileExportsFromDeploy( $this->deployId );
 
         foreach ( $listProfileExports as $export ) {
             foreach ( $export->cursor() as $record ) {
@@ -67,7 +67,7 @@ class CpmDeploySnapshotJob extends MonitoredJob
     }
 
     protected function buffer ( $record ) {
-        $this->sqlStringList []= $this->service->toSqlFormat( $record );
+        $this->sqlStringList []= $this->repo->toSqlFormat( $record );
     }
 
     protected function clearBuffer () {
@@ -83,6 +83,6 @@ class CpmDeploySnapshotJob extends MonitoredJob
     }
 
     protected function massInsert () {
-        return $this->service->massInsert( $this->sqlStringList );
+        return $this->repo->massInsert( $this->sqlStringList );
     }
 }

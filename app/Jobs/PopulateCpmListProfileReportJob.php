@@ -36,11 +36,11 @@ class PopulateCpmListProfileReportJob extends MonitoredJob
      */
     public function handleJob ()
     {
-        $service = \App::make( \App\Services\CpmListProfileReportService::class );
+        $repo = \App::make( \App\Repositories\CpmListProfileReportRepo::class );
 
-        $pricings = $service->getCurrentMonthsPricings();
+        $pricings = $repo->getCurrentMonthsPricings();
         foreach ( $pricings as $currentPricing ) {
-            $counts = $service->getCountsForDeploy( $currentPricing->deploy_id );
+            $counts = $repo->getCountsForDeploy( $currentPricing->deploy_id );
 
             $records = [];
             $currentCakeOfferId = 0;
@@ -56,8 +56,8 @@ class PopulateCpmListProfileReportJob extends MonitoredJob
                 $currentCakeOfferId = $currentPricing->cake_offer_id;
             }
 
-            $service->clearForCakeOfferId( $currentCakeOfferId );
-            $service->saveReport( $records );
+            $repo->clearForCakeOfferId( $currentCakeOfferId );
+            $repo->saveReport( $records );
         }
     }
 }
