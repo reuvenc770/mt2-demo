@@ -6,7 +6,8 @@
         <div class="panel-heading">
             <div class="panel-title">Edit Workflow</div>
         </div>
-        <div class="panel-body">
+        <input name="_token" type="hidden" value="{{ csrf_token() }}">
+        <div class="panel-body" ng-init="workflow.loadWorkflow({{$id}})">
             <fieldset>
                 @include('pages.workflow.workflow-form')
             </fieldset>

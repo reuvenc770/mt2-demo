@@ -21,9 +21,40 @@ class WorkflowController extends Controller {
         return response()->view('pages.workflow.workflow-index');
     }
 
-    public function edit() {
-        $feeds = EntityCacheService::get(\App\Repositories\FeedRepo::class, 'shortname');
-        return response()->view('pages.workflow.workflow-edit', ['feeds' => $feeds]);
+    public function edit($id) {
+        $data = [
+            'id' => $id
+        ];
+
+        return response()->view('pages.workflow.workflow-edit', $data);
+    }
+
+    public function get($id) {
+        $workflowFeeds = $this->service->getWorkflowFeeds($id);
+        $steps = $this->service->getSteps($id);
+        $name = $this->service->getName($id);
+        $allFeeds = EntityCacheService::get(\App\Repositories\FeedRepo::class, 'shortname');
+
+        $tmp = function($array) {
+            $out = [];
+            foreach($array as $i) {
+                $out[] = $i['id'];
+            }
+
+            return function($x) use ($out) {
+                return !in_array($x['id'], $out);
+            };
+        };
+
+        $filterRule = $tmp($workflowFeeds);
+
+        return [
+            'id' => $id,
+            'name' => $name,
+            'selectedFeeds' => $workflowFeeds,
+            'steps' => $steps,
+            'availableFeeds' => array_values(array_filter($allFeeds, $filterRule))
+        ];
     }
 
     public function add() {}

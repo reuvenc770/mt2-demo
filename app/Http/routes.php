@@ -816,6 +816,16 @@ Route::group(
             'as' => 'workflow.edit',
             'uses' => 'WorkflowController@edit'
         ]);
+
+        Route::get('/get/{id}', [
+            'as' => 'workflow.edit',
+            'uses' => 'WorkflowController@get'
+        ]);
+
+        Route::post('/create', [
+            'as' => 'workflow.add',
+            'uses' => 'WorkflowController@create'
+        ]);
     }
 );
 

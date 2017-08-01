@@ -12,7 +12,11 @@ class EspWorkflowStepRepo {
 
     public function __construct(EspWorkflowStep $model) {
         $this->model = $model;
-    } 
+    }
+
+    public function getStepsForWorkflow($workflowId) {
+        return $this->model->where('esp_workflow_id', $workflowId)->orderBy('step', 'asc')->get();
+    }
 
     public function getDeployIds($workflowId) {
         $result = $this->model

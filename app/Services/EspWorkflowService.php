@@ -3,15 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\EspWorkflowRepo;
+use App\Repositories\EspWorkflowStepRepo;
 use App\Services\ServiceTraits\PaginateList;
 
 class EspWorkflowService {
     use PaginateList;
 
     private $repo;
+    private $stepRepo;
 
-    public function __construct(EspWorkflowRepo $repo) {
+    public function __construct(EspWorkflowRepo $repo, EspWorkflowStepRepo $stepRepo) {
         $this->repo = $repo;
+        $this->stepRepo = $stepRepo;
     }
 
 
@@ -75,6 +78,24 @@ class EspWorkflowService {
         catch (\Exception $e) {
             return false;
         }
-        
+    }
+
+    public function getSteps($id) {
+        return $this->stepRepo->getStepsForWorkflow($id);
+    }
+
+    public function getWorkflowFeeds($id) {
+        $collection = $this->repo->getFeedsForWorkflow($id);
+        $output = [];
+
+        foreach($collection as $feed) {
+            $output[] = ['id' => $feed->id, 'short_name' => $feed->short_name];
+        }
+
+        return $output;
+    }
+
+    public function getName($id) {
+        return $this->repo->getName($id);
     }
 }

@@ -52,7 +52,6 @@
                                 data-placement="bottom"
                                 title="Pause Workflow">pause_circle_filled</md-icon>
                         </div>
-                        </div>
                     </td>
                     <th md-cell>@{{ path.status === 1 ? 'Active' : 'Paused'}}</th>
                     <td md-cell>@{{ path.name }}</td>

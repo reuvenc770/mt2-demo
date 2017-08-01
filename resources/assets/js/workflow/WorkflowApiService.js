@@ -1,5 +1,7 @@
 mt2App.service('WorkflowApiService', ['paginationService', '$http', '$log', function (paginationService, $http, $log) {
     var self = this;
+
+    self.baseUrl = '/workflow/';
     self.pageApiUrl = '/api/pager/EspWorkflow';
     self.baseApiUrl = '/api/workflow';
 
@@ -27,5 +29,12 @@ mt2App.service('WorkflowApiService', ['paginationService', '$http', '$log', func
             "url": self.baseApiUrl + '/activate/' + id
         }).then(success, failure);
     };
+
+    self.get = function(id, success, failure) {
+        return $http({
+            "method": "GET",
+            "url": self.baseUrl + 'get/' + id
+        }).then(success, failure);
+    }
 
 }]);

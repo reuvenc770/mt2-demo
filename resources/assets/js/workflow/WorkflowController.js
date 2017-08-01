@@ -55,31 +55,62 @@ mt2App.controller('WorkflowController', ['$rootScope', '$log', '$window', '$loca
      */
 
     self.loadWorkflow = function(id) {
-        WorkflowApiService.loadWorkflow(id, self.loadWorkflowSuccess, self.loadWorkflowFailure);
+        WorkflowApiService.get(id, self.loadWorkflowSuccess, self.loadWorkflowFailure);
     }
 
     self.saveWorkflow = function() {
         self.formSubmitted = true;
-    }
+    };
 
     // Feed management
 
     self.addFeeds = function() {
-        console.dir(self.highlightedFeeds);
-        self.current.feeds = self.current.feeds.concat(self.highlightedFeeds);
+        var len = self.availableFeeds.length;
+        var newAvailableFeeds = [];
 
-        // also, remove these from 
+        for (var i = 0; i < len; i++) {
+            var id = self.availableFeeds[i].id;
+
+            if (self.highlightedFeeds.indexOf(id) >= 0) {
+                self.current.feeds.push(self.availableFeeds[i]);
+            }
+            else {
+                newAvailableFeeds.push(self.availableFeeds[i]);
+            }
+        }
+
+        self.availableFeeds = newAvailableFeeds;
         self.highlightedFeeds = [];
-    }
+    };
 
     self.removeFeeds = function() {
-        var newList = self.current.feeds.filter(function (x) {
-            return self.highlightedFeedsForRemoval.indexOf(x) < 0;
-        });
+        var selectedFeedsLen = self.current.feeds.length;
+        var newSelectedFeeds = [];
 
-        self.current.feeds = newList;
+        for (var i = 0; i < selectedFeedsLen; i++) {
+            var id = self.current.feeds[i].id;
+
+            if (self.highlightedFeedsForRemoval.indexOf(id) >= 0) {
+                self.availableFeeds.push(self.current.feeds[i]);
+            }
+            else {
+                newSelectedFeeds.push(self.current.feeds[i]);
+            }
+        }
+
+        self.current.feeds = newSelectedFeeds;
         self.highlightedFeedsForRemoval = [];
-    }
+    };
+
+    self.saveWorkflow = function () {};
+
+    // Steps
+
+    self.editStep = function(step) {
+
+    };
+
+    self.addStep = function () {};
 
 
     /**
@@ -115,7 +146,20 @@ mt2App.controller('WorkflowController', ['$rootScope', '$log', '$window', '$loca
     };
 
     self.loadWorkflowSuccess = function(response) {
-        self.current.
+        /**
+         *  What needs to be done:
+         *  1. Populate selected feeds
+         *  2. Remove all selected feeds from highlighted
+         *  3. Set up steps
+         */
+
+         data = response.data;
+
+         self.current.id = data.id;
+         self.current.name = data.name;
+         self.current.feeds = data.selectedFeeds;
+         self.current.steps = data.steps;
+         self.availableFeeds = data.availableFeeds;
     }
 
     self.loadWorkflowFailure = function(response) {

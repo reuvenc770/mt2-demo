@@ -28,4 +28,18 @@ class EspWorkflowRepo {
     public function setStatus($id, $status) {
         $this->model->where('id', $id)->update(['status' => $status]);
     }
+
+    public function getForDisplay($id) {
+        return $this->model->find($id);
+    }
+
+    public function getFeedsForWorkflow($id) {
+        $workflow = $this->model->find($id);
+        return isset($workflow) ? $workflow->feeds : [];
+    }
+
+    public function getName($id) {
+        $find = $this->model->find($id);
+        return $find ? $find->name : '';
+    }
 }
