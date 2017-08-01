@@ -34,7 +34,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         'suppression' : {
             'global' : { 1 : "Orange Global" } ,
             'list' : {} ,
-            'offer' : {} ,
+            'offer' : [] ,
             'attribute' : { 'cities': [] , 'zips' : [] , 'states' : {} }
         },
         'actionRanges' : {
