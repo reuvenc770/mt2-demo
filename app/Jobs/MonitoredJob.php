@@ -78,7 +78,7 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
                 }
             }
             catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                echo "{$this->jobName} failed with {$e->getMessage()} in {$e->getFile()} :: {$e->getLine()}" . PHP_EOL;
                 JobTracking::addDiagnostic(array('errors' => array('Job FAILED with exception: '.$e->getMessage())),$this->tracking);
                 Log::error( 'MonitorJob ERROR: job_entries.tracking="'.$this->tracking.'"' );
                 Log::error( $e->getMessage() );
