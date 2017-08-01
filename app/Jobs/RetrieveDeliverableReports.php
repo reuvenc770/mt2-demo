@@ -31,6 +31,7 @@ class RetrieveDeliverableReports extends MonitoredJob
     protected $reportService;
     protected $standardReportRepo;
     public $defaultQueue;
+    protected $rowCount = 0;
 
     public $processState;
     protected $defaultProcessState = [
@@ -111,7 +112,7 @@ class RetrieveDeliverableReports extends MonitoredJob
             throw $e;
         }
 
-        return 1;
+        return $this->rowCount;
     }
 
     protected function jobSetup () {
@@ -178,6 +179,7 @@ class RetrieveDeliverableReports extends MonitoredJob
         });
         $rowCount = count($campaigns);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
     
     protected function getDeliverableCampaigns() {
@@ -193,6 +195,7 @@ class RetrieveDeliverableReports extends MonitoredJob
         });
         $rowCount = count($campaigns);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
 
     protected function getSplitDeliverableCampaigns() {
@@ -212,6 +215,7 @@ class RetrieveDeliverableReports extends MonitoredJob
         });
         $rowCount = count($campaigns);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
 
     protected function getRerunCampaigns () {
@@ -232,6 +236,7 @@ class RetrieveDeliverableReports extends MonitoredJob
         });
         $rowCount = count($deploys);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
 
     protected function getRawCampaigns () {
@@ -249,6 +254,8 @@ class RetrieveDeliverableReports extends MonitoredJob
         $rowCount = count( $rawCampaigns );
 
         $this->changeJobEntry( JobEntry::SUCCESS , $rowCount );
+        $this->rowCount = $rowCount;
+
     }
 
     protected function getBrontoRerunCampaigns() {
@@ -285,6 +292,8 @@ class RetrieveDeliverableReports extends MonitoredJob
         });
         $rowCount = count($deploys);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
 
     protected function splitTypes () {
@@ -322,6 +331,8 @@ class RetrieveDeliverableReports extends MonitoredJob
         }
 
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
 
     protected function savePaginatedAWeberRecords () {
@@ -345,6 +356,8 @@ class RetrieveDeliverableReports extends MonitoredJob
             $this->reportService->savePage( $this->processState,$forceSaveOfLeftOvers);
         }
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
     
     protected function saveOpenAWeberRecords(){
@@ -353,6 +366,8 @@ class RetrieveDeliverableReports extends MonitoredJob
         $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
         $rowCount = $this->reportService->savePage( $this->processState);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
 
 
@@ -389,6 +404,8 @@ class RetrieveDeliverableReports extends MonitoredJob
 
 
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
 
     protected function saveRecords () {

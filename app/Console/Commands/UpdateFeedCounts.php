@@ -16,7 +16,7 @@ class UpdateFeedCounts extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:updateCounts {--L|lookback=1} {--S|startDate=0} {--E|endDate=0}';
+    protected $signature = 'feedRecords:updateCounts {--L|lookback=1} {--S|startDate=0} {--E|endDate=0} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -52,6 +52,6 @@ class UpdateFeedCounts extends Command
             $endDate = Carbon::parse( $this->option( 'endDate' ) )->toDateString();
         }
 
-        $this->dispatch( new UpdateFeedCountJob( $startDate , $endDate , str_random( 16 ) ) );
+        $this->dispatch( new UpdateFeedCountJob( $startDate , $endDate , str_random( 16 ), $this->option('runtime-threshold') ) );
     }
 }

@@ -2,19 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use App\Services\DomainService;
 use Carbon\Carbon;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
-class domainExpirationNotifications extends Job implements ShouldQueue
+
+class domainExpirationNotifications extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels;
     use DispatchesJobs;
     private $days = [30,21,14,7,6,5,4,3,2,1];
     CONST JOB_NAME = 'ExpiredDomains';
@@ -24,10 +20,10 @@ class domainExpirationNotifications extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($tracking)
+    public function __construct($tracking,$runtimeThreshold)
     {
         $this->tracking = $tracking;
-        JobTracking::startAggregationJob( self::JOB_NAME, $this->tracking );
+        parent::__construct(self::JOB_NAME,$runtimeThreshold,$tracking);
     }
 
     /**
@@ -35,9 +31,10 @@ class domainExpirationNotifications extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(DomainService $domainService)
+    public function handleJob()
     {
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+        $domainService = \App::make(\App\Services\DomainService::class);
+
         $domains = array();
         foreach($this->days as $day){
             $domains = $domainService->getExpiringDomainsByDate($this->daysOut($day));
@@ -59,14 +56,7 @@ class domainExpirationNotifications extends Job implements ShouldQueue
                 });
             }
         }
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
-
-    public function failed()
-    {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
-    }
-
 
     private function daysOut($days){
         $today = Carbon::today();

@@ -123,6 +123,7 @@ class Kernel extends ConsoleKernel
         Commands\ScheduledNotificationsCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\UpdateRecordProcessingReportWithErrors::class,
+        Commands\ReprocessFirstPartyActions::class
 ];
 
     /**
@@ -136,9 +137,9 @@ class Kernel extends ConsoleKernel
         /**
          * Alerts & Notifications
          */
-        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
-        $schedule->command('notify:scheduled')->everyMinute();
-        $schedule->command('monitors:runtime --mode=monitor --days-back=2 --runtime-threshold=30s')->cron('05 8,16 * * * *'); //job class: RunTimeMonitorJob bb
+        $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME); //command DomainExpirationNotification, job class domainExpirationNotifications, job name ExpiredDomains //bb
+        $schedule->command('notify:scheduled')->everyMinute(); //command ScheduledNotificationsCommand, job class ScheduledNotificationQueueJob, job name ScheduledNotificationQueueJob:% //bb
+        $schedule->command('monitors:runtime --mode=monitor --days-back=1 --runtime-threshold=30s')->cron('05 8,16 * * * *'); //job class: RunTimeMonitorJob bb
 
         /**
          * Orphan Adoption
@@ -158,14 +159,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Bronto 5 --runtime-threshold=10m')->cron('0 */4 * * * *'); //bb
         $schedule->command('suppression:downloadESP AWeber 5 --runtime-threshold=1h')->cron('0 */4 * * * *');
 
-        $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
-        $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
-        $schedule->command('exportUnsubs ZxSprintUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
-        $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
+        $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME); //command ESPUnsubsReport, job class GenerateEspUnsubReport, job name GenerateEspUnsubReport //bb
+
+        $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15 --runtime-threshold=1h')->dailyAt(self::REPORT_TIME); // command ExportActionsElsewhere, job class ExportActionsJob, job name <report_name>-<date> //bb
+        $schedule->command('exportUnsubs ZxSprintUnsubExport --lookback=1 --runtime-threshold=1m')->dailyAt(self::REPORT_TIME); //bb
+        $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1 --runtime-threshold=1m')->dailyAt(self::REPORT_TIME); //bb
 
         #$unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        $schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *'); //FTPSuppressionsToMT1
-        $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
+        $schedule->command( 'suppression:sendToMT1 3' )->cron('15 */4 * * * *'); //command and job class: SendSuppressionsToMT1, job name FTPSuppressionsToMT1 //bb
+        $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *'); //command SharePublicatorsUnsubs, job class SharePublicatorsUnsubsJob, job name ExportPublicatorsUnsubs //bb
         
         /**
          * Campaign Data Daily
@@ -176,7 +178,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40 --runtime-threshold=5m')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath); //bb
-        $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath); //job class: UpdateMissingMaroCampaignsJob
+        $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath); //command UpdateMissingMaroCampaigns, job class: UpdateMissingMaroCampaignsJob, job name UpdateMissingMaroCampaignsJob //bb
         //$schedule->command('reports:downloadApi Ymlp --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath); //bb
         $schedule->command('reports:downloadApi Bronto --daysBack=5 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath); //bb
@@ -196,7 +198,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('reports:downloadApi Ymlp --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath); //bb
         $schedule->command('reports:downloadApi Bronto --daysBack=31 --runtime-threshold=5m')->monthly()->sendOutputTo($filePath); //bb
-        $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadTrackingData Cake 31 --runtime-threshold=10m')->monthly()->sendOutputTo($filePath); //bb
         #$schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
 
         /**
@@ -214,27 +216,27 @@ class Kernel extends ConsoleKernel
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 10,22 * * * *'); //bb
         $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath ); //bb
-        $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath ); //in progress
-        $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 10,22 * * * *'); //in progress
+        $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath ); //bb
+        $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 10,22 * * * *'); //bb
         #$schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath); // Job name like: PopulateEmailCampaignStats, PullCakeDeliverableStats //bb
         $schedule->command('process:useragents')->hourly(); // Job name like: ProcessUserAgents //bb
-        $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
+        $schedule->command('reports:findIncompleteDeploys --runtime-threshold=10m')->dailyAt(self::DEPLOY_CHECK_TIME); //command CheckDeployStats, job class DataProcessingJob, job name CheckDeployStats //bb
 
 
         /**
          *  Deactivation jobs
          */
-        $schedule->command('deactivate:espAccounts')->dailyAt(self::MIDNIGHT);
+        $schedule->command('deactivate:espAccounts')->dailyAt(self::MIDNIGHT); //command DeactivateEspAccounts, no job class //b
 
 
         /**
          * Constantly firing.
          *
          */
-        $schedule->command('ftp:admin -H ' . config('ssh.servers.mt1_feed_file_server.host') . ' -U ' . config('ssh.servers.mt1_feed_file_server.username') . ' -k ' . config('ssh.servers.mt1_feed_file_server.public_key') . ' -K ' . config('ssh.servers.mt1_feed_file_server.private_key') . ' -u -s Feed')->everyFiveMinutes();
-        $schedule->command( 'attribution:syncModelsWithNewFeeds' )->everyThirtyMinutes();
+        $schedule->command('ftp:admin -H ' . config('ssh.servers.mt1_feed_file_server.host') . ' -U ' . config('ssh.servers.mt1_feed_file_server.username') . ' -k ' . config('ssh.servers.mt1_feed_file_server.public_key') . ' -K ' . config('ssh.servers.mt1_feed_file_server.private_key') . ' -u -s Feed')->everyFiveMinutes(); //command FtpAdmin, no job //bb
+        $schedule->command( 'attribution:syncModelsWithNewFeeds' )->everyThirtyMinutes(); //command SyncModelsWithNewFeedsCommand, job class SyncModelsWithNewFeedsJob, job class and name SyncModelsWithNewFeedsJob //bb
 
         /**
          *  MT1 data sync jobs
@@ -267,7 +269,7 @@ class Kernel extends ConsoleKernel
          */
          
         // Attribution jobs disabled temporarily until launch
-        $schedule->command('runFilter expiration --runtime-threshold=25m')->dailyAt(self::MIDNIGHT); // Job name: Scheduled Filter Expiration
+        $schedule->command('runFilter expiration --runtime-threshold=25m')->dailyAt(self::MIDNIGHT); //command RunScheduledFilter, Job class ScheduledFilterResolver, job name: Scheduled Filter Expiration //bb
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         #$schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
         #$schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
@@ -275,38 +277,38 @@ class Kernel extends ConsoleKernel
         #$schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 20 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #early monthly rerun
         #$schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
         #$schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
-        $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME); // Job name: AttributionValidation
+        $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME); // command AttributionFeasibilityValidation, job class AttributionValidationJob, Job name: AttributionValidation //more testing
         
         /**
          *  List profile jobs
          */
         $schedule->command('listprofile:dataEtl --runtime-threshold=5m')->cron('0 4,13,16 * * 1-6 *'); // Job names like: %-s3, job class: S3RedshiftExportJob //bb
-        $schedule->command('listprofile:dataEtl --all --runtime-threshold=5m')->cron('0 1 * * 7 *'); //bb
-        $schedule->command('listprofile:optimize')->weekly(); //job class: VacuumRedshiftJob 
+        $schedule->command('listprofile:dataEtl --all --runtime-threshold=5m')->cron('0 1 * * 7 *'); // command S3RedshiftExport, job class S3RedshiftExportJob //bb
+        $schedule->command('listprofile:optimize')->weekly(); //command VacuumRedshift, job class: VacuumRedshiftJob, job class VacuumRedshiftJob, job name OptimizeRedshift //bb
         $schedule->command('listprofile:aggregateActions --runtime-threshold=6h')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation, job class: DataProcessingJob //bb
         $schedule->command('listprofile:contentServerRawStats --runtime-threshold=5m')->hourly(); // Job name: ProcessContentServerRawStats, job class: DataProcessingJob //bb
         $schedule->command('listprofile:getRecordAgentData 2 --runtime-threshold=40m')->hourly(); // Job name: ContentServerDeviceData, job class: DataProcessingJob //bb
         $schedule->command('listprofile:baseTables --runtime-threshold=1h')->cron('0 6,12,16 * * 1-6 *'); // Job name like: ListProfileExport%, job class: ListProfileBaseExportJob //bb
-        $schedule->command('listprofile:validateRedshift 1')->cron('0 6 * * * *'); // Job names like: DataValidation & upper-case entity, job class: RedshiftDataValidationJob
+        $schedule->command('listprofile:validateRedshift 1')->cron('0 6 * * * *'); // command RedshiftDataConsistencyValidation, Job names like: DataValidation & upper-case entity, job class: RedshiftDataValidationJob //bb
 
         /**
          * Feed File Processing
          */
-        $schedule->command( 'feedRecords:processMt1BatchFiles --runtime-threshold=15m' )->everyFiveMinutes(); // Job name like: ProcessMt1BatchFeedFilesJob%
-        $schedule->command( 'feedRecords:processMt1RealtimeFiles --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1RealtimeFeedFilesJob%
-        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=unemployment --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1UnemploymentFeedFilesJob%
+        $schedule->command( 'feedRecords:processMt1BatchFiles --runtime-threshold=15m' )->everyFiveMinutes(); //command ProcessMt1BatchFeedFiles, job class ProcessMt1BatchFeedFilesJob, Job name like: ProcessMt1BatchFeedFilesJob% //bb
+        $schedule->command( 'feedRecords:processMt1RealtimeFiles --runtime-threshold=15m' )->everyMinute(); //command ProcessMt1RealtimeFeedFiles, job class ProcessMt1RealtimeFeedFilesJob, Job name like: ProcessMt1RealtimeFeedFilesJob% //bb
+        $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=unemployment --runtime-threshold=15m' )->everyMinute(); //command ProcessMt1FirstPartyFeedFiles, job class ProcessMt1%, Job name like: ProcessMt1UnemploymentFeedFilesJob% //bb next 5
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=section8 --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1Section8FeedFilesJob%
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=medicaid --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1MedicaidFeedFilesJob%
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=simplyjobs --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1SimplyJobsFeedFilesJob%
         $schedule->command( 'feedRecords:processMt1FirstPartyFiles --feedname=foodstamps --runtime-threshold=15m' )->everyMinute(); // Job name like: ProcessMt1FoodstampsFeedFilesJob%
-        $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
+        $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); //command UpdateFeedCounts, job class UpdateFeedCountJob, Job name: UpdateFeedCountJob //bb
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
-        $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); // Job name like: CheckMt1RealtimeFeedProcessingJob%
-        $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); // Job name like: CheckMt1BatchFeedProcessingJob%
+        $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); //command CheckMt1RealtimeFeedProcessingCommand, job class CheckMt1RealtimeFeedProcessingJob, Job name like: CheckMt1RealtimeFeedProcessingJob% //bb
+        $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); //command CheckMt1BatchFeedProcessingCommand, job class and name like: CheckMt1BatchFeedProcessingJob% //bb
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id. This list is dynamic.
-        #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *'); //command GetFirstPartyRecords, no job //bb
         
         // Process third party feeds, broken down by starting letter of email address
         $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessFeedRecordsJob //bb all :process below
@@ -325,10 +327,10 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:exportThirdParty 2957')->cron('*/2 * * * * *');
         
         // Re-run first party actives against suppression
-        #$schedule->command('feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
+        #$schedule->command('feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME); //command ReprocessFirstPartyActions, job class FirstPartyReprocessingJob, job name FirstPartyActionsReprocessing //bb
 
         // Feed processing reporting
-        $schedule->command('feedRecords:updateReportWithErrors --runtime-threshold=10m')->everyFiveMinutes();
+        $schedule->command('feedRecords:updateReportWithErrors --runtime-threshold=10m')->everyFiveMinutes(); //command UpdateRecordProcessingReportWithErrors, job class DataProcessingJob, job name UpdateFeedProcessingErrors
 
         /**
          * AWeber Jobs
@@ -348,10 +350,10 @@ class Kernel extends ConsoleKernel
          *  Data consistency jobs
          *  Job names like DataValidation followed by lower case entity (middle item)
          */
-        $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process --hoursBack=2 --runtime-threshold=20m")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
+        $schedule->command("dataValidation emails exists --runtime-threshold=1h")->dailyAt(self::MT1_SYNC_TIME); //command DataConsistencyValidation, job class DataConsistencyValidationJob, job name DataValidation-% //bb and two below
+        $schedule->command("dataValidation emailFeedInstances exists --runtime-threshold=30m")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("dataValidation emailFeedAssignments value --runtime-threshold=30m")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("newActions:process --hoursBack=2 --runtime-threshold=20m")->cron("30 * * * * *"); //command: ProcessNewActionsCommand, job class: ProcessNewActionsJob, Job name like: ProcessNewActions% //bb
         
         /**
          * Custom Stuff
