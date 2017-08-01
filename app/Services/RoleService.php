@@ -46,6 +46,7 @@ class RoleService
             throw new \Exception($e->getMessage());
         }
         $this->cache->tags('navigation')->flush();
+        $this->cache->tags('navigation-bootstrap')->flush();
         return true;
 
     }
@@ -63,7 +64,7 @@ class RoleService
         }
         $role->save();
         $this->cache->tags('navigation')->flush();
-
+        $this->cache->tags('navigation-bootstrap')->flush();
     }
 
     public function getIdFromName ( $roleName ) {
@@ -96,5 +97,6 @@ class RoleService
         }
 
         $this->cache->tags('navigation')->flush();
+        $this->cache->tags('navigation-bootstrap')->flush();
     }
 }
