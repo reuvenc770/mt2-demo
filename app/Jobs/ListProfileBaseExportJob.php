@@ -64,7 +64,8 @@ class ListProfileBaseExportJob extends MonitoredJob {
 
                 foreach($deploys as $deploy) {
                     $runId = str_random(10);
-                    $reportCard = CacheReportCard::makeNewReportCard("{$deploy->user->username}-{$deploy->id}-{$runId}");
+                    $username = $deploy->user ? $deploy->user->username : 'no_user';
+                    $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$deploy->id}-{$runId}");
                     $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtimeThreshold));
                 }
  
