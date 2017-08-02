@@ -185,9 +185,9 @@ class FeedDateEmailBreakdownRepo {
 
         foreach($insert as $feedId => $feedData) {
             foreach($feedData as $emailClassId => $emailClassData) {
-                foreach($emailClassData as $day) {
-                    foreach ($day as $filename => $data) {
-                        $updates[] = '(' . (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$fileName'" . ', ' . (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
+                foreach($emailClassData as $day => $dayData) {
+                    foreach ($dayData as $filename => $data) {
+                        $updates[] = '(' . (int)$feedId . ", '{$day}', " . (int)$emailClassId . ', ' . "'$filename'" . ', ' . (int)$data['total'] . ','  . (int)$data['bad_ip_addresses'] . ',' . (int)$data['other_invalid'] . ')';
                     }
                 }
             }
@@ -199,39 +199,47 @@ class FeedDateEmailBreakdownRepo {
 
         $done = false;
         $attempts = 0;
+        $inserts = implode(',', $updates);
+       
+        while (!$done) { 
+            if ($attempts < self::MAX_RETRY_ATTEMPTS) {
+                try {
+                    DB::statement("INSERT INTO feed_date_email_breakdowns
+                        (feed_id, date, domain_group_id, filename, total_emails, bad_ip_addresses, other_invalid)
+                        VALUES
 
-        while ($attempts < self::MAX_RETRY_ATTEMPTS) {
-            try {
-                DB::statement("INSERT INTO feed_date_email_breakdowns
-                    (feed_id, date, domain_group_id, filename, bad_ip_addresses, other_invalid)
-                    VALUES
+                        $inserts
 
-                    $inserts
-
-                    ON DUPLICATE KEY UPDATE
-                    feed_id = feed_id,
-                    date = date,
-                    domain_group_id = domain_group_id,
-                    filename = filename,
-                    total_emails = total_emails,
-                    valid_emails = valid_emails,
-                    suppressed_emails = suppressed_emails,
-                    bad_source_urls = bad_source_urls,
-                    full_postal_counts = full_postal_counts,
-                    bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
-                    other_invalid = other_invalid + VALUES(other_invalid),
-                    suppressed_domains = suppressed_emails,
-                    phone_counts = phone_counts,
-                    prev_responder_count = prev_responder_count,
-                    unique_emails = unique_emails,
-                    feed_duplicates = feed_duplicates,
-                    cross_feed_duplicates = cross_feed_duplicates");
-            }
-            catch (\Exception $e) {
-                $attempts++;
-                sleep(2);
+                        ON DUPLICATE KEY UPDATE
+                        feed_id = feed_id,
+                        date = date,
+                        domain_group_id = domain_group_id,
+                        filename = filename,
+                        total_emails = total_emails + values(total_emails),
+                        valid_emails = valid_emails,
+                        suppressed_emails = suppressed_emails,
+                        bad_source_urls = bad_source_urls,
+                        full_postal_counts = full_postal_counts,
+                        bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
+                        other_invalid = other_invalid + VALUES(other_invalid),
+                        suppressed_domains = suppressed_domains,
+                        phone_counts = phone_counts,
+                        prev_responder_count = prev_responder_count,
+                        unique_emails = unique_emails,
+                        feed_duplicates = feed_duplicates,
+                        cross_feed_duplicates = cross_feed_duplicates");
+                    $done = true;
+                }
+                catch (\Exception $e) {
+                    $attempts++;
+                    sleep(2);
+                }
             }
         }
+    }
+
+    public function getFeedDateCount($feedId, $date) {
+        return $this->model->where('feed_id', $feedId)->where('date', $date)->count();
     }
 
 }

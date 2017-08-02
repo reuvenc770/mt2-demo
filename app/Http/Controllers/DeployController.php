@@ -269,7 +269,7 @@ class DeployController extends Controller
             Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
         }
 
-        $this->dispatch(new ExportDeployCombineJob($deploys, $reportCard, str_random(16)));
+        $this->dispatch(new ExportDeployCombineJob($deploys, $reportCard, str_random(16), 5000));
         
         //Update deploy status to pending
         $this->deployService->deployPackages($data);

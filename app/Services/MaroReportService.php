@@ -213,7 +213,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             }
         } catch (\Exception $e) {
             DeployActionEntry::recordFailedRunArray($this->api->getEspAccountId(), array_unique($internalIds), $type);
-            $jobException = new JobException('Failed to retrieve records. ' . $e->getMessage(), JobException::NOTICE);
+            $jobException = new JobException('Failed to retrieve records. ' . $e->getMessage() . "{$e->getFile()}: {$e->getLine()}", JobException::NOTICE);
             $jobException->setDelay(180);
             throw $jobException;
         }
@@ -466,7 +466,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
-    public function pushRecords(array $records, $targetId) {}
+    public function addContactToLists($emailAddress, array $lists) {}
 
     public function addContact($record, $listId) {
         $this->api->addContact($record, $listId);

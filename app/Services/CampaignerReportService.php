@@ -187,7 +187,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         else {
             $datetime = null;
         }
-        
+
         $deployId = $this->parseSubID($report['name']);
         return array(
             'campaign_name' => $report['name'],
@@ -324,13 +324,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $recordData = $this->getReportData( $processState );
 
             foreach ( $recordData as $key => $record ) {
-                // Campaigner sends records over in UTC. 
-                // For the sake of consistency we need to 
-                // translate them into Eastern Time
-
-                // Campaigner timestamps look like YYYY-MM-DDTHH:ii:ss.DDDDDD
                 $actionDate = Carbon::parse($record['actionDate'] . 'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i:s');
-
                 if ( $record[ 'action' ] === 'SpamComplaint' ) {
                     Suppression::recordRawComplaint(
                         $processState[ 'ticket' ][ 'espId' ] ,
@@ -354,7 +348,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 if ( is_null( $actionType ) ) {
                     continue;
                 }
-
                 $this->emailRecord->queueDeliverable(
                     $actionType ,
                     $record[ 'email' ] ,
@@ -376,7 +369,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         catch (\Exception $e) {
             DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
 
-            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() . ' line: ' . $e->getLine(), JobException::WARNING , $e );
 
             throw $jobException;
         }
@@ -490,11 +483,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
 
-    public function pushRecords(array $records, $targetId) {
-        return $this->api->pushRecords($records, $targetId);
-    }
-
-    public function addContactToLists($emailAddress, $lists) {
+    public function addContactToLists($emailAddress, array $lists) {
         $this->api->addContactToLists($emailAddress, $lists);
     }
 

@@ -18,7 +18,7 @@ class ProcessFeedRawFiles extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:processRawFiles';
+    protected $signature = 'feedRecords:processRawFiles { --runtime-threshold=15m : Threshold for monitoring. }';
 
     /**
      * The console command description.
@@ -44,7 +44,11 @@ class ProcessFeedRawFiles extends Command
      */
     public function handle()
     {
-        $job = new ProcessFeedRawFilesJob(str_random(16));
-        $this->dispatch($job);
+        $job = \App::make( ProcessFeedRawFilesJob::class , [
+            str_random( 16 ) ,
+            $this->option( 'runtime-threshold' )
+        ] );
+
+        $this->dispatch($job->onQueue( 'rawFeedProcessing' ));
     }
 }

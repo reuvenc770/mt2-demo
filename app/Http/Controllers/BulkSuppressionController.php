@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Events\BulkSuppressionFileWasUploaded;
 use App\Services\EmailRecordService;
 use Illuminate\Http\Request;
+use App\Jobs\S3RedshiftExportJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 use App\Http\Requests;
 use App\Http\Requests\BulkSuppressionRequest;
@@ -12,22 +14,27 @@ use Laracasts\Flash\Flash;
 use App\Facades\Suppression;
 use App\Http\Controllers\Controller;
 use App\Services\SuppressionService;
+use App\Services\GlobalSuppressionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
 use Artisan;
+use Storage;
 
 class BulkSuppressionController extends Controller
 {
+    use DispatchesJobs;
 
     protected $suppServ;
     protected $emailService;
     const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppress_save';
+    private $globalSuppService;
 
 
-    public function __construct(SuppressionService $suppServ , EmailRecordService $recordService)
+    public function __construct(SuppressionService $suppServ , EmailRecordService $recordService, GlobalSuppressionService $globalSuppService)
     {
         $this->suppServ = $suppServ;
         $this->emailService = $recordService;
+        $this->globalSuppService = $globalSuppService;
     }
 
     /**
@@ -60,8 +67,11 @@ class BulkSuppressionController extends Controller
     {
         $failed = [];
         $dateFolder = date('Ymd');
-        $path = storage_path() . "/app/files/uploads/bulksuppression/$dateFolder/";
-        $files = scandir($path);
+        $storagePath = "files/uploads/bulksuppression/$dateFolder/";
+        $fullPath = storage_path() . "/app/" . $storagePath;
+        $files = scandir($fullPath);
+        $reasonId = $request->input('reason');
+        $count = 0;
 
         foreach ($files as $fileName) {
             if (!preg_match('/^\./', $fileName)) {
@@ -71,6 +81,14 @@ class BulkSuppressionController extends Controller
                     date('Ymd')
                 ));
             }
+
+            $records = Storage::get($storagePath . $fileName);
+            $split = (preg_match("/,/", $records)) ? ',' : "\n";
+            $count += $this->suppressRecords($records, $reasonId, $split);
+        }
+
+        if ($count > 0) {
+            $this->dispatchSuppressionUpdateJob();
         }
 
         Artisan::queue( 'mt1Import' , [
@@ -112,31 +130,47 @@ class BulkSuppressionController extends Controller
      */
     public function update(BulkSuppressionRequest $request)
     {
-        $type = 'eid';
         $records = $request->input('emails');
-        $reason = $request->input('suppressionReasonCode');
-        $emails = [];
+        $reasonId = $request->input('suppressionReasonCode');
+        $count = $this->suppressRecords($records, $reasonId, ',');
 
-        if (preg_match("/@+/", $records)) $type = 'email';
-        if(!empty($records)) {
-            if ($type == "email") {
-                foreach (explode(',', $records) as $record) {
-                    $emails[] = $record;
+        if ($count > 0) {
+            $this->dispatchSuppressionUpdateJob();
+        }
+        
+        return response()->json( [ 'status' => true ] , 200 );
+    }
 
-                    Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $reason);
+    private function suppressRecords($records, $reasonId, $split) {
+        $count = 0;
+
+        if (!empty($records)) {
+            $type =  (preg_match("/@+/", $records)) ? 'email': 'eid';
+            $timestamp = Carbon::now()->toDateTimeString();
+
+            foreach(explode($split, $records) as $record) {
+                if ($type == "email") {
+                    Suppression::recordSuppressionByReason($record, $timestamp, $reasonId);
+                    $this->globalSuppService->insertSuppression($record, $timestamp, $reasonId);
                 }
-            } else {
-                foreach (explode(',', $records) as $record) {
+                else {
                     $email = $this->emailService->getEmailAddress($record);
-
-                    $emails[] = $email;
-
-                    Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $reason);
+                    Suppression::recordSuppressionByReason($email, $timestamp, $reasonId);
+                    $this->globalSuppService->insertSuppression($email, $timestamp, $reasonId);
                 }
+
+                $count++;
             }
         }
 
-        return response()->json( [ 'status' => true ] , 200 );
+        return $count;
+    }
+
+    private function dispatchSuppressionUpdateJob() {
+        $version = 0;
+        $tracking = str_random(16);
+        $job = new S3RedshiftExportJob('SuppressionGlobalOrange', $version, $tracking);
+        $this->dispatch($job);
     }
 
     /**

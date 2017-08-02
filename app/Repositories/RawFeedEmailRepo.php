@@ -25,6 +25,8 @@ class RawFeedEmailRepo {
 
     protected $standardFields = [
         'feed_id' => 0 ,
+        'party' => 0 ,
+        'realtime' => 0 ,
         'email_address' => 0 ,
         'source_url' => 0 ,
         'capture_date' => 0 ,
@@ -39,7 +41,8 @@ class RawFeedEmailRepo {
         'country' => 0 ,
         'gender' => 0 ,
         'phone' => 0 ,
-        'dob' => 0
+        'dob' => 0 ,
+        'file' => 0
     ];
 
     public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedRepo $feed , RawFeedFieldErrors $failedFields ) {
@@ -61,6 +64,8 @@ class RawFeedEmailRepo {
             INSERT INTO
                 raw_feed_emails (
                     feed_id ,
+                    party ,
+                    realtime ,
                     email_address ,
                     source_url ,
                     capture_date ,
@@ -77,6 +82,7 @@ class RawFeedEmailRepo {
                     phone ,
                     dob ,
                     other_fields ,
+                    file ,
                     created_at ,
                     updated_at
                 )
@@ -113,6 +119,20 @@ class RawFeedEmailRepo {
             'errors' => json_encode( $errors ) ,
             'url' => $fullUrl ,
             'ip' => $referrerIp ,
+            'email' => $email ,
+            'feed_id' => $feedId
+        ] );
+    }
+
+    public function logBatchRealtimeFailure ( $errors , $csv , $file , $lineNumber , $email = '' , $feedId = 0 ) {
+        return $this->failed->create( [
+            'realtime' => 1 ,
+            'errors' => json_encode( $errors ) ,
+            'csv' => $csv ,
+            'file' => $file ,
+            'line_number' => $lineNumber ,
+            'url' => '' ,
+            'ip' => 'sftp-01.mtroute.com' ,
             'email' => $email ,
             'feed_id' => $feedId
         ] );
@@ -229,6 +249,8 @@ class RawFeedEmailRepo {
 
         return "("
             . $pdo->quote( $record[ 'feed_id' ] ) . ","
+            . $pdo->quote( $record[ 'party' ] ) . ","
+            . $pdo->quote( $record[ 'realtime' ] ) . ","
             . $pdo->quote( $record[ 'email_address' ] ) . ","
             . $pdo->quote( $record[ 'source_url' ] ) . ","
             . ( isset( $record[ 'capture_date' ] ) ? $pdo->quote( $record[ 'capture_date' ] ) : 'NULL' ) . ","
@@ -245,6 +267,7 @@ class RawFeedEmailRepo {
             . ( isset( $record[ 'phone' ] ) ? $pdo->quote( $record[ 'phone' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'dob' ] ) ? $pdo->quote( $record[ 'dob' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'other_fields' ] ) ? $pdo->quote( $record[ 'other_fields' ] ) : '{}' ) . ","
+            . ( isset( $record[ 'file' ] ) ? $pdo->quote( $record[ 'file' ] ) : '' ) . ","
             . "NOW() ,"
             . "NOW()"
         . ")";
@@ -269,7 +292,15 @@ class RawFeedEmailRepo {
             if ( $isEuroDateFormat ) {
                 $rawEmailRecord[ 'capture_date' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'capture_date' ] );
             } else {
-                $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                try {
+                    $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                } catch ( \Exception $e ) {
+                    try {
+                        $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'Y.m.d' , $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                    } catch ( \Exception $e ) {
+                        $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'm/d/Y His A' , $rawEmailRecord[ 'capture_date' ] )->toDateString();
+                    }
+                }
             }
         } catch ( \Exception $e ) {
             \Log::error( $e );
@@ -287,7 +318,11 @@ class RawFeedEmailRepo {
                 if ( $isEuroDateFormat ) {
                     $rawEmailRecord[ 'dob' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'dob' ] );
                 } else {
-                    $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
+                    try {
+                        $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
+                    } catch ( \Exception $e ) {
+                        $rawEmailRecord[ 'dob' ] = Carbon::createFromFormat( 'Y.m.d' , $rawEmailRecord[ 'dob' ] )->toDateString();
+                    }
                 }
             }
         } catch ( \Exception $e ) {
@@ -315,7 +350,11 @@ class RawFeedEmailRepo {
                 try { #trying forward slash format with day first
                     $date = Carbon::createFromFormat( 'd/m/Y' , $dateString )->toDateString();
                 } catch ( \Exception $e ) {
-                    #all format parsing failed, leave null
+                    try { #trying dates with periods 
+                        $date = Carbon::createFromFormat( 'Y.m.d' , $dateString )->toDateString();
+                    } catch ( \Exception $e ) {
+                        #all format parsing failed, leave null
+                    }
                 }
             }
         }

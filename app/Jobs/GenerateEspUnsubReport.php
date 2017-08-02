@@ -2,17 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
 use App\Reports\SuppressionExportReport;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Facades\JobTracking;
-use App\Models\JobEntry;
-use Log;
-class GenerateEspUnsubReport extends Job implements ShouldQueue
+
+class GenerateEspUnsubReport extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels;
 
     protected $date;
     protected $tracking;
@@ -22,12 +15,14 @@ class GenerateEspUnsubReport extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($date, $tracking)
+    public function __construct($date, $tracking, $runtimeThreshold)
     {
         $this->date = $date;
         $this->tracking = $tracking;
         $this->jobName = "GenerateEspUnsubReport";
-        JobTracking::startEspJob($this->jobName, '', 0, $this->tracking);
+
+        parent::__construct($this->jobName, $runtimeThreshold, $tracking);
+
     }
 
     /**
@@ -35,18 +30,8 @@ class GenerateEspUnsubReport extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(SuppressionExportReport $exportReport) {
-                JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-        try {
-            $exportReport->run($this->date);
-            JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-        } catch (\Exception $e){
-            Log::info($e->getMessage());
-            $this->failed();
-        }
-    }
-
-    public function failed() {
-        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
+    public function handleJob() {
+        $exportReport = \App::make(\App\Reports\SuppressionExportReport::class);
+        $exportReport->run($this->date);
     }
 }

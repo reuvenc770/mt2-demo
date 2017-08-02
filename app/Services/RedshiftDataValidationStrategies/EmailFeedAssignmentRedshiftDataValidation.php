@@ -53,7 +53,7 @@ class EmailFeedAssignmentRedshiftDataValidation extends AbstractLargeRedshiftDat
                     $this->badFeeds[$feedId] = ['cmpCount' => $count, 'rsCount' => $rsCount];
                 }
             }
-            elseif (!$this->equal($count, 0)) {
+            elseif (!$this->isEqual($count, 0)) {
                 // bad news, or just a new feed
                 $this->badFeeds[$feedId] = ['cmpCount' => $count, 'rsCount' => 0];
             }

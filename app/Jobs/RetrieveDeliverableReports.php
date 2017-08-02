@@ -3,6 +3,9 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 use DB;
 use Log;
@@ -17,9 +20,10 @@ use App\Models\StandardReport;
 use App\Models\BrontoReport;
 use App\Repositories\StandardApiReportRepo;
 use App\Exceptions\JobCompletedException;
-class RetrieveDeliverableReports extends MonitoredJob
+
+class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
-    use DispatchesJobs;
+    use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
     CONST JOB_NAME = "RetrieveDeliverableReports";
 
@@ -52,7 +56,7 @@ class RetrieveDeliverableReports extends MonitoredJob
      *
      * @return void
      */
-    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null, $defaultQueue = "default", $runtimeThreshold=null)
+    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null, $defaultQueue = "default", $runtimeThreshold = null)
     {
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
@@ -72,7 +76,7 @@ class RetrieveDeliverableReports extends MonitoredJob
         } else {
             $this->processState = $this->defaultProcessState;
         }
-        parent::__construct($this->getJobName(),$runtimeThreshold,$tracking);
+
         $this->initJobEntry();
     }
 
@@ -81,7 +85,7 @@ class RetrieveDeliverableReports extends MonitoredJob
      *
      * @return void
      */
-    public function handleJob () {
+    public function handle () {
         if(isset($this->processState['retryFailures']) && $this->processState['retryFailures'] >= 5){
             $this->failed();
             exit;
@@ -110,8 +114,6 @@ class RetrieveDeliverableReports extends MonitoredJob
 
             throw $e;
         }
-
-        return 1;
     }
 
     protected function jobSetup () {
@@ -263,7 +265,13 @@ class RetrieveDeliverableReports extends MonitoredJob
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
-            if ( !is_null( BrontoReport::find( $deploy->esp_internal_id ) ) ) {
+            if ( BrontoReport::where( [
+                    [ 'id' , '=' , $deploy->esp_internal_id ] ,
+                    [ 'type' , '<>' , 'transactional' ] ,
+                    [ 'type' , '<>' , 'test' ]
+                ] )->whereRaw( 'message_name REGEXP "^[[:digit:]]+\_"' )
+                 ->get()->count() > 0
+            ) {
                 $this->processState[ 'campaign' ] = BrontoReport::find( $deploy->esp_internal_id )->first();
                 $this->processState[ 'campaign' ]->delivers = $deploy->delivers;
                 $this->processState[ 'campaign' ]->opens = $deploy->opens;

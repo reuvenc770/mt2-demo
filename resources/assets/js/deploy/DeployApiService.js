@@ -1,7 +1,7 @@
 mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function ( paginationService , $http , $log ) {
     var self = this;
 
-    self.baseApiUrl = '/api/deploy/';
+    self.baseApiUrl = '/api/deploy';
     self.baseEspApiUrl = '/api/espapi/allactive';
     self.offerSearchUrl = '/api/offer/search/';
     self.domainsApiUrl = '/api/domain/listActiveDomains/';
@@ -33,7 +33,7 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
     };
 
     self.getDeploy = function (deployID ,successCallback, failCallBack){
-        $http( { "method" : "GET" , "url" : this.baseApiUrl + deployID } )
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + deployID } )
             .then( successCallback , failCallBack )
     };
 
@@ -95,7 +95,7 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
     };
 
     self.exportCsv = function (selectedRows) {
-        return this.baseApiUrl + 'exportcsv/?ids=' + selectedRows.join(',');
+        return this.baseApiUrl + '/exportcsv/?ids=' + selectedRows.join(',');
 
     };
 
@@ -112,7 +112,7 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
         var request = deploy;
         $http( {
             "method" : "POST" ,
-            "url" : this.baseApiUrl + "massupload" ,
+            "url" : this.baseApiUrl + "/massupload" ,
             "data" : request
         } ).then( successCallback , failureCallback );
     };
@@ -124,7 +124,7 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
 
         $http( {
             "method" : "PUT" ,
-            "url" : this.baseApiUrl + deploy.id ,
+            "url" : this.baseApiUrl + '/' + deploy.id ,
             "data" : request
         } ).then( successCallback , failureCallback );
     };
@@ -133,13 +133,13 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
         var request = deploy;
         $http( {
             "method" : "POST" ,
-            "url" : this.baseApiUrl + "validatedeploys" ,
+            "url" : this.baseApiUrl + "/validatedeploys" ,
             "data" : {filename: request}
         } ).then( successCallback , failureCallback );
     };
 
     self.checkForPackages = function (successCallback,failCallBack){
-        $http( { "method" : "GET" , "url" : this.baseApiUrl + 'check' } )
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/check' } )
             .then( successCallback , failCallBack );
     };
 
@@ -149,7 +149,7 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
         $http( {
             "method" : "POST" ,
             "responseType" : responseType,
-            "url" : this.baseApiUrl + "package/create?username=" + userName ,
+            "url" : this.baseApiUrl + "/package/create?username=" + userName ,
             "data" : request
         } ).then( successCallback , failCallBack );
     };
@@ -157,7 +157,7 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
     self.copyToFuture = function ( deployIds , date, successCallback , failureCallback  ) {
         $http( {
             "method" : "POST" ,
-            "url" : this.baseApiUrl + "copytofuture" ,
+            "url" : this.baseApiUrl + "/copytofuture" ,
             "data" : {deploy_ids: deployIds, "future_date": date}
         } ).then( successCallback , failureCallback );
     };

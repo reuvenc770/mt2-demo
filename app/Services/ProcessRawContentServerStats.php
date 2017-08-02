@@ -59,9 +59,18 @@ class ProcessRawContentServerStats {
                     if ($deployId) {
                         // Need esp_account_id, offer_id, cake_vertical_id
                         $deploy = $this->deployRepo->getDeploy($deployId);
-                        $espAccountId = $deploy->esp_account_id;
-                        $offerId = $deploy->offer_id;
-                        $cakeVerticalId = $this->deployRepo->getCakeVerticalId($deployId);
+                        
+                        if ($deploy) {
+                            $espAccountId = $deploy->esp_account_id;
+                            $offerId = $deploy->offer_id;
+                            $cakeVerticalId = $this->deployRepo->getCakeVerticalId($deployId);
+                        }
+                        else {
+                            // could not find deploy
+                            $espAccountId = 0;
+                            $offerId = 0;
+                            $cakeVerticalId = 0;
+                        }
                         $insertData[] = $this->mapToTable($row, $deployId, $espAccountId, $offerId, $cakeVerticalId);
                     }
                     else {
@@ -91,7 +100,7 @@ class ProcessRawContentServerStats {
         $this->jobName = $jobName;
     }
 
-    private function mapToTable($row, $deployId, $espAccountId, $offerid, $cakeVerticalId) {
+    private function mapToTable($row, $deployId, $espAccountId, $offerId, $cakeVerticalId) {
         $pdo = DB::connection()->getPdo();
 
         return '('

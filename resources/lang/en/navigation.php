@@ -54,5 +54,7 @@ return[
     'tools.awebermapping' => 'Map AWeber Campaigns',
     'tools' => 'Miscellaneous Tools',
     'tools.aweberlists' => "AWeber List Management",
-    'tools.seed' => 'Seed List'
+    'tools.seed' => 'Seed List' ,
+    'tools.notifications' => 'Notifications' ,
+    'cpm.list' => 'CPM Pricing' ,
 ];

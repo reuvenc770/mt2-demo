@@ -24,6 +24,20 @@ return [
             'port' => env('MT1_FILE_UPLOAD_PORT', ''),
             'remote_dir' => env('MT1_FILE_UPLOAD_DIRECTORY', '')
         ],
+        'cmpte_feed_file_server' => [
+            'host'      => env('CMPTE_FEED_FILE_HOST', 'localhost'),
+            'username'  => env('CMPTE_FEED_FILE_USER', 'forge'),
+            'port'      => env('CMPTE_FEED_FILE_PORT', ''),
+            'public_key' => env('CMPADMIN_PUB_KEY', ''),
+            'private_key' => env('CMPADMIN_PRIV_KEY', ''),
+        ] ,
+        'cmpte_realtime_server' => [
+            'host'      => env('CMPTE_REALTIME_HOST', 'localhost'),
+            'username'  => env('CMPTE_REALTIME_USER', 'forge'),
+            'port'      => env('CMPTE_REALTIME_PORT', ''),
+            'public_key' => env('CMPADMIN_PUB_KEY', ''),
+            'private_key' => env('CMPADMIN_PRIV_KEY', ''),
+        ] ,
     ]
     
 ];

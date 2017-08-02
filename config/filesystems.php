@@ -50,8 +50,13 @@ return [
 
         'views' => [
             'driver' => 'local',
-            'root'   => '/home/vagrant/dev/MT2/resources/views',
+            'root'   => base_path() . '/resources/views' ,
         ],
+
+        'routePartials' => [
+            'driver'    => 'local' ,
+            'root'      => app_path() . '/Http/RoutePartials'
+        ] ,
 
         'sprintUnsubCampaignFTP' => [
             'driver'   => 'ftp',

@@ -243,8 +243,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     of consistency, we want them to be in Eastern time.
 
                 */
-
-                // Simply appending 'UTC' converts this to UTC for this
                 $trimmedTimestamp = Carbon::parse($record->TimeStamp.'UTC')->setTimezone('America/New_York')->format('Y-m-d H:i');
                 $key = 'Pub' . md5($record->Email . $recordType . $trimmedTimestamp);
 
@@ -345,5 +343,5 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         Cache::forget( self::LOCK_NAME . '_' . $this->api->getEspAccountId() );
     }
 
-    public function pushRecords(array $records, $targetId) {}
+    public function addContactToLists($emailAddress, array $lists) {}
 }

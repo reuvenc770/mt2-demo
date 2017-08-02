@@ -18,13 +18,15 @@ use League\Csv\Writer;
 use Log;
 use Event;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+
 class DeployService
 {
     protected $deployRepo;
     protected $combineRepo;
     protected $cakeAffiliate;
     protected $requiredHeaders = ["send_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id", "mailing_domain_id", "content_domain_id", "list_profile_name", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format"];
-    use PaginateList;
+    use PaginateList , DispatchesJobs;
 
     public function __construct(DeployRepo $deployRepo, CakeAffiliateRepo $repo, ListProfileCombineRepo $combineRepo)
     {
@@ -47,7 +49,20 @@ class DeployService
 
     public function insertDeploy($data)
     {
-        return $this->deployRepo->insert($data);
+        $deploy = $this->deployRepo->insert($data);
+
+        if ( $deploy ) {
+            $this->takeDeploySnapshot( $deploy->id );
+        }
+
+        return $deploy;
+    }
+
+    protected function takeDeploySnapshot ( $deployId ) {
+        $this->dispatch( \App::make( \App\Jobs\CpmDeploySnapshotJob::class , [
+            $deployId , 
+            str_random( 16 )
+        ] ) );
     }
 
     public function getDeploy($deployId)

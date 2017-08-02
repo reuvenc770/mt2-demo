@@ -211,7 +211,7 @@ class DeployRepo implements Mt2Export
             ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
-            ->leftJoin('list_profile_combines', 'list_profile_combines.id', '=', 'deploys.list_profile_combine_id')
+            ->leftJoin('list_profile.list_profile_combines as lpc', 'lpc.id', '=', 'deploys.list_profile_combine_id')
             ->wherein("deploys.id",explode(",",$deployIds))
             ->where("deployment_status",1)
             ->selectRaw('send_date, deploys.id as deploy_id,
@@ -457,10 +457,9 @@ class DeployRepo implements Mt2Export
     }
 
     public function getCakeVerticalId($deployId) {
-        $cakeOffers = $this->deploy->offer->cakeOffers->first();
+        $cakeOffers = $this->deploy->find($deployId)->offer->cakeOffers->first();
         if ($cakeOffers) {
             $cakeOffer = $cakeOffers->first();
-
             if ($cakeOffer) {
                 return $cakeOffer->vertical_id;
             }

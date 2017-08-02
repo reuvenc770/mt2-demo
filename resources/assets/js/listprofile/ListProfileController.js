@@ -16,7 +16,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.combineError = null;
     self.ftpFolderError = null;
     self.combineName = "";
-    self.ftpFolder = "lp_combine";
+    self.ftpFolder = "lp_combines";
     self.combineParty = '';
 
     self.current = {
@@ -34,7 +34,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         'suppression' : {
             'global' : { 1 : "Orange Global" } ,
             'list' : {} ,
-            'offer' : {} ,
+            'offer' : [] ,
             'attribute' : { 'cities': [] , 'zips' : [] , 'states' : {} }
         },
         'actionRanges' : {
@@ -533,7 +533,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
                     self.enabledSuppression[ type ] = true;
                 } ,
                 function () {
-                    self.current.suppression[ type ] = [];
+                    //self.current.suppression[ type ] = [];
                 }
             );
         }
@@ -1179,7 +1179,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
         self.loadListCombines();
         self.combineName = "";
-        self.ftpFolder = "lp_combine";
+        self.ftpFolder = "lp_combines";
     };
 
     self.loadCombineFail = function (response) {

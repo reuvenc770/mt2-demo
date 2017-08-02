@@ -166,9 +166,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return ['delivers','links'];
     }
 
-    public function pushRecords(array $records, $targetId)
-    {
-    }
+    public function addContactToLists($emailAddress, array $lists) {}
 
     public function getUniqueJobId(&$processState)
     {

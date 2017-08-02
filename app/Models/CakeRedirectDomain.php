@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ModelTraits\ModelCacheControl;
 
 /**
  * App\Models\CakeRedirectDomain
@@ -23,5 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CakeRedirectDomain extends Model
 {
+    use ModelCacheControl;
+
     protected $guarded = ['id'];
 }

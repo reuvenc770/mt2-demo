@@ -338,6 +338,7 @@ class FeedService implements IFtpAdmin
         $feedPasswordRule = 'required|exists:feeds,password';
         $euroDateRule = 'required|euroDate';
         $usDateRule = 'required|date';
+        $usAltDateRule = 'required|date_format:Y.m.d';
 
         if ( isset( $data[ 'pw' ] ) && $data[ 'pw' ] != '' ) {
             $isRealtime = true;
@@ -361,7 +362,7 @@ class FeedService implements IFtpAdmin
         if ( $isBritishRecord ) {
             $rules[ 'capture_date' ] = $euroDateRule . '|euroDateNotFuture';
         } else {
-            $rules[ 'capture_date' ] = $usDateRule . '|before:tomorrow';
+            $rules[ 'capture_date' ] = ( isset( $data[ 'capture_date' ] ) && strpos( $data[ 'capture_date' ] , '.' ) !== false ? $usAltDateRule : $usDateRule ) . '|before:tomorrow';
         }
 
         if ( $isBritishRecord && $realtimeDobExists ) {
@@ -373,7 +374,7 @@ class FeedService implements IFtpAdmin
         if ( $isBritishRecord && $batchDobExists ) {
             $rules[ 'dob' ] = $euroDateRule;
         } elseif ( !$isBritishRecord && $batchDobExists ) {
-            $rules[ 'dob' ] = $usDateRule;
+            $rules[ 'dob' ] = ( strpos( $data[ 'dob' ] , '.' ) !== false ? $usAltDateRule : $usDateRule );
         }
 
         return $rules;
@@ -381,5 +382,53 @@ class FeedService implements IFtpAdmin
 
     public function getFeedNameFromId ( $id ) {
         return $this->feedRepo->getFeedNameFromId( $id );
+    }
+
+    public function getPartyFromId ( $id ) {
+        return $this->feedRepo->getPartyFromId( $id ); 
+    }
+
+    public function getSourceUrlFromId ( $id ) {
+        return $this->feedRepo->getSourceUrl( $id );
+    }
+
+    public function syncFileFields () {
+        #syncing feeds starting at id 2416 since that is the lowest number in our database. Assuming anything older is no longer used.
+        $feedFileFields = \DB::connection( 'mt1_data' )->table( 'user_file_layout' )->where( 'user_id' , '>=' , 2416 )->get();
+
+        foreach ( $feedFileFields as $current ) {
+            $order = $this->mapMt1FileFields( $current );
+
+            $this->saveFieldOrder( $current->user_id , $order );
+        }
+    }
+
+    protected function mapMt1FileFields ( $fieldList ) {
+        $map =  [
+            'email_index' => 'email_addr_pos' ,
+            'source_url_index' => 'source_url_pos' ,
+            'capture_date_index' => 'date_capture_pos' ,
+            'ip_index' => 'member_source_pos' ,
+            'first_name_index' => 'first_name_pos' ,
+            'last_name_index' => 'last_name_pos' ,
+            'address_index' => 'address_pos' ,
+            'address2_index' => 'address2_pos' ,
+            'city_index' => 'city_pos' , 
+            'state_index' => 'state_pos' ,
+            'zip_index' => 'zip_pos' ,
+            'country_index' => 'country_pos' ,
+            'gender_index' => 'gender_pos' ,
+            'phone_index' => 'phone_pos' ,
+            'dob_index' => 'birth_date_pos'
+        ];
+
+        $order = [];
+        foreach ( $map as $dbColumn => $index ) {
+            if ( isset( $fieldList->$index ) ) {
+                $order [ $dbColumn ] = $fieldList->$index - 1;
+            }
+        }
+
+        return $order;
     }
 }
