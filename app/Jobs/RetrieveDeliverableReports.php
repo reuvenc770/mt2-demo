@@ -112,6 +112,7 @@ class RetrieveDeliverableReports extends MonitoredJob
             throw $e;
         }
 
+        JobTracking::addDiagnostic(array('counts' => "$this->rowCount from end"),$this->tracking);
         return $this->rowCount;
     }
 
