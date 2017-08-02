@@ -204,7 +204,9 @@ class NavigationService
             $permissions = $this->permissionRepo->getAllPermissionsWithParent($section->id);
             foreach ($permissions as $permission) {
                 $route = $this->routeList->getByName($permission->name);
-                $permissionsArray[] = ["id" => $permission->id, "parent" => $permission->parent, "name" => trans('navigation.' . $route->getName())];
+                if ( !is_null( $route ) ) {
+                    $permissionsArray[] = ["id" => $permission->id, "parent" => $permission->parent, "name" => trans('navigation.' . $route->getName())];
+                }
             }
             $returnArray[] = ["id" => $section->id, "name" => $section->name, "childrenItems" => $permissionsArray];
         }

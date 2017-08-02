@@ -279,7 +279,7 @@ class ListProfileService
                     $mappedRow = $this->mapDataToColumns($columns, $row);
                     $this->batch($mappedRow, $listProfileTag);
 
-                    if (!$row->isSuppressed()) {
+                    if (!$row->globally_suppressed && !$row->feed_suppressed) {
                         $totalCount++;
                     }
                     

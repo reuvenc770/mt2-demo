@@ -15,17 +15,21 @@ return [
     'runtimeThreshold' => [
             'SimpleTestJob' => '10s',
             'BestMoneySearchGetResponseContactUploadJob' => '30m',
-            'DataProcessingJob' => '10m',
-            'DownloadSuppressionFromESP' => '10m',
-            'DownloadUnsubTicket' => '6m',
+            'DataProcessingJob' => '20m',
+            'DownloadSuppressionFromESP' => '20m',
+            'DownloadUnsubTicket' => '10m',
             'ExportDeployCombineJob' => '1h',
             'ListProfileBaseExportJob' => '1h',
             'ProcessNewActionsJob' => '30m',
-            'RetrieveApiReports' => '5m',
-            'RetrieveDeliverableReports' => '5m',
-            'RetrieveTrackingDataJob' => '1m',
+            'RetrieveApiReports' => '10m',
+            'RetrieveDeliverableReports' => '10m',
+            'RetrieveTrackingDataJob' => '2m',
             'RunTimeMonitorJob' => '1m',
             'S3RedshiftExportJob' => '1h',
-            'ScheduledFilterResolver' => '20m'
+            'ScheduledFilterResolver' => '20m',
+            'ProcessFeedRecordsJob' => '1h',
+            'GenerateEspUnsubReport' => '20m',
+            'SendSuppressionsToMT1' => '20m',
+            'CheckMt1RealtimeFeedProcessingJob' => '30m'
     ]
 ];

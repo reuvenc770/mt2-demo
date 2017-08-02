@@ -1,15 +1,9 @@
 <?php
 
 namespace App\Jobs;
-
-use App\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Jobs\MonitoredJob;
 use App\Facades\JobTracking;
 
-class BestMoneySearchGetResponseContactUploadJob extends MonitoredJob implements ShouldQueue
+class BestMoneySearchGetResponseContactUploadJob extends MonitoredJob
 {
     const BASE_JOB_NAME = 'BestMoneySearchGetResponseContactUploadJob';
     const ESP_ACCOUNT_NAME = 'GR002';
