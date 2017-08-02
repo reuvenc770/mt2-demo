@@ -10,9 +10,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdate;
 use App\Http\Requests\RegistrationFormRequest;
 use App\Http\Requests\RegistrationEditFormRequest;
+use App\Http\Requests\DeleteUserRequest;
 use Laracasts\Flash\Flash;
 use Hash;
 use Log;
+
 class UserApiController extends Controller
 {
     protected $userService;
@@ -128,6 +130,14 @@ class UserApiController extends Controller
         }
 
         Flash::success("User Successfully Updated");
+    }
+
+    public function destroy ( DeleteUserRequest $request , $id ) {
+        $user = \Sentinel::findById( $id );
+
+        \Activation::remove($user);
+
+        Flash::success("User Successfully Deleted");
     }
 
 }
