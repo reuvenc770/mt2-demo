@@ -29,12 +29,18 @@
                         </thead>
 
                         <tbody md-body>
-                            <tr md-row ng-repeat="record in user.accounts track by $index">
+                            <tr md-row ng-repeat="record in user.accounts track by $index" ng-hide="record.activations.length == 0">
                                 <td md-cell class="mt2-table-btn-column">
                                     <div layout="row" layout-align="center center">
                                         <a ng-href="@{{ user.editUrl + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                             <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                         </a>
+
+                                        @if (Sentinel::hasAccess('api.user.destroy'))
+                                        <md-icon  ng-click="user.delete( record.id )" aria-label="Delete User"
+                                                  md-font-set="material-icons" class="mt2-icon-black"
+                                                  data-toggle="tooltip" data-placement="bottom" title="Delete User">delete</md-icon>
+                                        @endif
                                     </div>
                                 </td>
                                 <td md-cell>@{{ record.id }}</td>
