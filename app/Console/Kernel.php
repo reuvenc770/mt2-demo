@@ -123,6 +123,7 @@ class Kernel extends ConsoleKernel
         Commands\ScheduledNotificationsCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\UpdateRecordProcessingReportWithErrors::class,
+        Commands\PopulateCpmListProfileReportCommand::class ,
         Commands\SyncMT1FeedFieldOrderCommand::class,
 ];
 
