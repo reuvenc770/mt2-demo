@@ -24,14 +24,13 @@ class ProcessFeedRecordsJob extends MonitoredJob {
     }
 
     public function handleJob() {
+        $pickupRepo = \App::make(\App\Repositories\EtlPickupRepo::class);
 
-                $pickupRepo = \App::make(\App\Repositories\EtlPickupRepo::class);
+        $service = FeedProcessingFactory::createService($this->party, $this->feedId);
+        $service->process($this->records);
 
-                $service = FeedProcessingFactory::createService($this->party, $this->feedId);
-                $service->process($this->records);
-
-                $pickupRepo->updateOrCreate($this->jobName, $this->maxId);
-
+        $pickupRepo->updateOrCreate($this->jobName, $this->maxId);
+        return count($this->records);
     }
 
 }

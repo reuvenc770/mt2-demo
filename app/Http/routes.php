@@ -12,6 +12,16 @@
 */
 
 /**
+ * Routes are broken out into partials in app/Http/RoutePartials/. Please do not add more routes to this file.
+ */
+/* Commenting out for now. We're having issues w/ routes not resolving or throwing errors. We will have to be careful when moving this back to partials
+$basePath = app_path() . '/Http/RoutePartials/';
+
+foreach ( Storage::disk( 'routePartials' )->files() as $filename ) {
+    require( $basePath . $filename );
+}
+ */
+/**
  * Default Routes
  */
 Route::get( '/' , [
@@ -1323,7 +1333,7 @@ Route::group(
         Route::resource(
             'isp',
             'EmailDomainController',
-            [ 'except' => [ 'create' , 'edit' ] ]
+            [ 'except' => [ 'index' , 'create' , 'edit' ] ]
         );
 
 
@@ -1363,7 +1373,7 @@ Route::group(
             [ 'only' => [ 'index' ] ]
         );
 
-	    Route::resource(
+        Route::resource(
             'dataexport',
             'DataExportController',
             [

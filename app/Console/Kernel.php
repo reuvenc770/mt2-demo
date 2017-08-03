@@ -123,7 +123,8 @@ class Kernel extends ConsoleKernel
         Commands\ScheduledNotificationsCommand::class,
         Commands\BestMoneySearchGetResponseContactUploadCommand::class,
         Commands\UpdateRecordProcessingReportWithErrors::class,
-        Commands\ReprocessFirstPartyActions::class
+        Commands\PopulateCpmListProfileReportCommand::class ,
+        Commands\SyncMT1FeedFieldOrderCommand::class,
 ];
 
     /**
@@ -305,6 +306,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
         $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); //command CheckMt1RealtimeFeedProcessingCommand, job class CheckMt1RealtimeFeedProcessingJob, Job name like: CheckMt1RealtimeFeedProcessingJob% //bb
         $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); //command CheckMt1BatchFeedProcessingCommand, job class and name like: CheckMt1BatchFeedProcessingJob% //bb
+        $schedule->command( 'feedRecords:syncFeedFileColumnOrder' )->everyThirtyMinutes(); // Job name like: SyncMT1FeedFieldOrder%
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id. This list is dynamic.
