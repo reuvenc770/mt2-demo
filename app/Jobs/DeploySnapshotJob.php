@@ -4,11 +4,11 @@ namespace App\Jobs;
 
 use App\Jobs\MonitoredJob;
 
-class CpmDeploySnapshotJob extends MonitoredJob
+class DeploySnapshotJob extends MonitoredJob
 {
     const INSERT_CHUNK = 50000;
 
-    protected $jobName = 'CpmDeploySnapshotJob';
+    protected $jobName = 'DeploySnapshotJob';
     protected $tracking;
     protected $deployId;
 
@@ -39,7 +39,7 @@ class CpmDeploySnapshotJob extends MonitoredJob
      */
     public function handleJob()
     {
-        $this->repo = \App::make( \App\Repositories\CpmDeploySnapshotRepo::class );
+        $this->repo = \App::make( \App\Repositories\DeploySnapshotRepo::class );
 
         $this->repo->clearForDeploy( $this->deployId );
 

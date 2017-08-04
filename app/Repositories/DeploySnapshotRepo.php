@@ -5,16 +5,16 @@
 
 namespace App\Repositories;
 
-use App\Models\CpmDeploySnapshot;
+use App\Models\DeploySnapshot;
 use App\Models\Deploy;
 use App\Models\ListProfileBaseTable;
 
-class CpmDeploySnapshotRepo {
+class DeploySnapshotRepo {
     const BASE_LP_EXPORT_TABLE_NAME = 'export_';
 
     protected $model;
 
-    public function __construct ( CpmDeploySnapshot $model ) {
+    public function __construct ( DeploySnapshot $model ) {
         $this->model = $model;
     }
 
@@ -23,7 +23,7 @@ class CpmDeploySnapshotRepo {
         $reportDb = config( 'database.connections.reporting_data.database' );
 
         \DB::insert( "INSERT INTO
-            {$reportDb}.cpm_deploy_snapshots ( email_address , deploy_id , feed_id )
+            {$reportDb}.deploy_snapshots ( email_address , deploy_id , feed_id )
         VALUES
             {$recordSqlString}
         ON DUPLICATE KEY UPDATE

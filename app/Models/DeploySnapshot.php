@@ -7,7 +7,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CpmDeploySnapshot extends Model
+class DeploySnapshot extends Model
 {
     protected $connection = "reporting_data";
 }

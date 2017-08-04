@@ -15,7 +15,7 @@ class CreateCpmDeploySnapshotsTable extends Migration
      */
     public function up()
     {
-        Schema::connection( 'reporting_data' )->create( 'cpm_deploy_snapshots' , function ( Blueprint $table ) {
+        Schema::connection( 'reporting_data' )->create( 'deploy_snapshots' , function ( Blueprint $table ) {
             $table->string( 'email_address' );
             $table->integer( 'deploy_id' )->unsigned()->default( 0 );
             $table->integer( 'feed_id' )->unsigned()->default( 0 );
@@ -34,6 +34,6 @@ class CreateCpmDeploySnapshotsTable extends Migration
      */
     public function down()
     {
-        Schema::connection( 'reporting_data' )->drop( 'cpm_deploy_snapshots' );
+        Schema::connection( 'reporting_data' )->drop( 'deploy_snapshots' );
     }
 }
