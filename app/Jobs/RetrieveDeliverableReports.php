@@ -88,17 +88,16 @@ class RetrieveDeliverableReports extends MonitoredJob
             return;
         }
         try {
-print "check\n";
             $this->startJobEntry();
             $filterName = $this->currentFilter();
             $this->$filterName();
         } catch (JobCompletedException $e) {
-            JobTracking::addDiagnostic(array('notices' => 'job completed exception thrown',$this->tracking));
+            JobTracking::addDiagnostic(array('warnings' => 'job completed exception thrown',$this->tracking));
             // killing an attempt at a rerun
             //Log::notice($e->getMessage());//I dont think we need to log this
             exit;
         } catch (JobAlreadyQueuedException $e) {
-            JobTracking::addDiagnostic(array('notices' => 'job already queued exception thrown',$this->tracking));
+            JobTracking::addDiagnostic(array('warnings' => 'job already queued exception thrown',$this->tracking));
             Log::notice($e->getMessage());
             exit;
         } catch ( JobException $e ) {
