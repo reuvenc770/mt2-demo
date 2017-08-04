@@ -179,6 +179,29 @@ class JobEntryRepo
                           ");
     }
 
+    public function retrieveBadJobsConsolidated($daterange){
+        return DB::select("SELECT
+                            CASE
+                            WHEN status=9 THEN 'warning'
+                            ELSE 'error'
+                            END AS type,
+                            CASE
+                            WHEN status=9 THEN 'RUNTIME WARNING'
+                            WHEN status=10 THEN 'RUNTIME ERROR'
+                            WHEN status=3 THEN 'FAILED'
+                            WHEN status=8 THEN 'ACCEPTANCE TEST FAILED'
+                            END as message,
+                            job_name,
+                            diagnostics,
+                            COUNT(time_fired) AS incidents
+                            FROM job_entries
+                            WHERE time_fired ".$daterange."
+                            AND status IN(3,8,9,10)
+                            GROUP BY type,message,job_name,diagnostics
+                            ORDER BY incidents DESC
+                          ");
+    }
+
     public function resolveJobs($daterange){
         return DB::update("UPDATE job_entries
                             SET diagnostics = JSON_SET(diagnostics,'$.status_update',CONCAT('status RESOLVED from status=',status)),
