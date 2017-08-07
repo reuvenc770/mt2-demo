@@ -32,6 +32,8 @@ class ListProfileExportService {
 
     const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
+    const READ_THRESHOLD = 200000;
+
     private $rows = [];
     private $rowCount = 0;
     private $suppressedRows = [];
@@ -67,27 +69,34 @@ class ListProfileExportService {
             Storage::disk('espdata')->append($fileName, implode(',', $columns));
         }
 
-        $result = $this->tableRepo->getModel();
-        $resource = $result->cursor();
-        $count = 0;
+        $result = $this->tableRepo->getSegmentedOrderedModel(0, self::READ_THRESHOLD);
+        $count = $result->count();
+        
+        while (!is_null($count)) {
+            $resource = $result->cursor();
 
-        foreach ($resource as $row) {
-            if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
-                
-                $suppressed = false;
-                foreach ($listProfile->offerSuppression as $offer) {
-                    // handle advertiser suppression here
-                    if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
-                        $suppressed = true;
-                        break;
+            foreach ($resource as $row) {
+                if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
+                    
+                    $suppressed = false;
+                    foreach ($listProfile->offerSuppression as $offer) {
+                        // handle advertiser suppression here
+                        if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
+                            $suppressed = true;
+                            break;
+                        }
+                    }
+
+                    if (!$suppressed) {
+                        $row = $this->mapRow($columns, $row);
+                        $this->remoteBatch($fileName, $row);
                     }
                 }
-
-                if (!$suppressed) {
-                    $row = $this->mapRow($columns, $row);
-                    $this->remoteBatch($fileName, $row);
-                }
             }
+
+            $maxEmailId = $row->email_id; // the last row, by definition
+            $result = $this->tableRepo->getSegmentedOrderedModel($maxEmailId, self::READ_THRESHOLD);
+            $count = $result->count();
         }
 
         $this->writeRemoteBatch($fileName);
