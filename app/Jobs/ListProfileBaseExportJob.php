@@ -50,7 +50,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
            return 0;
         }
 
-        $service->buildProfileTable($this->profileId);
+        $lpCount = $service->buildProfileTable($this->profileId);
         $this->dispatch(new ExportListProfileJob($this->profileId, str_random(16)));
         $schedule->updateSuccess($this->profileId); // These might not just be scheduled ...
 
@@ -73,6 +73,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
             }
         }
 
+        return $lpCount;
     }
 
     private function testConnection(){

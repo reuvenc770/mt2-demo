@@ -293,6 +293,7 @@ class ListProfileService
 
         Cache::tags('ListProfile')->flush();
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
+        return $totalCount;
     }
 
     private function cleanseData ( $data ) {
