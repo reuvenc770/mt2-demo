@@ -47,6 +47,7 @@ class PopulateCpaListProfileReportJob extends MonitoredJob
         $this->deployRepo = \App::make( \App\Repositories\DeployRepo::class );
 
         $deployOfferMap = $this->convRepo->getPaidDeployAndCakeOffers( $this->dateRange );
+        $rowsImpacted = 0;
         foreach ( $deployOfferMap as $currentMap ) { #keys: deploy_id , cake_offer_id , offer_id
             $records = [];
             $breakdown = $this->reportRepo->getFeedRecordDistribution( $currentMap->deploy_id );
@@ -95,7 +96,11 @@ class PopulateCpaListProfileReportJob extends MonitoredJob
             }
 
             $this->reportRepo->massInsert( $records );
+
+            $rowsImpacted += count( $records );
         }
+
+        return $rowsImpacted;
     }
 
     protected function doMakeGood ( &$feed , &$unattributedConversions , &$makeGoodCount ) {
