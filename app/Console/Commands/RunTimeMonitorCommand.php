@@ -20,7 +20,7 @@ class RunTimeMonitorCommand extends Command
      * @var string
      * --runtime-threshold=[0-9]{1,}(s|m|h|)  in seconds, minutes, or hours
      */
-    protected $signature = 'monitors:runtime {--mode=} {--days-back=?} {--dt-start=?} {--dt-end=?} {--runtime-threshold=default}';
+    protected $signature = 'monitors:runtime {--mode=} {--days-back=?} {--dt-start=?} {--dt-end=?} {--runtime-threshold=default} {--report-type=consolidated}';
 
     /**
      * The console command description.
@@ -49,7 +49,7 @@ class RunTimeMonitorCommand extends Command
         $date1 = $this->option('days-back')!="?" ? $this->option('days-back') : $this->option('dt-start');
         $date2 = $this->option('dt-end')!="?" ? $this->option('dt-end') : null;
 
-        $job = new RunTimeMonitorJob($this->option('mode'),$this->option('runtime-threshold'),$date1,$date2);
+        $job = new RunTimeMonitorJob($this->option('mode'),$this->option('runtime-threshold'),$date1,$date2,$this->option('report-type'));
         $this->dispatch( $job->onQueue( 'Monitor' ) );
     }
 }
