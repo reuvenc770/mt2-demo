@@ -28,7 +28,7 @@ class Url {
             throw new UrlValidationException($this->url);
         }
 
-        if ('#' === $this->url || (isset($parsed['path']) && $this->url === $parsed['path'])) {
+        if ('#' === $this->url || (isset($parsed['path']) && $this->url === $parsed['path']) || (!isset($parsed['scheme']) && $this->url === $parsed['fragment'])) {
             // We have a url with no scheme
             // Likely not a real url
             // Can be a token like {{ADV_UNSUB_URL}}
@@ -49,7 +49,7 @@ class Url {
             $this->fileName = '';
         }
         else {
-           $splitPath = $this->splitPath($parsed['path']);
+            $splitPath = $this->splitPath($parsed['path']);
             $this->protocol = $parsed['scheme'];
             $this->host = $parsed['host'];
             $this->query = isset($parsed['query']) ? $parsed['query'] : '';
