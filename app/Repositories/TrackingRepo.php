@@ -197,4 +197,46 @@ class TrackingRepo
             ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id');
     }
 
+    public function getPaidConversionsByCakeOffer ( $dateRange , $cakeOfferId ) {
+        return $this->report
+                    ->where( [ 
+                        [ 'action_id' , '=' , '3' ] , #conversion
+                        [ 'revenue' , '>' , 0 ] , #has revenue
+                        [ 'cake_offer_id' , '=' , $cakeOfferId ] ,
+                        [ 'datetime' , '>=' , $dateRange[ 'start' ] ] ,
+                        [ 'datetime' , '<' , $dateRange[ 'end' ] ] ,
+                    ] ); 
+    }
+
+    public function getPaidConversionsByCakeOfferAndFeed ( $dateRange , $cakeOfferId , $feedId ) {
+        $table = $this->report->getTable();
+
+        return $this->report
+                    ->join( 'deploy_snapshots as ds' , $table . '.email_id' , '=' , 'ds.email_id' )
+                    ->where( [ 
+                        [ 'ds.feed_id' , '=' , $feedId ] ,
+                        [ $table . '.action_id' , '=' , '3' ] , #conversion
+                        [ $table . '.revenue' , '>' , 0 ] , #has revenue
+                        [ $table . '.cake_offer_id' , '=' , $cakeOfferId ] ,
+                        [ $table . '.datetime' , '>=' , $dateRange[ 'start' ] ] ,
+                        [ $table . '.datetime' , '<' , $dateRange[ 'end' ] ] ,
+                    ] ); 
+    }
+
+    public function getPaidDeployAndCakeOffers ( $dateRange ) {
+        $dataSchema = config('database.connections.mysql.database');
+        $table = $this->report->getTable();
+
+        return $this->report
+                    ->join( $dataSchema . '.mt_offer_cake_offer_mappings' , $table . '.cake_offer_id' , '=' , $dataSchema . '.mt_offer_cake_offer_mappings.cake_offer_id' )
+                    ->where( [ 
+                        [ $table . '.action_id' , '=' , '3' ] , #conversion
+                        [ $table . '.revenue' , '>' , 0 ] , #has revenue
+                        [ $table . '.datetime' , '>=' , $dateRange[ 'start' ] ] ,
+                        [ $table . '.datetime' , '<' , $dateRange[ 'end' ] ] ,
+                    ] )
+                    ->select( $table . '.deploy_id' , $table . '.cake_offer_id' , $dataSchema . '.mt_offer_cake_offer_mappings.offer_id' )
+                    ->groupBy( $table . '.deploy_id' , $table . '.cake_offer_id' , $dataSchema . '.mt_offer_cake_offer_mappings.offer_id' )
+                    ->get();
+    }
 }

@@ -23,10 +23,11 @@ class DeploySnapshotRepo {
         $reportDb = config( 'database.connections.reporting_data.database' );
 
         \DB::insert( "INSERT INTO
-            {$reportDb}.deploy_snapshots ( email_address , deploy_id , feed_id )
+            {$reportDb}.deploy_snapshots ( email_id , email_address , deploy_id , feed_id )
         VALUES
             {$recordSqlString}
         ON DUPLICATE KEY UPDATE
+            email_id = email_id ,
             email_address = email_address ,
             deploy_id = deploy_id ,
             feed_id = VALUES( feed_id )
@@ -37,6 +38,7 @@ class DeploySnapshotRepo {
         $pdo = \DB::connection()->getPdo();
 
         return '('
+            . $pdo->quote( $record[ 'email_id' ] ) . ','
             . $pdo->quote( $record[ 'email_address' ] ) . ','
             . $pdo->quote( $record[ 'deploy_id' ] ) . ','
             . $pdo->quote( $record[ 'feed_id' ] )
@@ -61,5 +63,31 @@ class DeploySnapshotRepo {
         }
 
         return $listProfiles;
+    }
+
+    public function getFeedRecordDistribution ( $deployId ) {
+        $reportSchema = config( 'database.connections.reporting_data.database' );
+
+        return \DB::select( "SELECT
+            COUNT( * ) / tc.total_count AS feed_perc ,
+            feed_id
+        FROM
+            {$reportSchema}.deploy_snapshots ds
+            INNER JOIN (
+                SELECT
+                    COUNT( * ) AS total_count ,
+                    ds.deploy_id
+                FROM
+                    {$reportSchema}.deploy_snapshots ds
+                WHERE
+                    ds.deploy_id = {$deployId}
+                GROUP BY
+                    ds.deploy_id
+            ) tc ON( ds.deploy_id = tc.deploy_id )
+        WHERE
+            ds.deploy_id = {$deployId}
+        GROUP BY
+            ds.feed_id ,
+            tc.total_count;" );
     }
 }

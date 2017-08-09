@@ -48,6 +48,7 @@ class DeploySnapshotJob extends MonitoredJob
         foreach ( $listProfileExports as $export ) {
             foreach ( $export->cursor() as $record ) {
                 $this->buffer( [
+                    'email_id' => $record->email_id, 
                     'email_address' => $record->email_address, 
                     'feed_id' => $record->feed_id ,
                     'deploy_id' => $this->deployId
