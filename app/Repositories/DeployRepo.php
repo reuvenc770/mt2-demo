@@ -234,7 +234,7 @@ class DeployRepo implements Mt2Export
     public function validateDeploy($deploy,$copyToFutureBool = true){
         $errors = array();
         if (isset($deploy['esp_account_id']) && $deploy['esp_account_id'] !=='' ) {
-            $count = DB::select("Select count(*) as count from esp_accounts where id = :id and status = 1", ['id' => $deploy['esp_account_id']])[0];
+            $count = DB::select("Select count(*) as count from esp_accounts where id = :id and enable_stats = 1", ['id' => $deploy['esp_account_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "ESP Account ID/Name is invalid or deactivated";
             }

@@ -486,7 +486,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         if ($result) {
             $isDeliverable = (int)($result->last_action_type === 'None');
             return ($result->last_action_type === $obj->last_action_type)
-                && $isDeliverable = $obj->is_deliverable
+                && $isDeliverable === (int)$obj->is_deliverable
                 && ($result->subscribe_date === $obj->subscribe_date);
         }
         else {

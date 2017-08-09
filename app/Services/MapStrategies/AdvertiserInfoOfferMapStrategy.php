@@ -16,7 +16,7 @@ class AdvertiserInfoOfferMapStrategy implements IMapStrategy {
             'offer_payout_type_id' => $this->mapPayoutType($record['offer_type']),
             'unsub_link' => $record['unsub_link'] ?: '',
             'exclude_days' => $record['exclude_days'],
-            'unsub_text' => $record['unsub_text'],
+            'unsub_text' => $record['unsub_text'] ?: '',
             'unsub_type' => $record['unsub_use'],
         ];
     }
