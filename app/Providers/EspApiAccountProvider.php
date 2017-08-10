@@ -29,7 +29,7 @@ class EspApiAccountProvider extends ServiceProvider
     {
         App::bind('EspApiAccount', function()
         {
-            return new EspApiAccountService(new EspApiAccountRepo(new EspAccount() , new EspAccountCustomIdHistory() ));
+            return App::make(EspApiAccountService::class);
         });
 
     }
