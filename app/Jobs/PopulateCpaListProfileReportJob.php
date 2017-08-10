@@ -59,19 +59,20 @@ class PopulateCpaListProfileReportJob extends MonitoredJob
                                                     ->count();
 
             foreach ( $breakdown as $currentFeed ) { #process each feed for the given deploy/cake_offer_id
-                $revenue = $this->convRepo->getPaidConversionsByCakeOfferAndFeed( $this->dateRange , $currentMap->cake_offer_id , $currentFeed->feed_id )
-                                    ->where( 'cake_actions.email_id' , '<>' , 0 )
-                                    ->select( \DB::raw( 'SUM( revenue ) as totalAttrRev' ) )
-                                    ->first()
-                                    ->totalAttrRev;
+                $revenueResult = $this->convRepo->getPaidConversionsByCakeOfferAndFeed( $this->dateRange , $currentMap->cake_offer_id , $currentFeed->feed_id )
+                                                ->where( 'cake_actions.email_id' , '<>' , 0 )
+                                                ->select( \DB::raw( 'SUM( revenue ) as totalAttrRev' ) )
+                                                ->first();
+
+                if ( is_null( $revenueResult ) ) {
+                    $revenue = 0;
+                } else {
+                    $revenue = $revenueResult->totalAttrRev;
+                }
 
                 $feedConversionCount = $this->convRepo->getPaidConversionsByCakeOfferAndFeed( $this->dateRange , $currentMap->cake_offer_id , $currentFeed->feed_id )
                                     ->where( 'cake_actions.email_id' , '<>' , 0 )
                                     ->count();
-
-                if ( is_null( $revenue ) ) {
-                    $revenue = 0;
-                }
 
                 $currentFeedRecord = [
                     'feed_id' => $currentFeed->feed_id ,
