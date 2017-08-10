@@ -263,7 +263,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         #$schedule->command('mt1Import vendorSuppressionInfo --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *');  all mt1 above
+        $schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *');  //all mt1 above
 
         /**
          * Attribution Jobs
