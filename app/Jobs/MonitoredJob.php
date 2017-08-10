@@ -6,6 +6,7 @@ use App\Models\JobEntry;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Console\Commands\Traits\UseTracking;
@@ -18,8 +19,7 @@ use Log;
  * status changes, and acceptance test execution
  */
 abstract class MonitoredJob extends Job implements ShouldQueue {
-    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-
+    use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
     use UseTracking;
 
     protected $tracking;

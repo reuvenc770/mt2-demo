@@ -21,7 +21,7 @@ class UpdateMissingMaroCampaigns extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:updateMissingMaroCampaigns {useOrphans?}';
+    protected $signature = 'reports:updateMissingMaroCampaigns {useOrphans?} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -51,7 +51,7 @@ class UpdateMissingMaroCampaigns extends Command
 
         foreach ( $accounts as $current ) {
             if ( $current->enable_stats ) {
-                $job = new UpdateMissingMaroCampaignsJob( $current->id , str_random( 16 ) , !is_null( $this->argument( 'useOrphans' ) ) );
+                $job = new UpdateMissingMaroCampaignsJob( $current->id , str_random( 16 ), $this->option('runtime-threshold'), !is_null( $this->argument( 'useOrphans' ) ) );
                 $this->dispatch( $job );
             } else {
                 $this->info( 'Maro Account ' . $current->id . ' stats disabled. Aborting missing campaign job.' );

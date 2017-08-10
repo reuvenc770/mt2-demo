@@ -2,19 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Models\JobEntry;
 use App\Factories\DataProcessingFactory;
-use App\Facades\JobTracking;
 
-class AttributionValidationJob extends SafeJob {
+class AttributionValidationJob extends MonitoredJob {
 
-    private $lookback;
     protected $jobName = 'AttributionValidation';
     private $startPoint;
 
-    public function __construct($startPoint, $tracking) {
+    public function __construct($startPoint, $tracking, $runtimeThreshold) {
         $this->startPoint = $startPoint;
-        parent::__construct($this->jobName, $tracking);
+        parent::__construct($this->jobName, $runtimeThreshold, $tracking);
     }
 
     protected function handleJob() {

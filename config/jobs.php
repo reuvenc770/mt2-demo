@@ -30,6 +30,22 @@ return [
             'ProcessFeedRecordsJob' => '1h',
             'GenerateEspUnsubReport' => '20m',
             'SendSuppressionsToMT1' => '20m',
-            'CheckMt1RealtimeFeedProcessingJob' => '30m'
+            'CheckMt1RealtimeFeedProcessingJob' => '30m',
+            'SharePublicatorsUnsubsJob' => '1h',
+            'domainExpirationNotifications' => '1m',
+            'ScheduledNotificationQueueJob' => '1m',
+            'ScheduledNotificationWorkerJob' => '1m',
+            'ExportActionsJob' => '1h',
+            'UpdateMissingMaroCampaignsJob' => '1m',
+            'SyncModelsWithNewFeedsJob' => '1m',
+            'AttributionValidationJob' => '10h',
+            'VacuumRedshiftJob' => '10m',
+            'RedshiftDataValidationJob' => '1h',
+            'ProcessMt1BatchFeedFilesJob' => '5m',
+            'ProcessMt1RealtimeFeedFilesJob' => '10m',
+            'UpdateFeedCountJob' => '1m',
+            'CheckMt1BatchFeedProcessingJob' => '20m',
+            'FirstPartyReprocessingJob' => '10m',
+            'DataConsistencyValidationJob' => '6h'
     ]
 ];

@@ -16,7 +16,7 @@ class ReprocessFirstPartyActions extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:reprocessFirstParty {lookback?}';
+    protected $signature = 'feedRecords:reprocessFirstParty {lookback?} {--runtime-threshold=default}';
     const DEFAULT_LOOKBACK = 1;
     /**
      * The console command description.
@@ -45,7 +45,7 @@ class ReprocessFirstPartyActions extends Command
         $activeWorkflows = $repo->getActiveWorkflows();
 
         foreach ($activeWorkflows as $workflow) {
-            $job = new FirstPartyReprocessingJob($workflow, $lookBack, str_random(16));
+            $job = new FirstPartyReprocessingJob($workflow, $lookBack, str_random(16), $this->option('runtime-threshold'));
             $this->dispatch($job);
         }
         

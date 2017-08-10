@@ -14,7 +14,7 @@ class DomainExpirationNotification extends Command
      *
      * @var string
      */
-    protected $signature = 'domains:expired';
+    protected $signature = 'domains:expired {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -40,7 +40,7 @@ class DomainExpirationNotification extends Command
      */
     public function handle()
     {
-        $job = new domainExpirationNotifications(str_random(16));
+        $job = new domainExpirationNotifications(str_random(16),$this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }

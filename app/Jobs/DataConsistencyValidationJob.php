@@ -2,19 +2,18 @@
 
 namespace App\Jobs;
 
-use App\Jobs\SafeJob;
 use App\Factories\ServiceFactory;
 
-class DataConsistencyValidationJob extends SafeJob {
+class DataConsistencyValidationJob extends MonitoredJob {
 
     private $source;
     private $type;
 
-    public function __construct($source, $type, $tracking) {
+    public function __construct($source, $type, $tracking, $runtimeThreshold) {
         $this->source = $source;
         $this->type = $type;
         $jobName = 'DataValidation-' . $source;
-        parent::__construct($jobName, $tracking);
+        parent::__construct($jobName, $runtimeThreshold,$tracking);
     }
 
     protected function handleJob() {

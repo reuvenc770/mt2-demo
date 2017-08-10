@@ -19,7 +19,7 @@ class ScheduledNotificationsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'notify:scheduled { --K|contentKey=all : Specific logs to notify for. Default is all. } { --runtime-threshold= : Threshold for monitoring. }';
+    protected $signature = 'notify:scheduled { --K|contentKey=all : Specific logs to notify for. Default is all. } { --runtime-threshold=default : Threshold for monitoring. }';
 
     /**
      * The console command description.
