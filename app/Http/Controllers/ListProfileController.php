@@ -84,13 +84,11 @@ class ListProfileController extends Controller
         }
 
         $data['selectedColumns'] = $columns;
-
         $profileID = $this->listProfile->create( $data );
 
-        if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
-            $cacheTagName = null;
-            $this->dispatch(new ListProfileBaseExportJob($profileID, $cacheTagName, str_random(16), '1h'));
-        }
+        // We want to dispatch a job immediately so that the table is ready for deploys
+        $cacheTagName = null;
+        $this->dispatch(new ListProfileBaseExportJob($profileID, $cacheTagName, str_random(16), '1h'));
 
         Flash::success("List Profile was Successfully Created");
 
