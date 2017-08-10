@@ -639,9 +639,9 @@
                                     <select name="url_format" id="url_format" class="form-control" ng-required="true"
                                             ng-model="deploy.currentDeploy.url_format">
                                         <option value="">URL Format</option>
-                                        <option value="long">Long</option>
-                                        <option value="short">Short</option>
-                                        <option value="encrypt">Encrypt</option>
+                                        <option value="long">long</option>
+                                        <option value="short">short</option>
+                                        <option value="encrypt">encrypt</option>
                                     </select>
 
                                     <div class="help-block" ng-show="deploy.formErrors.url_format">

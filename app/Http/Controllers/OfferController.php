@@ -22,7 +22,7 @@ class OfferController extends Controller
         $term = $request->input("searchTerm");
 
         if(isset($term)) {
-            $offers = $this->offerService->autoCompleteSearch($term);
+            $offers = $this->offerService->autoCompleteSearch( $day , $term );
         } else {
             $offers = $this->offerService->searchByDay($day);
         }
