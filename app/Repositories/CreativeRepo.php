@@ -49,6 +49,7 @@ class CreativeRepo {
             ->where('ocm.offer_id', $offerId)
             ->where('creatives.status', 'A')
             ->where('creatives.is_approved', 1)
+            ->orderBy( 'creatives.id' , 'desc' )
             ->get();
     }
 

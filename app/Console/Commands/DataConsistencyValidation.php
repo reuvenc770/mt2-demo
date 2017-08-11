@@ -14,7 +14,7 @@ class DataConsistencyValidation extends Command
      *
      * @var string
      */
-    protected $signature = 'dataValidation {source} {type}';
+    protected $signature = 'dataValidation {source} {type} {--runtime-threshold=default}';
 
     const VALID_TYPES = ['exists', 'value'];
     const VALID_SOURCES = ['emails', 'emailFeedInstances', 'emailFeedAssignments'];
@@ -52,7 +52,7 @@ class DataConsistencyValidation extends Command
             throw new \Exception("Data consistency check type invalid: $type");
         }
 
-        $job = new DataConsistencyValidationJob($source, $type, str_random(16));
+        $job = new DataConsistencyValidationJob($source, $type, str_random(16), $this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }

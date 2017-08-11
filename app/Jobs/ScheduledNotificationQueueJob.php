@@ -2,42 +2,38 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
-use App\Jobs\MonitoredJob;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Facades\JobTracking;
 use Carbon\Carbon;
 use Cron\CronExpression;
 
-class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
+class ScheduledNotificationQueueJob extends MonitoredJob
 {
     use DispatchesJobs;
 
     const NOTIFICATION_QUEUE = 'scheduled_notifications';
-    const DEFAULT_RUNTIME_THRESHOLD = 20 * 60;
 
     protected $baseJobName = 'ScheduledNotificationQueueJob';
     protected $jobName;
     protected $contentType;
     protected $tracking;
+    protected $runtimeThreshold;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $contentType , $tracking , $runtimeThreshold="10m" )
+    public function __construct( $contentType , $tracking , $runtimeThreshold )
     {
+        $this->runtimeThreshold = $runtimeThreshold;
         $this->contentType = $contentType;
         $this->jobName = $this->baseJobName . ":" . $this->contentType;
         $this->tracking = $tracking;
 
         parent::__construct(
             $this->jobName ,
-            $runtimeThreshold ?: self::DEFAULT_RUNTIME_THRESHOLD ,
+            $runtimeThreshold,
             $tracking
         );
     }
@@ -64,7 +60,7 @@ class ScheduledNotificationQueueJob extends MonitoredJob implements ShouldQueue
             $worker = \App::make( \App\Jobs\ScheduledNotificationWorkerJob::class , [
                 $notification ,
                 str_random( 16 ) ,
-                self::DEFAULT_RUNTIME_THRESHOLD ,
+                $this->runtimeThreshold,
                 $notification->isCritical
             ] );
 

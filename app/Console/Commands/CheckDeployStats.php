@@ -14,7 +14,7 @@ class CheckDeployStats extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:findIncompleteDeploys {lookback?}';
+    protected $signature = 'reports:findIncompleteDeploys {lookback?} {--runtime-threshold=default}';
     const DEFAULT_LOOKBACK = 7;
     const JOB_NAME = 'CheckDeployStats';
 
@@ -43,7 +43,7 @@ class CheckDeployStats extends Command
      */
     public function handle() {
         $lookback = $this->argument('lookback') ? $this->argument('lookback') : self::DEFAULT_LOOKBACK;
-        $job = new DataProcessingJob(self::JOB_NAME, str_random(16), $lookback);
+        $job = new DataProcessingJob(self::JOB_NAME, str_random(16), $lookback, $this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }
