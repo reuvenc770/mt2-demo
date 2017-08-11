@@ -27,7 +27,7 @@ class CreateCpaReportingListProfileTable extends Migration
 
             $table->index( 'feed_id' , 'feed_index' );
             $table->index( 'cake_offer_id' , 'offer_index' );
-            $table->unique( [ 'feed_id' , 'cake_offer_id' ] , 'feed_offer_unique' );
+            $table->unique( [ 'feed_id' , 'cake_offer_id' , 'deploy_id' ] , 'feed_offer_deploy_unique' );
         });
     }
 

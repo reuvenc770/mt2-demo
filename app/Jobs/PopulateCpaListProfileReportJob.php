@@ -53,26 +53,40 @@ class PopulateCpaListProfileReportJob extends MonitoredJob
             $breakdown = $this->reportRepo->getFeedRecordDistribution( $currentMap->deploy_id );
 
             #will be distributed later
-            $unattributedConversions = $this->convRepo->getPaidConversionsByCakeOffer( $this->dateRange , $currentMap->cake_offer_id )->where( 'email_id' , 0 )->get();
-            $unattributedConversionCount = $this->convRepo->getPaidConversionsByCakeOffer( $this->dateRange , $currentMap->cake_offer_id )
-                                                    ->where( 'email_id' , 0 )
-                                                    ->count();
+            $unattributedConversions = $this->convRepo->getPaidConversionsByCakeOfferDeploy(
+                $this->dateRange ,
+                $currentMap->cake_offer_id ,
+                $currentMap->deploy_id
+            )->where( 'email_id' , 0 )->get();
+
+            $unattributedConversionCount = $this->convRepo->getPaidConversionsByCakeOfferDeploy(
+                $this->dateRange ,
+                $currentMap->cake_offer_id,
+                $currentMap->deploy_id
+            )->where( 'email_id' , 0 )->count();
 
             foreach ( $breakdown as $currentFeed ) { #process each feed for the given deploy/cake_offer_id
-                $revenueResult = $this->convRepo->getPaidConversionsByCakeOfferAndFeed( $this->dateRange , $currentMap->cake_offer_id , $currentFeed->feed_id )
-                                                ->where( 'cake_actions.email_id' , '<>' , 0 )
-                                                ->select( \DB::raw( 'SUM( revenue ) as totalAttrRev' ) )
-                                                ->first();
+                $revenueResult = $this->convRepo->getPaidConversionsByCakeOfferFeedDeploy(
+                    $this->dateRange ,
+                    $currentMap->cake_offer_id ,
+                    $currentFeed->feed_id ,
+                    $currentMap->deploy_id
+                )->where( 'cake_actions.email_id' , '<>' , 0 )
+                ->select( \DB::raw( 'SUM( revenue ) as totalAttrRev' ) )
+                ->first();
 
                 if ( is_null( $revenueResult ) ) {
-                    $revenue = 0;
+                    $revenue = 0.00;
                 } else {
-                    $revenue = $revenueResult->totalAttrRev;
+                    $revenue = (float)$revenueResult->totalAttrRev;
                 }
 
-                $feedConversionCount = $this->convRepo->getPaidConversionsByCakeOfferAndFeed( $this->dateRange , $currentMap->cake_offer_id , $currentFeed->feed_id )
-                                    ->where( 'cake_actions.email_id' , '<>' , 0 )
-                                    ->count();
+                $feedConversionCount = $this->convRepo->getPaidConversionsByCakeOfferFeedDeploy(
+                    $this->dateRange ,
+                    $currentMap->cake_offer_id ,
+                    $currentFeed->feed_id ,
+                    $currentMap->deploy_id
+                )->where( 'cake_actions.email_id' , '<>' , 0 )->count();
 
                 $currentFeedRecord = [
                     'feed_id' => $currentFeed->feed_id ,
@@ -80,11 +94,11 @@ class PopulateCpaListProfileReportJob extends MonitoredJob
                     'offer_id' => $currentMap->offer_id ,
                     'deploy_id' => $currentMap->deploy_id ,
                     'conversions' => $feedConversionCount ,
-                    'rev' => (float)$revenue
+                    'rev' => $revenue
                 ];
 
                 #figure out how many unattributed conversions to assign to this feed
-                $makeGoodCount = $unattributedConversionCount * $currentFeed->feed_perc; 
+                $makeGoodCount = round( $unattributedConversionCount * $currentFeed->feed_perc , 0 , PHP_ROUND_HALF_UP ); 
                 $this->doMakeGood( $currentFeedRecord , $unattributedConversions , $makeGoodCount );
 
                 #if we're at the last feed and there are unattributed conversions left, add to last feed's revenue

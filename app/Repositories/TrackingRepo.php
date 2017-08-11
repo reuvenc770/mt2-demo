@@ -197,27 +197,31 @@ class TrackingRepo
             ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id');
     }
 
-    public function getPaidConversionsByCakeOffer ( $dateRange , $cakeOfferId ) {
+    public function getPaidConversionsByCakeOfferDeploy ( $dateRange , $cakeOfferId , $deployId ) {
         return $this->report
                     ->where( [ 
                         [ 'action_id' , '=' , '3' ] , #conversion
                         [ 'revenue' , '>' , 0 ] , #has revenue
                         [ 'cake_offer_id' , '=' , $cakeOfferId ] ,
+                        [ 'deploy_id' , '=' , $deployId ] ,
                         [ 'datetime' , '>=' , $dateRange[ 'start' ] ] ,
                         [ 'datetime' , '<' , $dateRange[ 'end' ] ] ,
                     ] ); 
     }
 
-    public function getPaidConversionsByCakeOfferAndFeed ( $dateRange , $cakeOfferId , $feedId ) {
+    public function getPaidConversionsByCakeOfferFeedDeploy ( $dateRange , $cakeOfferId , $feedId , $deployId ) {
         $table = $this->report->getTable();
 
         return $this->report
-                    ->join( 'deploy_snapshots as ds' , $table . '.email_id' , '=' , 'ds.email_id' )
-                    ->where( [ 
+                    ->join( 'deploy_snapshots as ds' , function ( $join ) use ( $table ) {
+                        $join->on( $table . '.email_id' , '=' , 'ds.email_id' );
+                        $join->on( $table . '.deploy_id' , '=' , 'ds.deploy_id' );
+                    } )->where( [ 
                         [ 'ds.feed_id' , '=' , $feedId ] ,
                         [ $table . '.action_id' , '=' , '3' ] , #conversion
                         [ $table . '.revenue' , '>' , 0 ] , #has revenue
                         [ $table . '.cake_offer_id' , '=' , $cakeOfferId ] ,
+                        [ $table . '.deploy_id' , '=' , $deployId ] ,
                         [ $table . '.datetime' , '>=' , $dateRange[ 'start' ] ] ,
                         [ $table . '.datetime' , '<' , $dateRange[ 'end' ] ] ,
                     ] ); 
@@ -237,6 +241,7 @@ class TrackingRepo
                     ] )
                     ->select( $table . '.deploy_id' , $table . '.cake_offer_id' , $dataSchema . '.mt_offer_cake_offer_mappings.offer_id' )
                     ->groupBy( $table . '.deploy_id' , $table . '.cake_offer_id' , $dataSchema . '.mt_offer_cake_offer_mappings.offer_id' )
+                    ->orderBy( $table . '.cake_offer_id' )
                     ->get();
     }
 }
