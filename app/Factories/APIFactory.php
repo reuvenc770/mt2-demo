@@ -138,7 +138,7 @@ class APIFactory
     }
 
     public static function createESPApiAccountRepo(){
-       return App::make(App\Repositories\EspApiAccountRepo::class));
+       return App::make(App\Repositories\EspApiAccountRepo::class);
     }
 
 }
