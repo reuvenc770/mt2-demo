@@ -207,6 +207,7 @@ class RemoteLinuxSystemService {
     }
     
     protected function cleanPath ( $path ) {
-        return str_replace( ' ' , '\ ' , trim( $path ) );
+        $escapedPath = escapeshellcmd( trim( $path ) );
+        return str_replace( ' ' , '\ ' , $escapedPath );
     }
 }
