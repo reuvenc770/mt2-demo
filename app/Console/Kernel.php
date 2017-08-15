@@ -125,6 +125,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateRecordProcessingReportWithErrors::class,
         Commands\PopulateCpmListProfileReportCommand::class ,
         Commands\SyncMT1FeedFieldOrderCommand::class,
+        Commands\PopulateCpaListProfileReportCommand::class,
 ];
 
     /**
