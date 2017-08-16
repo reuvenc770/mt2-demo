@@ -172,7 +172,7 @@ class JobEntryService
     }
 
     public function retrieveBadJobsConsolidated($daterange){
-        return $this->repo->retrieveBadJobs($daterange);
+        return $this->repo->retrieveBadJobsConsolidated($daterange);
     }
 
     public function resolveJobs($daterange){
