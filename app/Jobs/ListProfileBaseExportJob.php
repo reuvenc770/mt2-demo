@@ -69,7 +69,6 @@ class ListProfileBaseExportJob extends MonitoredJob {
                     $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtimeSecondsThreshold));
                 }
  
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
         }
 
