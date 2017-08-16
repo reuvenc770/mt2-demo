@@ -365,24 +365,53 @@ class ListProfileService
     }
 
 
-    private function returnQueriesData($listProfile) {
+    public function returnQueriesData($listProfile) {
         $queries = [];
         $party = (int)$listProfile->party;
 
         if ($listProfile->deliverable_end !== $listProfile->deliverable_start && $listProfile->deliverable_end !== 0) {
             $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1, 'party' => $party];
         }
+
+        // For these, we can cut down on queries significantly by merging together those queries with the same date range
+
+        $responderData = [];
+
         if ($listProfile->openers_start !== $listProfile->openers_end && $listProfile->openers_end !== 0) {
-            $queries[] = ['type' => 'has_open', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
+            $responderData[] = ['action' => 'has_open', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
         }
         if ($listProfile->clickers_start !== $listProfile->clickers_end && $listProfile->clickers_end !== 0) {
-            $queries[] = ['type' => 'has_click', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
+            $responderData[] = ['action' => 'has_click', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
         }
         if ($listProfile->converters_start !== $listProfile->converters_end && $listProfile->converters_end !== 0) {
-            $queries[] = ['type' => 'has_conversion', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
+            $responderData[] = ['action' => 'has_conversion', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
         }
 
-        return $queries;
+        $responders = array_reduce($responderData, function($carry, $item) {
+                $output = $carry;
+                $i = 0;
+                $len = sizeof($carry);
+
+                while ($i < $len) {
+                    if ($item['start'] === $carry[$i]['start'] && $item['end'] === $carry[$i]['end'] && $item['count'] === $carry[$i]['count']) {
+                        $output[$i]['action'][] = $item['action'];
+                        $i = $len;
+                    }
+                    elseif ($i === $len - 1) {
+                        $output[] = ['type' => 'responder', 'action' => [$item['action']], 'start' => $item['start'], 'end' => $item['end'], 'count' => $item['count'], 'party' => $item['party']];
+                    }
+
+                    $i++;
+                }
+
+                if (0 === $len) {
+                    $output[] = ['type' => 'responder', 'action' => [$item['action']], 'start' => $item['start'], 'end' => $item['end'], 'count' => $item['count']];
+                }
+
+                return $output;
+            }, []);
+
+        return empty($responders) ? $queries : array_merge($queries, $responders);
     }
 
 
