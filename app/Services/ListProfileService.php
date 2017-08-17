@@ -365,7 +365,7 @@ class ListProfileService
     }
 
 
-    public function returnQueriesData($listProfile) {
+    private function returnQueriesData($listProfile) {
         $queries = [];
         $party = (int)$listProfile->party;
 
