@@ -207,7 +207,7 @@ class ListProfileQueryBuilder {
      */
 
     private function buildNonDeliverableQuery($queryData) {
-        $type = $queryData['type'];
+        $types = $queryData['action'];
         $count = $queryData['count'];
         $end = $queryData['end'];
         $start = $queryData['start'];
@@ -221,7 +221,13 @@ class ListProfileQueryBuilder {
         $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
         $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query;
 
-        $query = $query->havingRaw("SUM($type) >= $count")->toSql();
+        $havingBuilder = [];
+        foreach($types as $type) {
+            $havingBuilder[] = "SUM($type) >= $count";
+        }
+        $havingString = implode(' OR ', $havingBuilder);
+
+        $query = $query->havingRaw($havingString)->toSql();
 
         $query = DB::connection('redshift')->table(DB::connection('redshift')->raw('(' . $query . ') as flat'));
 
