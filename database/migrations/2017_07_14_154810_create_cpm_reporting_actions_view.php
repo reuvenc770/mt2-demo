@@ -34,7 +34,7 @@ FROM
             cos.amount
         FROM
             `cpm_offer_schedules` cos 
-            INNER JOIN `deploys` d ON( cos.offer_id = d.offer_id AND ea.datetime >= DATE_FORMAT( NOW() , '%Y%m01' ) )
+            INNER JOIN `deploys` d ON( cos.offer_id = d.offer_id )
             INNER JOIN `offer_payouts` op ON( op.offer_id = d.offer_id )
         WHERE
             d.send_date BETWEEN DATE( DATE_FORMAT( NOW() ,'%Y%m01') ) AND LAST_DAY( NOW() )
