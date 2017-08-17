@@ -71,13 +71,15 @@ class ListProfileExportService {
 
         $result = $this->tableRepo->getSegmentedOrderedModel(0, self::READ_THRESHOLD);
         $count = $result->count();
+        $maxEmailId = null;
         
         while (!is_null($count)) {
             $resource = $result->cursor();
 
             foreach ($resource as $row) {
+                $maxEmailId = $row->email_id;
+                
                 if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
-                    
                     $suppressed = false;
                     foreach ($listProfile->offerSuppression as $offer) {
                         // handle advertiser suppression here
@@ -94,7 +96,6 @@ class ListProfileExportService {
                 }
             }
 
-            $maxEmailId = $row->email_id; // the last row, by definition
             $result = $this->tableRepo->getSegmentedOrderedModel($maxEmailId, self::READ_THRESHOLD);
             $count = $result->count();
         }
