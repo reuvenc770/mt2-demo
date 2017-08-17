@@ -405,7 +405,7 @@ class ListProfileService
                 }
 
                 if (0 === $len) {
-                    $output[] = ['type' => 'responder', 'action' => [$item['action']], 'start' => $item['start'], 'end' => $item['end'], 'count' => $item['count']];
+                    $output[] = ['type' => 'responder', 'action' => [$item['action']], 'start' => $item['start'], 'end' => $item['end'], 'count' => $item['count'], 'party' => $item['party']];
                 }
 
                 return $output;
