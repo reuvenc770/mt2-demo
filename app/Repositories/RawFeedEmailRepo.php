@@ -103,6 +103,11 @@ class RawFeedEmailRepo {
         $cleanRecord = [];
 
         foreach ( $record as $fieldName => $fieldValue ) {
+            if ( $fieldName == 'capture_date' ) {
+                $cleanRecord[ $fieldName ] = $fieldValue; 
+                continue;
+            }
+
             $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s]/' , '' , $fieldValue );
             $currentValue = preg_replace( '/\s{2,}/' , '' , $currentValue );
             $currentValue = trim( $currentValue );
@@ -298,7 +303,11 @@ class RawFeedEmailRepo {
                     try {
                         $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'Y.m.d' , $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
                     } catch ( \Exception $e ) {
-                        $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'm/d/Y His A' , $rawEmailRecord[ 'capture_date' ] )->toDateString();
+                        try {
+                            $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'm/d/Y His A' , $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                        } catch ( \Exception $e ) {
+                            $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'n/j/Y G:i' , $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+                        }
                     }
                 }
             }
