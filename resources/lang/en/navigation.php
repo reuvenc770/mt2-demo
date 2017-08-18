@@ -57,4 +57,5 @@ return[
     'tools.seed' => 'Seed List' ,
     'tools.notifications' => 'Notifications' ,
     'cpm.list' => 'CPM Pricing' ,
+    'tools.affiliates' => 'Cake Affiliates/Redirect Domains' ,
 ];
