@@ -34,7 +34,7 @@ class ReportFactory
 
     protected static function createEspActionReport($name) {
 
-        $espAccountRepo = App::make(App\Repositories\EspApiAccountRepo::class));
+        $espAccountRepo = App::make(App\Repositories\EspApiAccountRepo::class);
 
         $espName = config("reports.$name.data.esp");
 
