@@ -73,7 +73,7 @@ class ListProfileExportService {
         $count = $result->count();
         $maxEmailId = null;
         
-        while (!is_null($count)) {
+        while ($count > 0) {
             $resource = $result->cursor();
 
             foreach ($resource as $row) {
