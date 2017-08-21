@@ -225,7 +225,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath); // Job name like: PopulateEmailCampaignStats, PullCakeDeliverableStats 
         $schedule->command('process:useragents')->hourly(); // Job name like: ProcessUserAgents 
         $schedule->command('reports:findIncompleteDeploys --runtime-threshold=10m')->dailyAt(self::DEPLOY_CHECK_TIME); //command CheckDeployStats, job class DataProcessingJob, job name CheckDeployStats 
-
+        $schedule->command('insert:delivers 2')->cron('0 6 * * * *'); // Job name like: BulkInsertDelivers
 
         /**
          *  Deactivation jobs
