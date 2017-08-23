@@ -40,7 +40,8 @@ class EspAdvertiserJoinDeployMapStrategy implements IMapStrategy {
             'encrypt_cake' => 1,
             'fully_encrypt' => 1,
             'url_format' => '',
-            'notes' => $notes
+            'notes' => $notes,
+            'party' => $party
         ];
     }
 
