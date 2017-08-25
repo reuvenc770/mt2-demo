@@ -247,14 +247,14 @@ class FeedProcessingService {
         // Run each suppression check
         foreach($this->suppressors as $suppressor) {
             foreach($suppressor->returnSuppressedEmails($emails) as $supp) {
-                $suppressed[$supp->email_address] = true;
+                $suppressed[strtolower($supp->email_address)] = true;
                 $this->suppStrategy->processSuppression($supp->email_address);
             }
         }
 
         // Update status
         foreach ($records as $record) {
-            if (isset($suppressed[$record->emailAddress])) {
+            if (isset($suppressed[strtolower($record->emailAddress)])) {
                 $record->isSuppressed = true;
             }
             else {
