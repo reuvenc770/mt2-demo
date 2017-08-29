@@ -1,1 +1,0 @@
-mysqldump -h 192.168.56.247 -u mt_report_ro --password="%1rrQ7UAVNhr" --skip-lock-tables -t --where=" 1 limit 100 " --ignore-table=mt2_reports.cpm_reporting_actions --databases mt2_data mt2_reports attribution dima_data list_profile list_profile_export_tables mt2_shuttle mt2_temp_tables suppression > mt2_starter_data.sql
