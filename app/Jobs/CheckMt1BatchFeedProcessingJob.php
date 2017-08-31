@@ -60,7 +60,7 @@ class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
 
         $findOptions = [
             '-type f' ,
-            '-mtime -1' ,
+            '-mtime -15' ,
             '-mmin +45' ,
             ' -not -path "/home/mt1/*"' ,
             "\( -name '*.csv' -o -name '*.txt' \)" ,
