@@ -32,7 +32,7 @@ class ListProfileExportService {
 
     const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
-    const READ_THRESHOLD = 200000;
+    const READ_THRESHOLD = 50000;
 
     private $rows = [];
     private $rowCount = 0;
