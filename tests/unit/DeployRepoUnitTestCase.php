@@ -24,7 +24,7 @@ class DeployRepoUnitTestCase extends TestCase
     }
 
     public function testInsert () {
-        Mockery::mock('alias:Deploy');
+        Mockery::mock('alias:Deploy'); #Eloquent uses static methods. You need this so the calls resolve when mocking.
 
         $this->createSut();
 
@@ -36,6 +36,7 @@ class DeployRepoUnitTestCase extends TestCase
     public function testGetModel () {
         $this->createSut();
 
+        #Here we are testing that the query structure hasn't changed. If this test fails for you, make sure it doesn't break the frontend index page.
         $this->mockDeployModel->shouldReceive( 'leftJoin' )->times( 9 )->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'select' )->once()->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'where' )->twice()->andReturn( $this->mockDeployModel );
@@ -46,13 +47,14 @@ class DeployRepoUnitTestCase extends TestCase
     public function testDeployDetailGetter () {
         $this->createSut();
 
+        #Here we are testing that the query struture hasn't changed. This is used for deploy packages so its important that this eloquent call works.
         $this->mockDeployModel->shouldReceive( 'leftJoin' )->times( 9 )->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'wherein' )->once()->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'where' )->once()->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'selectRaw' )->once()->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'get' )->once();
 
-        #assert for return value once test databases are incorporated
+        #assert for return value once test databases are setup 
         $this->sut->getDeployDetailsByIds( 1 );
     }
 
@@ -60,7 +62,10 @@ class DeployRepoUnitTestCase extends TestCase
         $this->createSut();
 
         $this->mockDeployModel->shouldReceive( 'wherein' )->once()->andReturn( $this->mockDeployModel );
-        $this->mockDeployModel->shouldReceive( 'update' )->with( ['deployment_status' => 1 ] )->once()->andReturn( $this->mockDeployModel );
+        $this->mockDeployModel->shouldReceive( 'update' )
+            ->with( ['deployment_status' => 1 ] ) #this deployment status is important for alerting the operators that deploys are ready.
+            ->once()
+            ->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'getClassName' );
 
         $this->sut->deployPackages( 1 );
@@ -70,16 +75,19 @@ class DeployRepoUnitTestCase extends TestCase
         $this->createSut();
 
         $this->mockDeployModel->shouldReceive( 'where' )->once()->andReturn( $this->mockDeployModel );
-        $this->mockDeployModel->shouldReceive( 'whereRaw' )->with( "id > 2000000" )->once()->andReturn( $this->mockDeployModel );
+        $this->mockDeployModel->shouldReceive( 'whereRaw' )
+            ->with( "id > 2000000" ) #we're starting here because this is the start of CMP IDs
+            ->once()
+            ->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'get' )->once();
 
-        #assert for return value once test databases are incorporated
+        #assert for return value once test databases are setup 
         $this->sut->getDeploysForToday( \Carbon\Carbon::now()->toDateString() );
     }
 
     protected function createSut () {
         $this->mockDeployModel = Mockery::mock( \App\Models\Deploy::class );
-        $this->mockOfferModel = $this->createMock( \App\Models\Offer::class );
+        $this->mockOfferModel = Mockery::mock( \App\Models\Offer::class );
 
         $this->sut = $this->app->make( \App\Repositories\DeployRepo::class , [
             $this->mockDeployModel ,
