@@ -24,7 +24,7 @@ class DeployRepoUnitTestCase extends TestCase
     }
 
     public function testInsert () {
-        Mockery::mock('alias:Deploy'); #Eloquent uses static methods. You need this so the calls resolve when mocking.
+        Mockery::mock('alias:Deploy'); #Eloquent uses static methods so you need this so the calls resolve when mocking. This must run before mocking.
 
         $this->createSut();
 
@@ -36,7 +36,7 @@ class DeployRepoUnitTestCase extends TestCase
     public function testGetModel () {
         $this->createSut();
 
-        #Here we are testing that the query structure hasn't changed. If this test fails for you, make sure it doesn't break the frontend index page.
+        #Here we are testing that the query structure hasn't changed. If this test fails for you, make sure it doesn't break the frontend index page and update the test for you changes.
         $this->mockDeployModel->shouldReceive( 'leftJoin' )->times( 9 )->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'select' )->once()->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'where' )->twice()->andReturn( $this->mockDeployModel );
@@ -47,7 +47,7 @@ class DeployRepoUnitTestCase extends TestCase
     public function testDeployDetailGetter () {
         $this->createSut();
 
-        #Here we are testing that the query struture hasn't changed. This is used for deploy packages so its important that this eloquent call works.
+        #Here we are testing that the query structure hasn't changed. This is used for deploy packages so its important that this eloquent call works.
         $this->mockDeployModel->shouldReceive( 'leftJoin' )->times( 9 )->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'wherein' )->once()->andReturn( $this->mockDeployModel );
         $this->mockDeployModel->shouldReceive( 'where' )->once()->andReturn( $this->mockDeployModel );
