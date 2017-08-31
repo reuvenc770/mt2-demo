@@ -21,6 +21,7 @@ $factory->define( App\Models\Deploy::class , function ( Faker\Generator $faker )
         'encrypt_cake' => $faker->boolean() ,
         'fully_encrypt' => $faker->boolean() ,
         'url_format' => $faker->randomElement( [ 'short' , 'long' , 'encrypt' ] ) ,
-        'party' => $faker->numberBetween( 1 , 3 )
+        'party' => $faker->numberBetween( 1 , 3 ) ,
+        'deployment_status' => $faker->boolean()
     ];
 } );
