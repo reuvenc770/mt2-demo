@@ -67,7 +67,7 @@ class RemoteLinuxSystemService {
     public function createDirectory ( $directory ) {
         $command = sprintf( self::CREATE_DIR_COMMAND , $this->cleanPath( $directory ) );
     
-        ssh2_exec( $this->sshConnection , $command );
+        ssh2_exec( $this->sshConnection , $command , self::PSEUDO_TTY_FLAG );
     }   
         
     public function createUser ( $username , $directory ) {
