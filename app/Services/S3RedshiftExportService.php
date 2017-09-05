@@ -116,7 +116,7 @@ class S3RedshiftExportService {
                         $this->tries++;
 
                         echo "Upload for {$this->entity} failed with {$e->getMessage()}. Retrying {$this->tries}." . PHP_EOL;
-                        $uploader = new MultipartUploader($s3Client, $source, [
+                        $uploader = new MultipartUploader($this->s3Client, $source, [
                             'state' => $e->getState(),
                         ]);
                     }
