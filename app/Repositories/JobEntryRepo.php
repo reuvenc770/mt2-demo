@@ -181,6 +181,20 @@ class JobEntryRepo
 
     public function retrieveBadJobsConsolidated($daterange){
         return DB::select("SELECT
+                            'error' AS type,
+                            'RUNTIME ERROR' as message,
+                            CONCAT(LEFT(job_name,60),' . . .') AS JobName,
+                            COUNT(time_fired) AS incidents,
+                            CONCAT(CAST(JSON_EXTRACT(diagnostics, \"$.errors\") AS CHAR(255) ),' . . . ')  AS errors,
+                            MAX(id) AS max_job_entries_id
+                            FROM job_entries
+                            WHERE time_fired ".$daterange."
+                            AND status=10
+                            GROUP BY type,message,JobName,errors
+
+                           UNION
+
+                           SELECT
                             CASE
                             WHEN status=9 THEN 'warning'
                             ELSE 'error'
@@ -191,13 +205,15 @@ class JobEntryRepo
                             WHEN status=3 THEN 'FAILED'
                             WHEN status=8 THEN 'ACCEPTANCE TEST FAILED'
                             END as message,
-                            job_name,
-                            diagnostics,
-                            COUNT(time_fired) AS incidents
+                            CONCAT(LEFT(job_name,60),' . . .') AS JobName,
+                            COUNT(time_fired) AS incidents,
+                            CONCAT(CAST(JSON_EXTRACT(diagnostics, \"$.errors\") AS CHAR(255) ),' . . . ')  AS errors,
+                            MAX(id) AS max_job_entries_id
                             FROM job_entries
                             WHERE time_fired ".$daterange."
                             AND status IN(3,8,9,10)
-                            GROUP BY type,message,job_name,diagnostics
+                            GROUP BY type,message,JobName,errors
+
                             ORDER BY incidents DESC
                           ");
     }
