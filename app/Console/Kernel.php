@@ -306,7 +306,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); //command UpdateFeedCounts, job class UpdateFeedCountJob, Job name: UpdateFeedCountJob 
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
         $schedule->command( 'feedRecords:checkMt1Realtime' )->everyThirtyMinutes(); //command CheckMt1RealtimeFeedProcessingCommand, job class CheckMt1RealtimeFeedProcessingJob, Job name like: CheckMt1RealtimeFeedProcessingJob% 
-        $schedule->command( 'feedRecords:checkMt1Batch' )->everyThirtyMinutes(); //command CheckMt1BatchFeedProcessingCommand, job class and name like: CheckMt1BatchFeedProcessingJob% 
+        $schedule->command( 'feedRecords:checkMt1Batch' )->cron('15,45 * * * * *'); //command CheckMt1BatchFeedProcessingCommand, job class and name like: CheckMt1BatchFeedProcessingJob% 
         $schedule->command( 'feedRecords:syncFeedFileColumnOrder' )->everyThirtyMinutes(); // Job name like: SyncMT1FeedFieldOrder%
 
         // Currently commented-out. Waiting for everything going live
