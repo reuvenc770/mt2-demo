@@ -33,7 +33,7 @@ class ListProfileServiceTest extends \Codeception\Test\Unit
         unset( $this->baseTableMock ); 
     }
 
-    public function testShouldKnowWhichEntityToGivePagination () {
+    public function testShouldKnowWhichEntityToGivePaginationCache () {
         $this->assertEquals( 'ListProfile' , $this->sut->getType() );
     }
 
