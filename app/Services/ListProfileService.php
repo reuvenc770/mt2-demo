@@ -28,7 +28,8 @@ class ListProfileService
     private $cache1 = [];
     private $cache2 = [];
     private $rowCount = 0;
-    const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
+    const MAX_ROWS = 65535;
+    private $insertThreshold = 1000; // default
     const ROW_STORAGE_TIME = 720;
     protected $baseTableService;
     private $columnLabelMap = [
@@ -267,6 +268,8 @@ class ListProfileService
 
             $columns = $this->builder->getColumns();
 
+            $this->setInsertSize(count($columns));
+
             if (1 === $queryNumber) {
                 $this->baseTableService->createTable($id, $columns);
             }
@@ -294,6 +297,15 @@ class ListProfileService
         Cache::tags('ListProfile')->flush();
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
         return $totalCount;
+    }
+
+    private function setInsertSize($columnCount) {
+        // MySQL / PHP has a placeholder limit of 2^16 - 1 (65535) 
+        // The lower the limit the more likely that your query can be handled, 
+        // but the slower it will go. We can set this dynamically to improve perf
+        // leaving in a safety factor (floor and multiply by .9) to make sure we're safe
+
+        $this->insertThreshold = (int)floor((self::MAX_ROWS / $columnCount) * 0.9);
     }
 
     private function cleanseData ( $data ) {
@@ -427,7 +439,7 @@ class ListProfileService
 
 
     private function batch($row, $tag) {
-        if ($this->rowCount >= self::INSERT_THRESHOLD) {
+        if ($this->rowCount >= $this->insertThreshold) {
             $this->batchInsert($tag);
 
             $this->rows = [$row];
