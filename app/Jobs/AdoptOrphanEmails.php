@@ -21,12 +21,12 @@ use App\Facades\JobTracking;
 use App\Models\StandardReport;
 use App\Services\ThirdPartyEmailStatusService;
 use Maknz\Slack\Facades\Slack;
+use App\Repositories\OrphanEmailRepo;
 
 class AdoptOrphanEmails extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    protected $orphans;
     protected $tracking;
     protected $firstId;
     protected $lastId;
@@ -36,10 +36,10 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($orphans, $tracking)
+    public function __construct($firstId, $lastId, $tracking)
     {
-        $this->orphans = $orphans;
-
+        $this->firstId = $firstId;
+        $this->lastId = $lastId;
         $this->tracking = $tracking;
     }
 
@@ -49,14 +49,17 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AttributionRecordTruthService $truthService, ThirdPartyEmailStatusService $actionService, SeedEmailService $seedService) {
+    public function handle(AttributionRecordTruthService $truthService, ThirdPartyEmailStatusService $actionService, SeedEmailService $seedService, OrphanEmailRepo $repo) {
 
         JobTracking::startEspJob( 'Orphan Adoption: ' . "Chunk" , null , null , $this->tracking );
         $inserts = [];
         $deleteIds = [];
         $actionsRecords = [];
         $reports = array_fill_keys(["deploy_missing","email_missing"],[]);
-        foreach ($this->orphans as $orphan) {
+
+        $orphans = $repo->getOrphansBetweenIds($this->firstId, $this->lastId);
+
+        foreach ($orphans as $orphan) {
 
             //If Email is a Seed delete it and move on.
             if($seedService->checkForSeed($orphan->email_address)){
