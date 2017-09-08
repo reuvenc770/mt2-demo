@@ -34,8 +34,7 @@ class OrphanEmailRepo {
         if ($startId > 0 && $endId > 0 && $startId <= $endId) {
             return $this->model
                         ->whereRaw("id BETWEEN $startId AND $endId")
-                        ->get()
-                        ->toArray();
+                        ->get();
         }
         else {
             return null;
