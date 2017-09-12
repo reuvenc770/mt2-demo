@@ -258,7 +258,6 @@ class ListProfileService
         $queries = $this->returnQueriesData($listProfile);
         $queryNumber = 1;
         $totalCount = 0;
-        $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
 
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
@@ -277,10 +276,10 @@ class ListProfileService
             $resource = $query->cursor();
 
             foreach ($resource as $row) {
-                if ($this->isUnique($listProfileTag, $this->uniqueColumn, $row->{$this->uniqueColumn})) {
-                    $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
+                if ($this->isUnique($this->uniqueColumn, $row->{$this->uniqueColumn})) {
+                    $this->saveToCache($row->{$this->uniqueColumn});
                     $mappedRow = $this->mapDataToColumns($columns, $row);
-                    $this->batch($mappedRow, $listProfileTag);
+                    $this->batch($mappedRow);
 
                     if (!$row->globally_suppressed && !$row->feed_suppressed) {
                         $totalCount++;
@@ -289,7 +288,7 @@ class ListProfileService
                 }
             }
 
-            $this->batchInsert($listProfileTag);
+            $this->batchInsert();
             $this->clear();
             $queryNumber++;
         }
@@ -465,11 +464,11 @@ class ListProfileService
     }
 
 
-    private function isUnique($tag, $field, $value) {
+    private function isUnique($field, $value) {
         return !isset($this->cache1[$value]) && !isset($this->cache2[$value]) && $this->baseTableService->isUnique($field, $value); 
     }
 
-    private function saveToCache($tag, $value) {
+    private function saveToCache($value) {
         $this->cache1[$value] = 1;
     }
 
