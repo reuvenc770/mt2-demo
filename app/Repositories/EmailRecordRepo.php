@@ -17,7 +17,7 @@ use App\Events\NewActions;
 
 class EmailRecordRepo {
     protected $email;
-    protected $emaiLid = null;
+    protected $emailId = null;
     protected $emailAddress = '';
     protected $recordType = '';
     protected $espId = 0;
