@@ -438,9 +438,9 @@ class ListProfileService
     }
 
 
-    private function batch($row, $tag) {
+    private function batch($row) {
         if ($this->rowCount >= $this->insertThreshold) {
-            $this->batchInsert($tag);
+            $this->batchInsert();
 
             $this->rows = [$row];
             $this->rowCount = 0;
@@ -452,7 +452,7 @@ class ListProfileService
     }
 
 
-    private function batchInsert($tag) {
+    private function batchInsert() {
         $this->baseTableService->massInsert($this->rows);
         $this->cache2 = $this->cache1;
         $this->cache1 = [];
