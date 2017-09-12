@@ -168,7 +168,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                     $openData = $this->api->getDeliverableStat('opened', $espInternalId);
                     $count = count($openData);
                     foreach ( $openData as $key => $opener ) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_OPENER ,
                             $opener['Email'] ,
                             $this->api->getId(),
@@ -184,7 +184,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                     $clickData = $this->api->getDeliverableStat('clicked', $espInternalId);
                     $count = count($clickData);
                     foreach ( $clickData as $key => $clicker ) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_CLICKER ,
                             $clicker['Email'] ,
                             $this->api->getId() ,
@@ -209,7 +209,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                     $deliveredData = $this->api->getDeliverableStat('delivered', $espInternalId);
                     $count = count($deliveredData);
                     foreach ( $deliveredData as $key => $clicker ) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
                             $clicker['Email'] ,
                             $this->api->getId() ,
