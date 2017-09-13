@@ -118,7 +118,17 @@ class ListProfileExportService {
 
     private function writeRemoteBatch($fileName, $disk = 'espdata') {
         $string = implode(PHP_EOL, $this->rows);
-        Storage::disk($disk)->append($fileName, $string);
+
+        $key = "filesystems.disks.$disk.";
+        $driver = config($key . 'driver');
+        $userName = config($key . 'username');
+        $password = config($key . 'password');
+        $host = config($key . 'host');
+        $filePath = $driver . "://" . $userName . ':' . $password . '@' . $host . '/' . $fileName;
+        $file = fopen($filePath, 'a');
+        fwrite($file, $string);
+        fclose($file);
+
         $this->rows = [];
         $this->rowCount = 0;
     }
