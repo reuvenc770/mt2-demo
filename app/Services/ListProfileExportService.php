@@ -66,7 +66,7 @@ class ListProfileExportService {
 
         if ($this->listProfileRepo->shouldInsertHeader($listProfileId) || !empty($replacementHeader) ) {
             $columns = $replacementHeader ? $replacementHeader : $columns;
-            Storage::disk('espdata')->append($fileName, implode(',', $columns));
+            $this->remoteBatch($fileName, implode(',', $columns));
         }
 
         $result = $this->tableRepo->getSegmentedOrderedModel(0, self::READ_THRESHOLD);
