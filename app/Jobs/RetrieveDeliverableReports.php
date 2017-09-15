@@ -71,6 +71,7 @@ class RetrieveDeliverableReports extends MonitoredJob
             }
         } else {
             $this->processState = $this->defaultProcessState;
+            $this->processState['date'] = $this->date;
         }
 
         parent::__construct($this->getJobName(),$this->runtimeThreshold,$this->tracking);

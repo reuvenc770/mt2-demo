@@ -62,8 +62,6 @@ class JobEntryService
             $job->save();
         }
         else if ((null !== $job->time_finished) && ('0000-00-00 00:00:00' !== $job->time_finished) && ($job->time_finished >= Carbon::now()->subHour(12))) {
-            $job->status = JobEntry::SUCCESS;
-            $job->save();
             throw new JobCompletedException("Job {$job->job_name}, {$tracking} already completed at {$job->time_finished}. Attempted rerun at " . Carbon::now());
         }
         else if($state == JobEntry::RUNNING){
@@ -75,6 +73,7 @@ class JobEntryService
         }
 
         if($state == JobEntry::FAILED){
+            $job->time_finished = Carbon::now()->toDateTimeString();
             $job->save();
             Slack::to($this->room)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts (job_entries.id=$job->id)");
         }else if($state == JobEntry::ACCEPTANCE_TEST_FAILED){

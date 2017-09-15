@@ -38,7 +38,7 @@ class EmailRecordRepo {
         foreach ( $records as $currentIndex => $currentRecord ) {
             
             $this->setLocalData( [
-                'emailId' => $$this->getEmailId($currentRecord['email']),
+                'emailId' => $this->getEmailId($currentRecord['email']),
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
                 'espId' => $currentRecord[ 'espId' ] ,
