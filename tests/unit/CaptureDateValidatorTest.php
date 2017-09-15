@@ -31,7 +31,7 @@ class CaptureDateValidatorTest extends \Codeception\Test\Unit
         $this->sut->validate();
     }
 
-    public function testFutureCaptureDatesDefaultToToday () {
+    public function testShouldDefaultFutureCaptureDatesToToday () {
         $this->sut->setData( [ 'captureDate' => \Carbon\Carbon::today()->addMonth()->toDateString() ] );
 
         $this->sut->validate();
