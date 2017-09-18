@@ -54,7 +54,6 @@ class RetrieveApiReports extends MonitoredJob implements ShouldQueue
      */
     public function handleJob()
     {
-
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
         $count = 0;
         try {
@@ -70,14 +69,15 @@ class RetrieveApiReports extends MonitoredJob implements ShouldQueue
                 $reportService->insertApiRawStats( $data );
                 $count = count($data);
             }
+
             JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $count);
         } catch ( JobException $e ) {
             $this->logJobException( $e );
 
             if ( in_array( $e->getCode() , [ JobException::NOTICE , JobException::WARNING , JobException::ERROR ] ) ) {
                 JobTracking::changeJobState( JobEntry::WAITING , $this->tracking);
-
                 $this->release( $e->getDelay() );
+                throw $e;
             } else {
                 throw $e;
             }

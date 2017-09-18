@@ -96,7 +96,7 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
     }
 
     public function failed() {
-            JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
+        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
 
     protected function handleJob() {}
