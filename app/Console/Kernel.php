@@ -249,7 +249,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import creative --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import from --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import subject --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import deploy --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import deploy --runtime-threshold=1m')->cron('0 * * * * *');
         $schedule->command('mt1Import offerCreativeMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
