@@ -18,15 +18,19 @@ use Illuminate\Support\Facades\Response;
 use League\Csv\Reader;
 use Artisan;
 use App\Models\Deploy;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class DeployController extends Controller
 {
+    use DispatchesJobs;
+
     protected $deployService;
     protected $packageService;
     protected $combineService;
     protected $espApiService;
     protected $mailingTemplateService;
     protected $domainService;
+    const LIST_PROFILE_QUEUE = 'ListProfile';
 
     public function __construct(DeployService $deployService, PackageZipCreationService $packageService, ListProfileCombineService $combineService, EspApiAccountService $espApiService, MailingTemplateService $mailingTemplateService, DomainService $domainService )
     {
@@ -269,7 +273,7 @@ class DeployController extends Controller
             Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
         }
 
-        $this->dispatch(new ExportDeployCombineJob($deploys, $reportCard, str_random(16), 5000));
+        $this->dispatch((new ExportDeployCombineJob($deploys, $reportCard, str_random(16), 5000))->onQueue(self::LIST_PROFILE_QUEUE));
         
         //Update deploy status to pending
         $this->deployService->deployPackages($data);
