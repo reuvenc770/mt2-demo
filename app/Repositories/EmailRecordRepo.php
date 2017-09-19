@@ -52,7 +52,7 @@ class EmailRecordRepo {
             if ( $this->isValidRecord() ) {
                 $validRecord = "( "
                     . join( " , " , [
-                        $currentRecord['emailId'] ,
+                        $this->emailId ,
                         $currentRecord[ 'espId' ] ,
                         $currentRecord['deployId'],
                         $currentRecord[ 'espInternalId' ] ,
