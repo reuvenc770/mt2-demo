@@ -17,6 +17,7 @@ class ExportListProfile extends Command
      * @var string
      */
     protected $signature = 'listprofile:export {listProfileId}';
+    const QUEUE = 'ListProfile';
 
     /**
      * The console command description.
@@ -41,7 +42,7 @@ class ExportListProfile extends Command
      */
     public function handle() {
         $listProfileId = $this->argument('listProfileId');
-        $job = new ExportListProfileJob($listProfileId, str_random(16));
+        $job = (new ExportListProfileJob($listProfileId, str_random(16)))->onQueue(self::QUEUE);
         $this->dispatch($job);
     }
 }
