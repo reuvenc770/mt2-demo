@@ -14,7 +14,7 @@ class SupervisorWorkerService {
     const RUNNING_STATES = ['STARTING', 'RUNNING', 'BACKOFF', 'STOPPING', 'EXITED'];
     const FAILED_STATES = ['FATAL', 'UNKNOWN'];
 
-    public function __construct(Supervisor\Supervisor $supervisor) {
+    public function __construct(\Supervisor\Supervisor $supervisor) {
         $this->supervisor = $supervisor;
         $this->queueProgramMap = config('supervisor.queueProgramMap');
         $this->programInfo = config('supervisor.program');
@@ -24,16 +24,9 @@ class SupervisorWorkerService {
         $this->processInfo = $this->buildInternalProcessInfo($processInfo);
     }
 
-        /*
-            ALSO TO BE DONE: MODIFY supervisord.conf file to include 
-            [inet_http_server]
-port=127.0.0.1:9001
-user=http://supervisord.org/configuration.html
-
-            And then add authentication. This shows up in the Guzzle Client: $guzzleClient = new \GuzzleHttp\Client(['auth' => ['user', '123']]);
-            Put all of this in config
-            Update the factory so the endpoint (and port) are in config as well
-        */
+    public function getWorkerGroups() {
+        return $this->workerGroups;
+    }
 
     private function getProgramInfo($processInfo) {
         // list of objects
@@ -41,7 +34,7 @@ user=http://supervisord.org/configuration.html
 
         foreach ($processInfo as $process) {
             $group = $process['group'];
-            $queueName = $this->programInfo[$group]['queueName'];
+            $queueName = $this->programInfo[$group]['queueName']; 
             
             if (!isset($output[$queueName])) {
                 $output[$queueName] = (object)[

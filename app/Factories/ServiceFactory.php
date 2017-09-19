@@ -185,21 +185,21 @@ class ServiceFactory
     }
 
     public static function createSupervisorService() {
-        $httpClient = new GuzzleHttp\Client();
-        $client = new fXmlRpc\Client('http://127.0.0.1:9001/RPC2', 
-            new fXmlRpc\Transport\HttpAdapterTransport(
-                new Http\Message\MessageFactory\GuzzleMessageFactory(), 
-                new Http\Adapter\Guzzle6\Client($httpClient)));
+        $httpClient = new \GuzzleHttp\Client();
+        $client = new \fXmlRpc\Client('http://127.0.0.1:9001/RPC2', 
+            new \fXmlRpc\Transport\HttpAdapterTransport(
+                new \Http\Message\MessageFactory\GuzzleMessageFactory(), 
+                new \Http\Adapter\Guzzle6\Client($httpClient)));
 
-        $connector = new Supervisor\Connector\XmlRpc($client);
-        $supervisor = new Supervisor\Supervisor($connector);
+        $connector = new \Supervisor\Connector\XmlRpc($client);
+        $supervisor = new \Supervisor\Supervisor($connector);
         $redis = \Redis::connection();
 
-        return new App\Services\SupervisorWorkerService($supervisor, $redis);
+        return new \App\Services\SupervisorWorkerService($supervisor, $redis);
     }
 
     public static function createQueueService () {
         $redis = \Redis::connection('queue');
-        return new App\Services\RedisQueueService($redis);
+        return new \App\Services\RedisQueueService($redis);
     }
 }

@@ -29,8 +29,7 @@ class OptimizeWorkers extends Command
      *
      * @return void
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
@@ -41,7 +40,7 @@ class OptimizeWorkers extends Command
      */
     public function handle() {
         $runtimeThreshold = $this->option('runtime-threshold');
-        $job = new OptimizeWorkersJob(str_random(16));
+        $job = new OptimizeWorkersJob($runtimeThreshold, str_random(16));
         $this->dispatch($job);
     }
 }

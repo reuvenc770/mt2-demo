@@ -4,14 +4,16 @@ namespace App\Services;
 
 class RedisQueueService {
     private $redis;
+    private $queues;
 
-    public function __construct(Predis\Client $redis) {
+    public function __construct(\Predis\Client $redis) {
         $this->redis = $redis;
+        $this->queues = $this->getQueues();
     }
 
     public function getQueues() {
         $output = [];
-        $queues = $this->build($this->keys('queues:*'));
+        $queues = $this->redis->keys('queues:*');
 
         foreach ($queues as $queueName) {
             $items = explode(':', $queueName);
@@ -39,6 +41,20 @@ class RedisQueueService {
         }
 
         return $output;
+    }
+
+    public function getQueueInfo($queueName) {
+        if (isset($this->queues[$queueName])) {
+            return $this->queues[$queueName];
+        }
+        else {
+            // If they don't currently exist, they are empty
+            return (object)[
+                'name' => $queueName,
+                'activeJobs' => 0,
+                'queuedJobs' => 0
+            ];
+        }
     }
 
     private function getListLength($listName) {

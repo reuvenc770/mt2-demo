@@ -82,7 +82,8 @@ return [
             'queueName' => 'ListProfile',
             'canModify' => true,
             'processName' => 'ListProfiles_'
-        ]
+        ],
+
     ],
 
     // A list of queues
