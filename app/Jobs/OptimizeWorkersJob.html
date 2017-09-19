@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Factories\ServiceFactory;
+
+class OptimizeWorkersJob extends MonitoredJob {
+
+    private $jobName = 'OptimizeWorkers';
+
+    public function __construct($runtimeThreshold, $tracking) {
+        parent::__construct($this->jobName, $runtimeThreshold, $tracking);
+    }
+
+    protected function handleJob() {
+        $supervisorService = ServiceFactory::createSupervisorService();
+        $queueService = ServiceFactory::createQueueService();
+
+        $queues = $queueService->getQueues(); // This should be 
+
+        foreach ($queues as $queue) {
+            $workerStats = $supervisorService->getWorkerStats($queue->name);
+
+            if (!$workerStats->canModify) {
+                // Prevent certain worker groups from being modified
+                continue;
+            }
+
+            $potentialJobs = $queue->activeJobs + $queue->queuedJobs;
+
+            if ($potentialJobs > 0) {
+                // Jobs to run
+                $runningWorkers = $workerStats->activeWorkers;
+                $totalAvailableWorkers = $workerStats->totalWorkers;
+                $stoppedWorkers = $workerStats->stoppedWorkers;
+
+                if ($runningWorkers === $totalAvailableWorkers) {
+                    // Queue all turned on. Nothing to do here.
+                    continue;
+                }
+                else {
+                    $workerCount = min($potentialJobs, $stoppedWorkers);
+                    $supervisorService->turnOnQueueWorkers($queue->name, $workerCount);
+                }
+            }
+            else {
+                // No jobs to run
+                if (0 === $workerStats->activeWorkers) {
+                    // all good - no jobs, no workers
+                    continue;
+                }
+                else {
+                    // Unneeded workers. Disable the entire group.
+                    $supervisorService->turnOffQueueWorkers($queue->name);
+                }
+            }
+
+        }
+    
+    }
+}
