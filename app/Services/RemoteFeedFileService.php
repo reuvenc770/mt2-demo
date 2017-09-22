@@ -266,6 +266,10 @@ class RemoteFeedFileService {
         if ( strpos( $csvLine , "\t" ) !== false ) {
             $reader->setDelimiter( "\t" );
         }
+        
+        if ( strpos( $csvLine , '|' ) !== false ) {
+            $reader->setDelimiter( '|' );
+        }
 
         return $reader->stripBOM( true )->fetchOne();
     }
