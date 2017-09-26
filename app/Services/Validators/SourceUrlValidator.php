@@ -45,7 +45,7 @@ class SourceUrlValidator implements IValidate {
 
         $parsed = [];
 
-        if (preg_match('/^http[s]*:\/\//i', $this->sourceUrl)) {
+        if (preg_match('/^http[s]*\:\/\//i', $this->sourceUrl)) {
             $parsed = parse_url($this->sourceUrl);
         }
         elseif (preg_match('/^https\/\//i', $this->sourceUrl)) {
