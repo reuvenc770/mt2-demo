@@ -10,6 +10,7 @@ use App\Models\RawFeedEmailFailed;
 use App\Models\RawFeedFieldErrors;
 use App\Models\Email;
 use App\Repositories\FeedRepo;
+use DB;
 
 use Carbon\Carbon;
 
@@ -231,18 +232,6 @@ class RawFeedEmailRepo {
                 $record->email_id = null;
             }
 
-            $suppressed = \DB::connection('suppression')
-                            ->table('suppression_global_orange')
-                            ->where('email_address', $record->email_address)
-                            ->first();
-
-            if ($suppressed) {
-                $record->suppressed = 1;
-            }
-            else {
-                $record->suppressed = 0;
-            }
-
             $output[] = $record;
         }
 
@@ -380,4 +369,34 @@ class RawFeedEmailRepo {
         $endId = (int)$endId;
         return $this->failed->whereBetween('id', [$startId, $endId])->orderBy('id');
     }
+
+    public function getFirstPartyUnprocessed($minId, $date, $minInvalidId, $feed) {}
+
+    public function getThirdPartyUnprocessed($minId, $date, $minInvalidId) {
+        // Should test this to see if the lack of safeguards suffices
+        return DB::select("select
+                rfe.* 
+            from
+                raw_feed_emails rfe
+                LEFT JOIN emails e ON rfe.email_address = e.email_address
+                LEFT JOIN email_feed_instances efi ON e.id = efi.email_id AND rfe.feed_id = efi.feed_id AND efi.subscribe_date >= :date
+                LEFT JOIN invalid_email_instances iei ON rfe.email_address = iei.email_address AND rfe.feed_id = iei.feed_id AND iei.id >= :invStart and rfe.created_at <= iei.created_at
+                LEFT JOIN suppression.suppression_global_orange sgo ON rfe.email_address = sgo.email_address 
+            where
+                rfe.id > :rfeStart
+                AND
+                party = 3
+                AND
+                (efi.email_id is null and sgo.email_address is null and iei.id is null)
+                and rfe.created_at <= now() - interval 10 minute", [
+            ':date' => $date,
+            ':rfeStart' => $minId,
+            ':invStart' => $minInvalidId
+        ]);
+    }
+
+    public function getMinId($datetime) {
+        return $this->rawEmail->where('created_at', '>=', $datetime)->min('id');
+    }
+
 }

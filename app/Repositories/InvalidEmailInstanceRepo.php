@@ -6,6 +6,7 @@ use App\Models\InvalidEmailInstance;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoTraits\Batchable;
+use Carbon\Carbon;
 
 class InvalidEmailInstanceRepo {
     use Batchable;
@@ -55,4 +56,7 @@ class InvalidEmailInstanceRepo {
             {$batchData}";
     }
 
+    public function getMinIdForDate($date) {
+        return $this->model->where('created_at', '>=', $date)->min('id');
+    }
 }
