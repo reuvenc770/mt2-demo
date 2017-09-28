@@ -5,7 +5,11 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Console\Traits\PreventOverlapping;
-use App\Jobs\ProcessFeedRecordsJob;
+use App\Jobs\ProcessFirstPartyMissedFeedRecordsJob;
+use App\Jobs\ProcessFirstPartyFeedRecordsJob;
+use App\Jobs\ProcessThirdPartyMissedFeedRecordsJob;
+use App\Jobs\ProcessThirdPartyFeedRecordsJob;
+
 use App\Repositories\RawFeedEmailRepo;
 use App\Repositories\EtlPickupRepo;
 use App\DataModels\ProcessingRecord;
@@ -17,12 +21,14 @@ class ProcessFeedRecords extends Command
     use DispatchesJobs, PreventOverlapping;
     const NAME_BASE = 'FeedProcessing';
 
+    private $pickupRepo;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'feedRecords:process {party} {--feed=} {--startChars=} {--runtime-threshold=default}';
+    protected $signature = 'feedRecords:process {party} {--feed=} {--startChars=} {--rerun} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -36,7 +42,8 @@ class ProcessFeedRecords extends Command
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct(EtlPickupRepo $pickupRepo) {
+        $this->pickupRepo = $pickupRepo;
         parent::__construct();
     }
 
@@ -45,50 +52,65 @@ class ProcessFeedRecords extends Command
      *
      * @return mixed
      */
-    public function handle(RawFeedEmailRepo $rawRepo, EtlPickupRepo $pickupRepo) {
+    public function handle() {
         $party = (int)$this->argument('party');
-        $feedId = $this->option('feed') ?: null;
-        $startChars = $this->option('startChars') ?: null;
+        $runtime = $this->option('runtime-threshold');
+        $tracking = str_random(16);
+        $hoursBack = 2;
 
-        if (1 === $party && !$feedId) {
-            throw new Exception("First party feeds needs a feed id specified.");
+        if (1 === $party) {
+            if (!$feedId) {
+                throw new Exception("First party feeds needs a feed id specified.");
+            }
+
+            $feedId = $this->option('feed');
+            $name = self::NAME_BASE . '-' . $feedId;
+            
+            if ($this->option('rerun')) {
+                $job = (new ProcessFirstPartyMissedFeedRecordsJob($name, $feedId, $hoursBack, $tracking, $runtime))->onQueue('RecordProcessing');
+            }
+            else {
+                $startPoint = $this->getStartPoint($name);
+                $job = (new ProcessFirstPartyFeedRecordsJob($feedId, $name, $startPoint, $tracking, $runtime))->onQueue('RecordProcessing');
+            }
         }
-        if (3 === $party && !$startChars) {
-            throw new Exception("Third party feeds require email start characters.");
-        }
-        if (3 === $party && !preg_match('/^\w+$/', $startChars)) {
-            throw new Exception("Start chars '$startChars' is not valid");
+        else {
+            // Currently just 3
+
+            if ($this->option('rerun')) {
+                // this will go after all third party records, regardless of letters
+                $name = self::NAME_BASE . '-rerun';
+                $job = (new ProcessThirdPartyMissedFeedRecordsJob($name, $hoursBack, $tracking, $runtime))->onQueue('RecordProcessing');
+            }
+            else {
+                $startChars = $this->option('startChars');
+
+                if (!$startChars) {
+                    throw new Exception("Third party feeds require email start characters.");
+                }
+                if (!preg_match('/^\w+$/', $startChars)) {
+                    throw new Exception("Start chars '$startChars' is not valid");
+                }
+
+                $name = self::NAME_BASE . '-' . $startChars;
+                $startPoint = $this->getStartPoint($name);
+
+                $job = (new ProcessThirdPartyFeedRecordsJob($startChars, $name, $startPoint, $tracking, $runtime))->onQueue('RecordProcessing');
+            }
         }
 
-        $name = self::NAME_BASE . '-' . ((1 === $party) ? $feedId : $startChars);
+        $this->dispatch($job);
+    }
 
+
+    private function getStartPoint($name) {
         try {
-            $startPoint = $pickupRepo->getLastInsertedForName($name);
+            return $this->pickupRepo->getLastInsertedForName($name);
         }
         catch(Exception $e) {
             // Create a new listing.
-            $startPoint = 1;
-        }
-        
-        if (1 === $party) {
-            $records = $rawRepo->getFirstPartyRecordsFromFeed($startPoint, $feedId);
-        }
-        elseif (3 === $party) {
-            $records = $rawRepo->getThirdPartyRecordsWithChars($startPoint, $startChars);
-        }
-        
-        // Create array of ProcessingRecords and get last id
-        $users = [];
-        $maxId = 0;
-
-        foreach($records as $record) {
-            $users[] = new ProcessingRecord($record);
-            $maxId = $record->id;
-        }
-        
-        if ($maxId > 0) {
-            $job = (new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16), $this->option('runtime-threshold')))->onQueue('RecordProcessing');
-            $this->dispatch($job);
+            return 1;
         }
     }
+
 }
