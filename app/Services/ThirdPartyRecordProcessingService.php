@@ -12,6 +12,7 @@ use App\Services\Interfaces\IFeedPartyProcessing;
 use Carbon\Carbon;
 use App\Events\NewRecords;
 use App\Models\EmailAttributableFeedLatestData;
+use App\DataModels\RecordProcessingReportUpdate;
 
 class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $emailCache = [];
@@ -38,6 +39,48 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $this->emailStatusRepo = $emailStatusRepo;
     }
 
+    public function processPartyData(array $records, RecordProcessingReportUpdate $reportUpdate) {
+        $recordsToFlag = [];
+        $lastEmail = '';
+
+        foreach ($records as $record) {
+            $lastEmail = $record->emailAddress;
+            $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
+            $lastActionType = $this->emailStatusRepo->getActionStatus($record->emailId);
+            $record = $this->setRecordStatus($record);
+
+            if ('unique' === $record->uniqueStatus) {
+                $this->emailStatusRepo->batchInsert($record->mapToEmailFeedAction(ThirdPartyEmailStatus::DELIVERABLE));
+                $recordsToFlag[] = $record->mapToNewRecords();
+
+                // Update the attribution status of the per-feed user info store 
+                if ($currentAttributedFeedId !== $record->feedId) {
+                    $this->latestDataRepo->setAttributionStatus($record->emailId, $currentAttributedFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
+                }
+            }
+
+            $reportUpdate->incrementUniqueStatus($record);
+
+            // Update record per-feed data for all records that are not currently attributed to the same feed
+            if ('duplicate' !== $record->uniqueStatus) {
+                $this->latestDataRepo->batchInsert($record->mapToRecordData());
+            }
+
+            if (!is_null($lastActionType) && 'None' !== $lastActionType) {
+                $reportUpdate->incrementPrevResponder($record);
+            }
+            
+        }
+
+        $this->latestDataRepo->insertStored();
+        $this->emailStatusRepo->insertStored();
+        $this->statsRepo->updateProcessedData($reportUpdate);
+
+        // Handles all attribution changes
+        $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
+        \Event::fire(new NewRecords($recordsToFlag, $jobIdentifier));
+    }
+
     /**
      *      RULES FOR EMAIL STATUS AND ATTRIBUTION:
      *      All of these are for non-suppressed emails. Not all of these rules (date ranges, for example) are 
@@ -53,73 +96,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
      *      (5). If the email was imported > 90 days ago and no action exists, treat as a brand new record.
      */
 
-    public function processPartyData(array $records) {
-
-        $recordsToFlag = [];
-        $statuses = [];
-        $lastEmail = '';
-
-        foreach ($records as $record) {
-
-            $domainGroupId = $record->domainGroupId;
-            $lastEmail = $record->emailAddress;
-            $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
-            $filename = $record->file;
-            $lastActionType = $this->emailStatusRepo->getActionStatus($record->emailId);
-
-            // Note structure
-            if (!isset($statuses[$record->feedId])) {
-                $statuses[$record->feedId] = [];
-            }
-
-            if (!isset($statuses[$record->feedId][$domainGroupId])) {
-                $statuses[$record->feedId][$domainGroupId] = [];
-            }
-
-            if (!isset( $statuses[$record->feedId][$domainGroupId][$filename])) {
-                $statuses[$record->feedId][$domainGroupId][$filename] = [
-                    'unique' => 0,
-                    'non-unique' => 0,
-                    'duplicate' => 0,
-                    'prev_responder_count' => 0
-                ];
-            }
-
-            $record = $this->setRecordStatus($record);
-
-            if ('unique' === $record->uniqueStatus) {
-                $this->emailStatusRepo->batchInsert($record->mapToEmailFeedAction(ThirdPartyEmailStatus::DELIVERABLE));
-                $recordsToFlag[] = $record->mapToNewRecords();
-
-                // Update the attribution status of the per-feed user info store 
-                if ($currentAttributedFeedId !== $record->feedId) {
-                    $this->latestDataRepo->setAttributionStatus($record->emailId, $currentAttributedFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
-                }
-            }
-
-            $statuses[$record->feedId][$domainGroupId][$filename][$record->uniqueStatus]++;
-
-            // Update record per-feed data for all records that are not currently attributed to the same feed
-            if ('duplicate' !== $record->uniqueStatus) {
-                $this->latestDataRepo->batchInsert($record->mapToRecordData());
-            }
-
-            if (!is_null($lastActionType) && 'None' !== $lastActionType) {
-                $statuses[$record->feedId][$domainGroupId][$filename]['prev_responder_count']++;
-            }
-            
-        }
-
-        $this->latestDataRepo->insertStored();
-        $this->emailStatusRepo->insertStored();
-        $this->statsRepo->massUpdateValidEmailStatus($statuses);
-
-        // Handles all attribution changes
-        $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
-        \Event::fire(new NewRecords($recordsToFlag, $jobIdentifier));
-    }
-
-    private function setRecordStatus(ProcessingRecord &$record) {
+    private function setRecordStatus(ProcessingRecord $record) {
         # This will have to be uncommented later
         /*
         if ($record->isSuppressed) {
