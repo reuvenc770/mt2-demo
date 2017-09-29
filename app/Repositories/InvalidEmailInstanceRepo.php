@@ -6,7 +6,6 @@ use App\Models\InvalidEmailInstance;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoTraits\Batchable;
-use Carbon\Carbon;
 
 class InvalidEmailInstanceRepo {
     use Batchable;
