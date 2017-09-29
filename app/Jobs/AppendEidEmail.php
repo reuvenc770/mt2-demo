@@ -4,14 +4,10 @@ namespace App\Jobs;
 
 use App\Jobs\MonitoredJob;
 use App\Services\AppendEidService;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Mail;
 use Storage;
-class AppendEidEmail extends MonitoredJob implements ShouldQueue
+
+class AppendEidEmail extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels;
 
     /**
      * Create a new job instance.
