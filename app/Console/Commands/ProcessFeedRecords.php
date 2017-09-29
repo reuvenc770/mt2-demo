@@ -28,7 +28,7 @@ class ProcessFeedRecords extends Command
      *
      * @var string
      */
-    protected $signature = 'feedRecords:process {party} {--feed=} {--startChars=} {--rerun} {--runtime-threshold=default}';
+    protected $signature = 'feedRecords:process {party} {--feed=} {--startChars=} {--rerun=} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -56,7 +56,7 @@ class ProcessFeedRecords extends Command
         $party = (int)$this->argument('party');
         $runtime = $this->option('runtime-threshold');
         $tracking = str_random(16);
-        $hoursBack = 2;
+        $hoursBack = $this->option('rerun');
 
         if (1 === $party) {
             if (!$feedId) {
@@ -66,7 +66,7 @@ class ProcessFeedRecords extends Command
             $feedId = $this->option('feed');
             $name = self::NAME_BASE . '-' . $feedId;
             
-            if ($this->option('rerun')) {
+            if (!is_null($this->option('rerun'))) {
                 $job = (new ProcessFirstPartyMissedFeedRecordsJob($name, $feedId, $hoursBack, $tracking, $runtime))->onQueue('RecordProcessing');
             }
             else {
@@ -77,7 +77,7 @@ class ProcessFeedRecords extends Command
         else {
             // Currently just 3
 
-            if ($this->option('rerun')) {
+            if (!is_null($this->option('rerun'))) {
                 // this will go after all third party records, regardless of letters
                 $name = self::NAME_BASE . '-rerun';
                 $job = (new ProcessThirdPartyMissedFeedRecordsJob($name, $hoursBack, $tracking, $runtime))->onQueue('RecordProcessing');
