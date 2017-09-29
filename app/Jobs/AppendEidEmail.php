@@ -23,13 +23,18 @@ class AppendEidEmail extends MonitoredJob implements ShouldQueue
     private $includeFields;
     private $includeSuppression;
     private $fileName;
-    public function __construct($filePath,$fileName,$feed,$fields,$suppression)
+    private $jobName
+
+    public function __construct($filePath,$fileName,$feed,$fields,$suppression, $tracking, $threshold)
     {
         $this->filePath = $filePath;
         $this->includeFeed = $feed;
         $this->includeFields = $fields;
         $this->includeSuppression = $suppression;
         $this->fileName = $fileName;
+
+        $jobName = self::NAME_BASE . '-' . $fileName;
+        parent::__construct($jobName, $threshold, $tracking);
     }
 
     /**
