@@ -36,7 +36,7 @@ class ListProfileQueryBuilder {
     private $carrierAttributes;
 
     // Note already-prepared fields in ListProfileBaseTableService
-    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed', 'feed_suppressed'];
+    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed', 'feed_suppressed', 'lower_sha256'];
 
 
     public function __construct() {
@@ -75,6 +75,7 @@ class ListProfileQueryBuilder {
             'action_date' => DB::raw('rd.last_action_date as action_date'),
             'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
             'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
+            'lower_sha256' => DB::connection('redshift')->raw('sha_256(lower(email_address)) as lower_sha256')
         ];
     }
 
