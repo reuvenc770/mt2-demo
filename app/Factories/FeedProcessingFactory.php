@@ -93,7 +93,8 @@ class FeedProcessingFactory
 
         $reportRepo = App::make(\App\Repositories\FeedDateEmailBreakdownRepo::class);
         $dataRepo = App::make(\App\Repositories\FirstPartyRecordDataRepo::class);
-        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy);
+        $logRepo = App::make(\App\Repositories\EspWorkflowLogRepo::class);
+        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy, $logRepo);
 
         $suppStrategyName = 'App\\Services\\SuppressionProcessingStrategies\\FirstPartySuppressionProcessingStrategy';
         $suppStrategy = new $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);

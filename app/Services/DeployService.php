@@ -42,9 +42,7 @@ class DeployService
 
     public function getModel($searchData = null)
     {
-
         return $this->deployRepo->getModel($searchData);
-
     }
 
     public function insertDeploy($data)

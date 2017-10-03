@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\FeedDateEmailBreakdown;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+use App\DataModels\RecordProcessingReportUpdate;
 
 /**
  *
@@ -18,7 +19,9 @@ class FeedDateEmailBreakdownRepo {
         $this->model = $model;
     }
 
-    public function massUpdateValidEmailStatus($data) {
+    public function updateProcessedData(RecordProcessingReportUpdate $reportUpdate) {
+        $data = $reportUpdate->toArray();
+
         $pdo = DB::connection()->getPdo();
         $updates = [];
 
@@ -28,8 +31,17 @@ class FeedDateEmailBreakdownRepo {
                     $insertString = '('
                         . $pdo->quote($feedId) . ','
                         . 'CURDATE(),'
-                        . $pdo->quote($domainGroupId) . ','
-                        . $pdo->quote($filename) . ','
+                        . $pdo->quote($domainGroupId) . ', '
+                        . $pdo->quote($filename) . ', '
+                        . $pdo->quote($row['totalRecords']) . ', '
+                        . $pdo->quote($row['validRecords']) . ', '
+                        . $pdo->quote($row['suppressed']) . ', '
+                        . $pdo->quote($row['badSourceUrls']) . ', '
+                        . $pdo->quote($row['fullPostalCount']) . ', '
+                        . $pdo->quote($row['badIpAddresses']) . ', '
+                        . $pdo->quote($row['otherInvalid']) . ', '
+                        . $pdo->quote($row['suppressedDomains']) . ', '
+                        . $pdo->quote($row['phoneCount']) . ', '
                         . $pdo->quote($row['unique']) . ','
                         . $pdo->quote($row['duplicate']) . ','
                         . $pdo->quote($row['non-unique']) . ','
@@ -53,7 +65,9 @@ class FeedDateEmailBreakdownRepo {
                     try {
                         DB::statement(
                             "INSERT INTO feed_date_email_breakdowns 
-                            (feed_id, date, domain_group_id, filename, unique_emails, feed_duplicates, cross_feed_duplicates, prev_responder_count)
+                            (feed_id, date, domain_group_id, filename, total_emails, valid_emails, suppressed_emails,
+                            bad_source_urls, full_postal_counts, bad_ip_addresses, other_invalid, suppressed_domains,
+                            phone_counts, unique_emails, feed_duplicates, cross_feed_duplicates, prev_responder_count)
 
                             VALUES 
 
@@ -64,19 +78,19 @@ class FeedDateEmailBreakdownRepo {
                                 date = date,
                                 domain_group_id = domain_group_id,
                                 filename = filename,
+                                total_emails = total_emails + VALUES(total_emails),
+                                valid_emails = valid_emails + VALUES(valid_emails),
+                                suppressed_emails = suppressed_emails + VALUES(suppressed_emails),
+                                bad_source_urls = bad_source_urls + VALUES(bad_source_urls),
+                                full_postal_counts = full_postal_counts + VALUES (full_postal_counts),
+                                bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
+                                other_invalid = other_invalid + VALUES(other_invalid),
+                                suppressed_domains = suppressed_emails + VALUES(suppressed_emails),
+                                phone_counts = phone_counts + VALUES(phone_counts),
                                 unique_emails = unique_emails + VALUES(unique_emails),
                                 feed_duplicates = feed_duplicates + VALUES(feed_duplicates),
                                 cross_feed_duplicates = cross_feed_duplicates + VALUES(cross_feed_duplicates),
-                                prev_responder_count = prev_responder_count + VALUES(prev_responder_count),
-                                total_emails = total_emails,
-                                valid_emails = valid_emails,
-                                suppressed_emails = suppressed_emails,
-                                phone_counts = phone_counts,
-                                full_postal_counts = full_postal_counts,
-                                bad_source_urls = bad_source_urls,
-                                bad_ip_addresses = bad_ip_addresses,
-                                other_invalid = other_invalid,
-                                suppressed_domains = suppressed_domains");
+                                prev_responder_count = prev_responder_count + VALUES(prev_responder_count)");
                         $done = true;
                     }
                     catch (\Exception $e) {
@@ -85,91 +99,12 @@ class FeedDateEmailBreakdownRepo {
                     }
                 }
                 else {
-                    throw new \Exception("FeedDateEmailBreakdownRepo::massUpdateValidEmailStatus() failed too many times with {$e->getMessage()} and $inserts");
+                    throw new \Exception("FeedDateEmailBreakdownRepo::updateProcessedData() failed too many times with {$e->getMessage()} and $inserts");
                 }
             }
         }
-        
     }
-
-
-    public function updateExtendedStatuses($data) {
-        $pdo = DB::connection()->getPdo();
-        $updates = [];
-        foreach($data as $feedId => $domains) {
-            foreach($domains as $domainGroupId => $filenames) {
-                foreach ($filenames as $file => $row) {
-                    $insertString = '(' 
-                        . $pdo->quote($feedId) . ', '
-                        . "CURDATE(), "
-                        . $pdo->quote($domainGroupId) . ', '
-                        . $pdo->quote($file) . ', '
-                        . $pdo->quote($row['totalRecords']) . ', '
-                        . $pdo->quote($row['validRecords']) . ', '
-                        . $pdo->quote($row['suppressed']) . ', '
-                        . $pdo->quote($row['badSourceUrls']) . ', '
-                        . $pdo->quote($row['fullPostalCount']) . ', '
-                        . $pdo->quote($row['badIpAddresses']) . ', '
-                        . $pdo->quote($row['otherInvalid']) . ', '
-                        . $pdo->quote($row['suppressedDomains']) . ', '
-                        . $pdo->quote($row['phoneCount'])
-                        . ')';
-                    $updates[] = $insertString;
-                }
-            }
-        }
-
-        $inserts = implode(',', $updates);
-
-        if ($inserts) {
-            $done = false;
-            $attempts = 0;
-            
-            while (!$done) {
-                if ($attempts < self::MAX_RETRY_ATTEMPTS) {
-                    try {
-                        DB::statement("INSERT INTO feed_date_email_breakdowns
-                            (feed_id, date, domain_group_id, filename, total_emails, valid_emails, suppressed_emails,
-                            bad_source_urls, full_postal_counts, bad_ip_addresses, other_invalid, suppressed_domains,
-                            phone_counts)
-                            VALUES
-
-                            $inserts
-
-                            ON DUPLICATE KEY UPDATE
-                            feed_id = feed_id,
-                            date = date,
-                            domain_group_id = domain_group_id,
-                            filename = filename,
-                            total_emails = total_emails + VALUES(total_emails),
-                            valid_emails = valid_emails + VALUES(valid_emails),
-                            suppressed_emails = suppressed_emails + VALUES(suppressed_emails),
-                            bad_source_urls = bad_source_urls + VALUES(bad_source_urls),
-                            full_postal_counts = full_postal_counts + VALUES (full_postal_counts),
-                            bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
-                            other_invalid = other_invalid + VALUES(other_invalid),
-                            suppressed_domains = suppressed_emails + VALUES(suppressed_emails),
-                            phone_counts = phone_counts + VALUES(phone_counts),
-                            prev_responder_count = prev_responder_count,
-                            unique_emails = unique_emails,
-                            feed_duplicates = feed_duplicates,
-                            cross_feed_duplicates = cross_feed_duplicates");
-                        $done = true;
-                    }
-                    catch (\Exception $e) {
-                        $attempts++;
-                        sleep(2);
-                    }
-                }
-                else {
-                    throw new \Exception("FeedDateEmailBreakdownRepo::updateExtendedStatuses() failed too many times with {$e->getMessage()} and $inserts");
-                }
-            }
-            
-        }
-
-        
-    }
+    
 
     public function getFeedDateUniqueCount($feedId, $date) {
         return $this->model
