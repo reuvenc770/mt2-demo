@@ -392,6 +392,7 @@ class RawFeedEmailRepo {
                     ->whereNull("efi.email_id")
                     ->whereNull('sgo.email_address')
                     ->whereNull('iei.id')
+                    ->where('raw_feed_emails.created_at', '<=', DB::raw("now() - interval 10 minute"))
                     ->select('raw_feed_emails.*')
                     ->get();
     }
