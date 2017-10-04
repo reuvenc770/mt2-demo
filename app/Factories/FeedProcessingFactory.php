@@ -5,6 +5,7 @@ namespace App\Factories;
 use App;
 use App\Facades\EspApiAccount;
 use App\Factories\APIFactory;
+use App\Factories\ServiceFactory;
 
 // Validators
 use App\Services\Validators\AgeValidator;
@@ -117,7 +118,19 @@ class FeedProcessingFactory
         $service->setSuppressionProcessingStrategy($suppStrategy);
 
         // Add Attribution to Processing
-        $service->registerProcessing(App::make(ThirdPartyRecordProcessingService::class));
+        $eventType = 'expiration';
+        $filterService = ServiceFactory::createFilterService($eventType);
+        $processingService = new ThirdPartyRecordProcessingService(
+            App::make(\App\Repositories\EmailRepo::class),
+            App::make(\App\Repositories\AttributionLevelRepo::class),
+            App::make(\App\Repositories\FeedDateEmailBreakdownRepo::class),
+            App::make(\App\Repositories\ThirdPartyEmailStatusRepo::class),
+            App::make(\App\Repositories\EmailAttributableFeedLatestDataRepo::class),
+            $filterService,
+            App::make(\App\Services\EmailFeedAssignmentService::class),
+            App::make(\App\Services\AttributionRecordTruthService::class)
+        );
+        $service->registerProcessing($processingService);
 
         return $service;
     }

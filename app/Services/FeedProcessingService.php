@@ -19,7 +19,6 @@ class FeedProcessingService {
     
     private $validators = [];
     private $suppressors = [];
-    private $maxId = 0;
     private $processor;
     private $suppStrategy;
     private $reportUpdate;
