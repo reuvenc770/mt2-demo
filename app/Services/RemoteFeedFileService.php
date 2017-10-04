@@ -130,7 +130,7 @@ class RemoteFeedFileService {
             $count = 0;
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if (
-                    $newFileString !== ''
+                    $newFile !== ''
                     && strpos( $newFile , "find:" ) !== 0 #contention issue caused by another process
                     && $count < 20
                 ) {
@@ -146,6 +146,25 @@ class RemoteFeedFileService {
                 }
             }
         }
+    }
+
+    public function getAllFilesFromDir ( $directory ) {
+        $fileList = [];
+
+        $newFileString = $this->systemService->getRecentFiles( $directory , [ '-type f' , '-print' ] );
+        $matches = [];
+        
+        foreach ( explode( "\n" , $newFileString ) as $newFile ) {
+            if (
+                $newFile !== '' #empty line check
+                && strpos( $newFile , "find:" ) !== 0 #contention issue caused by another process
+                && preg_match( '/^.*\/$/' , $newFile , $matches ) === 0 #directory check
+            ) {
+                $fileList []= $newFile;
+            }
+        }
+
+        return $fileList;
     }
 
     public function addToFileList ( $file , $feedId , $party ) {
