@@ -146,7 +146,6 @@ class ReprocessFeedRecordsJob extends MonitoredJob
     protected function loadFilesFromDirectoryIntoService () {
         if ( !is_null( $this->feedDirectoryPath ) ) {
             foreach( $this->service->getAllFilesFromDir( $this->feedDirectoryPath ) as $currentDir ) {
-                echo "loadFilesFromDirectoryIntoService: " . $currentDir . "\n";
                 $this->service->setFile( $currentDir , $this->feedId , $this->party );
             }
         }
