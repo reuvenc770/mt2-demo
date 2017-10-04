@@ -1,0 +1,21 @@
+-
+    id: 1
+    name: Basic
+    page_id: 1
+    description: 'User is able to log in and view profile.'
+    created_at: '2017-08-31 17:32:12'
+    updated_at: '2017-08-31 17:35:00'
+-
+    id: 2
+    name: 'System Authentication'
+    page_id: 1
+    description: 'User is able to reset own password and request a password reset.'
+    created_at: '2017-08-31 17:34:52'
+    updated_at: '2017-08-31 17:34:58'
+-
+    id: 3
+    name: 'Admin Access'
+    page_id: 1
+    description: 'User is able view/create/edit/delete users and roles, view permissions, update navigation menu, retrieve notification templates.'
+    created_at: '2017-08-31 17:56:28'
+    updated_at: '2017-08-31 17:56:28'

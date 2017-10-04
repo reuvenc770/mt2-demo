@@ -13,7 +13,7 @@ class ProcessYamlFiles extends Command
     private $service;
     private $processMode;
 
-    private $models = [ 'NavigationParent' , 'Page' , 'FrontendFeature' ] ;
+    private $models = [ 'NavigationParent' , 'Page' , 'FrontendFeature' , 'FrontendFeaturePermissionMapping' , 'Permission'] ;
 
     /**
      * The name and signature of the console command.
