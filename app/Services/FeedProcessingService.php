@@ -47,8 +47,6 @@ class FeedProcessingService {
         $validatedRecords = [];
 
         foreach($records as $record) {
-            $this->maxId = $record->id;
-            $record = new ProcessingRecord($record);
             $record = $this->emailDomainService->setRecordDomainInfo($record);
 
             // Setting up the report update object
@@ -152,6 +150,7 @@ class FeedProcessingService {
      *  Set suppression status.
      *  This is obviously a bit more complicated than the simple per-item lookup,
      *  but hopefully this is significantly faster
+     *  Assumes an array of ProcessingRecords
      */
 
     public function suppress($records) {
@@ -190,10 +189,6 @@ class FeedProcessingService {
 
     public function postProcessing(array $records, RecordProcessingReportUpdate $reportUpdate) {
         $this->processor->processPartyData($records, $reportUpdate);
-    }
-
-    public function getLastProcessedId() {
-        return $this->maxId;
     }
 
 
