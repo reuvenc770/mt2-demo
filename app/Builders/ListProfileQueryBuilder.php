@@ -75,7 +75,7 @@ class ListProfileQueryBuilder {
             'action_date' => DB::raw('rd.last_action_date as action_date'),
             'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
             'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
-            'lower_sha256' => DB::connection('redshift')->raw('sha_256(lower(email_address)) as lower_sha256')
+            'lower_sha256' => DB::connection('redshift')->raw('sha_256(lower(e.email_address)) as lower_sha256')
         ];
     }
 
