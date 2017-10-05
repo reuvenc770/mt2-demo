@@ -89,7 +89,7 @@ class ReprocessFeedRecordsJob extends MonitoredJob
 
             $message .= "```";
 
-            \Maknz\Slack\Facades\Slack::to( '#cmp_hard_start_errors' )->send( $message );
+            \Maknz\Slack\Facades\Slack::to( config( 'slack.errorChannel' ) )->send( $message );
         } );
     }
 
