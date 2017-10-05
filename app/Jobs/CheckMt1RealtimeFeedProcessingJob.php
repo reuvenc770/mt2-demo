@@ -50,7 +50,7 @@ class CheckMt1RealtimeFeedProcessingJob extends MonitoredJob {
 
         $findOptions = [
             '-type f' ,
-            '-mtime -1' ,
+            '-mtime +1' ,
             '-printf "%f,%TY-%Tm-%Td %TH:%Tm\n"'
         ];
 
@@ -94,7 +94,7 @@ class CheckMt1RealtimeFeedProcessingJob extends MonitoredJob {
             }
 
             if ( count( $unprocessedFiles ) ) {
-                Notify::log( 'realtime_feed_file_unprocessed' , json_encode( [ "files" => $unprocessedFiles ] ) );
+                Slack::to( self::SLACK_CHANNEL )->send( "Found unprocessed realtime files: \n```" . json_encode( $unprocessedFiles ) . "```\n\nThey are queued for reprocessing." );
             }
         }
     }

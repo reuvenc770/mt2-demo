@@ -60,6 +60,10 @@ class RemoteLinuxSystemService {
         if ( $authSuccess === false ) { throw new \Exception( "Failed to authenticate with the server." ); }
     }
 
+    public function setConnection ( resource $connection ) {
+        $this->sshConnection = $connection;
+    }
+
     public function connectionExists () {
         return isset( $this->sshConnection );
     }
