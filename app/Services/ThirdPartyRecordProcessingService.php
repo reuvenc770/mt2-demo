@@ -21,7 +21,12 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $emailStatusRepo;
     private $latestDataRepo;
 
+    private $filterService;
+    private $assignmentService;
+    private $truthService;
+
     private $processingDate;
+    const NEXT_FREE_DAY = 10;
 
     // TODO: switch third party repos with the commented-out repos below and clean up unneeded code
 
@@ -29,7 +34,10 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         AttributionLevelRepo $attributionLevelRepo, 
         FeedDateEmailBreakdownRepo $statsRepo,
         ThirdPartyEmailStatusRepo $emailStatusRepo,
-        EmailAttributableFeedLatestDataRepo $latestDataRepo) {
+        EmailAttributableFeedLatestDataRepo $latestDataRepo,
+        ScheduledFilterService $filterService,
+        EmailFeedAssignmentService $assignmentService,
+        AttributionRecordTruthService $truthService) {
 
         $this->emailRepo = $emailRepo;
         $this->attributionLevelRepo = $attributionLevelRepo;
@@ -37,6 +45,10 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $this->processingDate = Carbon::today()->format('Y-m-d');
         $this->latestDataRepo = $latestDataRepo;
         $this->emailStatusRepo = $emailStatusRepo;
+
+        $this->filterService = $filterService;
+        $this->assignmentService = $assignmentService;
+        $this->truthService = $truthService;
     }
 
     public function processPartyData(array $records, RecordProcessingReportUpdate $reportUpdate) {
@@ -76,9 +88,10 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $this->emailStatusRepo->insertStored();
         $this->statsRepo->updateProcessedData($reportUpdate);
 
-        // Handles all attribution changes
-        $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
-        \Event::fire(new NewRecords($recordsToFlag, $jobIdentifier));
+        // 2. Handle all attribution changes.
+        $this->truthService->insertBulkRecords($recordsToFlag);
+        $this->assignmentService->insertBulkRecords($recordsToFlag);
+        $this->filterService->insertScheduleFilterBulk($recordsToFlag, self::NEXT_FREE_DAY);
     }
 
     /**

@@ -374,25 +374,27 @@ class RawFeedEmailRepo {
 
     public function getThirdPartyUnprocessed($minId, $date, $minInvalidId) {
         // Should test this to see if the lack of safeguards suffices
-        return DB::select("select
-                rfe.* 
-            from
-                raw_feed_emails rfe
-                LEFT JOIN emails e ON rfe.email_address = e.email_address
-                LEFT JOIN email_feed_instances efi ON e.id = efi.email_id AND rfe.feed_id = efi.feed_id AND efi.subscribe_date >= :date
-                LEFT JOIN invalid_email_instances iei ON rfe.email_address = iei.email_address AND rfe.feed_id = iei.feed_id AND iei.id >= :invStart and rfe.created_at <= iei.created_at
-                LEFT JOIN suppression.suppression_global_orange sgo ON rfe.email_address = sgo.email_address 
-            where
-                rfe.id > :rfeStart
-                AND
-                party = 3
-                AND
-                (efi.email_id is null and sgo.email_address is null and iei.id is null)
-                and rfe.created_at <= now() - interval 10 minute", [
-            ':date' => $date,
-            ':rfeStart' => $minId,
-            ':invStart' => $minInvalidId
-        ]);
+
+        return $this->rawEmail
+                    ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
+                    ->leftJoin('email_feed_instances as efi', function($join) use ($date) {
+                        $join->on('e.id', '=', 'efi.email_id');
+                        $join->on('raw_feed_emails.feed_id', '=', 'efi.feed_id');
+                        $join->where('efi.subscribe_date', '>=', $date); #despite the name, this keeps the value within the ON clause
+                    })
+                    ->leftJoin('invalid_email_instances as iei', function($join) use ($minInvalidId) {
+                        $join->on('raw_feed_emails.email_address', '=', 'iei.email_address');
+                        $join->on('raw_feed_emails.feed_id', '=', 'iei.feed_id');
+                        $join->where('iei.id', '>', $minInvalidId);
+                    })
+                    ->leftJoin('suppression.suppression_global_orange as sgo', 'raw_feed_emails.email_address', '=', 'sgo.email_address')
+                    ->whereRaw("party = 3 and raw_feed_emails.id > $minId")
+                    ->whereNull("efi.email_id")
+                    ->whereNull('sgo.email_address')
+                    ->whereNull('iei.id')
+                    ->where('raw_feed_emails.created_at', '<=', DB::raw("now() - interval 10 minute"))
+                    ->select('raw_feed_emails.*')
+                    ->get();
     }
 
     public function getMinId($datetime) {
