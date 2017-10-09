@@ -54,6 +54,7 @@ class JobEntryService
 
     public function changeJobState($state, $tracking, $total = 0)
     {
+        echo $state . PHP_EOL;
         $job = $this->repo->getJobByTracking($tracking);
         $job->status = $state;
         if($state == JobEntry::SUCCESS) {
