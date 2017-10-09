@@ -126,6 +126,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateCpmListProfileReportCommand::class ,
         Commands\SyncMT1FeedFieldOrderCommand::class,
         Commands\PopulateCpaListProfileReportCommand::class,
+        Commands\UploadIPv6DB::class
 ];
 
     /**
