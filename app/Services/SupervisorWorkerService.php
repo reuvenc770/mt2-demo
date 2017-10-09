@@ -107,7 +107,7 @@ class SupervisorWorkerService {
                 }
                 
                 if (!$process['isRunning']) {
-                    $this->supervisor->startProcess($process['name']);
+                    $this->supervisor->startProcess($groupName . ':' . $process['name']);
                     $i++;
                 }
             }

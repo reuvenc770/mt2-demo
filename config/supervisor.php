@@ -23,7 +23,7 @@ return [
             'canModify' => true,
             'processName' => 'laravel-worker-fileDownloads_'
         ],
-        'BlueHornet' => [
+        'laravel-worker-BlueHornet' => [
             'queueName' => 'BlueHornet',
             'canModify' => true,
             'processName' => 'BlueHornet_'
@@ -92,7 +92,7 @@ return [
         'Bronto' => 'Bronto',
         'Maro' => 'Maro',
         'fileDownloads' => 'laravel-worker-fileDownloads',
-        'BlueHornet' => 'BlueHornet',
+        'BlueHornet' => 'laravel-worker-BlueHornet',
         'orphanage' => 'Daddy-Warbucks',
         'Campaigner' => 'Campaigner',
         'Publicators' => 'Publicators',
