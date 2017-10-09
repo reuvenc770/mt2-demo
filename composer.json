@@ -23,7 +23,7 @@
         "league/flysystem-ziparchive": "^1.0",
         "fisharebest/laravel-assets": "~1.0",
         "supervisorphp/supervisor": "^3.0",
-        "lstrojny/fxmlrpc": "0.13.0",
+        "lstrojny/fxmlrpc": "~0.13.0",
         "php-http/message": "^1.6",
         "php-http/guzzle6-adapter": "^1.1"
     },
