@@ -48,5 +48,6 @@ class LengthenIpFields extends Migration
 
         Schema::connection('eporting_data')->table('cake_actions', function($table) {
             $table->string('ip_address', 30)->change();
+        });
     }
 }
