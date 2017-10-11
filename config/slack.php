@@ -28,6 +28,7 @@ return [
   */
 
   'channel' => '#general',
+  'errorChannel' => env( 'SLACK_ERROR_CHANNEL' , '' ) ,
 
   /*
   |-------------------------------------------------------------

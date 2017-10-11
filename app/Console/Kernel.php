@@ -126,6 +126,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateCpmListProfileReportCommand::class ,
         Commands\SyncMT1FeedFieldOrderCommand::class,
         Commands\PopulateCpaListProfileReportCommand::class,
+        Commands\OptimizeWorkers::class,
         Commands\UploadIPv6DB::class
 ];
 
@@ -143,6 +144,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME); //command DomainExpirationNotification, job class domainExpirationNotifications, job name ExpiredDomains 
         $schedule->command('notify:scheduled')->everyMinute(); //command ScheduledNotificationsCommand, job class ScheduledNotificationQueueJob, job name ScheduledNotificationQueueJob:% 
         $schedule->command('monitors:runtime --mode=monitor --days-back=1 --runtime-threshold=30s')->cron('05 8,16 * * * *'); //job class: RunTimeMonitorJob 
+
+
+        /**
+         *  Maintenance
+         */
+        $schedule->command('supervisor:optimize --runtime-threshold=1h')->everyFiveMinutes();
 
         /**
          * Orphan Adoption
