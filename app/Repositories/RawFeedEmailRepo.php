@@ -394,7 +394,7 @@ class RawFeedEmailRepo {
                     ->whereNull('iei.id')
                     ->where('raw_feed_emails.created_at', '<=', DB::raw("now() - interval 10 minute"))
                     ->select('raw_feed_emails.*')
-                    ->orderBy('raw_feed_emails', 'asc')
+                    ->orderBy('raw_feed_emails.id', 'asc')
                     ->take($limit)
                     ->get();
     }
