@@ -68,9 +68,8 @@ class SupervisorWorkerService {
 
         foreach ($processInfo as $process) {
             $group = $process['group'];
-            $queueName = $this->programInfo[$group]['queueName'];
 
-            if (!isset($output[$queueName])) {
+            if (!isset($output[$group])) {
                 $output[$group] = [];
             }
 
@@ -107,7 +106,7 @@ class SupervisorWorkerService {
                 }
                 
                 if (!$process['isRunning']) {
-                    $this->supervisor->startProcess($process['name']);
+                    $this->supervisor->startProcess($groupName . ':' . $process['name']);
                     $i++;
                 }
             }

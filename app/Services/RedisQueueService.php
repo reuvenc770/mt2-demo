@@ -31,10 +31,10 @@ class RedisQueueService {
                 // This is the reserve
                 $output[$name]->queuedJobs += $this->getListLength($queueName);
             }
-            elseif (sizeof($items) === 3 && 'reserved' === $item[2]) {
+            elseif (sizeof($items) === 3 && 'reserved' === $items[2]) {
                 $output[$name]->activeJobs += $this->getZSetLength($queueName);
             }
-            elseif (sizeof($items) === 3 && 'delayed' === $item[2]) {
+            elseif (sizeof($items) === 3 && 'delayed' === $items[2]) {
                 $output[$name]->queuedJobs += $this->getZSetLength($queueName);
             }
 
