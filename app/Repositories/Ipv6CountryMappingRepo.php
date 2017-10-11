@@ -49,10 +49,10 @@ class Ipv6CountryMappingRepo {
         $words2 = $words[1];
 
         $result = $this->model
-                    ->whereRaw("conv(hex(inet6_aton($words1))) >= first_half_from")
-                    ->whereRaw("conv(hex(inet6_aton($words2))) >= second_half_from")
-                    ->whereRaw("conv(hex(inet6_aton($words1))) <= first_half_to")
-                    ->whereRaw("conv(hex(inet6_aton($words2))) <= second_half_to")
+                    ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) >= first_half_from")
+                    ->whereRaw("conv(hex(inet6_aton('$words2')), 16, 10) >= second_half_from")
+                    ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) <= first_half_to")
+                    ->whereRaw("conv(hex(inet6_aton('$words2')), 16, 10) <= second_half_to")
                     ->get();
         // Ideally we'd validate this beforehand, but due to constraints:
         // number of rows
