@@ -79,4 +79,8 @@ class Ipv6CountryMappingRepo {
         $this->model->truncate();
     }
 
+    public function getLastUpdate() {
+        return $this->model->max('updated_at');
+    }
+
 }
