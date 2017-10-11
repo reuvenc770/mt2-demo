@@ -28,9 +28,6 @@ class ProcessThirdPartyMissedFeedRecordsJob extends MonitoredJob {
 
         $totalCount = 0;
 
-        echo "MIN ID: $minId" . PHP_EOL;
-        echo "INV ID: $minInvId" . PHP_EOL;
-
         while ($records = $recordService->getMissedRecords(self::PARTY, $date, $minId, $minInvId, self::JOB_LIMIT)) {
             $count = count($records);
             $totalCount += $count;
