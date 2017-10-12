@@ -159,7 +159,6 @@ class RemoteLinuxSystemService {
         $defaultOptions = [
             '-type f' ,
             '-mtime -1' ,
-            '-mmin +10' , 
             '-print'
         ];
 
