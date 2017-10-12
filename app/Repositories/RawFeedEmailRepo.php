@@ -109,7 +109,7 @@ class RawFeedEmailRepo {
                 continue;
             }
 
-            $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s]/' , '' , $fieldValue );
+            $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s:]/' , '' , $fieldValue );
             $currentValue = preg_replace( '/\s{2,}/' , '' , $currentValue );
             $currentValue = trim( $currentValue );
 
