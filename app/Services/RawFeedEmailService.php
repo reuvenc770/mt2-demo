@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Repositories\RawFeedEmailRepo;
 use App\Repositories\InvalidEmailInstanceRepo;
-use Carbon\Carbon;
 use App\DataModels\ProcessingRecord;
 
 class RawFeedEmailService {
@@ -21,19 +20,13 @@ class RawFeedEmailService {
     }
 
 
-    public function getMissedRecords($party, $hoursBack) {
-
-        $date = Carbon::today()->toDateString();
-        $start = Carbon::now()->subHours($hoursBack)->toDateTimeString();
-
-        $minId = $this->rawRepo->getMinId($start);
-        $minInvId = $this->invalidRepo->getMinIdForDate($date);
-
+    public function getMissedRecords($party, $date, $startRawId, $minInvId, $limit) {
         if (3 === $party) {
             $output = [];
-            $records = $this->rawRepo->getThirdPartyUnprocessed($minId, $date, $minInvId);
+            $records = $this->rawRepo->getThirdPartyUnprocessed($startRawId, $date, $minInvId, $limit);
 
             foreach ($records as $record) {
+                $this->maxId = max((int)$record->id, $this->maxId);
                 $output[] = new ProcessingRecord($record);
             } 
 
@@ -60,6 +53,14 @@ class RawFeedEmailService {
 
     public function getMaxIdPulled() {
         return $this->maxId;
+    }
+
+    public function getMinRawIdForDateTime($dateTime) {
+        return $this->rawRepo->getMinId($dateTime);
+    }
+
+    public function getMinInvalidIdForDate($date) {
+        return $this->invalidRepo->getMinIdForDate($date);
     }
 
 
