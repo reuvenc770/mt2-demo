@@ -30,7 +30,7 @@ class ThirdPartyEmailStatusRepo {
     }
 
     public function getLastActionTime($emailId) {
-        $row = $this->model->where('email_id')->first();
+        $row = $this->model->where('email_id', $emailId)->first();
 
         if ($row) {
             return $row->last_action_datetime;
