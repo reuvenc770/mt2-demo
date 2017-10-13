@@ -62,7 +62,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             $record = $this->setRecordStatus($record);
 
             if ('unique' === $record->uniqueStatus) {
-                $this->emailStatusRepo->batchInsert($record->mapToEmailFeedAction(ThirdPartyEmailStatus::DELIVERABLE));
+                $this->emailStatusRepo->batchInsertNew($record->mapToEmailFeedAction(ThirdPartyEmailStatus::DELIVERABLE));
                 $recordsToFlag[] = $record->mapToNewRecords();
 
                 // Update the attribution status of the per-feed user info store 
@@ -85,7 +85,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         }
 
         $this->latestDataRepo->insertStored();
-        $this->emailStatusRepo->insertStored();
+        $this->emailStatusRepo->insertStoredNew();
         $this->statsRepo->updateProcessedData($reportUpdate);
 
         // 2. Handle all attribution changes.
@@ -176,7 +176,6 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         }
         else { 
             // This is not a new email
-            $record->actionStatus = $this->emailStatusRepo->getActionStatus($record->emailId);
             $attributionTruths = $this->emailRepo->getAttributionTruths($record->emailId);
             $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
             $lastActionDateTime = $this->emailStatusRepo->getLastActionTime($record->emailId);
