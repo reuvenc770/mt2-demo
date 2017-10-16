@@ -125,11 +125,11 @@ class ThirdPartyEmailStatusRepo {
     public function batchInsertNew(array $data) {
         if ($this->batchNewDataCount >= $this->insertThreshold) {
             $this->insertStoredNew();
-            $this->batchNewData = [$this->transformRowToString($row)];
+            $this->batchNewData = [$this->transformRowToString($data)];
             $this->batchNewDataCount = 1;
         }
         else {
-            $this->batchNewData[] = $this->transformRowToString($row);
+            $this->batchNewData[] = $this->transformRowToString($data);
             $this->batchNewDataCount++;
         }
     }
