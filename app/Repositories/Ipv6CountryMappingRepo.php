@@ -51,6 +51,15 @@ class Ipv6CountryMappingRepo {
         $firstResult = $this->model
                             ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) >= first_half_from")
                             ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) <= first_half_to")
+                            ->selectRaw("country_code, 
+                                (first_half_from = first_half_to) firsts_match, 
+                                (conv(hex(inet6_aton('$words2')), 16, 10) BETWEEN second_half_from AND second_half_to) second_between,
+                                (conv(hex(inet6_aton('$words1')), 16, 10) = first_half_from) ip_matches_first_from,
+                                (conv(hex(inet6_aton('$words1')), 16, 10) = first_half_to) ip_matches_first_to,
+                                (conv(hex(inet6_aton('$words2')), 16, 10) >= second_half_from) ip_gte_second_half_from,
+                                (conv(hex(inet6_aton('$words2')), 16, 10) <= second_half_to) ip_lte_second_half_to,
+                                (conv(hex(inet6_aton('$words1')), 16, 10) BETWEEN (first_half_from+1) AND (first_half_to-1)) second_between
+                            ")
                             ->get();
 
         if (1 === $count) {
@@ -59,6 +68,7 @@ class Ipv6CountryMappingRepo {
         }
         elseif (0 === $count) {
             Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
+            return true; // safety first
         }
         else {
             // appears in a few rows
@@ -70,29 +80,29 @@ class Ipv6CountryMappingRepo {
             // so we can rely on the processing as a sort of de-facto Monte Carlo-style test
             // Incorrect IPv6 ranges are not a problem until they are a problem.
 
-            ideally, we would iterate over this list and check that data
-        }
-
-        $result = $this->model
-                    ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) >= first_half_from")
-                    ->whereRaw("conv(hex(inet6_aton('$words2')), 16, 10) >= second_half_from")
-                    ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) <= first_half_to")
-                    ->whereRaw("conv(hex(inet6_aton('$words2')), 16, 10) <= second_half_to")
-                    ->get();
-        
-
-        $count = count($result);
-
-        
-
-        if (1 === $count) {
-            return $result->first()->country_code === 'CA';
-        }
-        elseif (0 === $count) {
+            foreach($result as $row) {
+                if ((1 === $row->firsts_match) && $row->second_between) {
+                    // The leading digits match - as does ours, implicitly. 
+                    // We have to be sandwiched between them.
+                    return $row->country_code === 'CA';
+                }
+                elseif ((1 !== $row->firsts_match) && (1 === $row->ip_matches_first_from) && (1 === $row->ip_gte_second_half_from)) {
+                    // Our IP shares the same leading hextets as the from in this row
+                    // need to check here that our second half >= second half from (the basement)
+                    return $row->country_code === 'CA';
+                }
+                elseif ((1 !== $row->firsts_match) && (1 === $row->ip_matches_first_to) && (1 === $row->ip_lte_second_half_to)) {
+                    // Our IP shares the same leading hextets as the to in this row
+                    // need to check here that our second half <= second half from (a ceiling here)
+                    return $row->country_code === 'CA';
+                }
+                elseif (1 === $row->ip_exclusive_between_first) {
+                    // Last condition - we don't match either the leading hextets of the from or to
+                    // (we are already between them)
+                }
+            }
             Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
-        }
-        if ($count > 1) {
-            Slack::to(self::ROOM)->send("$ip appears in more than one row in the IPv6 table");
+            return true; // again, safety first
         }
     }
 
