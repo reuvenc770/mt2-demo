@@ -11,6 +11,7 @@ namespace App\Services;
 
 use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
+use App\Repositories\SuppressionGlobalOrangeRepo;
 use Log;
 use App\Repositories\EmailCampaignStatisticRepo;
 use App\Services\Interfaces\IFeedSuppression;
@@ -19,10 +20,12 @@ class SuppressionService implements IFeedSuppression
 {
     protected $repo;
     protected $statRepo;
+    protected $globalRepo;
 
-    public function __construct(SuppressionRepo $repo, EmailCampaignStatisticRepo $statRepo )
+    public function __construct(SuppressionRepo $repo, SuppressionGlobalOrangeRepo $globalRepo, EmailCampaignStatisticRepo $statRepo )
     {
         $this->repo = $repo;
+        $this->globalRepo = $globalRepo;
         $this->statRepo = $statRepo;
     }
 
@@ -40,8 +43,11 @@ class SuppressionService implements IFeedSuppression
 
     public function recordSuppression($espId, $email, $espInternalId, $date, $type){
         $record = $this->buildRecord($espId, $email, $espInternalId, $date, $type);
+        $globalRecord = $this->buildGlobalRecord($email, $date, $espId, $type);
+
         try{
             $this->repo->insertSuppression($record);
+            $this->globalRepo->updateOrCreate($globalRecord);
 
             if (Suppression::TYPE_HARD_BOUNCE === $type) {
                 $this->statRepo->updateHardBounce($email, $espInternalId);
@@ -70,6 +76,15 @@ class SuppressionService implements IFeedSuppression
             unset($record["esp_internal_id"]);
         }
         return $record;
+    }
+
+    private function buildGlobalRecord($email, $date, $espAccountId, $type) {
+        return [
+            "email_address" => $email,
+            "suppress_datetime" => $date,
+            "type_id" => $type,
+            "reason_id" => $this->getReasonCode($espAccountId, $type)
+        ];
     }
 
     public function getHardBouncesByDateEsp($espAccountId, $date, $useRange = false){
@@ -115,10 +130,12 @@ class SuppressionService implements IFeedSuppression
     public function getAllSuppressionsSinceDate($date){
         return $this->repo->getAllSinceDate($date);
     }
+
     public function getTypeByReason($reason){
         $reason = $this->repo->getReasonById($reason);
         return $reason->suppression_type;
     }
+    
     public function getReasonCode($esp_account_id, $type_id){
         $reason = $this->repo->getReasonByAccountType($esp_account_id,$type_id);
         return $reason->id;
