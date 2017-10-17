@@ -109,7 +109,7 @@ class RawFeedEmailRepo {
                 continue;
             }
 
-            $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s]/' , '' , $fieldValue );
+            $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s:]/' , '' , $fieldValue );
             $currentValue = preg_replace( '/\s{2,}/' , '' , $currentValue );
             $currentValue = trim( $currentValue );
 
@@ -372,7 +372,7 @@ class RawFeedEmailRepo {
 
     public function getFirstPartyUnprocessed($minId, $date, $minInvalidId, $feed) {}
 
-    public function getThirdPartyUnprocessed($minId, $date, $minInvalidId) {
+    public function getThirdPartyUnprocessed($minId, $date, $minInvalidId, $limit) {
         // Should test this to see if the lack of safeguards suffices
 
         return $this->rawEmail
@@ -394,6 +394,8 @@ class RawFeedEmailRepo {
                     ->whereNull('iei.id')
                     ->where('raw_feed_emails.created_at', '<=', DB::raw("now() - interval 10 minute"))
                     ->select('raw_feed_emails.*')
+                    ->orderBy('raw_feed_emails.id', 'asc')
+                    ->take($limit)
                     ->get();
     }
 

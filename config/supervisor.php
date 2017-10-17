@@ -65,7 +65,7 @@ return [
         ],
         'Notifications' => [
             'queueName' => 'scheduled_notifications',
-            'canModify' => true,
+            'canModify' => false,
             'processName' => 'Notifications_'
         ],
         'rawFeedProcessing' => [

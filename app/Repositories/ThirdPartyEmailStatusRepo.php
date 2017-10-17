@@ -10,6 +10,9 @@ class ThirdPartyEmailStatusRepo {
     use Batchable;
 
     private $model;
+    private $batchNewDataCount = 0;
+    private $batchNewData = [];
+    private $batchInsertNewQuery = '';
 
     public function __construct(ThirdPartyEmailStatus $model) {
         $this->model = $model;
@@ -27,7 +30,7 @@ class ThirdPartyEmailStatusRepo {
     }
 
     public function getLastActionTime($emailId) {
-        $row = $this->model->where('email_id')->first();
+        $row = $this->model->where('email_id', $emailId)->first();
 
         if ($row) {
             return $row->last_action_datetime;
@@ -64,30 +67,24 @@ class ThirdPartyEmailStatusRepo {
 
             last_action_esp_account_id = CASE
                                             WHEN (last_action_esp_account_id IS NULL or last_action_esp_account_id = 0) THEN values(last_action_esp_account_id)
-                                            ELSE
-                                                CASE 
-                                                    WHEN (last_action_datetime < values(last_action_datetime) OR last_action_datetime IS NULL) THEN values(last_action_esp_account_id)
-                                                    WHEN (last_action_datetime > values(last_action_datetime)) THEN last_action_esp_account_id
-                                                    WHEN (last_action_type = 'Conversion') THEN last_action_esp_account_id
-                                                    WHEN (values(last_action_type) = 'Conversion') THEN values(last_action_esp_account_id)
-                                                    WHEN (last_action_type = 'Click') THEN last_action_esp_account_id
-                                                    WHEN values(last_action_type) = 'Click' THEN values(last_action_esp_account_id)
-                                                    ELSE last_action_esp_account_id
-                                                END
+                                            WHEN (last_action_datetime < values(last_action_datetime) OR last_action_datetime IS NULL) THEN values(last_action_esp_account_id)
+                                            WHEN (last_action_datetime > values(last_action_datetime)) THEN last_action_esp_account_id
+                                            WHEN (last_action_type = 'Conversion') THEN last_action_esp_account_id
+                                            WHEN (values(last_action_type) = 'Conversion') THEN values(last_action_esp_account_id)
+                                            WHEN (last_action_type = 'Click') THEN last_action_esp_account_id
+                                            WHEN values(last_action_type) = 'Click' THEN values(last_action_esp_account_id)
+                                            ELSE last_action_esp_account_id
                                         END,
 
             last_action_offer_id = CASE
                                         WHEN (last_action_offer_id IS NULL or last_action_offer_id = 0) THEN values(last_action_offer_id)
-                                        ELSE
-                                            CASE 
-                                                WHEN (last_action_datetime < values(last_action_datetime) OR last_action_datetime IS NULL) THEN values(last_action_offer_id)
-                                                WHEN (last_action_datetime > values(last_action_datetime)) THEN last_action_offer_id
-                                                WHEN (last_action_type = 'Conversion') THEN last_action_offer_id
-                                                WHEN (values(last_action_type) = 'Conversion') THEN values(last_action_offer_id)
-                                                WHEN (last_action_type = 'Click') THEN last_action_offer_id
-                                                WHEN values(last_action_type) = 'Click' THEN values(last_action_offer_id)
-                                                ELSE last_action_offer_id
-                                            END
+                                        WHEN (last_action_datetime < values(last_action_datetime) OR last_action_datetime IS NULL) THEN values(last_action_offer_id)
+                                        WHEN (last_action_datetime > values(last_action_datetime)) THEN last_action_offer_id
+                                        WHEN (last_action_type = 'Conversion') THEN last_action_offer_id
+                                        WHEN (values(last_action_type) = 'Conversion') THEN values(last_action_offer_id)
+                                        WHEN (last_action_type = 'Click') THEN last_action_offer_id
+                                        WHEN values(last_action_type) = 'Click' THEN values(last_action_offer_id)
+                                        ELSE last_action_offer_id
                                     END,
             created_at = created_at,
             updated_at = values(updated_at)";
@@ -115,14 +112,74 @@ class ThirdPartyEmailStatusRepo {
             $row['datetime'] = null;
             $row['esp_account_id'] = null;
 
-            $this->batchInsert($row);
+            $this->batchInsertNew($row);
         }
 
-        $this->insertStored();
+        $this->insertStoredNew();
     }
 
     public function getTableName() {
         return config('database.connections.mysql.database') . '.' . $this->model->getTable();
+    }
+
+    public function batchInsertNew(array $data) {
+        if ($this->batchNewDataCount >= $this->insertThreshold) {
+            $this->insertStoredNew();
+            $this->batchNewData = [$this->transformRowToString($data)];
+            $this->batchNewDataCount = 1;
+        }
+        else {
+            $this->batchNewData[] = $this->transformRowToString($data);
+            $this->batchNewDataCount++;
+        }
+    }
+
+    private function buildBatchedNewQuery($data) {
+        return "INSERT INTO third_party_email_statuses (email_id, last_action_type,
+            last_action_offer_id, last_action_datetime, last_action_esp_account_id,
+            created_at, updated_at)
+
+            VALUES
+
+            $data
+
+            ON DUPLICATE KEY UPDATE
+            email_id = email_id,
+            last_action_type = VALUES(last_action_type),
+            last_action_datetime = VALUES(last_action_datetime),
+            last_action_esp_account_id = values(last_action_esp_account_id),
+            last_action_offer_id = values(last_action_offer_id),
+            created_at = created_at,
+            updated_at = values(updated_at)";
+    }
+
+    public function insertStoredNew() {
+        if ($this->batchNewDataCount > 0) {
+            $done = false;
+            $attempts = 0;
+            $this->batchNewData = implode(', ', $this->batchNewData);
+            $query = $this->buildBatchedNewQuery($this->batchNewData);
+
+            while (!$done) {
+                if ($attempts < $this->maxRetryAttempts) {
+                    try {
+                        DB::connection($this->model->getConnectionName())->statement($query);
+                        $done = true;
+                    }
+                    catch (\Exception $e) {
+                        $attempts++;
+                        sleep(2);
+                    }
+                }
+                else {
+                    throw new \Exception(get_called_class() . " method insertStoredNew() failed too many times with {$e->getMessage()}");
+                }
+                
+            }
+
+            $this->batchNewData = [];
+            $this->batchNewDataCount = 0;
+        }
     }
     
 }

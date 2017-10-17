@@ -19,7 +19,7 @@ class AppendEidEmail extends MonitoredJob
     private $includeFields;
     private $includeSuppression;
     private $fileName;
-    private $jobName
+    private $jobName;
 
     public function __construct($filePath,$fileName,$feed,$fields,$suppression, $tracking, $threshold)
     {

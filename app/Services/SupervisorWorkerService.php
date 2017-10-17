@@ -45,13 +45,13 @@ class SupervisorWorkerService {
                 ];
             }
 
-            $output[$group]->totalWorkers++;
+            $output[$queueName]->totalWorkers++;
 
             if ($this->isRunning($process)) {
-                $output[$group]->activeWorkers++;
+                $output[$queueName]->activeWorkers++;
             }
             else {
-                $output[$group]->stoppedWorkers++;
+                $output[$queueName]->stoppedWorkers++;
             }
 
             if ($this->hasFailed($process)) {
@@ -100,13 +100,13 @@ class SupervisorWorkerService {
             // turn on $count number of workers
             $i = 0;
 
-            foreach ($this->processInfo[$queueName] as $process) {
+            foreach ($this->processInfo[$groupName] as $process) {
                 if ($i >= $count) {
                     break;
                 }
                 
                 if (!$process['isRunning']) {
-                    $this->supervisor->startProcess($groupName . ':' . $process['name']);
+                    $this->supervisor->startProcess($groupName . ':' . $process['processName']);
                     $i++;
                 }
             }
