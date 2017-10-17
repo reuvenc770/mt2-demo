@@ -127,6 +127,8 @@ class Kernel extends ConsoleKernel
         Commands\SyncMT1FeedFieldOrderCommand::class,
         Commands\PopulateCpaListProfileReportCommand::class,
         Commands\OptimizeWorkers::class,
+        Commands\UploadIPv6DB::class,
+        Commands\WarnOldIPv6::class
 ];
 
     /**
@@ -149,6 +151,7 @@ class Kernel extends ConsoleKernel
          *  Maintenance
          */
         $schedule->command('supervisor:optimize --runtime-threshold=1h')->everyFiveMinutes();
+        $schedule->command('ipv6:warn --runtime-threshold=1h')->daily();
 
         /**
          * Orphan Adoption

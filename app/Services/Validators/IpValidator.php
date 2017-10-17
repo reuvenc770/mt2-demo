@@ -4,15 +4,15 @@ namespace App\Services\Validators;
 
 use App\Services\Interfaces\IValidate;
 use App\Exceptions\ValidationException;
-use App\Repositories\IpligenceDataRepo;
+use App\Services\IpService;
 
 class IpValidator implements IValidate {
 
     private $ip;
-    private $ipRepo;
+    private $ipService;
 
-    public function __construct(IpligenceDataRepo $ipRepo) {
-        $this->ipRepo = $ipRepo;
+    public function __construct(IpService $ipService) {
+        $this->ipService = $ipService;
     }
 
     public function getRequiredData() {
@@ -32,7 +32,7 @@ class IpValidator implements IValidate {
             throw new ValidationException("Invalid IP format detected {$this->ip}");
         }
 
-        if ($this->ipRepo->isFromCanada($this->ip)) {
+        if ($this->ipService->isFromCanada($this->ip)) {
             throw new ValidationException("Canadian feed IP detected {$this->ip}");
         }
     }
