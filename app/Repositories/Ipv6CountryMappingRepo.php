@@ -48,21 +48,42 @@ class Ipv6CountryMappingRepo {
         $words1 = $words[0];
         $words2 = $words[1];
 
+        $firstResult = $this->model
+                            ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) >= first_half_from")
+                            ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) <= first_half_to")
+                            ->get();
+
+        if (1 === $count) {
+            // We've got our result right here
+            return $result->first()->country_code === 'CA';
+        }
+        elseif (0 === $count) {
+            Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
+        }
+        else {
+            // appears in a few rows
+
+            // Ideally we'd validate this beforehand, but due to constraints:
+            // number of rows
+            // nature of the data (can't be compared within PHP due to integer limits)
+            // it's not easy to do that
+            // so we can rely on the processing as a sort of de-facto Monte Carlo-style test
+            // Incorrect IPv6 ranges are not a problem until they are a problem.
+
+            ideally, we would iterate over this list and check that data
+        }
+
         $result = $this->model
                     ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) >= first_half_from")
                     ->whereRaw("conv(hex(inet6_aton('$words2')), 16, 10) >= second_half_from")
                     ->whereRaw("conv(hex(inet6_aton('$words1')), 16, 10) <= first_half_to")
                     ->whereRaw("conv(hex(inet6_aton('$words2')), 16, 10) <= second_half_to")
                     ->get();
-        // Ideally we'd validate this beforehand, but due to constraints:
-        // number of rows
-        // nature of the data (can't be compared within PHP due to integer limits)
-        // it's not easy to do that
-        // so we can rely on the processing as a sort of de-facto Monte Carlo-style test
+        
 
         $count = count($result);
 
-        // Incorrect IPv6 ranges are not a problem until they are a problem.
+        
 
         if (1 === $count) {
             return $result->first()->country_code === 'CA';
