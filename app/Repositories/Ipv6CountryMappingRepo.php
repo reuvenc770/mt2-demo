@@ -58,7 +58,7 @@ class Ipv6CountryMappingRepo {
                                 (conv(hex(inet6_aton('$words1')), 16, 10) = first_half_to) ip_matches_first_to,
                                 (conv(hex(inet6_aton('$words2')), 16, 10) >= second_half_from) ip_gte_second_half_from,
                                 (conv(hex(inet6_aton('$words2')), 16, 10) <= second_half_to) ip_lte_second_half_to,
-                                (conv(hex(inet6_aton('$words1')), 16, 10) BETWEEN (first_half_from+1) AND (first_half_to-1)) second_between
+                                (conv(hex(inet6_aton('$words1')), 16, 10) BETWEEN (first_half_from+1) AND (first_half_to-1)) ip_exclusive_between_first
                             ")
                             ->get();
 
@@ -99,6 +99,7 @@ class Ipv6CountryMappingRepo {
                 elseif (1 === $row->ip_exclusive_between_first) {
                     // Last condition - we don't match either the leading hextets of the from or to
                     // (we are already between them)
+                    return $row->country_code === 'CA';
                 }
             }
             Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
