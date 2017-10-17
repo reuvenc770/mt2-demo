@@ -31,6 +31,7 @@ class ListProfileController extends Controller
     protected $states;
     protected $ispService;
     protected $combineService;
+    const LIST_PROFILE_QUEUE = 'ListProfile';
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -84,13 +85,11 @@ class ListProfileController extends Controller
         }
 
         $data['selectedColumns'] = $columns;
-
         $profileID = $this->listProfile->create( $data );
 
-        if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
-            $cacheTagName = null;
-            $this->dispatch(new ListProfileBaseExportJob($profileID, $cacheTagName, str_random(16), '1h'));
-        }
+        // We want to dispatch a job immediately so that the table is ready for deploys
+        $cacheTagName = null;
+        $this->dispatch((new ListProfileBaseExportJob($profileID, $cacheTagName, str_random(16), '1h'))->onQueue(self::LIST_PROFILE_QUEUE));
 
         Flash::success("List Profile was Successfully Created");
 

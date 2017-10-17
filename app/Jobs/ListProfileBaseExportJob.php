@@ -20,6 +20,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
     protected $jobName;
     protected $params;
     private $cacheTagName;
+    const QUEUE = 'ListProfile';
 
     public function __construct($profileId, $cacheTagName, $tracking, $runtimeThreshold=null, $params=null) {
         $this->profileId = $profileId;
@@ -50,8 +51,8 @@ class ListProfileBaseExportJob extends MonitoredJob {
            return 0;
         }
 
-        $service->buildProfileTable($this->profileId);
-        $this->dispatch(new ExportListProfileJob($this->profileId, str_random(16)));
+        $lpCount = $service->buildProfileTable($this->profileId);
+        $this->dispatch((new ExportListProfileJob($this->profileId, str_random(16)))->onQueue(self::QUEUE));
         $schedule->updateSuccess($this->profileId); // These might not just be scheduled ...
 
         if (null !== $this->cacheTagName) {
@@ -66,13 +67,13 @@ class ListProfileBaseExportJob extends MonitoredJob {
                     $runId = str_random(10);
                     $username = $deploy->user ? $deploy->user->username : 'no_user';
                     $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$deploy->id}-{$runId}");
-                    $this->dispatch(new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtimeThreshold));
+                    $this->dispatch((new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtimeSecondsThreshold))->onQueue(self::QUEUE));
                 }
  
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
         }
 
+        return $lpCount;
     }
 
     private function testConnection(){

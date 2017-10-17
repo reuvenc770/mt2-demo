@@ -19,7 +19,7 @@ class SyncModelsWithNewFeedsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:syncModelsWithNewFeeds';
+    protected $signature = 'attribution:syncModelsWithNewFeeds {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -45,6 +45,6 @@ class SyncModelsWithNewFeedsCommand extends Command
      */
     public function handle()
     {
-        $this->dispatch( new SyncModelsWithNewFeedsJob( str_random( 16 ) ) );
+        $this->dispatch( new SyncModelsWithNewFeedsJob( str_random( 16 ), $this->option('runtime-threshold') ) );
     }
 }

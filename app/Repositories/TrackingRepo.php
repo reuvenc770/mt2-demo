@@ -186,6 +186,7 @@ class TrackingRepo
                 "d.esp_account_id",
                 "d.offer_id",
                 'co.vertical_id',
+                DB::raw('IFNULL(e.email_domain_id, 0) as email_domain_id'),
                 DB::raw('COUNT(IF(action_id = 2, 1, 0)) as clicks'), 
                 DB::raw('SUM(IF(action_id = 3, 1, 0)) as conversions'))
             ->whereBetween("datetime", [
@@ -194,7 +195,55 @@ class TrackingRepo
             ])
             ->join("$dataSchema.deploys as d", $table . '.deploy_id', '=', 'd.id')
             ->join("$dataSchema.cake_offers as co", $table.'.cake_offer_id', '=', 'co.id')
+            ->leftJoin("$dataSchema.emails as e", $table.'.email_id', '=', 'e.id')
             ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id');
     }
 
+    public function getPaidConversionsByCakeOfferDeploy ( $dateRange , $cakeOfferId , $deployId ) {
+        return $this->report
+                    ->where( [ 
+                        [ 'action_id' , '=' , '3' ] , #conversion
+                        [ 'revenue' , '>' , 0 ] , #has revenue
+                        [ 'cake_offer_id' , '=' , $cakeOfferId ] ,
+                        [ 'deploy_id' , '=' , $deployId ] ,
+                        [ 'datetime' , '>=' , $dateRange[ 'start' ] ] ,
+                        [ 'datetime' , '<' , $dateRange[ 'end' ] ] ,
+                    ] ); 
+    }
+
+    public function getPaidConversionsByCakeOfferFeedDeploy ( $dateRange , $cakeOfferId , $feedId , $deployId ) {
+        $table = $this->report->getTable();
+
+        return $this->report
+                    ->join( 'deploy_snapshots as ds' , function ( $join ) use ( $table ) {
+                        $join->on( $table . '.email_id' , '=' , 'ds.email_id' );
+                        $join->on( $table . '.deploy_id' , '=' , 'ds.deploy_id' );
+                    } )->where( [ 
+                        [ 'ds.feed_id' , '=' , $feedId ] ,
+                        [ $table . '.action_id' , '=' , '3' ] , #conversion
+                        [ $table . '.revenue' , '>' , 0 ] , #has revenue
+                        [ $table . '.cake_offer_id' , '=' , $cakeOfferId ] ,
+                        [ $table . '.deploy_id' , '=' , $deployId ] ,
+                        [ $table . '.datetime' , '>=' , $dateRange[ 'start' ] ] ,
+                        [ $table . '.datetime' , '<' , $dateRange[ 'end' ] ] ,
+                    ] ); 
+    }
+
+    public function getPaidDeployAndCakeOffers ( $dateRange ) {
+        $dataSchema = config('database.connections.mysql.database');
+        $table = $this->report->getTable();
+
+        return $this->report
+                    ->join( $dataSchema . '.mt_offer_cake_offer_mappings' , $table . '.cake_offer_id' , '=' , $dataSchema . '.mt_offer_cake_offer_mappings.cake_offer_id' )
+                    ->where( [ 
+                        [ $table . '.action_id' , '=' , '3' ] , #conversion
+                        [ $table . '.revenue' , '>' , 0 ] , #has revenue
+                        [ $table . '.datetime' , '>=' , $dateRange[ 'start' ] ] ,
+                        [ $table . '.datetime' , '<' , $dateRange[ 'end' ] ] ,
+                    ] )
+                    ->select( $table . '.deploy_id' , $table . '.cake_offer_id' , $dataSchema . '.mt_offer_cake_offer_mappings.offer_id' )
+                    ->groupBy( $table . '.deploy_id' , $table . '.cake_offer_id' , $dataSchema . '.mt_offer_cake_offer_mappings.offer_id' )
+                    ->orderBy( $table . '.cake_offer_id' )
+                    ->get();
+    }
 }

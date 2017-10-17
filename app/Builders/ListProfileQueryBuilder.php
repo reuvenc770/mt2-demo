@@ -36,7 +36,7 @@ class ListProfileQueryBuilder {
     private $carrierAttributes;
 
     // Note already-prepared fields in ListProfileBaseTableService
-    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed', 'feed_suppressed'];
+    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed', 'feed_suppressed', 'lower_sha256'];
 
 
     public function __construct() {
@@ -75,6 +75,7 @@ class ListProfileQueryBuilder {
             'action_date' => DB::raw('rd.last_action_date as action_date'),
             'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
             'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
+            'lower_sha256' => DB::connection('redshift')->raw('sha_256(lower(e.email_address)) as lower_sha256')
         ];
     }
 
@@ -207,7 +208,7 @@ class ListProfileQueryBuilder {
      */
 
     private function buildNonDeliverableQuery($queryData) {
-        $type = $queryData['type'];
+        $types = $queryData['action'];
         $count = $queryData['count'];
         $end = $queryData['end'];
         $start = $queryData['start'];
@@ -221,7 +222,13 @@ class ListProfileQueryBuilder {
         $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
         $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query;
 
-        $query = $query->havingRaw("SUM($type) >= $count")->toSql();
+        $havingBuilder = [];
+        foreach($types as $type) {
+            $havingBuilder[] = "SUM($type) >= $count";
+        }
+        $havingString = implode(' OR ', $havingBuilder);
+
+        $query = $query->havingRaw($havingString)->toSql();
 
         $query = DB::connection('redshift')->table(DB::connection('redshift')->raw('(' . $query . ') as flat'));
 

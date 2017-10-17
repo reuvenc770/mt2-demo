@@ -28,7 +28,8 @@ class ListProfileService
     private $cache1 = [];
     private $cache2 = [];
     private $rowCount = 0;
-    const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
+    const MAX_ROWS = 65535;
+    private $insertThreshold = 1000; // default
     const ROW_STORAGE_TIME = 720;
     protected $baseTableService;
     private $columnLabelMap = [
@@ -257,7 +258,6 @@ class ListProfileService
         $queries = $this->returnQueriesData($listProfile);
         $queryNumber = 1;
         $totalCount = 0;
-        $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
 
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
@@ -267,6 +267,8 @@ class ListProfileService
 
             $columns = $this->builder->getColumns();
 
+            $this->setInsertSize(count($columns));
+
             if (1 === $queryNumber) {
                 $this->baseTableService->createTable($id, $columns);
             }
@@ -274,10 +276,10 @@ class ListProfileService
             $resource = $query->cursor();
 
             foreach ($resource as $row) {
-                if ($this->isUnique($listProfileTag, $this->uniqueColumn, $row->{$this->uniqueColumn})) {
-                    $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
+                if ($this->isUnique($this->uniqueColumn, $row->{$this->uniqueColumn})) {
+                    $this->saveToCache($row->{$this->uniqueColumn});
                     $mappedRow = $this->mapDataToColumns($columns, $row);
-                    $this->batch($mappedRow, $listProfileTag);
+                    $this->batch($mappedRow);
 
                     if (!$row->globally_suppressed && !$row->feed_suppressed) {
                         $totalCount++;
@@ -286,13 +288,23 @@ class ListProfileService
                 }
             }
 
-            $this->batchInsert($listProfileTag);
+            $this->batchInsert();
             $this->clear();
             $queryNumber++;
         }
 
         Cache::tags('ListProfile')->flush();
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
+        return $totalCount;
+    }
+
+    private function setInsertSize($columnCount) {
+        // MySQL / PHP has a placeholder limit of 2^16 - 1 (65535) 
+        // The lower the limit the more likely that your query can be handled, 
+        // but the slower it will go. We can set this dynamically to improve perf
+        // leaving in a safety factor (floor and multiply by .9) to make sure we're safe
+
+        $this->insertThreshold = (int)floor((self::MAX_ROWS / $columnCount) * 0.9);
     }
 
     private function cleanseData ( $data ) {
@@ -371,17 +383,46 @@ class ListProfileService
         if ($listProfile->deliverable_end !== $listProfile->deliverable_start && $listProfile->deliverable_end !== 0) {
             $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1, 'party' => $party];
         }
+
+        // For these, we can cut down on queries significantly by merging together those queries with the same date range
+
+        $responderData = [];
+
         if ($listProfile->openers_start !== $listProfile->openers_end && $listProfile->openers_end !== 0) {
-            $queries[] = ['type' => 'has_open', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
+            $responderData[] = ['action' => 'has_open', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
         }
         if ($listProfile->clickers_start !== $listProfile->clickers_end && $listProfile->clickers_end !== 0) {
-            $queries[] = ['type' => 'has_click', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
+            $responderData[] = ['action' => 'has_click', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
         }
         if ($listProfile->converters_start !== $listProfile->converters_end && $listProfile->converters_end !== 0) {
-            $queries[] = ['type' => 'has_conversion', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
+            $responderData[] = ['action' => 'has_conversion', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
         }
 
-        return $queries;
+        $responders = array_reduce($responderData, function($carry, $item) {
+                $output = $carry;
+                $i = 0;
+                $len = sizeof($carry);
+
+                while ($i < $len) {
+                    if ($item['start'] === $carry[$i]['start'] && $item['end'] === $carry[$i]['end'] && $item['count'] === $carry[$i]['count']) {
+                        $output[$i]['action'][] = $item['action'];
+                        $i = $len;
+                    }
+                    elseif ($i === $len - 1) {
+                        $output[] = ['type' => 'responder', 'action' => [$item['action']], 'start' => $item['start'], 'end' => $item['end'], 'count' => $item['count'], 'party' => $item['party']];
+                    }
+
+                    $i++;
+                }
+
+                if (0 === $len) {
+                    $output[] = ['type' => 'responder', 'action' => [$item['action']], 'start' => $item['start'], 'end' => $item['end'], 'count' => $item['count'], 'party' => $item['party']];
+                }
+
+                return $output;
+            }, []);
+
+        return empty($responders) ? $queries : array_merge($queries, $responders);
     }
 
 
@@ -396,9 +437,9 @@ class ListProfileService
     }
 
 
-    private function batch($row, $tag) {
-        if ($this->rowCount >= self::INSERT_THRESHOLD) {
-            $this->batchInsert($tag);
+    private function batch($row) {
+        if ($this->rowCount >= $this->insertThreshold) {
+            $this->batchInsert();
 
             $this->rows = [$row];
             $this->rowCount = 0;
@@ -410,7 +451,7 @@ class ListProfileService
     }
 
 
-    private function batchInsert($tag) {
+    private function batchInsert() {
         $this->baseTableService->massInsert($this->rows);
         $this->cache2 = $this->cache1;
         $this->cache1 = [];
@@ -423,11 +464,11 @@ class ListProfileService
     }
 
 
-    private function isUnique($tag, $field, $value) {
+    private function isUnique($field, $value) {
         return !isset($this->cache1[$value]) && !isset($this->cache2[$value]) && $this->baseTableService->isUnique($field, $value); 
     }
 
-    private function saveToCache($tag, $value) {
+    private function saveToCache($value) {
         $this->cache1[$value] = 1;
     }
 

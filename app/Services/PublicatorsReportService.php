@@ -151,7 +151,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         }
         else {
             if (isset($processState['recordType']) && 'delivered' === $processState['recordType']) {
-                return ['sent', 'unsub', 'bounce'];
+                return ['sent'];
             }
             else {
                 return ['open', 'click'];

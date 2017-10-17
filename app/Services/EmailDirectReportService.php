@@ -152,7 +152,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $count = count($deliverables);
                     foreach ( $deliverables as $key => $deliveryRecord ) {
 
-                            $this->emailRecord->recordDeliverable(
+                            $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
                             $deliveryRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
@@ -169,7 +169,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $count = count($opens);
                     foreach ( $opens as $key => $openRecord ) {
 
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_OPENER ,
                             $openRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
@@ -187,7 +187,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $count = count($clicks);
                     foreach ( $clicks as $key => $clickRecord ) {
 
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_CLICKER ,
                             $clickRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,

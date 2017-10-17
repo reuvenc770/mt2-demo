@@ -33,7 +33,7 @@ class EmailFeedAssignmentRedshiftDataValidation extends AbstractLargeRedshiftDat
 
             // Reload all of these feeds
             $version = 2; // Special job
-            $job = new S3RedshiftExportJob('Email', $version, str_random(16), array_keys($this->badFeeds));
+            $job = new S3RedshiftExportJob('EmailFeedAssignment', $version, str_random(16), array_keys($this->badFeeds));
         }
     }
 

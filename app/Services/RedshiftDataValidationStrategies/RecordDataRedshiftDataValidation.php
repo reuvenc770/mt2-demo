@@ -38,6 +38,7 @@ class RecordDataRedshiftDataValidation extends AbstractLargeRedshiftDataValidati
 
             $version = 2; // Special job
             $job = new S3RedshiftExportJob('RecordData', $version, str_random(16), $minDate);
+            $this->dispatch($job);
         }
     }
 

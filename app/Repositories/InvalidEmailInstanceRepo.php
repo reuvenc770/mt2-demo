@@ -55,4 +55,7 @@ class InvalidEmailInstanceRepo {
             {$batchData}";
     }
 
+    public function getMinIdForDate($date) {
+        return $this->model->where('created_at', '>=', $date)->min('id');
+    }
 }

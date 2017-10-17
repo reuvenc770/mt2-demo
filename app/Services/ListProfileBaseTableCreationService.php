@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 class ListProfileBaseTableCreationService {
 
     const BASE_NAME = 'export_';
-    private $requiredFields = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed'];
+    private $requiredFields = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed', 'lower_sha256'];
     private $repo;
 
     public function __construct() {}
@@ -32,6 +32,7 @@ class ListProfileBaseTableCreationService {
             $table->boolean('globally_suppressed')->default(0);
             $table->string('lower_case_md5')->default('');
             $table->string('upper_case_md5')->default('');
+            $table->string('lower_sha256')->default('');
 
             foreach ($columns as $column) {
                 if (!in_array($column, $this->requiredFields)) {
@@ -41,8 +42,6 @@ class ListProfileBaseTableCreationService {
 
             $table->primary('email_id');
             $table->index('email_address', 'email_address');
-            $table->index('lower_case_md5', 'lower_case_md5');
-            $table->index('upper_case_md5', 'upper_case_md5');
         });
 
         $this->repo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));

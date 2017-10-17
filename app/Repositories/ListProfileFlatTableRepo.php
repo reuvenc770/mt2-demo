@@ -90,7 +90,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     private function prepareConversionData($row) {
         $conversionFlag = ((int)$row->conversions) > 0 ? 1 : 0;
         $clickFlag = ((int)$row->clicks) > 0 ? 1 : 0;
-        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->esp_account_id}', '{$row->offer_id}', '{$row->vertical_id}', '$clickFlag', '$clickFlag', '$conversionFlag', '$conversionFlag', '{$row->clicks}', '{$row->conversions}', NOW(), NOW())";
+        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->esp_account_id}', '{$row->email_domain_id}' , '{$row->offer_id}', '{$row->vertical_id}', '$clickFlag', '$clickFlag', '$conversionFlag', '$conversionFlag', '{$row->clicks}', '{$row->conversions}', NOW(), NOW())";
     }
 
 
@@ -101,7 +101,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             $inserts = implode(',', $this->batchData);
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table 
-                (email_id, deploy_id, date, esp_account_id, offer_id, cake_vertical_id, has_tracking_click, has_click, has_tracking_conversion, has_conversion, clicks, conversions, created_at, updated_at)
+                (email_id, deploy_id, date, esp_account_id, email_domain_id, offer_id, cake_vertical_id, has_tracking_click, has_click, has_tracking_conversion, has_conversion, clicks, conversions, created_at, updated_at)
 
                 VALUES $inserts
 
@@ -111,7 +111,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 esp_account_id = values(esp_account_id),
                 date = date,
                 email_address = email_address,
-                email_domain_id = email_domain_id,
+                email_domain_id = values(email_domain_id),
                 email_domain_group_id = email_domain_group_id,
                 offer_id = values(offer_id),
                 cake_vertical_id = values(cake_vertical_id),
@@ -184,15 +184,15 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     public function extractForS3Upload($startPoint) {
         $dataSchema = config('database.connections.mysql.database');
-        #return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("list_profile_flat_table.updated_at > $startPoint");
-        return $this->flatTable->whereRaw("updated_at > $startPoint")->selectRaw("*, 3 as party"); // temporary until lpft is optimized for the above query
+        return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("list_profile_flat_table.updated_at > $startPoint")->selectRaw("list_profile_flat_table.*, party");
+        #return $this->flatTable->whereRaw("updated_at > $startPoint")->selectRaw("*, 3 as party"); // temporary until lpft is optimized for the above query
     }
 
     public function extractAllForS3() {
         // This will be the current default
         $dataSchema = config('database.connections.mysql.database');
-        #return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
-        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY")->selectRaw("*, 3 as party"); // See above
+        return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("date > CURDATE() - INTERVAL 10 DAY")->selectRaw("list_profile_flat_table.*, party");
+        #return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY")->selectRaw("*, 3 as party"); // See above
     }
 
     public function specialExtract($data) {}

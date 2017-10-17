@@ -44,11 +44,11 @@ class MaroReportService extends AbstractReportService implements IDataService
         $this->api->constructApiUrl();
         $firstData = $this->api->sendApiRequest();
         $firstData = $this->processGuzzleResult($firstData);
+
         try {
             $outputData = array_merge($outputData, $firstData);
         } catch (\Exception $e){
-            $jobException = new JobException('Failed to merge array' . $e->getMessage(), JobException::NOTICE);
-            throw $jobException;
+            throw new JobException('Failed to merge array ' . $e->getMessage() . " in {$e->getFile()} :: {$e->getLine()} - $firstData", JobException::NOTICE);
         }
         if (sizeof($firstData) > 0) {
             $pages = (int)$firstData[0]['total_pages'];
@@ -291,7 +291,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         $pipe = $processState['pipe'];
 
         if ($pipe == 'default' && $filterIndex == 1) {
-            $jobId .= '::Pipe-' . $pipe . '::' . $processState['recordType'] . '::Page-' . (isset($processState['pageNumber']) ? $processState['pageNumber'] : 1);
+            $jobId = '::Pipe-' . $pipe . '::' . $processState['recordType'] . '::Page-' . (isset($processState['pageNumber']) ? $processState['pageNumber'] : 1);
         } elseif ($pipe == 'delivered' && $filterIndex == 1) {
             $jobId .= (isset($processState['campaign']) ? '::Pipe-' . $pipe . '::Campaign-' . $processState['campaign']->esp_internal_id : '');
         } elseif ('rerun' === $pipe && isset( $processState[ 'campaign' ]) && 2 == $filterIndex) {
@@ -328,7 +328,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 
     public function pageHasData( $processState = null )
     {
-        $this->api->setDeliverableLookBack();
+        $this->api->setDeliverableLookBack($processState['date']);
         $this->api->constructDeliverableUrl($this->pageType, $this->pageNumber);
 
         $data = $this->api->sendApiRequest();
@@ -344,7 +344,6 @@ class MaroReportService extends AbstractReportService implements IDataService
 
     public function pageHasCampaignData($processState)
     {
-
         $campaignId = $processState['campaign']->esp_internal_id;
         $actionType = $processState['recordType'];
 
@@ -509,8 +508,8 @@ class MaroReportService extends AbstractReportService implements IDataService
                 return $missingCampaigns;
             }
         } catch ( \Exception $e ) {
-            $jobException = new JobException('Failed to merge array' . $e->getMessage(), JobException::NOTICE);
-            throw $jobException;
+            $empty = is_array($firstCampaignList) ? $nextCampaignList : $firstCampaignList;
+            throw new JobException('Failed to merge array ' . $e->getMessage() . " in {$e->getFile()} :: {$e->getLine()} - $empty", JobException::NOTICE);
         }
 
         return [];

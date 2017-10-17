@@ -32,6 +32,8 @@ class ListProfileExportService {
 
     const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
+    const READ_THRESHOLD = 50000;
+
     private $rows = [];
     private $rowCount = 0;
     private $suppressedRows = [];
@@ -64,30 +66,38 @@ class ListProfileExportService {
 
         if ($this->listProfileRepo->shouldInsertHeader($listProfileId) || !empty($replacementHeader) ) {
             $columns = $replacementHeader ? $replacementHeader : $columns;
-            Storage::disk('espdata')->append($fileName, implode(',', $columns));
+            $this->remoteBatch($fileName, implode(',', $columns));
         }
 
-        $result = $this->tableRepo->getModel();
-        $resource = $result->cursor();
-        $count = 0;
+        $result = $this->tableRepo->getSegmentedOrderedModel(0, self::READ_THRESHOLD);
+        $count = $result->count();
+        $maxEmailId = null;
+        
+        while ($count > 0) {
+            $resource = $result->cursor();
 
-        foreach ($resource as $row) {
-            if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
+            foreach ($resource as $row) {
+                $maxEmailId = $row->email_id;
                 
-                $suppressed = false;
-                foreach ($listProfile->offerSuppression as $offer) {
-                    // handle advertiser suppression here
-                    if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
-                        $suppressed = true;
-                        break;
+                if (!$row->isGloballySuppressed() && !$row->isFeedSuppressed()) {
+                    $suppressed = false;
+                    foreach ($listProfile->offerSuppression as $offer) {
+                        // handle advertiser suppression here
+                        if ($this->mt1SuppServ->isSuppressed($row, $offer->id)) {
+                            $suppressed = true;
+                            break;
+                        }
+                    }
+
+                    if (!$suppressed) {
+                        $row = $this->mapRow($columns, $row);
+                        $this->remoteBatch($fileName, $row);
                     }
                 }
-
-                if (!$suppressed) {
-                    $row = $this->mapRow($columns, $row);
-                    $this->remoteBatch($fileName, $row);
-                }
             }
+
+            $result = $this->tableRepo->getSegmentedOrderedModel($maxEmailId, self::READ_THRESHOLD);
+            $count = $result->count();
         }
 
         $this->writeRemoteBatch($fileName);
@@ -108,7 +118,17 @@ class ListProfileExportService {
 
     private function writeRemoteBatch($fileName, $disk = 'espdata') {
         $string = implode(PHP_EOL, $this->rows);
-        Storage::disk($disk)->append($fileName, $string);
+
+        $key = "filesystems.disks.$disk.";
+        $driver = config($key . 'driver');
+        $userName = config($key . 'username');
+        $password = config($key . 'password');
+        $host = config($key . 'host');
+        $filePath = $driver . "://" . $userName . ':' . $password . '@' . $host . '/' . $fileName;
+        $file = fopen($filePath, 'a');
+        fwrite($file, $string);
+        fclose($file);
+
         $this->rows = [];
         $this->rowCount = 0;
     }

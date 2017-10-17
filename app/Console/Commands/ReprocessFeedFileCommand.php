@@ -6,25 +6,29 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Services\CMPTE\ReprocessBatchProcessingService;
 
 class ReprocessFeedFileCommand extends Command
 {
+    use DispatchesJobs;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'feedRecords:rerunFile {--F|filePath= : Absolute path to the file for processing.} {--I|feedId= : Feed ID to process file as.} {--p|party=3 : Party to process file as.} {--H|host= : Remote server\'s host where file lives.} {--P|port= : SSH Port on target server.} {--U|user= : User to use when grabbing data from server. } {--k|publicKey= : Public key to use for SSH connection.} {--K|privateKey= : Private key to use for SSH Connection.} {--R|realtime=0 : Realtime record file flag. }';
+    protected $signature = 'feedRecords:rerunFile {--F|filePath= : Absolute path to the file for processing.} {--D|dirPath= : Absolute path to directory containing files for processing. } {--I|feedId= : Feed ID to process file as.} {--p|party=3 : Party to process file as.} {--H|host= : Remote server\'s host where file lives.} {--P|port= : SSH Port on target server.} {--U|user= : User to use when grabbing data from server. } {--k|publicKey= : Public key to use for SSH connection.} {--K|privateKey= : Private key to use for SSH Connection.} {--R|realtime=0 : Realtime record file flag. }';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Reprocess a single file on specified server for given feed and party.';
+    protected $description = 'Reprocess files on specified server for given feed and party.';
 
-    protected $filePath = '';
+    protected $filePath;
+    protected $dirPath;
     protected $host;
     protected $port;
     protected $user;
@@ -47,35 +51,43 @@ class ReprocessFeedFileCommand extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
+    public function handle () {
         $this->processOptions();
 
-        if ( $this->realtime === 1 ) {
-            \Log::info( 'Running realtime.....' );
-            $service = \App::make( \App\Services\ReprocessRealtimeProcessingService::class );
-        } else {
-            \Log::info( 'Running batch.....' );
-            $service = \App::make( \App\Services\ReprocessBatchProcessingService::class );
+        $job = \App::make( \App\Jobs\ReprocessFeedRecordsJob::class , [ str_random( 16 ) ] );
+
+        $job->setServiceNs( $this->getServiceNs() );
+        $job->setCreds( $this->host , $this->port , $this->user , $this->publicKey , $this->privateKey );
+
+        if ( !is_null( $this->filePath ) ) {
+            $job->setFile( $this->filePath , $this->feedId , $this->party );
         }
 
-        $service->setCreds( $this->host , $this->port , $this->user , $this->publicKey , $this->privateKey );
+        if ( !is_null( $this->dirPath ) ) {
+            $job->setFeedDirectory( $this->dirPath , $this->feedId , $this->party );
+        }
 
-        $service->setFile( $this->filePath , $this->feedId , $this->party );
+        $this->dispatch( $job->onQueue( 'rawFeedProcessing' ) );
+    }
 
-        $service->processNewFiles();
+    protected function getServiceNs () {
+        if ( $this->realtime === 1 ) {
+            return \App\Services\ReprocessRealtimeProcessingService::class;
+        }
+
+        return \App\Services\ReprocessBatchProcessingService::class;
     }
 
     protected function processOptions () {
         /**
          * File Details
          */
-        if ( is_null( $this->option( 'filePath' ) ) ) {
-            $this->error( 'Missing file for processing...' );
-
-            exit();
-        } else {
+        if ( !is_null( $this->option( 'filePath' ) ) ) {
             $this->filePath = $this->option( 'filePath' );
+        }
+
+        if ( !is_null( $this->option( 'dirPath' ) ) ) {
+            $this->dirPath = $this->option( 'dirPath' );
         }
 
         $this->realtime = (int)$this->option( 'realtime' );

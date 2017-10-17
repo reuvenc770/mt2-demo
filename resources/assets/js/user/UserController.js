@@ -72,6 +72,19 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         }
     };
 
+    self.delete = function ( id ) {
+        var confirmation = confirm( "Are you sure you want to delete this user?" );
+
+        if ( confirmation ) {
+            UserApiService.deleteAccount(
+                id ,
+                self.SuccessCallBackRedirect ,
+                function ( response ) {
+                    modalService.simpleToast( 'Failed to delete user.' );
+                }
+            );
+        }
+    };
 
     /**
      * Callbacks

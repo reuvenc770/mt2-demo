@@ -10,6 +10,7 @@ namespace App\Repositories;
 
 use App\Models\EspAccount;
 use App\Models\EspAccountCustomIdHistory;
+use App\Models\EspAccountImageLinkFormat;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
@@ -31,15 +32,18 @@ class EspApiAccountRepo
      * @var EspAccount
      */
     protected $espAccount;
+    private $espCustomIdHistory;
+    private $espAccountImageLinkFormat;
 
     /**
      * EspApiAccountRepo constructor.
      * @param EspAccount $espAccount
      */
-    public function __construct( EspAccount $espAccount , EspAccountCustomIdHistory $espCustomIdHistory )
+    public function __construct( EspAccount $espAccount , EspAccountCustomIdHistory $espCustomIdHistory, EspAccountImageLinkFormat $espAccountImageLinkFormat)
     {
         $this->espAccount = $espAccount;
         $this->espCustomIdHistory = $espCustomIdHistory;
+        $this->espAccountImageLinkFormat = $espAccountImageLinkFormat;
     }
 
     public function getModel () { return $this->espAccount; }
@@ -169,6 +173,14 @@ class EspApiAccountRepo
         $this->espAccount->esp_id = $newAccount[ 'espId' ];
         $this->espAccount->custom_id = $newAccount[ 'customId' ];
         $this->espAccount->save();
+
+        $config = config('esp.' . $this->espAccount->esp->name);
+
+        $this->espAccountImageLinkFormat->firstOrCreate([
+            'esp_account_id' => $this->espAccount->id,
+            'remove_file_extension' => $config['removeFileExtension'],
+            'url_format' => $config['urlFormat']
+        ]);
     }
 
     /**

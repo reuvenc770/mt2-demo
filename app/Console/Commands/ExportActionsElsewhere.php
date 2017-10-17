@@ -15,7 +15,7 @@ class ExportActionsElsewhere extends Command
      *
      * @var string
      */
-    protected $signature = 'exportUnsubs {reportName} {--lookback=} {--queue=}';
+    protected $signature = 'exportUnsubs {reportName} {--lookback=} {--queue=} {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -46,7 +46,7 @@ class ExportActionsElsewhere extends Command
 
         $queue = $this->option('queue') ? $this->option('queue') : 'default';
 
-        $job = (new ExportActionsJob($reportName, $date, str_random(16)))->onQueue($queue);
+        $job = (new ExportActionsJob($reportName, $date, str_random(16), $this->option('runtime-threshold')))->onQueue($queue);
         $this->dispatch($job);
     }
 }

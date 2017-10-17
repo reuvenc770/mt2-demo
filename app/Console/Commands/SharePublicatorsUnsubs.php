@@ -15,7 +15,7 @@ class SharePublicatorsUnsubs extends Command
      *
      * @var string
      */
-    protected $signature = 'suppression:exportPublicators {lookback}';
+    protected $signature = 'suppression:exportPublicators {lookback} {--runtime-threshold=default}';
     protected $lookback;
     /**
      * The console command description.
@@ -42,7 +42,7 @@ class SharePublicatorsUnsubs extends Command
     public function handle(EspRepo $esp) {
         $espId = $esp->getEspByName('Publicators')->id;
         $this->lookback = $this->argument('lookback') ? $this->argument('lookback') : 1;
-        $job = new SharePublicatorsUnsubsJob($espId, $this->lookback, str_random(16));
+        $job = new SharePublicatorsUnsubsJob($espId, $this->lookback, str_random(16), $this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }
