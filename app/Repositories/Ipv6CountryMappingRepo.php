@@ -62,6 +62,8 @@ class Ipv6CountryMappingRepo {
                             ")
                             ->get();
 
+        $count = count($firstResult);
+
         if (1 === $count) {
             // We've got our result right here
             return $result->first()->country_code === 'CA';
@@ -80,7 +82,7 @@ class Ipv6CountryMappingRepo {
             // so we can rely on the processing as a sort of de-facto Monte Carlo-style test
             // Incorrect IPv6 ranges are not a problem until they are a problem.
 
-            foreach($result as $row) {
+            foreach($firstResult as $row) {
                 if ((1 === $row->firsts_match) && $row->second_between) {
                     // The leading digits match - as does ours, implicitly. 
                     // We have to be sandwiched between them.
