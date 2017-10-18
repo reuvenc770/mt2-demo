@@ -91,7 +91,5 @@ class SetSchedulesJob extends Job implements ShouldQueue {
         foreach ($scheduledFilterService->getSetFields() as $field) {
             $truthService->bulkToggleFieldRecord($emails, $field, $scheduledFilterService->getSetFieldValue($field));
         }
-
-        $emailFeedActionService->bulkUpdate($emails);
     }
 }
