@@ -186,7 +186,7 @@ class ServiceFactory
     }
 
     public static function createSupervisorService() {
-        $httpClient = new \GuzzleHttp\Client( ['auth' => [ env( 'SUPERVISOR_INET_USER' ) , env( 'SUPERVISOR_INET_PASSWORD' ) ]] );
+        $httpClient = new \GuzzleHttp\Client( ['auth' => [ config( 'supervisor.auth.user' ) , config( 'supervisor.auth.pass' ) ]] );
         $client = new \fXmlRpc\Client('http://127.0.0.1:9001/RPC2', 
             new \fXmlRpc\Transport\HttpAdapterTransport(
                 new \Http\Message\MessageFactory\GuzzleMessageFactory(), 
