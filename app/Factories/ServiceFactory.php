@@ -9,6 +9,7 @@
 namespace App\Factories;
 use App;
 use Aws;
+use Illuminate\Support\Facades\Redis;
 
 class ServiceFactory
 {
@@ -185,7 +186,7 @@ class ServiceFactory
     }
 
     public static function createSupervisorService() {
-        $httpClient = new \GuzzleHttp\Client();
+        $httpClient = new \GuzzleHttp\Client( ['auth' => [ env( 'SUPERVISOR_INET_USER' ) , env( 'SUPERVISOR_INET_PASSWORD' ) ]] );
         $client = new \fXmlRpc\Client('http://127.0.0.1:9001/RPC2', 
             new \fXmlRpc\Transport\HttpAdapterTransport(
                 new \Http\Message\MessageFactory\GuzzleMessageFactory(), 
@@ -193,13 +194,12 @@ class ServiceFactory
 
         $connector = new \Supervisor\Connector\XmlRpc($client);
         $supervisor = new \Supervisor\Supervisor($connector);
-        $redis = \Redis::connection();
 
-        return new \App\Services\SupervisorWorkerService($supervisor, $redis);
+        return new \App\Services\SupervisorWorkerService($supervisor);
     }
 
     public static function createQueueService () {
-        $redis = \Redis::connection('queue');
+        $redis = Redis::connection('queue');
         return new \App\Services\RedisQueueService($redis);
     }
 }
