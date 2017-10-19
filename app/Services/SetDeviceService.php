@@ -51,9 +51,7 @@ class SetDeviceService {
             $data = $this->mapToRow($row, $carrier);
             $id = $this->createId($row);
             $this->emailFeedDataRepo->update($id, $data);
-        }
-        
-        $this->emailFeedDataRepo->cleanUpDeviceData();
+        }        
     }
 
     private function mapToRow($row, $carrier) {
