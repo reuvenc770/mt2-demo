@@ -181,7 +181,7 @@ class RawFeedEmailRepo {
             $search = $this->email
                 ->selectRaw("email_domain_id, domain_group_id, emails.id as email_id")
                 ->where('email_address', $record->email_address)
-                ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                ->leftJoin('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
                 ->first();
 
             if ($search) {
@@ -218,7 +218,7 @@ class RawFeedEmailRepo {
             $search = $this->email
                         ->selectRaw("email_domain_id, domain_group_id, emails.id as email_id")
                         ->where('email_address', $record->email_address)
-                        ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                        ->leftJoin('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
                         ->first();
 
             if ($search) {
