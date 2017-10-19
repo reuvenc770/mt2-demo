@@ -25,4 +25,8 @@ class PageRepo {
     public function getPageId ( $name ) {
         return $this->page->where( 'name' , $name )->pluck( 'id' )->pop();
     }
+
+    public function getPageName ( $id ) {
+        return $this->page->find( $id )->name;
+    }
 }

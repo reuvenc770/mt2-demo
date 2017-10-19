@@ -158,3 +158,13 @@
     name: tools
     created_at: '2017-01-13 14:38:15'
     updated_at: '2017-01-13 14:38:15'
+-
+    id: 34
+    name: tools.affiliates
+    created_at: '2017-10-12 18:43:31'
+    updated_at: '2017-10-12 18:43:31'
+-
+    id: 35
+    name: cpm.list
+    created_at: '2017-10-12 18:43:48'
+    updated_at: '2017-10-12 18:43:54'
