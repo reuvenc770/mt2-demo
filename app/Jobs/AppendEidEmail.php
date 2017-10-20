@@ -2,16 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
+use App\Jobs\MonitoredJob;
 use App\Services\AppendEidService;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Mail;
 use Storage;
-class AppendEidEmail extends Job implements ShouldQueue
+
+class AppendEidEmail extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -23,13 +19,20 @@ class AppendEidEmail extends Job implements ShouldQueue
     private $includeFields;
     private $includeSuppression;
     private $fileName;
-    public function __construct($filePath,$fileName,$feed,$fields,$suppression)
+    protected $jobName;
+    
+    const NAME_BASE = "AppendEidEmailJob";
+
+    public function __construct($filePath,$fileName,$feed,$fields,$suppression, $tracking, $threshold)
     {
         $this->filePath = $filePath;
         $this->includeFeed = $feed;
         $this->includeFields = $fields;
         $this->includeSuppression = $suppression;
         $this->fileName = $fileName;
+
+        $jobName = self::NAME_BASE . '-' . $fileName;
+        parent::__construct($jobName, $threshold, $tracking);
     }
 
     /**
@@ -37,8 +40,9 @@ class AppendEidEmail extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AppendEidService $service)
+    protected function handleJob()
     {
+        $service = \App::make(\App\Services\AppendEidService::class);
         $ftpPath = "/APPENDEID/{$this->fileName}";
         $csv = $service->createFile($this->filePath, $this->includeFeed, $this->includeFields, $this->includeSuppression);
         Storage::disk('SystemFtp')->put($ftpPath,$csv);

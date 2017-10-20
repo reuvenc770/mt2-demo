@@ -126,7 +126,10 @@ class Kernel extends ConsoleKernel
         Commands\PopulateCpmListProfileReportCommand::class ,
         Commands\SyncMT1FeedFieldOrderCommand::class,
         Commands\PopulateCpaListProfileReportCommand::class,
-        Commands\ProcessYamlFiles::class
+        Commands\ProcessYamlFiles::class,
+        Commands\OptimizeWorkers::class,
+        Commands\UploadIPv6DB::class,
+        Commands\WarnOldIPv6::class
 ];
 
     /**
@@ -143,6 +146,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('domains:expired')->dailyAt(self::REPORT_TIME); //command DomainExpirationNotification, job class domainExpirationNotifications, job name ExpiredDomains
         $schedule->command('notify:scheduled')->everyMinute(); //command ScheduledNotificationsCommand, job class ScheduledNotificationQueueJob, job name ScheduledNotificationQueueJob:%
         $schedule->command('monitors:runtime --mode=monitor --days-back=1 --runtime-threshold=30s')->cron('05 8,16 * * * *'); //job class: RunTimeMonitorJob
+
+
+        /**
+         *  Maintenance
+         */
+        $schedule->command('supervisor:optimize --runtime-threshold=1h')->everyFiveMinutes();
+        $schedule->command('ipv6:warn --runtime-threshold=1h')->daily();
 
         /**
          * Orphan Adoption
@@ -250,19 +260,19 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import creative --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import from --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import subject --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import deploy --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import deploy --runtime-threshold=1m')->cron('0 * * * * *');
         $schedule->command('mt1Import offerCreativeMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeEncryptedLinkMap --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import link 2 --runtime-threshold=1h')->cron('0 */2 * * * *');
-        $schedule->command('mt1Import feed --runtime-threshold=1m')->cron('0 * * * * *');
+        #$schedule->command('mt1Import link 2 --runtime-threshold=1h')->cron('0 */2 * * * *');
+        #$schedule->command('mt1Import feed --runtime-threshold=1m')->cron('0 * * * * *');
         $schedule->command('mt1Import offerTrackingLink --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOffer --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeVertical --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOfferMap --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         #$schedule->command('mt1Import vendorSuppressionInfo --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *');  //all mt1 above
@@ -315,7 +325,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *'); //command GetFirstPartyRecords, no job
 
         // Process third party feeds, broken down by starting letter of email address
-        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessFeedRecordsJob  all :process below
+        $schedule->command('feedRecords:process 3 --startChars=0123456789_')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessThirdPartyFeedRecordsJob
         $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
@@ -324,7 +334,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('feedRecords:process 3 --startChars=mno')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=pqrs')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=tuvwxyz')->cron('*/2 * * * * *');
-
+        $schedule->command('feedRecords:process 3 --rerun 2')->hourly(); // Like the above, but job class ProcessThirdPartyMissedFeedRecordsJob
+        
         // Export some third party feeds to external sources
         #$schedule->command('feedRecords:exportThirdParty 2430')->cron('*/2 * * * * *');
         #$schedule->command('feedRecords:exportThirdParty 2433')->cron('*/2 * * * * *');

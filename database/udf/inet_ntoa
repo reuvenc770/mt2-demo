@@ -1,0 +1,5 @@
+create or replace function inet_ntoa(ip varchar(255))
+    returns varchar(255) immutable as $$
+    import socket, struct
+    return str(socket.inet_ntoa(struct.pack('!L', int(ip))))
+    $$ LANGUAGE plpythonu;

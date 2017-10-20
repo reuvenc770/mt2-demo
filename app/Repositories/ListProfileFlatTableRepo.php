@@ -184,15 +184,15 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     public function extractForS3Upload($startPoint) {
         $dataSchema = config('database.connections.mysql.database');
-        #return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("list_profile_flat_table.updated_at > $startPoint");
-        return $this->flatTable->whereRaw("updated_at > $startPoint")->selectRaw("*, 3 as party"); // temporary until lpft is optimized for the above query
+        return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("list_profile_flat_table.updated_at > $startPoint")->selectRaw("list_profile_flat_table.*, party");
+        #return $this->flatTable->whereRaw("updated_at > $startPoint")->selectRaw("*, 3 as party"); // temporary until lpft is optimized for the above query
     }
 
     public function extractAllForS3() {
         // This will be the current default
         $dataSchema = config('database.connections.mysql.database');
-        #return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
-        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY")->selectRaw("*, 3 as party"); // See above
+        return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("date > CURDATE() - INTERVAL 10 DAY")->selectRaw("list_profile_flat_table.*, party");
+        #return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY")->selectRaw("*, 3 as party"); // See above
     }
 
     public function specialExtract($data) {}

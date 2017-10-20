@@ -57,7 +57,6 @@ class ProcessingRecord {
             $this->emailId = $record->email_id;
             $this->domainId = $record->email_domain_id;
             $this->domainGroupId = $record->domain_group_id;
-            
         }
         else {
             $this->newEmail = true;

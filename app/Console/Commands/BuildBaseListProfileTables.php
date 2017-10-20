@@ -12,6 +12,7 @@ class BuildBaseListProfileTables extends Command
 {
     use DispatchesJobs;
     protected $name = 'StartProfileExports';
+    const QUEUE = 'ListProfile';
 
     /**
      * The name and signature of the console command.
@@ -55,7 +56,7 @@ class BuildBaseListProfileTables extends Command
         }
 
         foreach ($profiles as $profileSchedule) {
-            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, $cacheTagName, str_random(16), $this->option('runtime-threshold'),$params);
+            $job = (new ListProfileBaseExportJob($profileSchedule->list_profile_id, $cacheTagName, str_random(16), $this->option('runtime-threshold'),$params))->onQueue(self::QUEUE);
             $this->dispatch($job);
         }
     }

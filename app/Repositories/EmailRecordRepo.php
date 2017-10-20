@@ -17,6 +17,7 @@ use App\Events\NewActions;
 
 class EmailRecordRepo {
     protected $email;
+    protected $emailId = null;
     protected $emailAddress = '';
     protected $recordType = '';
     protected $espId = 0;
@@ -29,7 +30,7 @@ class EmailRecordRepo {
         $this->email = $email;
     }
 
-    public function massRecordDeliverables ( $records = [], $boolRecordsHaveEID = false ) {
+    public function massRecordDeliverables ($records) {
         $validRecords = [];
         $invalidRecords = [];
         $pdo = DB::connection()->getPdo();
@@ -37,6 +38,7 @@ class EmailRecordRepo {
         foreach ( $records as $currentIndex => $currentRecord ) {
             
             $this->setLocalData( [
+                'emailId' => $this->getEmailId($currentRecord['email']),
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
                 'espId' => $currentRecord[ 'espId' ] ,
@@ -47,12 +49,10 @@ class EmailRecordRepo {
 
             $this->errorReason = '';
 
-            if ( $this->isValidRecord(false, $boolRecordsHaveEID ) ) {
-                $currentId = $boolRecordsHaveEID ? $currentRecord['email'] : $this->getEmailId();
-
+            if ( $this->isValidRecord() ) {
                 $validRecord = "( "
                     . join( " , " , [
-                        $currentId ,
+                        $this->emailId ,
                         $currentRecord[ 'espId' ] ,
                         $currentRecord['deployId'],
                         $currentRecord[ 'espInternalId' ] ,
@@ -128,46 +128,6 @@ class EmailRecordRepo {
         $invalidRecords = null;
     }
 
-    public function recordDeliverable ( $recordType , $emailAddress , $espId , $deployId, $espInternalId , $date ) {
-        $this->setLocalData( [
-            'emailAddress' => $emailAddress ,
-            'recordType' => $recordType ,
-            'espId' => $espId ,
-            'deployId' => $deployId,
-            'espInternalId' => $espInternalId ,
-            'date' => $date
-        ] );
-
-        if ( $this->isValidRecord() ) {
-            DB::connection( 'reporting_data' )->statement("
-                INSERT INTO email_actions
-                    ( email_id , deploy_id, esp_account_id , esp_internal_id , action_id , datetime , created_at , updated_at )    
-                VALUES
-                    ( ? , ? , ? , ? , ? , ? , ? , NOW() , NOW() )
-                ON DUPLICATE KEY UPDATE
-                    email_id = email_id ,
-                    deploy_id = deploy_id,
-                    esp_account_id = esp_account_id ,
-                    esp_internal_id = esp_internal_id ,
-                    action_id = action_id ,
-                    datetime = datetime ,
-                    created_at = created_at ,
-                    updated_at = NOW()" ,
-                [
-                    $this->getEmailId() ,
-                    $deployId,
-                    $espId ,
-                    $espInternalId ,
-                    $this->getActionId( $recordType ) ,
-                    $date
-                ]
-            );
-
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     public function isValidActionType ( $actionName ) {
         return in_array($actionName, ['opener', 'clicker']);
@@ -201,6 +161,7 @@ class EmailRecordRepo {
     }
 
     protected function setLocalData ( $recordData ) {
+        $this->emailId = $recordData['emailId'];
         $this->emailAddress = $recordData[ 'emailAddress' ];
         $this->recordType = $recordData[ 'recordType' ];
         $this->espId = $recordData[ 'espId' ];
@@ -209,27 +170,15 @@ class EmailRecordRepo {
         $this->date = $recordData[ 'date' ];
     }
 
-    protected function isValidRecord ( $saveOrphan = true, $recordsHaveEids = false) {
-        $orphan = new OrphanEmail();
+    protected function isValidRecord () {
         $errorFound = false;
 
-        if ( !$this->emailExists() && !$recordsHaveEids) {
-            $orphan->missing_email_record = 1;
+        if (null === $this->emailId) {
             $this->errorReason = 'missing_email_record';
             $errorFound = true;
         } elseif (!$this->hasDeployId()) {
             $this->errorReason = 'missing_deploy_id';
             $errorFound = true;
-        }
-
-        if ( $errorFound && $saveOrphan ) {
-            $orphan->email_address = $this->emailAddress;
-            $orphan->esp_account_id = $this->espId;
-            $orphan->deploy_id = $this->deployId;
-            $orphan->esp_internal_id = $this->espInternalId;
-            $orphan->action_id = $this->getActionId( $this->recordType );
-            $orphan->datetime = $this->date;
-            $orphan->save();
         }
 
         return $errorFound === false;

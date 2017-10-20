@@ -21,12 +21,12 @@ use App\Facades\JobTracking;
 use App\Models\StandardReport;
 use App\Services\ThirdPartyEmailStatusService;
 use Maknz\Slack\Facades\Slack;
+use App\Repositories\OrphanEmailRepo;
 
 class AdoptOrphanEmails extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    protected $orphans;
     protected $tracking;
     protected $firstId;
     protected $lastId;
@@ -36,10 +36,10 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($orphans, $tracking)
+    public function __construct($firstId, $lastId, $tracking)
     {
-        $this->orphans = $orphans;
-
+        $this->firstId = $firstId;
+        $this->lastId = $lastId;
         $this->tracking = $tracking;
     }
 
@@ -49,14 +49,17 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AttributionRecordTruthService $truthService, ThirdPartyEmailStatusService $actionService, SeedEmailService $seedService) {
+    public function handle(AttributionRecordTruthService $truthService, ThirdPartyEmailStatusService $actionService, SeedEmailService $seedService, OrphanEmailRepo $repo) {
 
         JobTracking::startEspJob( 'Orphan Adoption: ' . "Chunk" , null , null , $this->tracking );
         $inserts = [];
         $deleteIds = [];
         $actionsRecords = [];
         $reports = array_fill_keys(["deploy_missing","email_missing"],[]);
-        foreach ($this->orphans as $orphan) {
+
+        $orphans = $repo->getOrphansBetweenIds($this->firstId, $this->lastId);
+
+        foreach ($orphans as $orphan) {
 
             //If Email is a Seed delete it and move on.
             if($seedService->checkForSeed($orphan->email_address)){
@@ -68,43 +71,43 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
             $emailRecordCount = Email::where( 'email_address' , $orphan->email_address )->count();
 
-                $deployId = (int)$orphan->deploy_id;
+            $deployId = (int)$orphan->deploy_id;
 
-                $found = (int)StandardReport::where('esp_internal_id', $orphan->esp_internal_id)->pluck('external_deploy_id')->first();
+            $found = (int)StandardReport::where('esp_internal_id', $orphan->esp_internal_id)->pluck('external_deploy_id')->first();
 
-                if (0 === $deployId && 0 !== $found) {
-                    $deployId = $found;
+            if (0 === $deployId && 0 !== $found) {
+                $deployId = $found;
+            }
+
+            if ( $emailRecordCount > 0 && $deployId > 0) {
+                $currentEmailId = Email::select('id')->where('email_address', $orphan->email_address)->pluck('id')->first();
+
+                $value = "('$currentEmailId', 
+                    '{$orphan->esp_account_id}', 
+                    '{$deployId}', 
+                    '{$orphan->esp_internal_id}', 
+                    '{$orphan->action_id}', 
+                    '{$orphan->datetime}', NOW(), NOW())";
+                $inserts[] = $value;
+
+                $deleteIds[] = $orphan->id;
+            }
+            else {
+                $date = Carbon::today()->subDay(5)->toDateString();
+                if($deployId == 0 && $orphan->create_date <= $date){
+                    $reports['deploy_missing'][] = ["esp_account" => $orphan->esp_account_id, "esp_internal_id" => $orphan->esp_intenral_id];
+                } elseif ($emailRecordCount  == 0  && $orphan->create_date <= $date){
+                    $reports['email_missing'][] = $orphan->email_address;
                 }
+            }
 
-                if ( $emailRecordCount > 0 && $deployId > 0) {
-                    $currentEmailId = Email::select('id')->where('email_address', $orphan->email_address)->pluck('id')->first();
 
-                    $value = "('$currentEmailId', 
-                        '{$orphan->esp_account_id}', 
-                        '{$deployId}', 
-                        '{$orphan->esp_internal_id}', 
-                        '{$orphan->action_id}', 
-                        '{$orphan->datetime}', NOW(), NOW())";
-                    $inserts[] = $value;
-
-                    $deleteIds[] = $orphan->id;
+            if($currentEmailId > 0 && $emailRecordCount > 0){
+                if ($orphan->action_id == AbstractReportService::RECORD_TYPE_CLICKER ||
+                    $orphan->action_id == AbstractReportService::RECORD_TYPE_OPENER) {
+                    $actionsRecords[] = ["email_id" =>$currentEmailId, "type" => $orphan->action_id];
                 }
-                else {
-                    $date = Carbon::today()->subDay(5)->toDateString();
-                    if($deployId == 0 && $orphan->create_date <= $date){
-                        $reports['deploy_missing'][] = ["esp_account" => $orphan->esp_account_id, "esp_internal_id" => $orphan->esp_intenral_id];
-                    } elseif ($emailRecordCount  == 0  && $orphan->create_date <= $date){
-                        $reports['email_missing'][] = $orphan->email_address;
-                    }
-                }
-
-
-                if($currentEmailId > 0 && $emailRecordCount > 0){
-                    if ($orphan->action_id == AbstractReportService::RECORD_TYPE_CLICKER ||
-                        $orphan->action_id == AbstractReportService::RECORD_TYPE_OPENER) {
-                        $actionsRecords[] = ["email_id" =>$currentEmailId, "type" => $orphan->action_id];
-                    }
-                }
+            }
         }
 
         try {

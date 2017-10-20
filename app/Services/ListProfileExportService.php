@@ -32,7 +32,7 @@ class ListProfileExportService {
 
     const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
-    const READ_THRESHOLD = 200000;
+    const READ_THRESHOLD = 50000;
 
     private $rows = [];
     private $rowCount = 0;
@@ -66,7 +66,7 @@ class ListProfileExportService {
 
         if ($this->listProfileRepo->shouldInsertHeader($listProfileId) || !empty($replacementHeader) ) {
             $columns = $replacementHeader ? $replacementHeader : $columns;
-            Storage::disk('espdata')->append($fileName, implode(',', $columns));
+            $this->remoteBatch($fileName, implode(',', $columns));
         }
 
         $result = $this->tableRepo->getSegmentedOrderedModel(0, self::READ_THRESHOLD);
@@ -118,7 +118,17 @@ class ListProfileExportService {
 
     private function writeRemoteBatch($fileName, $disk = 'espdata') {
         $string = implode(PHP_EOL, $this->rows);
-        Storage::disk($disk)->append($fileName, $string);
+
+        $key = "filesystems.disks.$disk.";
+        $driver = config($key . 'driver');
+        $userName = config($key . 'username');
+        $password = config($key . 'password');
+        $host = config($key . 'host');
+        $filePath = $driver . "://" . $userName . ':' . $password . '@' . $host . '/' . $fileName;
+        $file = fopen($filePath, 'a');
+        fwrite($file, $string);
+        fclose($file);
+
         $this->rows = [];
         $this->rowCount = 0;
     }

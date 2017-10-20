@@ -1,0 +1,7 @@
+-- to be run in any redshift instance
+
+create or replace function sha_256(email varchar(255))
+    returns varchar(255) immutable as $$
+    import hashlib
+    return hashlib.sha256(email).hexdigest()
+    $$ LANGUAGE plpythonu;

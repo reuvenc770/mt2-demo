@@ -407,12 +407,12 @@ class BrontoReportService extends AbstractReportService implements IDataService
     public function insertUnsubs($data, $espAccountId)
     {
         foreach ($data as $entry) {
-            if ($entry->getDeliveryId()) {
+            if ($entry->getDeliveryId() && $entry->getEmailAddress()) {
                 $espInternalId = $this->parseInternalId($entry->getDeliveryId());
                 Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, $entry->getCreatedDate()->format('Y-m-d H:i:s'));
             }
             else {
-                Log::info($entry->getDeliveryId() . ', ' . $entry->getEmailAddress() . ' not found for Bronto');
+                Log::info($entry->getDeliveryId() . ', email "' . $entry->getEmailAddress() . '" not found for Bronto');
             }
         }
     }

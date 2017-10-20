@@ -71,6 +71,7 @@ class RetrieveDeliverableReports extends MonitoredJob
             }
         } else {
             $this->processState = $this->defaultProcessState;
+            $this->processState['date'] = $this->date;
         }
 
         parent::__construct($this->getJobName(),$this->runtimeThreshold,$this->tracking);
@@ -300,9 +301,13 @@ class RetrieveDeliverableReports extends MonitoredJob
     }
 
     protected function savePaginatedRecords () {
-
         $rowCount = 0;
-        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        $monthAgo = Carbon::today()->subDays(31);
+
+        # "lt()" is understood as "earlier than" rather than "less than/since"
+        # pick the earlier of either the start date or 31 days ago
+        $startDate = Carbon::parse($this->date)->lt($monthAgo) ? $date : $monthAgo->toDateString();
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId, $startDate);
         
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );

@@ -11,6 +11,8 @@ namespace App\Services;
 
 use App\Repositories\EmailDomainRepo;
 use App\Services\ServiceTraits\PaginateList;
+use App\DataModels\ProcessingRecord; 
+
 class EmailDomainService
 {
     use PaginateList;
@@ -82,5 +84,19 @@ class EmailDomainService
                 return false;
             }
         }
+    }
+
+    public function setRecordDomainInfo(ProcessingRecord $record) {
+        if ($record->newEmail && preg_match('/@/', $record->emailAddress)) {
+            // Need to set these values for validation
+            $record->domainId = $this->emailDomainRepo->getIdForName($record->emailAddress);
+            $result = $this->emailDomainRepo->getDomainAndClassInfo($record->emailAddress);
+            $record->domainGroupId = $result->domain_group_id;
+        }
+        elseif ($record->newEmail) {
+            $record->domainGroupId = 0; // These are totally invalid records.
+        }
+
+        return $record;
     }
 }
