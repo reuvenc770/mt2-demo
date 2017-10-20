@@ -9,6 +9,7 @@
 namespace App\Factories;
 use App;
 use Aws;
+use Illuminate\Support\Facades\Redis;
 
 class ServiceFactory
 {
@@ -198,7 +199,7 @@ class ServiceFactory
     }
 
     public static function createQueueService () {
-        $redis = \Redis::connection('queue');
+        $redis = Redis::connection('queue');
         return new \App\Services\RedisQueueService($redis);
     }
 }
