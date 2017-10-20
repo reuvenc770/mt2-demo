@@ -523,7 +523,7 @@ class RetrieveDeliverableReports extends MonitoredJob
             }
         }
         
-        if ( '' === $campaignId ) {
+        if ( null === $campaignId ) {
             $campaignId = 0;
         }
 
