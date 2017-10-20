@@ -377,6 +377,7 @@ class RawFeedEmailRepo {
 
         return $this->rawEmail
                     ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
+                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
                     ->leftJoin('email_feed_instances as efi', function($join) use ($date) {
                         $join->on('e.id', '=', 'efi.email_id');
                         $join->on('raw_feed_emails.feed_id', '=', 'efi.feed_id');
@@ -393,10 +394,11 @@ class RawFeedEmailRepo {
                     ->whereNull('sgo.email_address')
                     ->whereNull('iei.id')
                     ->where('raw_feed_emails.created_at', '<=', DB::raw("now() - interval 10 minute"))
-                    ->select('raw_feed_emails.*')
+                    ->selectRaw('raw_feed_emails.*, e.id as email_id, email_domain_id, domain_group_id')
                     ->orderBy('raw_feed_emails.id', 'asc')
                     ->take($limit)
                     ->get();
+
     }
 
     public function getMinId($datetime) {
