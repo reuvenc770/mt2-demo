@@ -13,7 +13,9 @@ class EmailDomainRequest extends Request
      */
     public function authorize()
     {
-        if(Sentinel::hasAccess("isp.add")){
+        if( $this->getMethod() === 'POST' &&  Sentinel::hasAccess("isp.add") ){
+            return true;
+        } else if ( $this->getMethod() === 'PUT' && Sentinel::hasAccess('isp.edit') ) {
             return true;
         }
         return false;

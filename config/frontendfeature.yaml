@@ -210,16 +210,9 @@
     updated_at: '2017-10-12 16:00:55'
 -
     id: 31
-    name: 'Add New Cake Affliiate/Redirect'
+    name: 'Add/Edit Cake Affliiate/Redirect'
     page_id: 34
-    description: 'Add a new cake affiliate and redirect domain.'
-    created_at: '2017-10-12 16:00:55'
-    updated_at: '2017-10-12 16:00:55'
--
-    id: 32
-    name: 'Edit Cake Affiliate'
-    page_id: 34
-    description: 'Edit an existing cake affiliate.'
+    description: 'Add or edit a cake affiliate and redirect domain.'
     created_at: '2017-10-12 16:00:55'
     updated_at: '2017-10-12 16:00:55'
 -
@@ -475,13 +468,6 @@
     created_at: '2017-10-12 16:00:55'
     updated_at: '2017-10-12 16:00:55'
 -
-    id: 69
-    name: 'View Attribution Model''s Levels'
-    page_id: 15
-    description: 'View an attribution model''s levels.'
-    created_at: '2017-10-12 16:00:55'
-    updated_at: '2017-10-12 16:00:55'
--
     id: 70
     name: 'Edit Attribution Model'
     page_id: 15
@@ -514,13 +500,6 @@
     name: 'Sync Attribution Levels With MT1'
     page_id: 15
     description: 'Sync an attribution model''s levels with MT1.'
-    created_at: '2017-10-12 16:00:55'
-    updated_at: '2017-10-12 16:00:55'
--
-    id: 75
-    name: 'Delete Attribution Model'
-    page_id: 15
-    description: 'Delete attribution model.'
     created_at: '2017-10-12 16:00:55'
     updated_at: '2017-10-12 16:00:55'
 -
@@ -566,17 +545,10 @@
     created_at: '2017-10-12 16:00:55'
     updated_at: '2017-10-12 16:00:55'
 -
-    id: 82
-    name: 'Edit List Profile'
-    page_id: 8
-    description: 'Edit an existing list profile.'
-    created_at: '2017-10-12 16:00:55'
-    updated_at: '2017-10-12 16:00:55'
--
     id: 83
-    name: 'Copy List Profile'
+    name: 'Edit/Copy List Profile'
     page_id: 8
-    description: 'Copy an existing list profile to a new list profile.'
+    description: 'Edit and copy an existing list profile to a new list profile.'
     created_at: '2017-10-12 16:00:55'
     updated_at: '2017-10-12 16:00:55'
 -
@@ -623,9 +595,9 @@
     updated_at: '2017-10-12 16:00:55'
 -
     id: 90
-    name: 'Edit Deploy'
+    name: 'Edit/Copy Deploy'
     page_id: 23
-    description: 'Edit an existing deploy.'
+    description: 'Edit or copy an existing deploy.'
     created_at: '2017-10-12 16:00:55'
     updated_at: '2017-10-12 16:00:55'
 -
@@ -647,13 +619,6 @@
     name: 'Copy Deploys for Future Scheduling'
     page_id: 23
     description: 'Copy selected deploy(s), including original deploy information, and schedule for different send date.'
-    created_at: '2017-10-12 16:00:55'
-    updated_at: '2017-10-12 16:00:55'
--
-    id: 94
-    name: 'Copy Individual Deploy'
-    page_id: 23
-    description: 'Copy an existing deploy as a new deploy.'
     created_at: '2017-10-12 16:00:55'
     updated_at: '2017-10-12 16:00:55'
 -

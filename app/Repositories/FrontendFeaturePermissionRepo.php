@@ -4,15 +4,12 @@ namespace App\Repositories;
 
 use DB;
 use App\Models\FrontendFeature;
-use App\Models\FrontendFeaturePermissionMapping;
 
 class FrontendFeaturePermissionRepo {
   protected $frontendFeature;
-  protected $featurePermission;
 
-  public function __construct ( FrontendFeature $frontendFeature , FrontendFeaturePermissionMapping $featurePermission ) {
+  public function __construct ( FrontendFeature $frontendFeature ) {
     $this->frontendFeature = $frontendFeature;
-    $this->featurePermission = $featurePermission;
   }
 
   public function getAllFeaturePermissions (){

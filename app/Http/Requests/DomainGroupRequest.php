@@ -13,9 +13,12 @@ class DomainGroupRequest extends Request
      */
     public function authorize()
     {
-        if(Sentinel::hasAccess("ispgroup.add")){
+        if( $this->getMethod() === 'POST' && Sentinel::hasAccess("ispgroup.add") ){
+            return true;
+        } else if ( $this->getMethod() === 'PUT' && Sentinel::hasAccess('ispgroup.edit') ) {
             return true;
         }
+
         return false;
     }
 

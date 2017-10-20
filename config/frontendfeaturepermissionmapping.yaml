@@ -207,7 +207,7 @@
     permission_id: 71
 -
     frontend_feature_id: 14
-    permission_id: 310
+    permission_id: 311
 -
     frontend_feature_id: 15
     permission_id: 27
@@ -338,11 +338,14 @@
     frontend_feature_id: 31
     permission_id: 351
 -
-    frontend_feature_id: 32
+    frontend_feature_id: 31
     permission_id: 352
 -
     frontend_feature_id: 33
-    permission_id: 33
+    permission_id: 44
+-
+    frontend_feature_id: 33
+    permission_id: 244
 -
     frontend_feature_id: 33
     permission_id: 239
@@ -350,8 +353,17 @@
     frontend_feature_id: 34
     permission_id: 286
 -
-    frontend_feature_id: 35
+    frontend_feature_id: 34
     permission_id: 245
+-
+    frontend_feature_id: 35
+    permission_id: 246
+-
+    frontend_feature_id: 35
+    permission_id: 247
+-
+    frontend_feature_id: 35
+    permission_id: 240
 -
     frontend_feature_id: 36
     permission_id: 304
@@ -471,7 +483,7 @@
     permission_id: 165
 -
     frontend_feature_id: 54
-    permission_id: 174
+    permission_id: 173
 -
     frontend_feature_id: 55
     permission_id: 166
@@ -514,6 +526,9 @@
 -
     frontend_feature_id: 59
     permission_id: 195
+-
+    frontend_feature_id: 59
+    permission_id: 291
 -
     frontend_feature_id: 60
     permission_id: 44
@@ -573,6 +588,9 @@
     permission_id: 140
 -
     frontend_feature_id: 68
+    permission_id: 142
+-
+    frontend_feature_id: 68
     permission_id: 147
 -
     frontend_feature_id: 68
@@ -581,14 +599,14 @@
     frontend_feature_id: 68
     permission_id: 230
 -
-    frontend_feature_id: 69
-    permission_id: 143
--
-    frontend_feature_id: 69
-    permission_id: 146
--
-    frontend_feature_id: 69
+    frontend_feature_id: 68
     permission_id: 340
+-
+    frontend_feature_id: 68
+    permission_id: 145
+-
+    frontend_feature_id: 70
+    permission_id: 145
 -
     frontend_feature_id: 70
     permission_id: 143
@@ -620,9 +638,6 @@
     frontend_feature_id: 74
     permission_id: 238
 -
-    frontend_feature_id: 75
-    permission_id: 145
--
     frontend_feature_id: 76
     permission_id: 208
 -
@@ -638,8 +653,14 @@
     frontend_feature_id: 78
     permission_id: 333
 -
+    frontend_feature_id: 78
+    permission_id: 214
+-
     frontend_feature_id: 79
     permission_id: 335
+-
+    frontend_feature_id: 79
+    permission_id: 214
 -
     frontend_feature_id: 80
     permission_id: 35
@@ -662,17 +683,8 @@
     frontend_feature_id: 81
     permission_id: 272
 -
-    frontend_feature_id: 82
+    frontend_feature_id: 83
     permission_id: 37
--
-    frontend_feature_id: 82
-    permission_id: 69
--
-    frontend_feature_id: 82
-    permission_id: 88
--
-    frontend_feature_id: 82
-    permission_id: 272
 -
     frontend_feature_id: 83
     permission_id: 52
@@ -785,29 +797,14 @@
     frontend_feature_id: 93
     permission_id: 243
 -
-    frontend_feature_id: 94
-    permission_id: 215
--
-    frontend_feature_id: 94
-    permission_id: 216
--
-    frontend_feature_id: 94
-    permission_id: 217
--
-    frontend_feature_id: 94
-    permission_id: 220
--
-    frontend_feature_id: 94
-    permission_id: 221
--
-    frontend_feature_id: 94
-    permission_id: 234
--
     frontend_feature_id: 95
     permission_id: 235
 -
     frontend_feature_id: 95
     permission_id: 236
+-
+    frontend_feature_id: 96
+    permission_id: 46
 -
     frontend_feature_id: 96
     permission_id: 210
