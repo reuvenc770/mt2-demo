@@ -144,6 +144,10 @@ class Mt1RealtimeProcessingService extends RemoteFeedFileService {
         $record[ 'file' ] = $this->currentFile[ 'path' ];
         $record[ 'party' ] = $this->feedService->getPartyFromId( $record[ 'feed_id' ] );
 
+        if ( '' === $record[ 'party' ] ) {
+            $record[ 'party' ] = 0;
+        }
+
         if ( !isset( $record[ 'source_url' ] ) || $record[ 'source_url' ] == '' ) {
             $record[ 'source_url' ] = $this->feedService->getSourceUrlFromId( $record[ 'feed_id' ] );
         }
