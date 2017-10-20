@@ -193,9 +193,8 @@ class ServiceFactory
 
         $connector = new \Supervisor\Connector\XmlRpc($client);
         $supervisor = new \Supervisor\Supervisor($connector);
-        $redis = \Redis::connection();
 
-        return new \App\Services\SupervisorWorkerService($supervisor, $redis);
+        return new \App\Services\SupervisorWorkerService($supervisor);
     }
 
     public static function createQueueService () {
