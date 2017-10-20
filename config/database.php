@@ -232,7 +232,7 @@ return [
             'username'  => env('REDSHIFT_USER', ''),
             'password'  => env('REDSHIFT_PW', ''),
             'port' => env('REDSHIFT_PORT', ''),
-            'charset' => 'utf8'
+            'charset' => 'utf8',
             'strict' => true
         ]
 
