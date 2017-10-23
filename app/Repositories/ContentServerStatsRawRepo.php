@@ -31,7 +31,7 @@ class ContentServerStatsRawRepo {
 
     public function pullAggregatedActions($start, $end) {
         return DB::select("SELECT
-                if(e.id IS NULL, , eid) as email_id,
+                eid as email_id,
                 email_address,
                 lower_case_md5,
                 upper_case_md5,
@@ -43,7 +43,7 @@ class ContentServerStatsRawRepo {
                 IF(SUM(IF(action_id = 2, 1, 0)) > 0, 1, 0) as has_cs_click
             FROM
                 content_server_stats_raws r
-                LEFT JOIN emails e ON r.eid = e.id
+                INNER JOIN emails e ON r.eid = e.id
             WHERE
                 r.id > :start
                 AND

@@ -507,7 +507,7 @@ class RetrieveDeliverableReports extends MonitoredJob
 
     protected function initJobEntry () {
         $campaignId = 0;
-        if(isset($this->processState['campaign'])){
+        if(isset($this->processState['campaign']) && null !== $this->processState['campaign']->esp_internal_id){
            $campaignId = $this->processState['campaign']->esp_internal_id;
         }
 
@@ -522,12 +522,10 @@ class RetrieveDeliverableReports extends MonitoredJob
                 throw new JobAlreadyQueuedException("Job $name already queued");
             }
         }
-        
-        if ( null === $campaignId ) {
-            $campaignId = 0;
-        }
 
-        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
+        $campaignId = $campaignId ?: 0;
+
+        JobTracking::startEspJob( $this->getJobName(), $this->apiName, $this->espAccountId, $this->tracking, $campaignId);
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 

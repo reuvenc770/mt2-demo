@@ -175,11 +175,10 @@ class TrackingRepo
         return $this->report->select('user_agent_string')->where('clickDate', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))->get();
     }
 
-    public function getCakeDataForListProfiles() {
-        $daysBack = 5;
+    public function getEmailSortedCakeActions(Carbon $startPoint, $startEmailId, $limit) {
         $dataSchema = config('database.connections.mysql.database');
         $table = $this->report->getTable();
-
+        
         return $this->report
             ->select( "email_id" , "deploy_id", 
                 DB::raw('DATE(datetime) as date'), 
@@ -188,15 +187,19 @@ class TrackingRepo
                 'co.vertical_id',
                 DB::raw('IFNULL(e.email_domain_id, 0) as email_domain_id'),
                 DB::raw('COUNT(IF(action_id = 2, 1, 0)) as clicks'), 
-                DB::raw('SUM(IF(action_id = 3, 1, 0)) as conversions'))
+                DB::raw('SUM(IF(action_id = 3, 1, 0)) as conversions'),
+                DB::raw('MAX(datetime) as last_datetime'))
             ->whereBetween("datetime", [
-                Carbon::today()->subDays($daysBack)->toDateTimeString(), 
-                Carbon::today()->endOfDay()->ToDateTimeString()
+                $startPoint->toDateTimeString(), 
+                Carbon::today()->endOfDay()->toDateTimeString()
             ])
             ->join("$dataSchema.deploys as d", $table . '.deploy_id', '=', 'd.id')
             ->join("$dataSchema.cake_offers as co", $table.'.cake_offer_id', '=', 'co.id')
             ->leftJoin("$dataSchema.emails as e", $table.'.email_id', '=', 'e.id')
-            ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id');
+            ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id')
+            ->take($limit)
+            ->orderBy('last_datetime', 'asc')
+            ->get();
     }
 
     public function getPaidConversionsByCakeOfferDeploy ( $dateRange , $cakeOfferId , $deployId ) {

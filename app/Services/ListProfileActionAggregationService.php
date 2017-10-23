@@ -8,7 +8,7 @@ use App\Repositories\ListProfileFlatTableRepo;
 use App\Repositories\TrackingRepo;
 use App\Repositories\EtlPickupRepo;
 use DB;
-
+use Carbon\Carbon;
 
 class ListProfileActionAggregationService implements IEtl {
 
@@ -17,6 +17,8 @@ class ListProfileActionAggregationService implements IEtl {
     private $cakeRepo;
     private $etlPickupRepo;
     const JOB_NAME = 'PopulateListProfileFlatTable';
+    const CAKE_LIMIT = 50000;
+    const TRACKING_DAYS_BACK = 5;
     
     public function __construct(EmailActionsRepo $actionsRepo, TrackingRepo $cakeRepo,  ListProfileFlatTableRepo $flatTableRepo, EtlPickupRepo $etlPickupRepo) {
         $this->actionsRepo = $actionsRepo;
@@ -63,13 +65,20 @@ class ListProfileActionAggregationService implements IEtl {
 
         $this->etlPickupRepo->updatePosition(self::JOB_NAME, $endPoint);
 
-
         // Part 2: Conversions
-        $conversions = $this->cakeRepo->getCakeDataForListProfiles();
+        $startPoint = Carbon::today()->subDays(self::TRACKING_DAYS_BACK);
+        $startEmailId = 0;
 
-        $conversions->each(function($data, $id) {
-            $this->flatTableRepo->insertBatchConversions($data);
-        }, 50000);
+        $conversions = $this->cakeRepo->getEmailSortedCakeActions($startPoint, $startEmailId, self::CAKE_LIMIT);
+
+        while (count($conversions) > 0) {
+            foreach ($conversions as $conv) {
+                $this->flatTableRepo->insertBatchConversions($conv);
+                $startEmailId = $conv->email_id;
+            }
+
+            $conversions = $this->cakeRepo->getEmailSortedCakeActions($startPoint, $startEmailId, self::CAKE_LIMIT);
+        }
         
         $this->flatTableRepo->cleanUpBatchConversions();
     }

@@ -21,8 +21,6 @@ class JobEntryService
 {
     protected $repo;
     protected $room;
-    protected $jobName;
-
     CONST ROOM = '#cmp_hard_start_errors';
 
     public function __construct(JobEntryRepo $repo)
@@ -33,23 +31,21 @@ class JobEntryService
 
     public function startEspJob($jobName, $espName, $accountName, $tracking, $campaignId = 0)
     {
-        $this->jobName = $jobName;
-        $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
+        $espJob = $this->repo->getJobByTracking($tracking);
 
         // start this job only if it hasn't been finished before
-        if (null === $espJob->time_finished || '0000-00-00 00:00:00' === $espJob->time_finished) {
-            $espJob->time_fired = Carbon::now();
+        if ($espJob && (null === $espJob->time_finished || '0000-00-00 00:00:00' === $espJob->time_finished)) {
+            $espJob->status = JobEntry::SUCCESS;
+            $espJob->save();
+            throw new JobCompletedException("Job $jobName already completed");
+        }
+        else {
+            $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
             $espJob->attempts = 0;
             $espJob->campaign_id = $campaignId;
             $espJob->status = JobEntry::ONQUEUE;
             $espJob->save();
         }
-        else {
-            $espJob->status = JobEntry::SUCCESS;
-            $espJob->save();
-            throw new JobCompletedException("Job $jobName already completed");
-        }
-
     }
 
     public function changeJobState($state, $tracking, $total = 0)
@@ -97,7 +93,6 @@ class JobEntryService
 
     public function startTrackingJob($jobName, $startDate, $endDate, $tracking)
     {
-        $this->jobName = $jobName;
         $trackingJob = $this->repo->startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking);
         $trackingJob->time_fired = Carbon::now();
         $trackingJob->attempts = 0;
@@ -112,7 +107,6 @@ class JobEntryService
 
     public function startAggregationJob($jobName, $tracking)
     {
-        $this->jobName = $jobName;
         $espJob = $this->repo->startAggregateJobReturnObject($jobName, $tracking);
 
         $espJob->time_fired = Carbon::now();
