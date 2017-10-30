@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class FrontendFeature extends Model
 {
-    protected $guareded = [];
+    protected $guarded = [];
 
     public function pages() {
         return $this->hasMany('App\Models\Page');
