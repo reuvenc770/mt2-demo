@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class FrontendFeaturePermissionMapping extends Model
 {
-    protected $guareded = [];
+    protected $guarded = [];
     public $timestamps = false;
 }
