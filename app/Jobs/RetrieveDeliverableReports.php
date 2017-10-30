@@ -522,6 +522,10 @@ class RetrieveDeliverableReports extends MonitoredJob
                 throw new JobAlreadyQueuedException("Job $name already queued");
             }
         }
+        
+        if ( null === $campaignId ) {
+            $campaignId = 0;
+        }
 
         JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";

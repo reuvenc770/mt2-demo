@@ -66,10 +66,10 @@ class Ipv6CountryMappingRepo {
 
         if (1 === $count) {
             // We've got our result right here
-            return $result->first()->country_code === 'CA';
+            return $firstResult->first()->country_code === 'CA';
         }
         elseif (0 === $count) {
-            Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
+            #Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
             return true; // safety first
         }
         else {
@@ -104,7 +104,7 @@ class Ipv6CountryMappingRepo {
                     return $row->country_code === 'CA';
                 }
             }
-            Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
+            #Slack::to(self::ROOM)->send("$ip does not appear in the IPv6 table");
             return true; // again, safety first
         }
     }
