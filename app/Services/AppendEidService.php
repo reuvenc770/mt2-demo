@@ -38,13 +38,16 @@ class AppendEidService
         $feedName = null;
         $fieldData = array();
 
-        $output = Writer::createFromStream(fopen($outputPath, 'a'));
+        if (file_exists($outputPath)) {
+            unlink($outputPath);
+        }
+        
+        $output = fopen($outputPath, 'a');
 
         // The three property available in $appendOptions
         $header = $this->returnCsvHeader($appendOptions->includeFeed, $appendOptions->includeFields, $appendOptions->includeSuppression);
 
         $this->appendRow($output, $header);
-
 
         foreach ($reader as $id => $row) {
             $email = $row[0];
@@ -54,6 +57,8 @@ class AppendEidService
             if($rowIsActive || $appendOptions->includeSuppression) {
                 $emailReturn = $this->emailRepo->getEmailId($email);
                 $emailExists = count($emailReturn);
+
+                // Non-extant emails are deliberately excluded
                 if ($emailExists) {
                     $emailId = $emailReturn[0]->id;
                     $rowResult = ["email" => $email, 'email_id' => $emailId];
@@ -82,12 +87,11 @@ class AppendEidService
             }
         }
 
-        // This returns the pointer
-        return $output;
+        fclose($output);
     }
 
     private function appendRow($file, array $row) {
-        fwrite($file, implode(',', $row) . PHP_EOL);
+        fputcsv($file, $row);
     }
 
     private function returnCsvHeader($includeFeed, $includeFields, $includeSuppression)
