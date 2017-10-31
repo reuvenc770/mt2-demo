@@ -38,7 +38,7 @@ class AppendEidController extends Controller
             'includeSuppression' =>(bool)$request->input('suppress')
         ];
         
-        $this->dispatch(new AppendEidEmail($inputPath, $outputPath, $fileName, $options, $tracking, self::TIME_THRESHOLD));
+        $this->dispatch(new AppendEidEmail($inputPath, $outputPath, $fileName, $options, $email, $tracking, self::TIME_THRESHOLD));
 
 
         return response()->json(["success" => true]);
