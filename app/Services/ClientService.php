@@ -25,10 +25,6 @@ class ClientService {
         $this->clientRepo->updateOrCreate( $data );
     }
 
-    public function create ( $data ) {
-        $this->clientRepo->create( $data );
-    }
-
     public function get () {
         return $this->clientRepo->get();
     }
