@@ -31,7 +31,7 @@ class FromRepo {
             ->where('ofm.offer_id', $offerId)
             ->where('froms.status', 'A')
             ->where('froms.is_approved', 1)
-            ->groupBy('forate.from_id', 'name')
+            ->groupBy('froms.id' , 'forate.from_id', 'name')
             ->orderBy("open_rate", 'desc')
             ->select(DB::raw("froms.id, 
                 froms.from_line as name,
