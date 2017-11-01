@@ -25,7 +25,7 @@ class SourceUrlCountRepo {
                                 "$db.clients.name as clientName" ,
                                 "$db.feeds.name as feedName" ,
                                 "$reportDb.source_url_counts.source_url as sourceUrl" ,
-                                DB::raw("SUM($reportDb.source_url_counts.count)")
+                                DB::raw("SUM($reportDb.source_url_counts.count) as count")
                             )
                             ->where( "$reportDb.source_url_counts.source_url" , 'LIKE' , "%{$search[ 'source_url' ]}%" )
                             ->whereBetween( "$reportDb.source_url_counts.subscribe_date" , [ $search[ 'startDate' ] , $search[ 'endDate' ] ] );
