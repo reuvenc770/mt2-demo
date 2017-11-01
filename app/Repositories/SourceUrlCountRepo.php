@@ -25,7 +25,7 @@ class SourceUrlCountRepo {
                                 "$db.clients.name as clientName" ,
                                 "$db.feeds.name as feedName" ,
                                 "$reportDb.source_url_counts.source_url as sourceUrl" ,
-                                "$reportDb.source_url_counts.count"
+                                DB::raw("SUM($reportDb.source_url_counts.count)")
                             )
                             ->where( "$reportDb.source_url_counts.source_url" , 'LIKE' , "%{$search[ 'source_url' ]}%" )
                             ->whereBetween( "$reportDb.source_url_counts.subscribe_date" , [ $search[ 'startDate' ] , $search[ 'endDate' ] ] );
@@ -42,12 +42,7 @@ class SourceUrlCountRepo {
             $builder = $builder->whereIn( "$db.feeds.vertical_id" , $search[ 'verticalIds' ] );
         }
 
-        $builder = $builder->groupBy( [
-            "$db.feeds.client_id" ,
-            "$reportDb.source_url_counts.feed_id" ,
-            "$reportDb.source_url_counts.source_url" ,
-            "$reportDb.source_url_counts.count"
-        ] );
+        $builder = $builder->groupBy( [ "$db.feeds.client_id" , "$reportDb.source_url_counts.feed_id" , "$reportDb.source_url_counts.source_url" ] );
 
         return $builder->get();
     }
