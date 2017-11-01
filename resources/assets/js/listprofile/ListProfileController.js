@@ -284,6 +284,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
+        self.current.party = self.current.party.toString();
         self.current.country_id = self.current.country_id.toString();
 
         self.fixEmptyFields();

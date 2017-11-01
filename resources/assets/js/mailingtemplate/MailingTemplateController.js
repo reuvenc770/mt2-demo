@@ -96,11 +96,11 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     };
 
     self.preview = function (){
-        $window.open('mailingtemplate/preview/' + self.currentAccount.id);
+        $window.open('/mailingtemplate/preview/' + self.currentAccount.id);
     };
 
     self.previewIncomplete = function (){
-        $window.open('mailingtemplate/preview/?html=' + self.currentAccount.html);
+        $window.open('/mailingtemplate/preview/?html=' + self.currentAccount.html);
     };
 
     /**

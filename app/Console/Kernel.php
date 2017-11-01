@@ -289,7 +289,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 20 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #early monthly rerun
         #$schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
         #$schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
-        $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME); // command AttributionFeasibilityValidation, job class AttributionValidationJob, Job name: AttributionValidation //more testing
+        #$schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME); // command AttributionFeasibilityValidation, job class AttributionValidationJob, Job name: AttributionValidation //more testing
         
         /**
          *  List profile jobs
