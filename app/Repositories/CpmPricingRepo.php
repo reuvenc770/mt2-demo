@@ -73,6 +73,12 @@ class CpmPricingRepo {
 
     public function updatePricing ( $id , $record ) {
         try {
+            $offerMapResult = $this->offerMapper->where('offer_id', $record['offer_id'])->first();
+        
+            if ( is_null( $offerMapResult ) ) {
+                throw new \Exception( 'Cake Offer ID cannot be found. Please contact tech support.' );
+            }
+
             $this->payoutService->setPayout(
                 $record[ 'offer_id' ] ,
                 self::CPM_PAYOUT_TYPE_ID ,
@@ -81,6 +87,9 @@ class CpmPricingRepo {
 
             $this->updateOrCreate( [
                 'id' => $id ,
+                'cake_offer_id' => $offerMapResult->cake_offer_id,
+                'offer_id' => $record['offer_id'],
+                'offer_payout_type_id' => self::CPM_PAYOUT_TYPE_ID,
                 'amount' => $record[ 'amount' ] ,
                 'start_date' => $record[ 'startDate' ] ,
                 'end_date' => $record[ 'endDate' ] ,

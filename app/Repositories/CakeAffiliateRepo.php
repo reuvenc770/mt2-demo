@@ -45,6 +45,9 @@ class CakeAffiliateRepo {
     }  
 
     public function createOrUpdateRedirect ( $data ) {
-        return $this->redirect->updateOrCreate( [ 'id' => $data[ 'id' ] ] , $data );
+        return $this->redirect->updateOrCreate([
+            'cake_affiliate_id' => $data['cake_affiliate_id'], 
+            'offer_payout_type_id' => $data['offer_payout_type_id']
+        ], $data );
     }
 }
