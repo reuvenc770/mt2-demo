@@ -332,6 +332,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 $row['other_fields'] = '{}';
                 // sensible default
                 $row['attribution_status'] = 'POA';
+                $row['gender'] = ($row['gender'] === '' ? 'UNK' : $row['gender']);
                 $this->batchInsert($row);
             }
         }
