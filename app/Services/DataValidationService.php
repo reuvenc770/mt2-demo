@@ -21,18 +21,21 @@ class DataValidationService {
 
     public function runComparison($type) {
         echo "Running comparison" . PHP_EOL;
+        $count = 0;
         if ('value' === $type) {
             // get_class returns something like "App\Repositories\EmailRepo"
             $this->pickupName = explode('\\', get_class($this->trustedSourceRepo))[2] . '-' . $type;
-            $this->runValueComparisonCheck();
+            $count = $this->runValueComparisonCheck();
         }
         elseif ('exists' === $type) {
             $this->pickupName = explode('\\', get_class($this->trustedSourceRepo))[2] . '-' . $type;
-            $this->runDataExistenceCheck();
+            $count = $this->runDataExistenceCheck();
         }
         else {
             Log::error("Data Consistency Validation type $type does not exist.");
         }
+
+        return $count;
     }
 
     private function runValueComparisonCheck() {
@@ -63,24 +66,33 @@ class DataValidationService {
 
 
     private function runDataExistenceCheck() {
-
+        $total = 0;
         $startPoint = $this->etlPickupRepo->getLastInsertedForName($this->pickupName);
         $endPoint = $this->trustedSourceRepo->maxId();
-
         echo "Starting at $startPoint and ending at $endPoint" . PHP_EOL;
 
         while ($startPoint < $endPoint) {
 
             $segmentEnd = $this->trustedSourceRepo->nextNRows($startPoint, self::ROW_COUNT_LIMIT);
             $segmentEnd = $segmentEnd ?: $endPoint;
-
             echo "Running the curent segment between $startPoint and $segmentEnd" . PHP_EOL;
 
             foreach ($this->reposToCheck as $repo) {
                 $newRows = $this->trustedSourceRepo->compareSources($repo->getTableName(), $startPoint, $segmentEnd);
 
-                if (count($newRows)) {
-                    $repo->addNewRows($newRows);
+                $validNewRows = [];
+
+                foreach ($newRows as $row) {
+                    $validated = $this->trustedSourceRepo->validExists($row);
+                    
+                    if ($validated) {
+                        $validNewRows[] = $validated;
+                        $total++;
+                    }
+                }
+
+                if (count($validNewRows)) {
+                    $repo->addNewRows($validNewRows);
                 }
             }
 
@@ -88,5 +100,7 @@ class DataValidationService {
         }
 
         $this->etlPickupRepo->updatePosition($this->pickupName, $endPoint);
+
+        return $total;
     }
 }
