@@ -141,6 +141,10 @@ class FeedService implements IFtpAdmin
         $this->feedRepo->updateOrCreate( $data , $id );
     }
 
+    public function create ( $data ) {
+        $this->feedRepo->create( $data );
+    }
+
     protected function generatePassword () {
         $password = str_random( 15 );
 

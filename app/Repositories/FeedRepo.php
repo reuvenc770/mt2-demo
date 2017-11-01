@@ -65,6 +65,11 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         }
     }
 
+    public function create ( $data ) {
+        unset( $data[ 'id' ] );
+        $this->feed->create( $data );
+    }
+
     public function getModel( $searchData ) {
         $query = $this->feed
             ->join( 'clients' , 'feeds.client_id' , '=' , 'clients.id' )

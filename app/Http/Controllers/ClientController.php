@@ -49,7 +49,7 @@ class ClientController extends Controller
     public function store ( ClientStoreRequest $request ) {
         Flash::success( 'Client was successfully created.' );
 
-        $this->clientService->updateOrCreate( $request->all() );
+        $this->clientService->create( $request->all() );
 
         return response()->json( [ 'status' => true ] );
     }

@@ -42,7 +42,12 @@ class SourceUrlCountRepo {
             $builder = $builder->whereIn( "$db.feeds.vertical_id" , $search[ 'verticalIds' ] );
         }
 
-        $builder = $builder->groupBy( [ "$db.feeds.client_id" , "$reportDb.source_url_counts.feed_id" , "$reportDb.source_url_counts.source_url" ] );
+        $builder = $builder->groupBy( [
+            "$db.feeds.client_id" ,
+            "$reportDb.source_url_counts.feed_id" ,
+            "$reportDb.source_url_counts.source_url" ,
+            "$reportDb.source_url_counts.count"
+        ] );
 
         return $builder->get();
     }

@@ -23,7 +23,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
         'profile_id' : null ,
         'name' : '' ,
         'ftp_folder': 'lp',
-        'country_id' : '' ,
+        'country_id' : '1' ,
         'party' : '3',
         'feeds' : {} ,
         'feedGroups' :{} ,
