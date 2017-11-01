@@ -22,6 +22,7 @@
         "league/flysystem-sftp": "^1.0",
         "league/flysystem-ziparchive": "^1.0",
         "fisharebest/laravel-assets": "~1.0",
+        "symfony/yaml": "^3.3",
         "supervisorphp/supervisor": "^3.0",
         "lstrojny/fxmlrpc": "~0.13.0",
         "php-http/message": "^1.6",
@@ -30,11 +31,11 @@
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "^5.4",
         "symfony/css-selector": "2.8.*|3.0.*",
         "symfony/dom-crawler": "2.8.*|3.0.*",
         "barryvdh/laravel-ide-helper": "^2.3",
         "nwidart/db-exporter": "dev-master",
+        "phpunit/phpunit": "^6.3",
         "codeception/codeception": "^2.3",
         "phploc/phploc": "^4.0",
         "squizlabs/php_codesniffer": "^3.1"

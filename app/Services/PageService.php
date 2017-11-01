@@ -25,4 +25,8 @@ class PageService {
     public function getPageId ( $name ) {
         return $this->pageRepo->getPageId( $name );
     }
+
+    public function getPageName ( $id ) {
+        return $this->pageRepo->getPageName ( $id );
+    }
 }

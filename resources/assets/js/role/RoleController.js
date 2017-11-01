@@ -12,6 +12,19 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     self.formErrors = "";
     self.formSubmitted = false;
 
+    self.customTreeTemplate = [
+        '<div>',
+          '<span ivh-treeview-toggle>',
+            '<span ivh-treeview-twistie></span>',
+          '</span>',
+          '<span ng-if="depth < 2" ivh-treeview-checkbox></span>',
+          '<span class="ivh-treeview-node-label" ivh-treeview-toggle>',
+            '{{:: trvw.label(node)}}',
+          '</span>',
+          '<div ivh-treeview-children></div>',
+        '<div>'
+    ].join('\n');
+
     self.loadPermissionTree = function () {
         var currentPath = $location.path();
         var pathParts = currentPath.match( new RegExp( /(\d+)/ ) );
@@ -33,11 +46,14 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     self.updateCurrentRolePermissions = function () {
         ivhTreeviewBfs( self.permissionTree , function ( node ) {
             if (
-                !node.children
+                node.value
                 && node.selected
-                && self.currentRole.permissions.indexOf( node.id ) === -1
             ) {
-                self.currentRole.permissions.push( node.id );
+                var featurePermissions = node.value;
+
+                for ( i=0 ; i < featurePermissions.length ; i++) {
+                  self.currentRole.permissions.push( featurePermissions[i] );
+                }
             }
         } );
     };
