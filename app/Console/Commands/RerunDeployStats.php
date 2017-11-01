@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Event;
 use App\Events\DeploysMissingDataFound;
-use App\Repositories\DeployRecordRerunRepo;
 
 class RerunDeployStats extends Command
 {
