@@ -44,7 +44,7 @@ class AppendEidService
         
         $output = fopen($outputPath, 'a');
 
-        // The three property available in $appendOptions
+        // The three properties available in $appendOptions
         $header = $this->returnCsvHeader($appendOptions->includeFeed, $appendOptions->includeFields, $appendOptions->includeSuppression);
 
         $this->appendRow($output, $header);
