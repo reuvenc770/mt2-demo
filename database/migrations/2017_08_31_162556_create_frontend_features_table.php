@@ -1,12 +1,9 @@
 <?php
-/**
- * @author Adam Chin <achin@zetainteractive.com>
- */
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePagesTable extends Migration
+class CreateFrontendFeaturesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,11 +12,14 @@ class CreatePagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pages', function (Blueprint $table) {
+        Schema::create('frontend_features', function (Blueprint $table) {
             $table->increments('id');
-            $table->string( 'name' );
+            $table->string('name');
+            $table->integer('page_id')->unsigned()->default( 0 );
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+
+            $table->index( 'page_id' , 'page_index' );
         });
     }
 
@@ -30,6 +30,6 @@ class CreatePagesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('pages');
+        Schema::drop('frontend_features');
     }
 }

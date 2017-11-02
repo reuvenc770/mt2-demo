@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Facades\Permission;
 use App\Services\RoleService;
-use App\Services\PagePermissionService;
+use App\Services\FrontendFeaturePermissionService;
 use Illuminate\Http\Request;
 use Route;
 use Laracasts\Flash\Flash;
@@ -16,12 +16,12 @@ use App\Http\Requests\RoleEditRequest;
 class RoleApiController extends Controller
 {
     protected $roleService;
-    protected $pagePermissionService;
+    protected $featurePermissionService;
 
-    public function __construct( RoleService $roleService , PagePermissionService $pagePermissionService )
+    public function __construct( RoleService $roleService , FrontendFeaturePermissionService $featurePermissionService )
     {
         $this->roleService = $roleService;
-        $this->pagePermissionService = $pagePermissionService;
+        $this->featurePermissionService = $featurePermissionService;
     }
 
     public function index()
@@ -114,7 +114,7 @@ class RoleApiController extends Controller
             $permissions = array_keys($role->permissions);
         }
 
-        return response()->json( $this->pagePermissionService->getPermissionTree( $permissions ) );
+        return response()->json( $this->featurePermissionService->getPermissionTree( $permissions));
     }
 
     /**
@@ -127,7 +127,7 @@ class RoleApiController extends Controller
     {
         $permissions = $request->input('permissions');
         $input = $request->only('name');
-        $this->roleService->createRoleAddPermissions($input, $permissions);
+        $this->roleService->createRoleAddPermissions($input, array_unique( $permissions ) );
         Flash::success("Role was Successfully Created");
         return array("success" => (bool) true);
     }
@@ -167,7 +167,7 @@ class RoleApiController extends Controller
     {
         $permissions = $request->input('permissions');
         $input = $request->only('name', 'slug');
-        $this->roleService->updateRole($input, $permissions, $id);
+        $this->roleService->updateRole($input, array_unique( $permissions ), $id);
         Flash::success("Role Successfully Updated");
         return array("success" => (bool) true);
     }

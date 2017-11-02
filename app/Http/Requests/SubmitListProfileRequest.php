@@ -14,7 +14,9 @@ class SubmitListProfileRequest extends Request
      */
     public function authorize()
     {
-        if ( Sentinel::hasAccess( 'listprofile.add' ) ) {
+        if ( $this->getMethod() === 'POST' && Sentinel::hasAccess( 'listprofile.add' ) ) {
+            return true;
+        } else if ( $this->getMethod() === 'PUT' && Sentinel::hasAccess( 'listprofile.edit' ) ) {
             return true;
         }
 
