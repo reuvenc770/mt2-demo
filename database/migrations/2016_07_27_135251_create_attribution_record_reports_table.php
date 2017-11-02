@@ -38,6 +38,5 @@ class CreateAttributionRecordReportsTable extends Migration
      */
     public function down()
     {
-        Schema::connection( 'attribution' )->drop('attribution_record_reports');
     }
 }

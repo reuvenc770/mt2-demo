@@ -63,6 +63,6 @@ class CreateFirstPartyRecordDatasTable extends Migration
      * @return void
      */
     public function down() {
-        Schema::drop('first_party_record_datas');
+        Schema::drop('first_party_record_data');
     }
 }

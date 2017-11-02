@@ -25,7 +25,6 @@ class AddPartyTypeToFeed extends Migration
     public function down() {
         Schema::table('feeds', function($table) {
             $table->dropColumn('party');
-            $table->dropIndex('feed_party');
         });
     }
 }

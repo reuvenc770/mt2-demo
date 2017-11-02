@@ -65,6 +65,7 @@ class CreateClientsTable extends Migration
     public function down() {
         Schema::drop('clients');
         Schema::drop('feeds');
+        Schema::drop('feed_types');
 
         Schema::create('feeds', function (Blueprint $table) {
             $table->increments('id');

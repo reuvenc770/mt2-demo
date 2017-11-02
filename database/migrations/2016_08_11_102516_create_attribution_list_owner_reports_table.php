@@ -34,6 +34,5 @@ class CreateAttributionListOwnerReportsTable extends Migration
      */
     public function down()
     {
-        Schema::connection( 'attribution' )->drop('attribution_list_owner_reports');
     }
 }

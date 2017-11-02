@@ -26,7 +26,7 @@ class AddNoteandChangeCard extends Migration
     public function down()
     {
         Schema::table('registrars', function (Blueprint $table) {
-            $table->int('last_cc')->change();
+            $table->integer('last_cc')->change();
             $table->dropColumn("notes");
         });
     }

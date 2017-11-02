@@ -35,6 +35,6 @@ class CreateAweberEmailActionsStoragesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('a_weber_email_actions_storages');
+        Schema::connection('reporting_data')->drop('a_weber_email_actions_storages');
     }
 }

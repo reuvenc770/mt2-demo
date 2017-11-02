@@ -22,6 +22,8 @@ class AddCreatedAtIndexToRfe extends Migration
      * @return void
      */
     public function down() {
-        $table->dropIndex('created_at');
+        Schema::table('raw_feed_emails', function($table) {
+            $table->dropIndex('created_at');
+        });
     }
 }

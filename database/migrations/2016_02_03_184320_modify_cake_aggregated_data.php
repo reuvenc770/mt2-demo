@@ -42,7 +42,7 @@ class ModifyCakeAggregatedData extends Migration
             $table->dropUnique('s1_s4');
             $table->string('subid_2', 100)->default('');
             $table->string('subid_3', 100)->default('');
-            $table->date('date')->default('0000-00-00');
+            $table->date('date')->nullable()->default(null);
             $table->smallInteger('advertiser_id')->unsigned()->default(0);
             $table->mediumInteger('affiliate_id')->unsigned()->default(0);
             $table->mediumInteger('offer_id')->unsigned()->default(0);
