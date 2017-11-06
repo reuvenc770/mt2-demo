@@ -128,7 +128,7 @@ class DomainController extends Controller
 
             $insertArray[] = [
                 "domain_type" => $type,
-                "proxy_id"    => $request->input("proxy"),
+                "proxy_id"    => $request->input("proxy") == '' ? 0 : $request->input("proxy"),
                 "doing_business_as_id"      => $request->input("dba"),
                 "esp_account_id" => $request->input("espAccountId"),
                 "created_at"    => Carbon::now()->toDateString(),
