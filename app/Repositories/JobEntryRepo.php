@@ -12,6 +12,7 @@ namespace App\Repositories;
 use App\Models\JobEntry;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class JobEntryRepo
 {
@@ -39,19 +40,31 @@ class JobEntryRepo
         return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
             'account_name'=> $espName,
             'account_number' => $accountName,
-            'tracking' => $tracking]);
+            'tracking' => $tracking,
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+            'time_fired' => Carbon::now()
+        ]);
     }
 
     public function startAggregateJobReturnObject($jobName, $tracking){
-        return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
-            'tracking' => $tracking]);
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),[
+            'job_name' => $jobName,
+            'tracking' => $tracking,
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+            'time_fired' => Carbon::now()
+        ]);
     }
 
     public function startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking) {
         return $this->entry->updateOrCreate(array('tracking' => $tracking),[
             'job_name' => $jobName . $startDate . '::' . $endDate,
             'account_name' => 'cake',
-            'tracking' => $tracking
+            'tracking' => $tracking,
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+            'time_fired' => Carbon::now()
         ]);
     }
 

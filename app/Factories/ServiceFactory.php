@@ -124,7 +124,8 @@ class ServiceFactory
             $canonicalDataRepo = App::make(\App\Repositories\EmailRepo::class);
             $checkClasses = [
                 'AttributionRecordTruthRepo',
-                'ThirdPartyEmailStatusRepo'
+                'ThirdPartyEmailStatusRepo',
+                'EmailFeedAssignmentRepo'
             ];
 
             $model = App::make(\App\Models\AttributionExpirationSchedule::class);
@@ -186,7 +187,7 @@ class ServiceFactory
     }
 
     public static function createSupervisorService() {
-        $httpClient = new \GuzzleHttp\Client();
+        $httpClient = new \GuzzleHttp\Client( ['auth' => [ config( 'supervisor.auth.user' ) , config( 'supervisor.auth.pass' ) ]] );
         $client = new \fXmlRpc\Client('http://127.0.0.1:9001/RPC2', 
             new \fXmlRpc\Transport\HttpAdapterTransport(
                 new \Http\Message\MessageFactory\GuzzleMessageFactory(), 

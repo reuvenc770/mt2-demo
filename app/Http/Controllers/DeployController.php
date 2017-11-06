@@ -235,6 +235,43 @@ class DeployController extends Controller
             if ( !is_numeric( $current['content_domain_id'] ) ){
                 $data[ $index ]['content_domain_id'] = $this->domainService->getDomainIdByTypeAndName( 2 , $current['content_domain_id'] );
             }
+
+            if (!isset($current['external_deploy_id'])) {
+                $data[$index]['external_deploy_id'] = '';
+            }
+
+            if (!isset($current['offer_id'])) {
+                $data[$index]['offer_id'] = 0;
+            }
+
+            if (!isset($current['creative_id'])) {
+                $data[$index]['creative_id'] = 0;
+            }
+
+            if (!isset($current['from_id'])) {
+                $data[$index]['from_id'] = 0;
+            }
+
+            if (!isset($current['subject_id'])) {
+                $data[$index]['subject_id'] = 0;
+            }
+
+            if (!isset($current['cake_affiliate_id'])) {
+                $data[$index]['cake_affiliate_id'] = 0;
+            }
+
+            if (!isset($current['url_format'])) {
+                $data[$index]['url_format'] = 'short';
+            }
+
+            if (!isset($current['notes'])) {
+                $data[$index]['notes'] = '';
+            }
+            
+            if (!isset($current['deployment_status'])) {
+                $data[$index]['deployment_status'] = 0;
+            }
+
         }
 
         return response()->json(['success' => $this->deployService->massUpload($data)]);
