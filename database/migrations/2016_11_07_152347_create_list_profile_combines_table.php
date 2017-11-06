@@ -41,8 +41,8 @@ class CreateListProfileCombinesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('list_profile_combines');
-        Schema::drop('list_profile_list_profile_combine');
+        Schema::connection("list_profile")->drop('list_profile_combines');
+        Schema::connection("list_profile")->drop('list_profile_list_profile_combine');
         Schema::table('deploys', function (Blueprint $table) {
             $table->renameColumn("list_profile_combine_id", "list_profile_id");
 

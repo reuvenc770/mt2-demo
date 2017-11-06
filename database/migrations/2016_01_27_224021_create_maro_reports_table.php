@@ -23,10 +23,10 @@ class CreateMaroReportsTable extends Migration
             $table->integer('open')->default(0);
             $table->integer('click')->default(0);
             $table->integer('bounce')->default(0);
-            $table->dateTime('send_at')->default('0000-00-00 00:00:00');
-            $table->dateTime('sent_at')->default('0000-00-00 00:00:00');
-            $table->dateTime('maro_created_at')->default('0000-00-00 00:00:00');
-            $table->dateTime('maro_updated_at')->default('0000-00-00 00:00:00');
+            $table->dateTime('send_at')->nullable()->default(null);
+            $table->dateTime('sent_at')->nullable()->default(null);
+            $table->dateTime('maro_created_at')->nullable()->default(null);
+            $table->dateTime('maro_updated_at')->nullable()->default(null);
             $table->timestamps();
             $table->index('internal_id');
             $table->index(array('esp_account_id', 'internal_id'));

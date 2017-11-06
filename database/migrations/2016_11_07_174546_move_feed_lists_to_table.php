@@ -26,6 +26,6 @@ class MoveFeedListsToTable extends Migration
      * @return void
      */
     public function down() {
-        Schema::connection('suppression')->drop('party_suppression_lists');
+        Schema::connection('suppression')->drop('non_third_party_import_suppression_lists');
     }
 }

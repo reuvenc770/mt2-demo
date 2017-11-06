@@ -27,7 +27,8 @@ class Add2ndCC extends Migration
     {
 
         Schema::table('registrars', function (Blueprint $table) {
-            $table->dropColumn(['other_last_cc,','other_contact_credit_card']);
+            $table->dropColumn('other_last_cc');
+            $table->dropColumn('other_contact_credit_card');
         });
     }
 }

@@ -15,7 +15,7 @@ class CreateCreativesTable extends Migration
             $table->increments('id');
             $table->integer('offer_id')->default(0);
             $table->string('file_name')->default('');
-            $table->longText('creative_html')->default('');
+            $table->longText('creative_html')->nullable();
             $table->boolean('approved')->default(0);
             $table->boolean('status')->default(0);
 
