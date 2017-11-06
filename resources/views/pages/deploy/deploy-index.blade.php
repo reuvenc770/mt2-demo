@@ -404,7 +404,7 @@
                                          placeholder="Search Offers"
                                          selected-object="deploy.offerWasSelected"
                                          selected-object-data="deploy.currentDeploy.offer_id"
-                                         remote-url="/api/offer/search?day=@{{deploy.selectedDay}}&searchTerm="
+                                         remote-url="/api/offer/daysearch?day=@{{deploy.selectedDay}}&searchTerm="
                                          title-field="name,id"
                                          text-searching="Looking for Offers..."
                                          selected-object-data="offer"
