@@ -37,13 +37,14 @@ class JobEntryRepo
      * @return JobEntry
      */
     public function startEspJobReturnObject($jobName, $espName, $accountName, $tracking){
-        return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),[
+            'job_name' => $jobName,
             'account_name'=> $espName,
             'account_number' => $accountName,
             'tracking' => $tracking,
+            'time_fired' => Carbon::now()->toDateTimeString()
             'attempts' => 0,
             'status' => JobEntry::ONQUEUE,
-            'time_fired' => Carbon::now()
         ]);
     }
 

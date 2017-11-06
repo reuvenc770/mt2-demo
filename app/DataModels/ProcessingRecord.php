@@ -55,8 +55,8 @@ class ProcessingRecord {
         if (null !== $record->email_id) {
             $this->newEmail = false;
             $this->emailId = $record->email_id;
-            $this->domainId = $record->email_domain_id;
-            $this->domainGroupId = $record->domain_group_id;
+            $this->domainId = $record->email_domain_id ?: null;
+            $this->domainGroupId = $record->domain_group_id ?: null;
         }
         else {
             $this->newEmail = true;
@@ -70,17 +70,17 @@ class ProcessingRecord {
         
         // The rest we already know
         $this->feedId = $record->feed_id;
-        $this->firstName = $record->first_name;
-        $this->lastName = $record->last_name;
-        $this->address = $record->address;
-        $this->address2 = $record->address2;
-        $this->city = $record->city;
+        $this->firstName = substr($record->first_name, 0, 20);
+        $this->lastName = substr($record->last_name, 0, 40);
+        $this->address = substr($record->address, 0, 50);
+        $this->address2 = substr($record->address2, 0, 50);
+        $this->city = substr($record->city, 0, 50);
         $this->state = $record->state;
-        $this->zip = $record->zip;
-        $this->country = $record->country;
-        $this->dob = $record->dob;
+        $this->zip = substr($record->zip, 0, 5);
+        $this->country = substr($record->country, 255);
+        $this->dob = $record->dob ?: null;
         $this->gender = $record->gender;
-        $this->phone = $record->phone;
+        $this->phone = substr($record->phone, 0, 10);
         $this->captureDate = $record->capture_date; // Validation / correction of this value is performed in the CaptureDateValidator
         $this->ip = $record->ip;
         $this->sourceUrl = $record->source_url;

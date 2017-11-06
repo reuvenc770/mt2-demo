@@ -43,7 +43,7 @@ class PopulateCfsStatsService
             $creativeId = $deploy->creative_id;
             $subjectId = $deploy->subject_id;
             $fromId = $deploy->from_id;
-            $listProfileCombineId = $deploy->list_profile_combine_id;
+            $listProfileCombineId = $deploy->list_profile_combine_id ?: 0;
             $stats = $this->reportRepo->getStatsForDeploy($deployId);
             if ($stats) {
                 $delivers = (int)$stats->delivers;

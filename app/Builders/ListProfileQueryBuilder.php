@@ -73,8 +73,8 @@ class ListProfileQueryBuilder {
             'carrier' => 'rd.carrier',
             'action_status' => DB::raw('rd.last_action_type as action_status'),
             'action_date' => DB::raw('rd.last_action_date as action_date'),
-            'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL) AS globally_suppressed"),
-            'feed_suppressed' => DB::connection('redshift')->raw("(sls.email_address IS NOT NULL) AS feed_suppressed"),
+            'globally_suppressed' => DB::connection('redshift')->raw("case when s.email_address IS NULL then 0 else 1 end AS globally_suppressed"),
+            'feed_suppressed' => DB::connection('redshift')->raw("case when sls.email_address IS NULL then 0 else 1 end AS feed_suppressed"),
             'lower_sha256' => DB::connection('redshift')->raw('sha_256(lower(e.email_address)) as lower_sha256')
         ];
     }

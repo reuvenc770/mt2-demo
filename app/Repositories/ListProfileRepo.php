@@ -127,7 +127,7 @@ class ListProfileRepo
             'run_weekly' => in_array( 'Weekly' , $options[ 'interval' ] ),
             'run_monthly' => in_array( 'Monthly' , $options[ 'interval' ] ) ,
             'day_of_week' => $options[ 'dayOfWeek' ] ? $options[ 'dayOfWeek' ] : '' ,
-            'day_of_month' => $options[ 'dayOfMonth' ] ? $options[ 'dayOfMonth' ] : NULL
+            'day_of_month' => $options[ 'dayOfMonth' ] ? $options[ 'dayOfMonth' ] : null
         ] );
     }
 
