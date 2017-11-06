@@ -1053,7 +1053,12 @@ Route::group(
         Route::group(
             [ 'prefix' => 'offer' ] ,
             function () {
-                Route::get( '/search' , [
+                Route::get( '/daysearch' , [
+                    'as' => 'api.offer.search' ,
+                    'uses' => 'OfferController@typeAheadDaySearch'
+                ] );
+
+                Route::get( '/lpsearch' , [
                     'as' => 'api.offer.search' ,
                     'uses' => 'OfferController@typeAheadSearch'
                 ] );
