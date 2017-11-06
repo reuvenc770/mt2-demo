@@ -300,7 +300,7 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         $party = $this->feed->where( 'id' , $id )->pluck( 'party' )->first();
 
         if ( count( $party ) !== 1 ) {
-            return null;
+            return 0;
         }
 
         return $party;

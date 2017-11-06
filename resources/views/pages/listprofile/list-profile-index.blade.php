@@ -44,8 +44,9 @@
                         <tbody md-body>
                         <tr md-row ng-repeat="profile in listProfile.thirdPartyListProfiles track by $index">
                             <td md-cell class="mt2-table-btn-column" nowrap>
+                                @if (Sentinel::hasAccess('api.listprofile.combine.create'))
                                 <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id, profile.party)"> </md-checkbox>
-
+                                @endif
                                 <a ng-href="@{{ ( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
                                 @if (Sentinel::hasAccess('api.listprofile.copy'))

@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $esp_account_id
  * @property string $created_at
  * @property string $expires_at
- * @property int $doing_business_as
+ * @property int $doing_business_as_id
  * @property bool $domain_type
  * @property bool $status
  * @property bool $live_a_record

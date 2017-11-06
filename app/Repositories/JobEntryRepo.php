@@ -43,19 +43,29 @@ class JobEntryRepo
             'account_number' => $accountName,
             'tracking' => $tracking,
             'time_fired' => Carbon::now()->toDateTimeString()
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
         ]);
     }
 
     public function startAggregateJobReturnObject($jobName, $tracking){
-        return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
-            'tracking' => $tracking]);
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),[
+            'job_name' => $jobName,
+            'tracking' => $tracking,
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+            'time_fired' => Carbon::now()
+        ]);
     }
 
     public function startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking) {
         return $this->entry->updateOrCreate(array('tracking' => $tracking),[
             'job_name' => $jobName . $startDate . '::' . $endDate,
             'account_name' => 'cake',
-            'tracking' => $tracking
+            'tracking' => $tracking,
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+            'time_fired' => Carbon::now()
         ]);
     }
 

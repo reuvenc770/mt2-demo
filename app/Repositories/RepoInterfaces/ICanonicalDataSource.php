@@ -8,4 +8,5 @@ interface ICanonicalDataSource {
     public function maxId();
     public function nextNRows($startPoint, $count);
     public function lessThan($startPoint, $endPoint);
+    public function validExists(array $id);
 }

@@ -93,11 +93,7 @@ class JobEntryService
 
     public function startTrackingJob($jobName, $startDate, $endDate, $tracking)
     {
-        $trackingJob = $this->repo->startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking);
-        $trackingJob->time_fired = Carbon::now();
-        $trackingJob->attempts = 0;
-        $trackingJob->status = JobEntry::ONQUEUE;
-        $trackingJob->save();
+        $this->repo->startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking);
     }
 
     public function getTrailingLogList()
@@ -107,12 +103,7 @@ class JobEntryService
 
     public function startAggregationJob($jobName, $tracking)
     {
-        $espJob = $this->repo->startAggregateJobReturnObject($jobName, $tracking);
-
-        $espJob->time_fired = Carbon::now();
-        $espJob->attempts = 0;
-        $espJob->status = JobEntry::ONQUEUE;
-        $espJob->save();
+        $this->repo->startAggregateJobReturnObject($jobName, $tracking);
     }
 
     public function isRerunJobAlreadyQueued($name, $campaignId) {

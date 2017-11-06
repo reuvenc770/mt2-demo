@@ -3,7 +3,7 @@ mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function 
 
     self.baseApiUrl = '/api/deploy';
     self.baseEspApiUrl = '/api/espapi/allactive';
-    self.offerSearchUrl = '/api/offer/search/';
+    self.offerSearchUrl = '/api/offer/daysearch/';
     self.domainsApiUrl = '/api/domain/listActiveDomains/';
     self.templateUrl = '/api/mailingtemplate/templates/';
     self.cakeUrl = '/api/deploy/cakeaffiliates/';

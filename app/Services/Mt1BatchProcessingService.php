@@ -102,6 +102,9 @@ class Mt1BatchProcessingService extends RemoteFeedFileService {
         if ( !isset( $record[ 'source_url' ] ) || $record[ 'source_url' ] == '' ) {
             $record[ 'source_url' ] = $this->feedService->getSourceUrlFromId( $record[ 'feed_id' ] );
         }
+        
+        $record[ 'source_url' ] = ( strlen( $record[ 'source_url' ] ) > 255 ) ? substr( $record[ 'source_url' ] , 0 , 254 ) : $record[ 'source_url' ];
+
 
         if ( isset( $record[ 'dob' ] ) &&  $record[ 'dob' ] == '0000-00-00' ) {
             unset( $record[ 'dob' ] );

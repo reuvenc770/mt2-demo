@@ -160,6 +160,9 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                     ->toArray();
     }
 
+    public function validExists(array $row) {
+        return $row;
+    }
 
     public function maxId() {
         return $this->model->orderBy('id', 'desc')->first()['id'];
