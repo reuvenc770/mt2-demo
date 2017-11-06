@@ -124,7 +124,8 @@ class ServiceFactory
             $canonicalDataRepo = App::make(\App\Repositories\EmailRepo::class);
             $checkClasses = [
                 'AttributionRecordTruthRepo',
-                'ThirdPartyEmailStatusRepo'
+                'ThirdPartyEmailStatusRepo',
+                'EmailFeedAssignmentRepo'
             ];
 
             $model = App::make(\App\Models\AttributionExpirationSchedule::class);

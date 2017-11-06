@@ -473,6 +473,19 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         return $this->emailModel->max('id');
     }
 
+    public function validExists(array $row) {
+        $output = $this->emailModel
+                    ->join('raw_feed_emails as rfe', 'emails.email_address', '=', 'rfe.email_address')
+                    ->where('emails.id', $row['email_id'])
+                    ->where('party', 3)
+                    ->orderBy('id', 'asc')
+                    ->selectRaw("emails.id as email_id, rfe.*")
+                    ->first()
+                    ->toArray();
+
+        return $output ?: false;
+    }
+
     public function nextNRows($startPoint, $offset) {
         return $this->emailModel
             ->where('id', '>=', $startPoint)

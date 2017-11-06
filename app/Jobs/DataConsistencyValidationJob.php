@@ -18,7 +18,9 @@ class DataConsistencyValidationJob extends MonitoredJob {
 
     protected function handleJob() {
         $service = ServiceFactory::createDataValidationService($this->source, $this->type);
-        $service->runComparison($this->type);
+        $count = $service->runComparison($this->type);
+
+        return $count;
     }
 
 }
