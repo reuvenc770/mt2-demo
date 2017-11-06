@@ -49,7 +49,7 @@ class CpmListProfileReportRepo {
             s.id IS NULL
             AND cds.deploy_id = {$deployId} 
         GROUP BY
-            cds.feed_id; ");
+            cds.feed_id");
     }
 
     public function clearForCakeOfferId ( $cakeOfferId ) {

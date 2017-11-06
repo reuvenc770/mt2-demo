@@ -10,9 +10,9 @@ namespace App\Services;
 
 
 use App\Repositories\DomainGroupRepo;
-use App\Repositories\EmailDomainRepo;
 use App\Services\ServiceTraits\PaginateList;
 use Log;
+
 class DomainGroupService
 {
     use PaginateList;
@@ -27,7 +27,6 @@ class DomainGroupService
         return $this->domainGroupRepo->getModel();
     }
 
-
     public function getType(){
         return "DomainGroup";
     }
@@ -37,9 +36,7 @@ class DomainGroupService
     }
 
     public function insertGroup($request){
-
-            return $this->domainGroupRepo->insertRow($request);
-
+        return $this->domainGroupRepo->insertRow($request);
     }
 
     public function updateGroup($id, $groupData){
