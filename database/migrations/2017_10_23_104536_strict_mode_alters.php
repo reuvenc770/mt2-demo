@@ -22,7 +22,7 @@ class StrictModeAlters extends Migration
         DB::statement("ALTER TABLE list_profile.list_profile_schedules MODIFY `day_of_week` enum('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','') COLLATE utf8mb4_unicode_ci NOT NULL default ''");
 
         Schema::table('deploys', function ($table) {
-            $table->integer('list_profile_combine_id')->default(0)->change();
+            $table->integer('list_profile_combine_id')->nullable()->default(null)->change();
         });
 
         Schema::connection('reporting_data')->table('campaigner_reports', function($table) {
