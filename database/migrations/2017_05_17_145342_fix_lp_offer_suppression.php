@@ -27,7 +27,7 @@ class FixLpOfferSuppression extends Migration
      * @return void
      */
     public function down() {
-        Schema::connection('list_profile')->rename('list_profile_offers_suppressed', 'list_profile_offer_suppression');
+        Schema::connection('list_profile')->rename('list_profile_offer_suppression','list_profile_offers');
         Schema::connection('list_profile')->drop('list_profile_offer_actions');
     }
 }

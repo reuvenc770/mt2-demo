@@ -25,7 +25,7 @@ class AddIndextoRawDelivers extends Migration
     public function down()
     {
         Schema::connection('reporting_data')->table('raw_delivered_emails', function (Blueprint $table) {
-            $table->dropIndex("created_at");
+            $table->dropIndex("raw_delivered_emails_created_at_index");
         });
     }
 }

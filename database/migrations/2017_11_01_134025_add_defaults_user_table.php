@@ -1,12 +1,9 @@
 <?php
-/**
- * @author Adam Chin <achin@zetainteractive.com>
- */
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class RenameAttributionClientReportsToAttributionFeedReports extends Migration
+class AddDefaultsUserTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +12,12 @@ class RenameAttributionClientReportsToAttributionFeedReports extends Migration
      */
     public function up()
     {
-        Schema::connection('attribution')->rename( 'attribution_client_reports' , 'attribution_feed_reports' );
+        Schema::table('users', function(Blueprint $table) {
+            $table->integer('mt1_user_id')->default( 0 )->change();
+            $table->string('mt1_hash')->default( '' )->change();
+            $table->string('username')->default( '' )->change();
+
+        });
     }
 
     /**

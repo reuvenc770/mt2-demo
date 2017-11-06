@@ -32,6 +32,6 @@ class CreateListProfileSchedulesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('list_profile_schedules');
+        Schema::connection('list_profile')->drop('list_profile_schedules');
     }
 }

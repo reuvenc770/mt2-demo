@@ -335,7 +335,8 @@ class ListProfileService
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
             'country_id' => $data[ 'country_id' ] ,
-            'party' => $data['party']
+            'party' => $data['party'] ,
+            'feeds_suppressed' => '[]'
         ];
     }
 

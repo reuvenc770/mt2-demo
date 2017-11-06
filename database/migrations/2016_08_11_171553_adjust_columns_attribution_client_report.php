@@ -36,17 +36,5 @@ class AdjustColumnsAttributionClientReport extends Migration
      */
     public function down()
     {
-        Schema::connection( 'attribution' )->table( 'attribution_client_reports' , function ( Blueprint $table ) {
-            $table->dropColumn( 'mt1_uniques' );
-            $table->dropColumn( 'mt2_uniques' );
-
-            $table->integer( 'delivered' )->unsigned()->default( 0 )->after( 'client_id' );
-            $table->integer( 'opened' )->unsigned()->default( 0 )->after( 'delivered' );
-            $table->integer( 'clicked' )->unsigned()->default( 0 )->after( 'opened' );
-            $table->integer( 'converted' )->unsigned()->default( 0 )->after( 'clicked' );
-            $table->integer( 'bounced' )->unsigned()->default( 0 )->after( 'converted' );
-            $table->integer( 'unsubbed' )->unsigned()->default( 0 )->after( 'bounced' );
-            $table->decimal( 'cost' , 9 , 3 )->unsigned()->default( 0.00 )->after( 'revenue' );
-        } );
     }
 }

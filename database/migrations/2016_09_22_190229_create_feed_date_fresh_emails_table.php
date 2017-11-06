@@ -34,6 +34,6 @@ class CreateFeedDateFreshEmailsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('feed_month_email_breakdowns');
+        Schema::drop('feed_date_email_breakdowns');
     }
 }

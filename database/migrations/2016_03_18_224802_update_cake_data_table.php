@@ -15,8 +15,8 @@ class UpdateCakeDataTable extends Migration
             $table->string('subid_1', 30)->change();
             $table->string('subid_2', 100)->after('subid_1')->default('0');
             $table->bigInteger('email_id')->after('subid_2')->default(0);
-            $table->date('clickDate')->after('revenue')->default('0000-00-00');
-            $table->date('campaignDate')->after('clickDate')->default('0000-00-00');
+            $table->date('clickDate')->after('revenue')->nullable()->default(null);
+            $table->date('campaignDate')->after('clickDate')->nullable()->default(null);
             $table->dropUnique('s1_s4'); // redundant unique index
             $table->unique(array('subid_1', 'subid_2'), 's1_s2');
             $table->index(array('subid_1', 'email_id'), 'campaign_email');

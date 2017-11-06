@@ -44,7 +44,7 @@ class AdjustCakeConversion extends Migration
         Schema::connection( 'reporting_data' )->table( 'cake_conversions' , function ( Blueprint $table ) {
             $table->dateTime( 'click_date' );
             $table->dateTime( 'campaign_date' );
-            $table->text( 'user_agent_string' )->default( '' );
+            $table->text( 'user_agent_string' )->nullable();
 
             $table->renameColumn( 'received_raw' , 'price_received' );
             $table->renameColumn( 'paid_raw' , 'price_paid' );

@@ -29,6 +29,7 @@ class ChangeClickIdColumnType extends Migration
     {
         Schema::connection( 'reporting_data' )->table( 'cake_conversions' , function ( $table ) {
             $table->integer( 'click_id' )->change();
+            $table->dropUnique( 'unique_conversion' );
             $table->unique( [ 'click_id' , 'conversion_date' , 'is_click_conversion' ] , 'unique_conversion' );
         } );
     }

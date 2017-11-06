@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class FixAWeberColumns extends Migration
 {
@@ -24,8 +25,5 @@ class FixAWeberColumns extends Migration
      */
     public function down()
     {
-        Schema::connection('reporting_data')->table('a_weber_email_actions_storages', function (Blueprint $table) {
-            $table->mediumInteger('esp_internal_id')->change();
-        });
     }
 }
