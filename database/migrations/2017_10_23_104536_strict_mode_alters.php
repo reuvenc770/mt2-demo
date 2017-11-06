@@ -31,13 +31,6 @@ class StrictModeAlters extends Migration
 
         DB::statement("ALTER TABLE email_feed_instances MODIFY gender enum('', 'M', 'F', 'UNK') NOT NULL DEFAULT 'UNK'");
 
-        Schema::connection('reporting_data')->table('maro_reports', function($table) {
-            $table->dateTime('send_at')->nullable()->default(null)->change();
-            $table->dateTime('sent_at')->nullable()->default(null)->change();
-            $table->dateTime('maro_created_at')->nullable()->default(null)->change();
-            $table->dateTime('maro_updated_at')->nullable()->default(null)->change();
-        });
-
         Schema::connection('reporting_data')->table('blue_hornet_reports', function($table) {
             $table->string('bill_codes', 255)->nullable()->default('')->change();
         });
@@ -72,13 +65,6 @@ class StrictModeAlters extends Migration
         });
 
         DB::statement("ALTER TABLE email_feed_instances MODIFY gender enum('', 'M', 'F') NOT NULL DEFAULT ''");
-
-        Schema::connection('reporting_data')->table('maro_reports', function($table) {
-            $table->dateTime('send_at')->nullable()->change();
-            $table->dateTime('sent_at')->nullable()->change();
-            $table->dateTime('maro_created_at')->nullable()->change();
-            $table->dateTime('maro_updated_at')->nullable()->change();
-        });
 
         Schema::connection('reporting_data')->table('blue_hornet_reports', function($table) {
             $table->integer('bill_codes')->nullable()->change();
