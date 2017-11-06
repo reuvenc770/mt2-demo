@@ -107,4 +107,8 @@ return [
     ],
 
 
+    'auth' => [
+        'user' => env( 'SUPERVISOR_INET_USER' , '' ) ,
+        'pass' => env( 'SUPERVISOR_INET_PASSWORD' , '' )
+    ] ,
 ];
