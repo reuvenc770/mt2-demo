@@ -53,13 +53,10 @@ class SourceUrlCountRepo {
 
     public function saveSourceCounts ( $countList ) {
         foreach ( $countList as $current ) {
-            $current['id'] = isset($current['id']) ? $current['id'] : null;
-
             $this->model->updateOrCreate([
                 'source_url' => $current['source_url'],
                 'feed_id' => $current['feed_id'],
-                'subscribe_date' => $current['subscribe_date'],
-                'count' => 0
+                'subscribe_date' => $current['subscribe_date']
             ], $current);
         }
     }
