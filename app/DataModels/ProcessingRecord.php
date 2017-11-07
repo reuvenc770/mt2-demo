@@ -55,8 +55,8 @@ class ProcessingRecord {
         if (null !== $record->email_id) {
             $this->newEmail = false;
             $this->emailId = $record->email_id;
-            $this->domainId = $record->email_domain_id ?: null;
-            $this->domainGroupId = $record->domain_group_id ?: null;
+            $this->domainId = $record->email_domain_id ?: 0;
+            $this->domainGroupId = $record->domain_group_id ?: 0;
         }
         else {
             $this->newEmail = true;
@@ -90,7 +90,7 @@ class ProcessingRecord {
     }
 
     public function __get($prop) {
-        return isset($this->$prop) ? $this->$prop : '';
+        return $this->$prop;
     }
 
     public function __set($prop, $value) {
