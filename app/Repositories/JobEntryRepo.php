@@ -42,7 +42,7 @@ class JobEntryRepo
             'account_name'=> $espName,
             'account_number' => $accountName,
             'tracking' => $tracking,
-            'time_fired' => Carbon::now()->toDateTimeString()
+            'time_fired' => Carbon::now()->toDateTimeString(),
             'attempts' => 0,
             'status' => JobEntry::ONQUEUE,
         ]);
