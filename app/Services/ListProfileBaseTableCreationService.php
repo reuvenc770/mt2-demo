@@ -36,7 +36,7 @@ class ListProfileBaseTableCreationService {
 
             foreach ($columns as $column) {
                 if (!in_array($column, $this->requiredFields)) {
-                    $table->string($column)->default('');
+                    $table->string($column)->default('')->nullable();
                 }
             }
 
