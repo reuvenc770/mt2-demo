@@ -47,4 +47,13 @@ class CreativeCreativeMapStrategy implements IMapStrategy {
             'needs_processing' => $record['needsProcessing']
         ];
     }
+
+    private function fixZeroDate($date) {
+        if ('0000-00-00' === $date) {
+            return null;
+        }
+        else {
+            return $date;
+        }
+    }
 }

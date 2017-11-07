@@ -16,8 +16,8 @@ class CreateMailingTemplatesTable extends Migration
             $table->increments('id');
             $table->string("template_name");
             $table->tinyInteger("template_type");
-            $table->text("template_html");
-            $table->text(("template_text"));
+            $table->longText("template_html");
+            $table->longText(("template_text"));
         });
         Schema::create('esp_account_mailing_template', function (Blueprint $table) {
             $table->integer('esp_account_id');
