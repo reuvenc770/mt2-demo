@@ -94,8 +94,6 @@ class RetrieveDeliverableReports extends MonitoredJob
             $this->$filterName();
         } catch (JobCompletedException $e) {
             JobTracking::addDiagnostic(array('warnings' => 'job completed exception thrown'),$this->tracking);
-            // killing an attempt at a rerun
-            //Log::notice($e->getMessage());//I dont think we need to log this
             exit;
         } catch (JobAlreadyQueuedException $e) {
             JobTracking::addDiagnostic(array('warnings' => 'job already queued exception thrown'),$this->tracking);
@@ -524,8 +522,6 @@ class RetrieveDeliverableReports extends MonitoredJob
         }
 
         $campaignId = $campaignId ?: 0;
-
-        JobTracking::startEspJob( $this->getJobName(), $this->apiName, $this->espAccountId, $this->tracking, $campaignId);
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 

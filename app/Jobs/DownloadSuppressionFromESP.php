@@ -30,7 +30,6 @@ class DownloadSuppressionFromESP extends MonitoredJob implements ShouldQueue
         $this->espAccountId = $espAccountId;
         $this->date = $date;
         $this->tracking = $tracking;
-        JobTracking::startEspJob($jobname,$this->apiName, $this->espAccountId, $this->tracking);
     }
 
     public function handleJob()
@@ -38,7 +37,7 @@ class DownloadSuppressionFromESP extends MonitoredJob implements ShouldQueue
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
         $data = $subscriptionService->pullUnsubsEmailsByLookback($this->date);
         if($data){
-                $subscriptionService->insertUnsubs($data, $this->espAccountId);
+            $subscriptionService->insertUnsubs($data, $this->espAccountId);
         }
         return count($data);
     }
