@@ -23,6 +23,7 @@ class EmailRecordRepo {
     protected $espId = 0;
     protected $campaignId = 0;
     protected $date = '';
+    const MAX_RETRY_ATTEMPTS = 10;
 
     protected $errorReason = '';
 
@@ -88,23 +89,21 @@ class EmailRecordRepo {
             $chunkedRecords = array_chunk( $validRecords , 10000 );
 
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
-                DB::connection( 'reporting_data' )->statement("
-                    INSERT INTO email_actions
-                        ( email_id , esp_account_id , deploy_id, 
-                        esp_internal_id , action_id , datetime , created_at , 
-                        updated_at )    
-                    VALUES
-                        " . join( ' , ' , $chunk ) . "
-                    ON DUPLICATE KEY UPDATE
-                        email_id = email_id ,
-                        esp_account_id = esp_account_id ,
-                        deploy_id = deploy_id,
-                        esp_internal_id = esp_internal_id ,
-                        action_id = action_id ,
-                        datetime = datetime ,
-                        created_at = created_at ,
-                        updated_at = NOW()"
-                    );
+                $this->attemptQuery("INSERT INTO email_actions
+                                ( email_id , esp_account_id , deploy_id, 
+                                esp_internal_id , action_id , datetime , created_at , 
+                                updated_at )    
+                            VALUES
+                                " . join( ' , ' , $chunk ) . "
+                            ON DUPLICATE KEY UPDATE
+                                email_id = email_id ,
+                                esp_account_id = esp_account_id ,
+                                deploy_id = deploy_id,
+                                esp_internal_id = esp_internal_id ,
+                                action_id = action_id ,
+                                datetime = datetime ,
+                                created_at = created_at ,
+                                updated_at = NOW()");
             }
         }
 
@@ -126,6 +125,29 @@ class EmailRecordRepo {
 
         $validRecords = null;
         $invalidRecords = null;
+    }
+
+    private function attemptQuery($query) {
+        $attempts = 0;
+        $done = false;
+        $e = null;
+
+        while (!$done) {
+            if ($attempts < self::MAX_RETRY_ATTEMPTS) {
+                try {
+                    DB::connection('reporting_data')->statement($query);
+                    $done = true;
+                }
+                catch (\Exception $e) {
+                    $attempts++;
+                    sleep(2);
+                }
+            }
+            else {
+                Log::warning("EmailRecordRepo::massRecordDeliverables() failed too many times with {$e->getMessage()}");
+                $done = true; // move on to the next set
+            }
+        }
     }
 
 
