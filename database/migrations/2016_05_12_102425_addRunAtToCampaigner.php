@@ -13,7 +13,7 @@ class AddRunAtToCampaigner extends Migration
     public function up()
     {
         Schema::connection('reporting_data')->table('campaigner_reports', function(Blueprint $table) {
-            $table->dateTime("run_on")->after('from_email');
+            $table->dateTime("run_on")->nullable()->after('from_email');
         });
     }
 

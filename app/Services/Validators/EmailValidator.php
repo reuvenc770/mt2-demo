@@ -48,12 +48,8 @@ class EmailValidator implements IValidate {
 
         if ($domain) {
             $this->domainGroupName = $domain->domain_group_name;
-
-            if ($this->newEmail) {
-                $this->domainId = $domain->domain_id;
-                $this->domainGroupId = $domain->domain_group_id;
-            }
-
+            $this->domainId = $domain->domain_id;
+            $this->domainGroupId = $domain->domain_group_id ?: 0;
         }
         else {
             $domain = $this->domainRepo->createNewDomain($this->emailAddress);

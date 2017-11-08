@@ -18,7 +18,9 @@ class SubjectRepo {
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
-    public function prepareTableForSync() {}
+    public function prepareTableForSync() {
+        $this->model->truncate();
+    }
 
     public function getSubjectOfferOpenRate($offerId) {
         $schema = config("database.connections.reporting_data.database");

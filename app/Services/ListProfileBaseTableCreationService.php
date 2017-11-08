@@ -36,7 +36,14 @@ class ListProfileBaseTableCreationService {
 
             foreach ($columns as $column) {
                 if (!in_array($column, $this->requiredFields)) {
-                    $table->string($column)->default('');
+                    // dates cannot be '', so check for these - currently a simple test for
+                    // 'subscribe_date', 'capture_date', 'action_date'
+                    if (strpos($column, 'date') !== false) {
+                        $table->string($column)->nullable();
+                    }
+                    else {
+                        $table->string($column)->default('')->nullable();
+                    }
                 }
             }
 

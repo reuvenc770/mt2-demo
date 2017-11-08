@@ -6,13 +6,9 @@ use Carbon\Carbon;
 use Mail;
 
 class WarnIPv6Update extends MonitoredJob {
-
-    private $lookback;
-    private $jobName = 'WarnIpv6Update';
+    protected $jobName = 'WarnIpv6Update';
 
     public function __construct($tracking, $runtimeThreshold = null) {
-        $this->lookback = $lookback;
-
         parent::__construct($this->jobName, $runtimeThreshold, $tracking);
     }
 

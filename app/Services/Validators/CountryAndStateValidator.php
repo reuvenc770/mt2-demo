@@ -58,6 +58,9 @@ class CountryAndStateValidator implements IValidate {
         elseif (in_array($this->state, self::CA_PROVINCES)) {
             throw new ValidationException("Canadian province detected: {$this->state}");
         }
+        elseif ('' !== $this->state && !in_array($this->state, self::US_STATES)) {
+            $this->state = '';
+        }
     }
 
 

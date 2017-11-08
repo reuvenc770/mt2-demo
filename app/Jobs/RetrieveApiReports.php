@@ -44,7 +44,6 @@ class RetrieveApiReports extends MonitoredJob implements ShouldQueue
        $this->attempts = 0;
        $this->tracking = $tracking;
        $this->apiLimit = $apiLimit;
-       JobTracking::startEspJob( $jobname , $this->apiName , $this->espAccountId , $this->tracking );
     }
 
     /**

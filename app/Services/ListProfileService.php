@@ -430,7 +430,7 @@ class ListProfileService
         $output = [];
 
         foreach ($columns as $id=>$column) {
-            $output[$column] = $row->$column ?: '';
+            $output[$column] = $row->column;
         }
 
         return $output;

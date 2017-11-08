@@ -13,22 +13,28 @@ class EmailCampaignStatisticRepo {
     }
 
     public function massInsertActions($massData) {
-
         echo "Preparing to insert at " . microtime(true) . PHP_EOL;
         $insertList = [];
+        $pdo = DB::connection()->getPdo();        
 
         foreach ($massData as $row) {
-            $rowString = "('{$row['email_id']}', 
-                '{$row['campaign_id']}', 
-                '{$row['last_status']}', 
-                '{$row['esp_first_open_datetime']}', 
-                '{$row['esp_last_open_datetime']}',
-                '{$row['esp_total_opens']}',
-                '{$row['esp_first_click_datetime']}',
-                '{$row['esp_last_click_datetime']}',
-                '{$row['esp_total_clicks']}',
-                '{$row['unsubscribed']}',
-                NOW())";
+            $firstOpenDatetime = $row['esp_first_open_datetime'] ? $pdo->quote($row['esp_first_open_datetime']) : 'NULL';
+            $lastOpenDatetime = $row['esp_last_open_datetime'] ? $pdo->quote($row['esp_last_open_datetime']) : 'NULL';
+            $firstClickDatetime = $row['esp_first_click_datetime'] ? $pdo->quote($row['esp_first_click_datetime']) : 'NULL';
+            $lastClickDatetime = $row['esp_last_click_datetime'] ? $pdo->quote($row['esp_last_click_datetime']) : 'NULL';
+
+            $rowString = '('
+                . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['campaign_id']) . ','
+                . $pdo->quote($row['last_status']) . ','
+                . $firstOpenDatetime . ','
+                . $lastOpenDatetime . ','
+                . $pdo->quote($row['esp_total_opens']) . ','
+                . $firstClickDatetime . ','
+                . $lastClickDatetime . ','
+                . $pdo->quote($row['esp_total_clicks']) . ','
+                . $pdo->quote($row['unsubscribed']) . ', NOW())';
+
             $insertList[]= $rowString;
         }
 
