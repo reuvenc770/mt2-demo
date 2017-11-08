@@ -16,7 +16,7 @@ class RedoListProfileTable extends Migration
 
         Schema::connection('list_profile')->create('list_profiles', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name', 50)->default('');
+            $table->string('name', 255)->default('');
             $table->integer('deliverable_start')->unsigned()->nullable()->default(null);
             $table->integer("deliverable_end")->unsigned()->nullable()->default(null);
             $table->integer('openers_start')->unsigned()->nullable()->default(null);
