@@ -279,14 +279,20 @@ class RemoteFeedFileService {
         }
     }
 
-    protected function extractData ( $csvLine ) {
-        $reader = Reader::createFromString( trim( $csvLine ) );
+    protected function extractData ( $csvline ) {
+        $csvToSave = $csvline;
 
-        if ( strpos( $csvLine , "\t" ) !== false ) {
+        if ( mb_detect_encoding( $csvline , 'ASCII,UTF-8,ISO-8859-15' , true) ) {
+            $csvToSave = iconv( 'ISO-8859-15' , 'UTF-8' , $csvline );
+        }
+
+        $reader = Reader::createFromString( trim( $csvToSave ) );
+
+        if ( strpos( $csvToSave , "\t" ) !== false ) {
             $reader->setDelimiter( "\t" );
         }
         
-        if ( strpos( $csvLine , '|' ) !== false ) {
+        if ( strpos( $csvToSave , '|' ) !== false ) {
             $reader->setDelimiter( '|' );
         }
 

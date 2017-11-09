@@ -145,17 +145,27 @@ class RawFeedEmailRepo {
     }
 
     public function logBatchFailure ( $errors , $csv , $file , $lineNumber , $email = '' , $feedId = 0 ) {
-        return $this->failed->create( [
-            'realtime' => 0 ,
-            'errors' => json_encode( $errors ) ,
-            'csv' => $csv ,
-            'file' => $file ,
-            'line_number' => $lineNumber ,
-            'url' => '' ,
-            'ip' => 'sftp-01.mtroute.com' ,
-            'email' => $email ,
-            'feed_id' => $feedId
-        ] );
+        $csvToSave = $csv;
+
+        if ( mb_detect_encoding( $csv , 'ASCII,UTF-8,ISO-8859-15' , true) ) {
+            $csvToSave = iconv( 'ISO-8859-15' , 'UTF-8' , $csv );
+        }
+
+        try {
+            return $this->failed->create( [
+                'realtime' => 0 ,
+                'errors' => json_encode( $errors ) ,
+                'csv' => $csvToSave ,
+                'file' => $file ,
+                'line_number' => $lineNumber ,
+                'url' => '' ,
+                'ip' => 'sftp-01.mtroute.com' ,
+                'email' => $email ,
+                'feed_id' => $feedId
+            ] );
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+        }
     }
 
     public function logFieldFailure ( $field , $value , $errors , $rawFeedEmailFailedId = 0 ) {
@@ -351,7 +361,11 @@ class RawFeedEmailRepo {
                     try { #trying dates with periods 
                         $date = Carbon::createFromFormat( 'Y.m.d' , $dateString )->toDateString();
                     } catch ( \Exception $e ) {
-                        #all format parsing failed, leave null
+                        try { #try dates with time
+                            $date = Carbon::createFromFormat( 'd/m/y H:i:s' , $dateString )->toDateString();
+                        } catch ( \Exception $e ) {
+                            #all format parsing failed, leave null
+                        }
                     }
                 }
             }
