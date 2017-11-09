@@ -188,7 +188,8 @@ class TrackingRepo
                 DB::raw('IFNULL(e.email_domain_id, 0) as email_domain_id'),
                 DB::raw('COUNT(IF(action_id = 2, 1, 0)) as clicks'), 
                 DB::raw('SUM(IF(action_id = 3, 1, 0)) as conversions'),
-                DB::raw('MAX(datetime) as last_datetime'))
+                DB::raw('MAX(datetime) as last_datetime'),
+                'd.party')
             ->whereBetween("datetime", [
                 $startPoint->toDateTimeString(), 
                 Carbon::today()->endOfDay()->toDateTimeString()

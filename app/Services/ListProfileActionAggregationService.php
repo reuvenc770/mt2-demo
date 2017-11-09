@@ -105,7 +105,8 @@ class ListProfileActionAggregationService implements IEtl {
             . $pdo->quote($row->has_click) . ','
             . $pdo->quote($row->deliveries) . ',' 
             . $pdo->quote($row->opens) . ',' 
-            . $pdo->quote($row->clicks) . ', NOW(), NOW())';
+            . $pdo->quote($row->clicks) . ','
+            . $pdo->quote($row->party) . ', NOW(), NOW())';
     }
 }
 

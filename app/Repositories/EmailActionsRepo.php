@@ -150,6 +150,7 @@ class EmailActionsRepo {
             ea.deliveries,
             ea.opens,
             ea.clicks,
+            d.party,
             ea.created_at,
             ea.updated_at
    
