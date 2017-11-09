@@ -147,7 +147,7 @@ class RawFeedEmailRepo {
     public function logBatchFailure ( $errors , $csv , $file , $lineNumber , $email = '' , $feedId = 0 ) {
         $csvToSave = $csv;
 
-        if ( mb_detect_encoding( $csv , 'ASCII,UTF-8,ISO-8859-15' , true) ) {
+        if ( 'ISO-8859-15' === mb_detect_encoding( $csv , 'ASCII,UTF-8,ISO-8859-15' , true) ) {
             $csvToSave = iconv( 'ISO-8859-15' , 'UTF-8' , $csv );
         }
 

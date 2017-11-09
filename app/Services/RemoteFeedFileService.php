@@ -282,7 +282,7 @@ class RemoteFeedFileService {
     protected function extractData ( $csvline ) {
         $csvToSave = $csvline;
 
-        if ( mb_detect_encoding( $csvline , 'ASCII,UTF-8,ISO-8859-15' , true) ) {
+        if ( 'ISO-8859-15' === mb_detect_encoding( $csvline , 'ASCII,UTF-8,ISO-8859-15' , true) ) {
             $csvToSave = iconv( 'ISO-8859-15' , 'UTF-8' , $csvline );
         }
 
