@@ -32,13 +32,5 @@ class RemoveActionsRecordReports extends Migration
      */
     public function down()
     {
-        Schema::connection( 'attribution' )->table( 'attribution_record_reports' , function (Blueprint $table) {
-            $table->integer( 'delivered' )->unsigned()->default( 0 );
-            $table->integer( 'opened' )->unsigned()->default( 0 );
-            $table->integer( 'clicked' )->unsigned()->default( 0 );
-            $table->integer( 'converted' )->unsigned()->default( 0 );
-            $table->integer( 'bounced' )->unsigned()->default( 0 );
-            $table->integer( 'unsubbed' )->unsigned()->default( 0 );
-        } );
     }
 }

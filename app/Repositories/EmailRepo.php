@@ -107,8 +107,8 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     public function getCurrentAttributedFeedId($emailId) {
         $email = $this->emailModel->find($emailId);
         if (!$email) {
-            // Due to shifting email ids, we can sometimes get this situation.
-            return 0;
+            // Due to shifting email ids (in MT1), we can sometimes get this situation.
+            return null;
         }
     
         $assignment = $email->feedAssignment;
@@ -116,7 +116,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
             return $assignment->feed_id;
         }
         else {
-            return 0;
+            return null;
         } 
     }
 
@@ -178,7 +178,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     public function isRecentImport($emailId) {
         $truth = $this->emailModel->find($emailId)->attributionTruths;
         if ($truth) {
-            return ($truth->recent_import == 1);
+            return ((int)$truth->recent_import === 1);
         }
         else {
             return 0;
@@ -214,6 +214,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     public function insertNew(array $row) {
         // Due to the possibility of incomplete parallelization, 
         // we cannot be sure that this email is not already in the db.
+        // updateOrCreate works here because 'email_id' has been already set to null
         
         return $this->emailModel->updateOrCreate(['email_address' => $row['email_address']], $row);
     }
@@ -471,6 +472,19 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
 
     public function maxId() {
         return $this->emailModel->max('id');
+    }
+
+    public function validExists(array $row) {
+        $output = $this->emailModel
+                    ->join('raw_feed_emails as rfe', 'emails.email_address', '=', 'rfe.email_address')
+                    ->where('emails.id', $row['email_id'])
+                    ->where('party', 3)
+                    ->orderBy('id', 'asc')
+                    ->selectRaw("emails.id as email_id, rfe.*")
+                    ->first()
+                    ->toArray();
+
+        return $output ?: false;
     }
 
     public function nextNRows($startPoint, $offset) {

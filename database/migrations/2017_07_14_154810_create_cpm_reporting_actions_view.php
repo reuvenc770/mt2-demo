@@ -12,7 +12,9 @@ class CreateCpmReportingActionsView extends Migration
      */
     public function up()
     {
-        DB::statement( "CREATE VIEW `mt2_reports`.`cpm_reporting_actions` ( month , feed_id , cake_offer_id , payout , delivered , rev ) AS
+        $reportDb = config( 'database.connections.reporting_data.database' );
+
+        DB::statement( "CREATE VIEW `{$reportDb}`.`cpm_reporting_actions` ( month , feed_id , cake_offer_id , payout , delivered , rev ) AS
 SELECT
     DATE_FORMAT(NOW() ,'%Y-%m') AS `month` ,
     count.feed_id ,
@@ -59,6 +61,8 @@ FROM
      */
     public function down()
     {
-        DB::statement( 'DROP VIEW mt2_reports.cpm_reporting_actions' );
+        $reportDb = config( 'database.connections.reporting_data.database' );
+
+        DB::statement( "DROP VIEW {$reportDb}.cpm_reporting_actions" );
     }
 }

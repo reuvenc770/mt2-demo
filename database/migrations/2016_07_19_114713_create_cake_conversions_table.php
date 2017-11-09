@@ -34,7 +34,7 @@ class CreateCakeConversionsTable extends Migration
             $table->integer( 'advertiser_id' );
             $table->integer( 'campaign_id' )->default( 0 );
             $table->integer( 'creative_id' )->default( 0 );
-            $table->text( 'user_agent_string' )->default( '' );
+            $table->text( 'user_agent_string' )->nullable();
             $table->decimal( 'price_received' , 7 , 4 )->default( 0.0000 );
             $table->decimal( 'price_paid' , 7 , 4 )->default( 0.0000 );
             $table->tinyInteger( 'price_paid_currency_id' )->default( 1 );

@@ -38,7 +38,7 @@ class DomainRepo
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
             ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
             ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
-            ->groupBy('esp_account_id');
+            ->groupBy('domains.esp_account_id' , 'esps.name' , 'esp_accounts.account_name' , 'registrars.name' , 'proxies.name' , 'doing_business_as.dba_name');
     }
 
     public function getDomainsByTypeAndEsp($type, $espAccountId)

@@ -29,4 +29,8 @@ class EmailFeedAssignmentService {
 
         $this->repo->insertStored();
     }
+
+    public function getSubscribeDate($emailId) {
+        return $this->repo->getSubscribeDate($emailId);
+    }
 }

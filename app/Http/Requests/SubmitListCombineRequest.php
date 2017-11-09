@@ -14,7 +14,9 @@ class SubmitListCombineRequest extends Request
      */
     public function authorize()
     {
-        if ( Sentinel::hasAccess( 'listprofile.add' ) ) {
+        if ( $this->getMethod() === 'PUT' && Sentinel::hasAccess( 'listprofile.combine.edit' ) ) {
+            return true;
+        } else if ( $this->getMethod() === 'POST' && Sentinel::hasAccess( 'api.listprofile.combine.create' ) ) {
             return true;
         }
 

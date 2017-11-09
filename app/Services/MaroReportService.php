@@ -44,11 +44,11 @@ class MaroReportService extends AbstractReportService implements IDataService
         $this->api->constructApiUrl();
         $firstData = $this->api->sendApiRequest();
         $firstData = $this->processGuzzleResult($firstData);
+
         try {
             $outputData = array_merge($outputData, $firstData);
         } catch (\Exception $e){
-            $jobException = new JobException('Failed to merge array' . $e->getMessage(), JobException::NOTICE);
-            throw $jobException;
+            throw new JobException('Failed to merge array ' . $e->getMessage() . " in {$e->getFile()} :: {$e->getLine()} - $firstData", JobException::NOTICE);
         }
         if (sizeof($firstData) > 0) {
             $pages = (int)$firstData[0]['total_pages'];
@@ -291,7 +291,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         $pipe = $processState['pipe'];
 
         if ($pipe == 'default' && $filterIndex == 1) {
-            $jobId .= '::Pipe-' . $pipe . '::' . $processState['recordType'] . '::Page-' . (isset($processState['pageNumber']) ? $processState['pageNumber'] : 1);
+            $jobId = '::Pipe-' . $pipe . '::' . $processState['recordType'] . '::Page-' . (isset($processState['pageNumber']) ? $processState['pageNumber'] : 1);
         } elseif ($pipe == 'delivered' && $filterIndex == 1) {
             $jobId .= (isset($processState['campaign']) ? '::Pipe-' . $pipe . '::Campaign-' . $processState['campaign']->esp_internal_id : '');
         } elseif ('rerun' === $pipe && isset( $processState[ 'campaign' ]) && 2 == $filterIndex) {
@@ -328,7 +328,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 
     public function pageHasData( $processState = null )
     {
-        $this->api->setDeliverableLookBack();
+        $this->api->setDeliverableLookBack($processState['date']);
         $this->api->constructDeliverableUrl($this->pageType, $this->pageNumber);
 
         $data = $this->api->sendApiRequest();
@@ -344,7 +344,6 @@ class MaroReportService extends AbstractReportService implements IDataService
 
     public function pageHasCampaignData($processState)
     {
-
         $campaignId = $processState['campaign']->esp_internal_id;
         $actionType = $processState['recordType'];
 
@@ -432,10 +431,10 @@ class MaroReportService extends AbstractReportService implements IDataService
             'open' => (int)$data['open'],
             'click' => (int)$data['click'],
             'bounce' => (int)$data['bounce'],
-            'send_at' => $data['send_at'],
-            'sent_at' => $data['sent_at'],
-            'maro_created_at' => $data['created_at'],
-            'maro_updated_at' => $data['updated_at'],
+            'send_at' => Carbon::parse($data['send_at'])->setTimezone('America/New_York')->toDateTimeString(),
+            'sent_at' => Carbon::parse($data['sent_at'])->setTimezone('America/New_York')->toDateTimeString(),
+            'maro_created_at' => Carbon::parse($data['created_at'])->setTimezone('America/New_York')->toDateTimeString(),
+            'maro_updated_at' => Carbon::parse($data['updated_at'])->setTimezone('America/New_York')->toDateTimeString(),
             'from_name' => $data['from_name'],
             'from_email' => $data['from_email'],
             'subject' => $data['subject'],
@@ -462,7 +461,8 @@ class MaroReportService extends AbstractReportService implements IDataService
     public function insertUnsubs($data, $espAccountId)
     {
         foreach ($data as $entry) {
-            Suppression::recordRawUnsub($espAccountId, $entry['contact']['email'], $entry['campaign_id'], $entry['recorded_on']);
+            $recordedOn = Carbon::parse($entry['recorded_on'])->setTimezone('America/New_York')->toDateString();
+            Suppression::recordRawUnsub($espAccountId, $entry['contact']['email'], $entry['campaign_id'], $recordedOn);
         }
     }
 
@@ -509,8 +509,8 @@ class MaroReportService extends AbstractReportService implements IDataService
                 return $missingCampaigns;
             }
         } catch ( \Exception $e ) {
-            $jobException = new JobException('Failed to merge array' . $e->getMessage(), JobException::NOTICE);
-            throw $jobException;
+            $empty = is_array($firstCampaignList) ? $nextCampaignList : $firstCampaignList;
+            throw new JobException('Failed to merge array ' . $e->getMessage() . " in {$e->getFile()} :: {$e->getLine()} - $empty", JobException::NOTICE);
         }
 
         return [];

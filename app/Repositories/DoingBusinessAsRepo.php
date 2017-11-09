@@ -21,7 +21,13 @@ class DoingBusinessAsRepo
 
     }
     public function insertRow($data){
-      return $this->doingBusinessAs->create($data);
+        foreach ( [ 'registrant_name' , 'notes' ] as $key ) {
+            if ( !isset( $data[ $key ] ) ) {
+                $data[ $key ] = '';
+            }
+        }
+
+        return $this->doingBusinessAs->create($data);
     }
 
     public function getAll(){

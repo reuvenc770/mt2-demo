@@ -24,16 +24,16 @@ class TempStoredEmails extends Migration
             $table->string('state', 2)->default('');
             $table->string('zip', 10)->default('');
             $table->string('country', 3)->default('');
-            $table->date('dob')->default('0000-00-00');
+            $table->date('dob')->nullable()->default(null);
             $table->string('gender', 1)->default('');
             $table->string('phone', 15)->default('');
             $table->string('mobile_phone', 15)->default('');
             $table->string('work_phone', 15)->default('');
-            $table->date('capture_date')->default('0000-00-00');
+            $table->date('capture_date')->nullable()->default(null);
             $table->string('ip');
             $table->string('source_url', 50)->default('');
-            $table->datetime('unsubscribe_datetime');
-            $table->timestamp('last_updated');
+            $table->datetime('unsubscribe_datetime')->nullable()->default(null);
+            $table->timestamp('last_updated')->nullable()->default(null);
         });
     }
 

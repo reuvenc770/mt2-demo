@@ -18,15 +18,19 @@ use Illuminate\Support\Facades\Response;
 use League\Csv\Reader;
 use Artisan;
 use App\Models\Deploy;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class DeployController extends Controller
 {
+    use DispatchesJobs;
+
     protected $deployService;
     protected $packageService;
     protected $combineService;
     protected $espApiService;
     protected $mailingTemplateService;
     protected $domainService;
+    const LIST_PROFILE_QUEUE = 'ListProfile';
 
     public function __construct(DeployService $deployService, PackageZipCreationService $packageService, ListProfileCombineService $combineService, EspApiAccountService $espApiService, MailingTemplateService $mailingTemplateService, DomainService $domainService )
     {
@@ -231,6 +235,43 @@ class DeployController extends Controller
             if ( !is_numeric( $current['content_domain_id'] ) ){
                 $data[ $index ]['content_domain_id'] = $this->domainService->getDomainIdByTypeAndName( 2 , $current['content_domain_id'] );
             }
+
+            if (!isset($current['external_deploy_id'])) {
+                $data[$index]['external_deploy_id'] = '';
+            }
+
+            if (!isset($current['offer_id'])) {
+                $data[$index]['offer_id'] = 0;
+            }
+
+            if (!isset($current['creative_id'])) {
+                $data[$index]['creative_id'] = 0;
+            }
+
+            if (!isset($current['from_id'])) {
+                $data[$index]['from_id'] = 0;
+            }
+
+            if (!isset($current['subject_id'])) {
+                $data[$index]['subject_id'] = 0;
+            }
+
+            if (!isset($current['cake_affiliate_id'])) {
+                $data[$index]['cake_affiliate_id'] = 0;
+            }
+
+            if (!isset($current['url_format'])) {
+                $data[$index]['url_format'] = 'short';
+            }
+
+            if (!isset($current['notes'])) {
+                $data[$index]['notes'] = '';
+            }
+            
+            if (!isset($current['deployment_status'])) {
+                $data[$index]['deployment_status'] = 0;
+            }
+
         }
 
         return response()->json(['success' => $this->deployService->massUpload($data)]);
@@ -269,7 +310,7 @@ class DeployController extends Controller
             Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
         }
 
-        $this->dispatch(new ExportDeployCombineJob($deploys, $reportCard, str_random(16), 5000));
+        $this->dispatch((new ExportDeployCombineJob($deploys, $reportCard, str_random(16), 5000))->onQueue(self::LIST_PROFILE_QUEUE));
         
         //Update deploy status to pending
         $this->deployService->deployPackages($data);

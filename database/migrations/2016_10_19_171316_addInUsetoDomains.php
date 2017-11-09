@@ -24,7 +24,7 @@ class AddInUsetoDomains extends Migration
      */
     public function down()
     {
-        Schema::table( 'domain_groups' , function ( Blueprint $table ) {
+        Schema::table( 'domains' , function ( Blueprint $table ) {
             $table->dropColumn('in_use');
         } );
     }

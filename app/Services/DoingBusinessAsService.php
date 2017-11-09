@@ -27,7 +27,7 @@ class DoingBusinessAsService
            return $this->doingBusinessAsRepo->insertRow($request);
         } catch(\Exception $e){
             Log::error($e->getMessage());
-            return false;
+            throw $e;
         }
     }
 

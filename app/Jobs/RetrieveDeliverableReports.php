@@ -71,6 +71,7 @@ class RetrieveDeliverableReports extends MonitoredJob
             }
         } else {
             $this->processState = $this->defaultProcessState;
+            $this->processState['date'] = $this->date;
         }
 
         parent::__construct($this->getJobName(),$this->runtimeThreshold,$this->tracking);
@@ -93,8 +94,6 @@ class RetrieveDeliverableReports extends MonitoredJob
             $this->$filterName();
         } catch (JobCompletedException $e) {
             JobTracking::addDiagnostic(array('warnings' => 'job completed exception thrown'),$this->tracking);
-            // killing an attempt at a rerun
-            //Log::notice($e->getMessage());//I dont think we need to log this
             exit;
         } catch (JobAlreadyQueuedException $e) {
             JobTracking::addDiagnostic(array('warnings' => 'job already queued exception thrown'),$this->tracking);
@@ -300,9 +299,13 @@ class RetrieveDeliverableReports extends MonitoredJob
     }
 
     protected function savePaginatedRecords () {
-
         $rowCount = 0;
-        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        $monthAgo = Carbon::today()->subDays(31);
+
+        # "lt()" is understood as "earlier than" rather than "less than/since"
+        # pick the earlier of either the start date or 31 days ago
+        $startDate = Carbon::parse($this->date)->lt($monthAgo) ? $date : $monthAgo->toDateString();
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId, $startDate);
         
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
@@ -502,7 +505,7 @@ class RetrieveDeliverableReports extends MonitoredJob
 
     protected function initJobEntry () {
         $campaignId = 0;
-        if(isset($this->processState['campaign'])){
+        if(isset($this->processState['campaign']) && null !== $this->processState['campaign']->esp_internal_id){
            $campaignId = $this->processState['campaign']->esp_internal_id;
         }
 
@@ -518,7 +521,7 @@ class RetrieveDeliverableReports extends MonitoredJob
             }
         }
 
-        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
+        $campaignId = $campaignId ?: 0;
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 

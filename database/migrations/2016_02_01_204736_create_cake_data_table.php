@@ -23,7 +23,7 @@ class CreateCakeDataTable extends Migration
             $table->string('subid_3', 100)->default('');
             $table->string('subid_4', 100)->default('');
             $table->string('subid_5', 100)->default('');
-            $table->date('date')->default('0000-00-00');
+            $table->date('date')->nullable()->default(null);
             $table->integer('clicks')->default(0);
             $table->integer('conversions')->default(0);
             $table->decimal('revenue', 7, 2)->default(0.00);

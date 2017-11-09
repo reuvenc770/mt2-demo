@@ -43,8 +43,24 @@ class SourceUrlValidator implements IValidate {
             throw new ValidationException("Source url invalid - contains betheboss: {$this->sourceUrl}");
         }
 
-        $urlForParsing = preg_match('/^http:\/\//', $this->sourceUrl) ? $this->sourceUrl : 'http://' . $this->sourceUrl;
-        $parsed = parse_url($urlForParsing);
+        $parsed = [];
+
+        if (preg_match('/^http[s]*\:\/\//i', $this->sourceUrl)) {
+            $parsed = parse_url($this->sourceUrl);
+        }
+        elseif (preg_match('/^https\/\//i', $this->sourceUrl)) {
+            $urlForParsing = str_replace('https', 'https:', $this->sourceUrl);
+            $parsed = parse_url($urlForParsing);
+        }
+        elseif (preg_match('/^http\/\//i', $this->sourceUrl)) {
+            // a common error
+            $urlForParsing = str_replace('http', 'http:', $this->sourceUrl);
+            $parsed = parse_url($urlForParsing);
+        }
+        else {
+            // No protocol (at least based off off what we've seen)
+            $parsed = parse_url('http://' . $this->sourceUrl);
+        }
 
         if (preg_match('/\.ca$/', $parsed['host'])) {
             throw new ValidationException("Source url invalid - has Canadian domain: {$this->sourceUrl}");

@@ -23,8 +23,5 @@ class AttributionMoveClientToFeed extends Migration
      * @return void
      */
     public function down() {
-        Schema::connection('attribution')->table('attribution_feed_reports', function($table) {
-            $table->renameColumn('feed_id', 'client_id');
-        });
     }
 }

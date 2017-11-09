@@ -41,7 +41,7 @@ class EmailListRepo implements Mt1Import {
                         DB::raw('IF(email_list.gender = "", "UNK", gender) as gender'),
                         'email_list.phone',
                         'email_list.capture_date',
-                        'email_list.member_source as ip',
+                        DB::raw('inet_ntoa(email_list.member_source) as ip'),
                         'email_list.source_url',
                         'email_list.emailUserActionDate as last_action_date',
                         DB::raw('CASE emailUserActionTypeID 

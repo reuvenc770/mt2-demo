@@ -45,6 +45,9 @@ class EspRepo
     }
 
     public function updateEspMappings($mappings,$espId){
+      if ( $mappings['mappings'] == '[]' ) {
+        $mappings['mappings'] = '{}';
+      }
       return $this->esp->accountMapping()->getRelated()->updateOrCreate(["esp_id" =>$espId],$mappings);
     }
 

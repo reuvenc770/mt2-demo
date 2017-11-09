@@ -217,6 +217,12 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.saveNewAccountFailureCallback = function ( response ) {
         self.editForm = false;
         formValidationService.loadFieldErrors(self,response);
+
+        if ( response.status == 500 ) {
+            modalService.setModalLabel('Error');
+            modalService.setModalBody('Failed to save DBA. Please contact support.');
+            modalService.launchModal();
+        }
     };
 
     self.editAccountFailureCallback = function ( response ) {

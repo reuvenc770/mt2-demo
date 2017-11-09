@@ -92,8 +92,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     {
         return array(
             'campaign_name' => $report['message_name'],
-            'external_deploy_id' => $report['bill_codes'],
-            'm_deploy_id' => $report['bill_codes'], // temporarily the same as external
+            'external_deploy_id' => $this->getDeployId($report['bill_codes']),
+            'm_deploy_id' => $this->getDeployId($report['bill_codes']), // temporarily the same as external
             'esp_account_id' => $report['esp_account_id'],
             'esp_internal_id' => $report['internal_id'],
             'datetime' => $report['date_sent'],
@@ -111,6 +111,16 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             'e_clicks_unique' => $report['clicked_unique']
         );
 
+    }
+
+    private function getDeployId($campaignName) {
+        $arr = explode('_', $campaignName);
+        if (count($arr) > 0 && '' !== $arr[0]) {
+            return (int)$arr[0];
+        }
+        else {
+            return 0;
+        }
     }
 
     public function mapToRawReport($report)

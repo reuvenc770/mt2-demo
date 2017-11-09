@@ -22,6 +22,5 @@ class RenameAttributionListOwnerReportsToAttributionClientReports extends Migrat
      */
     public function down()
     {
-        Schema::connection('attribution')->rename( 'attribution_client_reports' , 'attribution_list_owner_reports' );
     }
 }

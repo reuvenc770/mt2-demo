@@ -14,7 +14,9 @@ class FeedEditRequest extends Request
      */
     public function authorize()
     {
-        if (Sentinel::hasAccess("feed.edit")) {
+        if ( $this->getMethod() === 'PUT' && Sentinel::hasAccess("feed.edit")) {
+            return true;
+        } else if ( $this->getMethod() === 'POST' && Sentinel::hasAccess( 'feed.add' ) ) {
             return true;
         }
         return false;

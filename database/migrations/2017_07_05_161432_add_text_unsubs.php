@@ -12,7 +12,7 @@ class AddTextUnsubs extends Migration
      */
     public function up() {
         Schema::table('offers', function($table) {
-            $table->text('unsub_text')->default('')->after('exclude_days');
+            $table->text('unsub_text')->nullable()->after('exclude_days');
             $table->string('unsub_type', 20)->default('')->after('exclude_days');
         });
     }

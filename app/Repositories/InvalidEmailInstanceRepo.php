@@ -18,6 +18,7 @@ class InvalidEmailInstanceRepo {
 
     private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
+        $dob = $row['dob'] === null ? 'NULL' : $pdo->quote($row['dob']);
 
         return '('
             . $pdo->quote($row['feed_id']) . ','
@@ -36,7 +37,7 @@ class InvalidEmailInstanceRepo {
             . $pdo->quote($row['country']) . ','
             . $pdo->quote($row['gender']) . ','
             . $pdo->quote($row['phone']) . ','
-            . $pdo->quote($row['dob']) . ','
+            . $dob. ','
             . $pdo->quote($row['other_fields']) . ','
             . $pdo->quote($row['posting_string']) . ','
             . $pdo->quote($row['invalid_reason_id']) 
@@ -55,4 +56,7 @@ class InvalidEmailInstanceRepo {
             {$batchData}";
     }
 
+    public function getMinIdForDate($date) {
+        return $this->model->where('created_at', '>=', $date)->min('id');
+    }
 }

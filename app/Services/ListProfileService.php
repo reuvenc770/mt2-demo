@@ -11,7 +11,6 @@ namespace App\Services;
 
 use App\Repositories\ListProfileRepo;
 use App\Builders\ListProfileQueryBuilder;
-use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
 use App\Services\ListProfileBaseTableCreationService;
 use App\Services\ServiceTraits\PaginateList;
@@ -28,7 +27,8 @@ class ListProfileService
     private $cache1 = [];
     private $cache2 = [];
     private $rowCount = 0;
-    const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
+    const MAX_ROWS = 65535;
+    private $insertThreshold = 1000; // default
     const ROW_STORAGE_TIME = 720;
     protected $baseTableService;
     private $columnLabelMap = [
@@ -257,7 +257,6 @@ class ListProfileService
         $queries = $this->returnQueriesData($listProfile);
         $queryNumber = 1;
         $totalCount = 0;
-        $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
 
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
@@ -267,6 +266,8 @@ class ListProfileService
 
             $columns = $this->builder->getColumns();
 
+            $this->setInsertSize(count($columns));
+
             if (1 === $queryNumber) {
                 $this->baseTableService->createTable($id, $columns);
             }
@@ -274,10 +275,10 @@ class ListProfileService
             $resource = $query->cursor();
 
             foreach ($resource as $row) {
-                if ($this->isUnique($listProfileTag, $this->uniqueColumn, $row->{$this->uniqueColumn})) {
-                    $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
+                if ($this->isUnique($this->uniqueColumn, $row->{$this->uniqueColumn})) {
+                    $this->saveToCache($row->{$this->uniqueColumn});
                     $mappedRow = $this->mapDataToColumns($columns, $row);
-                    $this->batch($mappedRow, $listProfileTag);
+                    $this->batch($mappedRow);
 
                     if (!$row->globally_suppressed && !$row->feed_suppressed) {
                         $totalCount++;
@@ -286,7 +287,7 @@ class ListProfileService
                 }
             }
 
-            $this->batchInsert($listProfileTag);
+            $this->batchInsert();
             $this->clear();
             $queryNumber++;
         }
@@ -294,6 +295,15 @@ class ListProfileService
         Cache::tags('ListProfile')->flush();
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
         return $totalCount;
+    }
+
+    private function setInsertSize($columnCount) {
+        // MySQL / PHP has a placeholder limit of 2^16 - 1 (65535) 
+        // The lower the limit the more likely that your query can be handled, 
+        // but the slower it will go. We can set this dynamically to improve perf
+        // leaving in a safety factor (floor and multiply by .9) to make sure we're safe
+
+        $this->insertThreshold = (int)floor((self::MAX_ROWS / $columnCount) * 0.9);
     }
 
     private function cleanseData ( $data ) {
@@ -325,7 +335,8 @@ class ListProfileService
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
             'country_id' => $data[ 'country_id' ] ,
-            'party' => $data['party']
+            'party' => $data['party'] ,
+            'feeds_suppressed' => '[]'
         ];
     }
 
@@ -419,16 +430,16 @@ class ListProfileService
         $output = [];
 
         foreach ($columns as $id=>$column) {
-            $output[$column] = $row->$column ?: '';
+            $output[$column] = $row->column;
         }
 
         return $output;
     }
 
 
-    private function batch($row, $tag) {
-        if ($this->rowCount >= self::INSERT_THRESHOLD) {
-            $this->batchInsert($tag);
+    private function batch($row) {
+        if ($this->rowCount >= $this->insertThreshold) {
+            $this->batchInsert();
 
             $this->rows = [$row];
             $this->rowCount = 0;
@@ -440,7 +451,7 @@ class ListProfileService
     }
 
 
-    private function batchInsert($tag) {
+    private function batchInsert() {
         $this->baseTableService->massInsert($this->rows);
         $this->cache2 = $this->cache1;
         $this->cache1 = [];
@@ -453,11 +464,11 @@ class ListProfileService
     }
 
 
-    private function isUnique($tag, $field, $value) {
+    private function isUnique($field, $value) {
         return !isset($this->cache1[$value]) && !isset($this->cache2[$value]) && $this->baseTableService->isUnique($field, $value); 
     }
 
-    private function saveToCache($tag, $value) {
+    private function saveToCache($value) {
         $this->cache1[$value] = 1;
     }
 

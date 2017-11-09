@@ -24,8 +24,5 @@ class AddUniqueRecordReports extends Migration
      */
     public function down()
     {
-        Schema::connection( 'attribution' )->table( 'attribution_record_reports' , function (Blueprint $table) {
-            $table->dropUnique( 'unique_record' );
-        } );
     }
 }

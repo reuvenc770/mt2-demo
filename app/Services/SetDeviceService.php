@@ -48,20 +48,24 @@ class SetDeviceService {
 
         foreach($this->data->cursor() as $row) {
             $carrier = isset($this->emailCarrierCache[$row->email_id]) ? $this->emailCarrierCache[$row->email_id] : '';
-            $row = $this->mapToRow($row, $carrier);
-            $this->emailFeedDataRepo->batchUpdateDeviceData($row);
-        }
-        
-        $this->emailFeedDataRepo->cleanUpDeviceData();
+            $data = $this->mapToRow($row, $carrier);
+            $id = $this->createId($row);
+            $this->emailFeedDataRepo->update($id, $data);
+        }        
     }
 
     private function mapToRow($row, $carrier) {
         return [
-            'email_id' => $row->email_id,
-            'feed_id' => $row->feed_id,
             'device_type' => $this->getDeviceType($row->user_agent),
             'device_name' => $this->assignDeviceToFamily($row->user_agent),
             'carrier' => $carrier
+        ];
+    }
+
+    private function createId($row) {
+        return [
+            'email_id' => $row->email_id,
+            'feed_id' => $row->feed_id
         ];
     }
 

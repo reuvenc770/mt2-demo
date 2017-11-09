@@ -28,9 +28,6 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\NewRecords' => [
             'App\Listeners\NewRecordResolver'
         ],
-        'App\Events\NewActions' => [
-            'App\Listeners\NewActionResolver'
-        ],
         'App\Events\AttributionCompleted' => [
             'App\Listeners\RerunAttributionAggregator'
         ]

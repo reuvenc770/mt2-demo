@@ -3,6 +3,8 @@
 namespace App\Repositories;
 use App\Models\Interfaces\IReport;
 use DB;
+use Carbon\Carbon;
+
 //TODO We should make some magic methods like get*FromDeployID (use scopes) since i can see us pulling a lot from that relationship
 class StandardApiReportRepo {
     /**
@@ -41,12 +43,17 @@ class StandardApiReportRepo {
                     ->get();
     }
 
-    public function getEspToInternalMap($espAccountId) {
+    public function getEspToInternalMap($espAccountId, $startDate = null) {
         // need an appropriate limit
         // According to Danny, residuals after a month don't matter
+
+        if (null === $startDate) {
+            $startDate = Carbon::today()->subDays(31)->toDateString();
+        }
+
         $result = $this->report
             ->select('esp_internal_id', 'external_deploy_id')
-            ->where( 'created_at' , ">=" , DB::raw('CURDATE() - INTERVAL 31 DAY') )
+            ->where( 'created_at' , ">=" , $startDate )
             ->where( 'esp_account_id' , $espAccountId )
             ->get();
 

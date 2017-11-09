@@ -16,6 +16,7 @@ use App\Models\EmailFeedAssignmentHistory;
 use App\Models\RedshiftModels\EmailFeedAssignment as RedshiftModel;
 
 use DB;
+use Carbon\Carbon;
 
 class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
     use Batchable;
@@ -180,6 +181,22 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         // empty but required
     }
 
+    public function addNewRows(array $rows) {
+        // given a list of objects with ids that should be in the table
+        // each object has an email id, a feed id, and a subscribe_date
+
+        foreach ($rows as $row) {
+            $insert = [
+                'email_id' => $row['email_id'],
+                'feed_id' => $row['feed_id'],
+                'subscribe_date' => Carbon::parse($row['created_at'])->toDateString()
+            ];
+            $this->batchInsert($insert);
+        }
+
+        $this->insertStored();
+    }
+
     public function maxId() {
         return $this->model
                     ->whereRaw('updated_at >= CURDATE() - INTERVAL 1 DAY')
@@ -243,6 +260,14 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         else {
             return false;
         }
+    }
+
+    public function validExists(array $row) {
+        return $row;
+    }
+
+    public function getTableName() {
+        return config('database.connections.attribution.database') . '.' . $this->model->getTable();
     }
 
 }

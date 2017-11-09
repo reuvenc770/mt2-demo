@@ -22,7 +22,7 @@ class DropNonThirdPartyStuff extends Migration
     public function down() {
         Schema::connection('suppression')->create('non_third_party_import_suppression_lists', function(Blueprint $table) {
             // creating dummy table
-            $table->increments();
+            $table->increments( 'id' );
         });
     }
 }

@@ -1,0 +1,1926 @@
+-
+    id: 1
+    name: root
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 2
+    name: login
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 3
+    name: forget.getemail
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 4
+    name: forget.postemail
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 5
+    name: password.reset
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 6
+    name: password.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 7
+    name: sessions.create
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 8
+    name: sessions.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 9
+    name: sessions.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 10
+    name: home
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 11
+    name: logout
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 12
+    name: myprofile
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 13
+    name: espapi.list
+    crud_type: read
+    rank: 3
+    parent: 4
+-
+    id: 14
+    name: espapi.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 15
+    name: espapi.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 16
+    name: tools.recordlookup
+    crud_type: read
+    rank: 7
+    parent: 1
+-
+    id: 17
+    name: tools.bulksuppression
+    crud_type: read
+    rank: 6
+    parent: 1
+-
+    id: 18
+    name: ymlpcampaign.list
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 19
+    name: ymlpcampaign.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 20
+    name: ymlpcampaign.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 21
+    name: devtools.jobs
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 22
+    name: user.list
+    crud_type: read
+    rank: 3
+    parent: 5
+-
+    id: 23
+    name: user.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 24
+    name: user.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 25
+    name: feed.list
+    crud_type: read
+    rank: 2
+    parent: 1
+-
+    id: 26
+    name: feed.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 27
+    name: feed.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 32
+    name: datacleanse.list
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 33
+    name: datacleanse.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 34
+    name: datacleanse.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 35
+    name: listprofile.list
+    crud_type: read
+    rank: 5
+    parent: 1
+-
+    id: 36
+    name: listprofile.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 37
+    name: listprofile.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 38
+    name: role.list
+    crud_type: read
+    rank: 4
+    parent: 5
+-
+    id: 39
+    name: role.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 40
+    name: role.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 41
+    name: dataexport.list
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 42
+    name: dataexport.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 43
+    name: dataexport.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 44
+    name: api.pager
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 45
+    name: api.profile.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 46
+    name: api.attachment.upload
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 48
+    name: dataexport.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 52
+    name: api.listprofile.copy
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 53
+    name: api.listprofile.isps
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 54
+    name: api.listprofile.sources
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 55
+    name: api.listprofile.seeds
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 56
+    name: api.listprofile.zips
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 57
+    name: bulksuppression.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 58
+    name: bulksuppression.transfer
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 59
+    name: api.espapi.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 60
+    name: api.espapi.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 61
+    name: api.espapi.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 62
+    name: api.espapi.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 63
+    name: api.espapi.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 64
+    name: api.ymlp-campaign.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 65
+    name: api.ymlp-campaign.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 66
+    name: api.ymlp-campaign.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 67
+    name: api.ymlp-campaign.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 68
+    name: api.ymlp-campaign.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 69
+    name: api.feed.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 70
+    name: api.feed.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 71
+    name: api.feed.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 72
+    name: api.feed.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 73
+    name: api.feed.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 78
+    name: api.user.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 79
+    name: api.user.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 80
+    name: api.user.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 81
+    name: api.user.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 82
+    name: api.user.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 83
+    name: api.datacleanse.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 84
+    name: api.datacleanse.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 85
+    name: api.listprofile.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 86
+    name: api.listprofile.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 87
+    name: api.listprofile.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 88
+    name: api.listprofile.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 89
+    name: api.listprofile.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 90
+    name: api.showinfo.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 91
+    name: api.showinfo.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 93
+    name: api.bulksuppression.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 94
+    name: api.attribution.bulk
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 95
+    name: api.dataexport.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 96
+    name: api.dataexport.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 97
+    name: api.dataexport.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 98
+    name: api.dataexport.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 99
+    name: api.dataexport.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 100
+    name: api.isp.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 101
+    name: api.role.permissions
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 102
+    name: api.role.permissions.tree
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 103
+    name: api.role.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 104
+    name: api.role.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 105
+    name: api.role.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 106
+    name: api.role.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 107
+    name: api.role.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 108
+    name: api.jobEntry.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 109
+    name: api.mt1.clientgroup.clients
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 110
+    name: api.mt1.client.generatelinks
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 111
+    name: api.mt1.client.types
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 112
+    name: api.mt1.advertiser.get
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 113
+    name: api.mt1.country.get
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 114
+    name: api.mt1.offercategory.get
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 115
+    name: api.suppressionReason.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 116
+    name: api.mt1.clientstatsgrouping.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 117
+    name: api.mt1.clientgroup.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 118
+    name: api.mt1.clientgroup.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 119
+    name: api.mt1.uniqueprofiles.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 120
+    name: api.mt1.uniqueprofiles.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 121
+    name: api.mt1.esps.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 135
+    name: api.mt1.esps.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 137
+    name: tools.list
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 139
+    name: attribution.list
+    crud_type: read
+    rank: 4
+    parent: 1
+-
+    id: 140
+    name: attributionModel.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 141
+    name: api.attribution.model.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 142
+    name: api.attribution.model.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 143
+    name: api.attribution.model.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 144
+    name: api.attribution.model.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 145
+    name: api.attribution.model.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 146
+    name: attributionModel.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 147
+    name: api.attribution.model.levels
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 148
+    name: api.attribution.model.copyLevels
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 149
+    name: api.attribution.model.clients
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 150
+    name: api.client.updatepassword
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 151
+    name: dba.list
+    crud_type: read
+    rank: 4
+    parent: 4
+-
+    id: 152
+    name: dba.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 153
+    name: dba.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 154
+    name: proxy.list
+    crud_type: read
+    rank: 5
+    parent: 4
+-
+    id: 155
+    name: proxy.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 156
+    name: proxy.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 157
+    name: registrar.list
+    crud_type: read
+    rank: 6
+    parent: 4
+-
+    id: 158
+    name: registrar.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 159
+    name: registrar.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 160
+    name: mailingtemplate.list
+    crud_type: read
+    rank: 8
+    parent: 4
+-
+    id: 161
+    name: mailingtemplate.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 162
+    name: mailingtemplate.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 163
+    name: mailingtemplate.preview
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 164
+    name: domain.list
+    crud_type: read
+    rank: 7
+    parent: 4
+-
+    id: 165
+    name: domain.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 166
+    name: domain.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 167
+    name: report.list
+    crud_type: read
+    rank: 1
+    parent: 3
+-
+    id: 168
+    name: api.proxy.listType
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 169
+    name: api.domain.listDomains
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 170
+    name: api.espapi.GetAll
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 171
+    name: api.espapi.returnAll
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 172
+    name: api.domain.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 173
+    name: api.domain.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 174
+    name: api.domain.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 175
+    name: api.domain.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 176
+    name: api.domain.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 177
+    name: api.proxy.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 178
+    name: api.proxy.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 179
+    name: api.proxy.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 180
+    name: api.proxy.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 181
+    name: api.proxy.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 182
+    name: api.registrar.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 183
+    name: api.registrar.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 184
+    name: api.registrar.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 185
+    name: api.registrar.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 186
+    name: api.registrar.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 187
+    name: api.dba.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 188
+    name: api.dba.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 189
+    name: api.dba.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 190
+    name: api.dba.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 191
+    name: api.dba.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 192
+    name: api.mailingtemplate.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 193
+    name: api.mailingtemplate.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 194
+    name: api.mailingtemplate.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 195
+    name: api.mailingtemplate.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 196
+    name: api.mailingtemplate.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 197
+    name: api.report.getRecords
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 198
+    name: demo.create
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 199
+    name: api.demo.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 200
+    name: api.demo.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 201
+    name: api.demo.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 202
+    name: api.demo.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 203
+    name: api.demo.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 204
+    name: api.demo.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 205
+    name: report.export
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 207
+    name: deploy.list
+    crud_type: read
+    rank: 1
+    parent: 2
+-
+    id: 208
+    name: attributionProjection.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 209
+    name: api.deploy.cakeaffiliates
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 210
+    name: api.deploy.validateDeploys
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 211
+    name: api.deploy.massupload
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 212
+    name: api.deploy.exportcsv
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 213
+    name: api.listprofile.active
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 214
+    name: api.offer.search
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 215
+    name: api.cfs.creatives
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 216
+    name: api.cfs.froms
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 217
+    name: api.cfs.subjects
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 218
+    name: api.deploy.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 219
+    name: api.deploy.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 220
+    name: api.deploy.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 221
+    name: api.deploy.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 222
+    name: api.deploy.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 223
+    name: api.mailingtemplate.listbyesp
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 224
+    name: api.attribution.projection.report
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 225
+    name: api.attribution.projection.chart
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 230
+    name: api.attribution.store
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 232
+    name: api.attribution.model.setlive
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 233
+    name: api.attribution.run
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 234
+    name: creatives.preview
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 235
+    name: api.deploy.checkProgress
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 236
+    name: api.deploy.deploypackages
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 237
+    name: api.proxy.list
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 238
+    name: api.attribution.model.syncLevels
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 239
+    name: esp.list
+    crud_type: read
+    rank: 2
+    parent: 4
+-
+    id: 240
+    name: esp.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 241
+    name: deploy.preview
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 242
+    name: deploy.downloadhtml
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 243
+    name: api.deploy.copytofuture
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 244
+    name: api.esp.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 245
+    name: api.esp.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 246
+    name: api.esp.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 247
+    name: api.esp.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 248
+    name: api.esp.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 249
+    name: domain.listview
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 250
+    name: domain.search
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 251
+    name: ispgroup.list
+    crud_type: read
+    rank: 9
+    parent: 4
+-
+    id: 252
+    name: ispgroup.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 253
+    name: ispgroup.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 254
+    name: isp.list
+    crud_type: read
+    rank: 10
+    parent: 4
+-
+    id: 255
+    name: isp.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 256
+    name: isp.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 257
+    name: api.ispgroup.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 258
+    name: api.ispgroup.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 259
+    name: api.ispgroup.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 260
+    name: api.ispgroup.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 261
+    name: api.ispgroup.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 262
+    name: api.isp.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 263
+    name: api.isp.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 264
+    name: api.isp.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 265
+    name: api.isp.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 266
+    name: tools.appendeid
+    crud_type: read
+    rank: 8
+    parent: 1
+-
+    id: 268
+    name: feedgroup.list
+    crud_type: read
+    rank: 3
+    parent: 1
+-
+    id: 269
+    name: feedgroup.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 270
+    name: feedgroup.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 271
+    name: api.feedgroup.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 272
+    name: api.feedgroup.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 273
+    name: api.feedgroup.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 274
+    name: api.feedgroup.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 275
+    name: api.feedgroup.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 276
+    name: client.list
+    crud_type: read
+    rank: 1
+    parent: 1
+-
+    id: 277
+    name: client.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 278
+    name: client.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 279
+    name: api.client.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 280
+    name: api.client.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 281
+    name: api.client.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 282
+    name: tools.navigation
+    crud_type: read
+    rank: 1
+    parent: 5
+-
+    id: 283
+    name: api.tools.navigation.getTree
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 284
+    name: api.tools.navigation.getOrphans
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 285
+    name: api.tools.navigation.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 286
+    name: esp.add
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 287
+    name: feed.file.fieldorder
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 288
+    name: api.feed.file.savefieldorder
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 289
+    name: api.espapi.returnAllActive
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 290
+    name: api.feed.realtimerecords
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 291
+    name: api.espapi.returnallactive
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 292
+    name: tools.sourceurlsearch
+    crud_type: read
+    rank: 9
+    parent: 1
+-
+    id: 293
+    name: api.sourceurlsearch.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 294
+    name: tools.appendeid.upload
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 295
+    name: api.feed.searchsource
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 296
+    name: report.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 297
+    name: api.report.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 298
+    name: api.listprofile.combine
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 299
+    name: api.listprofile.combinelist
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 300
+    name: api.listprofile.combine.create
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 301
+    name: api.listprofile.combine.export
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 302
+    name: api.report.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 303
+    name: api.client.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 304
+    name: esp.mapping
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 305
+    name: listprofile.combine.edit
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 306
+    name: api.esp.mappings.get
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 307
+    name: api.esp.mappings.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 308
+    name: api.esp.mappings.process
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 309
+    name: api.listprofile.combine.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 310
+    name: api.feed.reattribution.run
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 311
+    name: api.feed.suppression.create
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 312
+    name: report.viewauth
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 313
+    name: api.feed.exportlist
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 314
+    name: report.users
+    crud_type: read
+    rank: 2
+    parent: 3
+-
+    id: 315
+    name: api.proxy.toggle
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 316
+    name: api.registar.toggle
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 317
+    name: api.dba.toggle
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 318
+    name: tools.cache
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 319
+    name: tools.awebermapping
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 320
+    name: tools.aweberlists
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 321
+    name: api.tools.awebermapping.convertreport
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 322
+    name: api.tools.aweberlists.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 323
+    name: api.tools.aweberlists.getLists
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 324
+    name: api.tools.awebermapping.unmapped
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 325
+    name: tools.seed
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 326
+    name: api.tools.seed.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 327
+    name: api.tools.seed.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 328
+    name: api.espapi.generatecustomid
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 329
+    name: api.feed.updatepassword
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 330
+    name: cpm.list
+    crud_type: read
+    rank: 10
+    parent: 1
+-
+    id: 331
+    name: api.listprofile.firstpartylist
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 332
+    name: api.cpm.index
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 333
+    name: api.cpm.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 334
+    name: api.cpm.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 335
+    name: api.cpm.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 336
+    name: api.espapi.toggleStats
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 337
+    name: api.espapi.toggleSuppression
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 338
+    name: api.espapi.activate
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 339
+    name: api.espapi.deactivate
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 340
+    name: api.attribution.quickReorder
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 341
+    name: tools.notifications
+    crud_type: read
+    rank: 2
+    parent: 5
+-
+    id: 342
+    name: api.notifications.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 343
+    name: api.notifications.show
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 344
+    name: api.notifications.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 345
+    name: api.notifications.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 346
+    name: api.notifications.unscheduled
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 347
+    name: api.notifications.emailtemplates
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 348
+    name: api.notifications.slacktemplates
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 349
+    name: api.notifications.contentkey
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 350
+    name: tools.affiliates
+    crud_type: read
+    rank: 1
+    parent: 4
+-
+    id: 351
+    name: api.affiliates.store
+    crud_type: create
+    rank: 0
+    parent: 0
+-
+    id: 352
+    name: api.affiliates.update
+    crud_type: update
+    rank: 0
+    parent: 0
+-
+    id: 353
+    name: api.affiliates.destroy
+    crud_type: delete
+    rank: 0
+    parent: 0
+-
+    id: 354
+    name: api.affiliates.affiilatelist
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 355
+    name: api.affiliates.affiliatelist
+    crud_type: read
+    rank: 0
+    parent: 0
+-
+    id: 356
+    name: api.affiliates.offertypelist
+    crud_type: read
+    rank: 0
+    parent: 0

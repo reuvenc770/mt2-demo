@@ -49,9 +49,37 @@ class ContentServerStatsRawRepo {
                 AND
                 r.id <= :end
             GROUP BY
+                email_id, link_id, deploy_id, date
+
+            UNION
+
+            SELECT
+                em.id as email_id,
+                em.email_address,
+                em.lower_case_md5,
+                em.upper_case_md5,
+                em.email_domain_id,
+                link_id,
+                sub_aff_id as deploy_id,
+                DATE(action_datetime) as date,
+                IF(SUM(IF(action_id = 1, 1, 0)) > 0, 1, 0) as has_cs_open,
+                IF(SUM(IF(action_id = 2, 1, 0)) > 0, 1, 0) as has_cs_click
+            FROM
+                content_server_stats_raws r
+                LEFT JOIN emails e ON r.eid = e.id
+                INNER JOIN emails em ON substr(query_string, locate('em=', query_string) + 3, locate('&', substr(query_string, locate('em=', query_string) + 3)) -1) = em.email_address
+            WHERE
+                r.id > :start2
+                AND
+                r.id <= :end2
+                AND
+                e.id IS NULL
+            GROUP BY
                 email_id, link_id, deploy_id, date", [
             ':start' => $start,
-            ':end' => $end
+            ':end' => $end,
+            ':start2' => $start,
+            ':end2' => $end,
         ]);
     }
 

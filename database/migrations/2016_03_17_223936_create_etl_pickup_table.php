@@ -14,7 +14,9 @@ class CreateEtlPickupTable extends Migration
         Schema::create('etl_pickups', function (Blueprint $table) {
             $table->string('name')->default('');
             $table->bigInteger('stop_point');
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+
             $table->unique('name');
         });
     }

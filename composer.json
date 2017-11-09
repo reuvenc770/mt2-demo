@@ -21,7 +21,12 @@
         "jenssegers/agent": "^2.3",
         "league/flysystem-sftp": "^1.0",
         "league/flysystem-ziparchive": "^1.0",
-        "fisharebest/laravel-assets": "~1.0"
+        "fisharebest/laravel-assets": "~1.0",
+        "symfony/yaml": "^3.3",
+        "supervisorphp/supervisor": "^3.0",
+        "lstrojny/fxmlrpc": "~0.13.0",
+        "php-http/message": "^1.6",
+        "php-http/guzzle6-adapter": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -29,9 +34,11 @@
         "symfony/dom-crawler": "2.8.*|3.0.*",
         "barryvdh/laravel-ide-helper": "^2.3",
         "nwidart/db-exporter": "dev-master",
+        "phpunit/phpunit": "^5.7",
         "codeception/codeception": "^2.3",
         "codeception/aspect-mock": "^2.0",
-        "mockery/mockery": "^0.9.9"
+        "phploc/phploc": "^4.0",
+        "squizlabs/php_codesniffer": "^3.1"
     },
     "autoload": {
         "classmap": [
@@ -49,25 +56,8 @@
             "Tests\\": "tests/"
         }
     },
-    "scripts": {
-        "post-root-package-install": [
-            "php -r \"copy('.env.example', '.env');\""
-        ],
-        "post-create-project-cmd": [
-            "php artisan key:generate"
-        ],
-        "post-install-cmd": [
-            "php artisan clear-compiled",
-            "php artisan optimize"
-        ],
-        "pre-update-cmd": [
-            "php artisan clear-compiled"
-        ],
-        "post-update-cmd": [
-            "php artisan optimize"
-        ]
-    },
     "config": {
-        "preferred-install": "dist"
+        "preferred-install": "dist" ,
+        "platform" : { "php": "5.6" }
     }
 }

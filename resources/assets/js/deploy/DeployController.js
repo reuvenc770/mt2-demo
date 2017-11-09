@@ -31,7 +31,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.allOffersData = [];
     self.allOffers = false;
     self.selectedDay = "0";
-    self.searchOffers = "/api/offer/search?date=" + self.selectedDay + "searchTerm=";
+    self.searchOffers = "/api/offer/daysearch?date=" + self.selectedDay + "searchTerm=";
     self.searchType = "";
     self.searchData = "";
     self.uploadErrors = false;
