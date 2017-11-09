@@ -47,7 +47,7 @@ class CountryAndStateValidator implements IValidate {
                 // do nothing
             }
             else {
-                $this->state = $this->repo->convertFullNameToAbbrev($state); // returns '' if not found
+                $this->state = $this->repo->convertFullNameToAbbrev($this->state); // returns '' if not found
             }
         }
 
