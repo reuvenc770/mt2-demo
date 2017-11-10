@@ -32,7 +32,6 @@
         "fzaninotto/faker": "~1.4",
         "symfony/css-selector": "2.8.*|3.0.*",
         "symfony/dom-crawler": "2.8.*|3.0.*",
-        "barryvdh/laravel-ide-helper": "^2.3",
         "nwidart/db-exporter": "dev-master",
         "phpunit/phpunit": "^5.7",
         "codeception/codeception": "^2.3",
