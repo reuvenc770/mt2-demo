@@ -32,7 +32,7 @@ class ScheduledFilterResolver extends MonitoredJob implements ShouldQueue
         $this->filterName = $filterName;
         $this->date = $date;
         $this->tracking = $tracking;
-        JobTracking::startEspJob($jobname,"","",$this->tracking);
+        #JobTracking::startEspJob($jobname,"","",$this->tracking);
     }
 
     /**
