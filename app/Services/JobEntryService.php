@@ -34,7 +34,7 @@ class JobEntryService
         $espJob = $this->repo->getJobByTracking($tracking);
 
         // start this job only if it hasn't been finished before
-        if ($espJob && (null === $espJob->time_finished || '0000-00-00 00:00:00' === $espJob->time_finished)) {
+        if ($espJob && (null !== $espJob->time_finished || '0000-00-00 00:00:00' !== $espJob->time_finished)) {
             $espJob->status = JobEntry::SUCCESS;
             $espJob->save();
             throw new JobCompletedException("Job $jobName already completed");
