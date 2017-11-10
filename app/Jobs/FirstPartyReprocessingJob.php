@@ -21,7 +21,7 @@ class FirstPartyReprocessingJob extends MonitoredJob {
         $this->jobName = self::BASE_NAME . '-' . $workflow->name;
 
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
-        JobTracking::startAggregationJob($this->jobName, $this->tracking);
+        #JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     public function handleJob() {

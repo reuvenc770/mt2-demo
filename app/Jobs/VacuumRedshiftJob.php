@@ -13,7 +13,7 @@ class VacuumRedshiftJob extends MonitoredJob  {
         $this->repo = $repo;
         $this->tracking = $tracking;
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
-        JobTracking::startAggregationJob($this->jobName, $this->tracking);
+        #JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     public function handleJob() {

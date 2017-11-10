@@ -31,7 +31,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
 
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
 
-        JobTracking::startAggregationJob($this->jobName, $this->tracking);
+        #JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     /**

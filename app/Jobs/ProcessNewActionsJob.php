@@ -34,7 +34,7 @@ class ProcessNewActionsJob extends MonitoredJob implements ShouldQueue
 
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
 
-        JobTracking::startAggregationJob( $this->jobName , $this->tracking );
+        #JobTracking::startAggregationJob( $this->jobName , $this->tracking );
     }
 
     /**
