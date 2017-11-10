@@ -447,22 +447,34 @@ class MaroReportService extends AbstractReportService implements IDataService
 
     public function pullUnsubsEmailsByLookback($lookback)
     {
+        // Due to the way that Maro deals with unsubs, this has a slightly different functionality than
+        // other methods of this name. It right now only pulls the first page of information. The receptor method
+        // insertUnsubs() understands this and does page-by-page processing
         $this->setPageType("unsubscribes");
         $this->setPageNumber(1);
         $return = array();
-        while ($this->pageHasData()) {
-            $records = $this->getPageData();
-            $return = array_merge($return, $records);
-            $this->nextPage();
+
+        if ($this->pageHasData()) {
+            return $this->getPageData();
         }
-        return $return;
+        else {
+            return $return;
+        }
     }
 
     public function insertUnsubs($data, $espAccountId)
     {
-        foreach ($data as $entry) {
-            $recordedOn = Carbon::parse($entry['recorded_on'])->setTimezone('America/New_York')->toDateString();
-            Suppression::recordRawUnsub($espAccountId, $entry['contact']['email'], $entry['campaign_id'], $recordedOn);
+        // See comments for pullUnsubEmailsByLookback() above
+
+        while ($this->pageHasData()) {
+            $data = $this->getPageData();
+
+            foreach ($data as $entry) {
+                $recordedOn = Carbon::parse($entry['recorded_on'])->setTimezone('America/New_York')->toDateString();
+                Suppression::recordRawUnsub($espAccountId, $entry['contact']['email'], $entry['campaign_id'], $recordedOn);
+            }
+
+            $this->nextPage();
         }
     }
 
