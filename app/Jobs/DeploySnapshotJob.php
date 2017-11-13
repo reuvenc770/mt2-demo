@@ -40,6 +40,7 @@ class DeploySnapshotJob extends MonitoredJob
     public function handleJob()
     {
         $this->repo = \App::make( \App\Repositories\DeploySnapshotRepo::class );
+        $this->feedService = \App::make( \App\Services\FeedService::class );
 
         $this->repo->clearForDeploy( $this->deployId );
 
@@ -50,7 +51,7 @@ class DeploySnapshotJob extends MonitoredJob
                 $this->buffer( [
                     'email_id' => $record->email_id, 
                     'email_address' => $record->email_address, 
-                    'feed_id' => $record->feed_id ,
+                    'feed_id' => $this->feedService->getFeedIdByShortName( $record->short_name ) ,
                     'deploy_id' => $this->deployId
                 ] );
 
