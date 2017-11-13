@@ -33,7 +33,7 @@ class AppendEidService
     public function createFile($inputPath, $outputPath, \StdClass $appendOptions)
     {
 
-        $f = fopen($file, 'r+');
+        $f = fopen($inputPath, 'r+');
         $reader = Reader::createFromStream($f);
         $feedName = null;
         $fieldData = array();
