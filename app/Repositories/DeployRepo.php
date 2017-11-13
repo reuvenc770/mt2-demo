@@ -73,7 +73,7 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
-        # setting some default values for now due to strict mode
+        # TODO: setting some default values for now due to strict mode
         $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
         $data['deploy_name'] = '';
         $data['external_deploy_id'] = 0;
@@ -147,6 +147,11 @@ class DeployRepo implements Mt2Export
 
     public function massInsert($data){
         foreach($data as $row){
+            # TODO: temp fix for getting around strict mode
+            $row['send_date'] = Carbon::parse($row['send_date'])->toDateString();
+            $row['deploy_name'] = '';
+            $row['external_deploy_id'] = 0;
+            $row['deployment_status'] = 0;
             $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
         }
         return true;
