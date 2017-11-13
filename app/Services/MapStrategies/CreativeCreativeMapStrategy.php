@@ -41,7 +41,7 @@ class CreativeCreativeMapStrategy implements IMapStrategy {
             'internal_approved_by' => $record['internal_approved_by'], 
             'copywriter' => ($record['copywriter'] == 'N' ? 0 : 1), //
             'copywriter_name' => $record['copywriter_name'], 
-            'original_html' => $record['original_html'], 
+            'original_html' => $this->removeWindowsChars($record['original_html']), 
             'deleted_by' => $record['deleted_by'], 
             'host_images' => ($record['host_images'] == 'N' ? 0 : 1), //
             'needs_processing' => $record['needsProcessing']
