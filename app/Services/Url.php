@@ -42,8 +42,16 @@ class Url {
         elseif ('tel' === $parsed['scheme']) {
             // we have a telephone number
             $this->protocol = $parsed['scheme'];
-            $this->host = '';
+            $this->host = $parsed['path'];
             $this->query = '';
+            $this->queryValues = [];
+            $this->directoryPath = '';
+            $this->fileName = '';
+        }
+        elseif ('mailto' === $parsed['scheme']) {
+            $this->protocol = $parsed['scheme'];
+            $this->host = $parsed['path'];
+            $this->query = $parsed['query'];
             $this->queryValues = [];
             $this->directoryPath = '';
             $this->fileName = '';
