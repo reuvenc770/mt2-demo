@@ -73,6 +73,11 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
+        # setting some default values for now due to strict mode
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
+        $data['deploy_name'] = '';
+        $data['external_deploy_id'] = 0;
+        $data['deployment_status'] = 0;
         return $this->deploy->create($data);
     }
 
