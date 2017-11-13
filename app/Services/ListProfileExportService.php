@@ -100,13 +100,13 @@ class ListProfileExportService {
             $count = $result->count();
         }
 
-        $this->writeRemoteBatch($fileName);
+        $this->writeRemoteBatch($fileName, 'last');
         return $fileName;
     }
 
     private function remoteBatch($fileName, $row, $disk = 'espdata') {
         if ($this->rowCount >= self::WRITE_THRESHOLD) {
-            $this->writeRemoteBatch($fileName, $disk);
+            $this->writeRemoteBatch($fileName, 'other', $disk);
 
             $this->rows = [$row];
             $this->rowCount = 1;
@@ -116,8 +116,13 @@ class ListProfileExportService {
         }
     }
 
-    private function writeRemoteBatch($fileName, $disk = 'espdata') {
-        $string = implode(PHP_EOL, $this->rows) . PHP_EOL;
+    private function writeRemoteBatch($fileName, $segment, $disk = 'espdata') {
+        if ('last' === $segment) {
+            $string = implode(PHP_EOL, $this->rows);
+        }
+        else {
+            $string = implode(PHP_EOL, $this->rows) . PHP_EOL;
+        }
 
         $key = "filesystems.disks.$disk.";
         $driver = config($key . 'driver');
