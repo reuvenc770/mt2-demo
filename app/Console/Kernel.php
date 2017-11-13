@@ -325,15 +325,16 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:firstParty')->cron('*/2 * * * * *'); //command GetFirstPartyRecords, no job
 
         // Process third party feeds, broken down by starting letter of email address
-        $schedule->command('feedRecords:process 3 --startChars=0123456789_')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessThirdPartyFeedRecordsJob
-        $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
-        $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
-        $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
-        $schedule->command('feedRecords:process 3 --startChars=ij')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=0123456789_m')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%, Command ProcessFeedRecords, Job ProcessThirdPartyFeedRecordsJob
+        $schedule->command('feedRecords:process 3 --startChars=bg')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=df')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ch')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ijo')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=lk')->cron('*/2 * * * * *');
-        $schedule->command('feedRecords:process 3 --startChars=mno')->cron('*/2 * * * * *');
-        $schedule->command('feedRecords:process 3 --startChars=pqrs')->cron('*/2 * * * * *');
-        $schedule->command('feedRecords:process 3 --startChars=tuvwxyz')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ap')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=qrt')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ns')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=euvwxyz')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --rerun 2')->hourly(); // Like the above, but job class ProcessThirdPartyMissedFeedRecordsJob
         
         // Export some third party feeds to external sources
