@@ -131,7 +131,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $deployId,
                             $opener['campaign_id'],
-                            $opener['recorded_at']
+                            Carbon::parse($opener['recorded_at'])->timezone('America/New_York')->toDatetimeString()
                         );
                     $internalIds[] = $opener['campaign_id'];
                     }
@@ -147,7 +147,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $deployId,
                             $clicker['campaign_id'],
-                            $clicker['recorded_at']
+                            Carbon::parse($clicker['recorded_at'])->timezone('America/New_York')->toDatetimeString()
                         );
                         $internalIds[] = $clicker['campaign_id'];
                     }
@@ -161,7 +161,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $unsub['contact']['email'],
                             $unsub['campaign_id'],
-                            $unsub['recorded_on']
+                            Carbon::parse($unsub['recorded_on'])->timezone('America/New_York')->toDatetimeString()
                         );
                         $internalIds[] = $unsub['campaign_id'];
                     }
@@ -175,7 +175,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $bounce['contact']['email'],
                             $bounce['campaign_id'],
-                            $bounce['recorded_on']
+                            Carbon::parse($bounce['recorded_on'])->timezone('America/New_York')->toDatetimeString()
                         );
                         $internalIds[] = $bounce['campaign_id'];
                     }
@@ -188,7 +188,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $complainer['contact']['email'],
                             $complainer['campaign_id'],
-                            $complainer['recorded_on']
+                            Carbon::parse($complainer['recorded_on'])->timezone('America/New_York')->toDatetimeString()
                         );
                         $internalIds[] = $complainer['campaign_id'];
                     }
@@ -204,7 +204,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $deployId,
                             $delivered['campaign_id'],
-                            Carbon::parse($delivered['created_at'])
+                            Carbon::parse($delivered['created_at'])->timezone('America/New_York')->toDatetimeString()
                         );
                         $internalIds[] = $delivered['campaign_id'];
                     }
@@ -260,7 +260,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                     $this->api->getId(),
                     $deployId,
                     $record['campaign_id'],
-                    Carbon::parse($record[$datetimeField])
+                    Carbon::parse($record[$datetimeField])->timezone('America/New_York')->toDatetimeString()
                 );
                 $internalIds[] = $record['campaign_id'];
             }
