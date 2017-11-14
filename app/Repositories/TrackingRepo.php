@@ -175,12 +175,13 @@ class TrackingRepo
         return $this->report->select('user_agent_string')->where('clickDate', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))->get();
     }
 
-    public function getEmailSortedCakeActions(Carbon $startPoint, $startEmailId, $limit) {
+    public function getEmailSortedCakeActions($startPoint, $limit) {
         $dataSchema = config('database.connections.mysql.database');
         $table = $this->report->getTable();
         
         return $this->report
-            ->select( "email_id" , "deploy_id", 
+            ->select("cake_actions.id",
+                "email_id", "deploy_id", 
                 DB::raw('DATE(datetime) as date'), 
                 "d.esp_account_id",
                 "d.offer_id",
@@ -190,16 +191,13 @@ class TrackingRepo
                 DB::raw('SUM(IF(action_id = 3, 1, 0)) as conversions'),
                 DB::raw('MAX(datetime) as last_datetime'),
                 'd.party')
-            ->whereBetween("datetime", [
-                $startPoint->toDateTimeString(), 
-                Carbon::today()->endOfDay()->toDateTimeString()
-            ])
+            ->where("cake_actions.id", '>', $startPoint)
             ->join("$dataSchema.deploys as d", $table . '.deploy_id', '=', 'd.id')
             ->join("$dataSchema.cake_offers as co", $table.'.cake_offer_id', '=', 'co.id')
             ->leftJoin("$dataSchema.emails as e", $table.'.email_id', '=', 'e.id')
             ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id')
             ->take($limit)
-            ->orderBy('last_datetime', 'asc')
+            ->orderBy('cake_actions.id', 'asc')
             ->get();
     }
 
