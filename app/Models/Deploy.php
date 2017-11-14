@@ -121,4 +121,18 @@ class Deploy extends Model
         return $this->belongsTo('App\Models\User');
     }
 
+    public function createDeployName() {
+        // of the form ID_ESPACCOUNTNAME_EMAILCLASS_ADVERTISER
+
+        $id = isset($this->attributes['id']) ? $this->attributes['id'] : 0;
+        $espName = $this->espAccount ? $this->espAccount->getName() : 'NONE';
+        $emailClass = $this->listProfileCombine ? $this->listProfileCombine->getEmailClassShortName() : 'NONE';
+        $advertiser = $this->offer ? $this->offer->getAdvertiserName() : 'NONE';
+
+        return $id . '_' . $espName . '_' . $emailClass . '_' . $advertiser;
+
+    }
+
+        
+
 }

@@ -73,7 +73,14 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
-        return $this->deploy->create($data);
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
+        $data['deploy_name'] = '';
+        $data['external_deploy_id'] = '';
+        $data['deployment_status'] = 0;
+        $obj = $this->deploy->create($data);
+        $deployName = $obj->createDeployName();
+
+        $this->deploy->update(['id' => $obj->id], ['deploy_name' => $deployName]);
     }
 
     public function getDeploy($id)
@@ -142,7 +149,14 @@ class DeployRepo implements Mt2Export
 
     public function massInsert($data){
         foreach($data as $row){
-            $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
+            $row['send_date'] = Carbon::parse($row['send_date'])->toDateString();
+            $row['deploy_name'] = '';
+            $row['external_deploy_id'] = '';
+            $row['deployment_status'] = 0;
+            $obj = $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
+
+            $deployName = $obj->createDeployName();
+            $this->deploy->update(['id' => $obj->id], ['deploy_name' => $deployName]);
         }
         return true;
     }
