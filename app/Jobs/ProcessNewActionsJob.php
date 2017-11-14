@@ -45,7 +45,7 @@ class ProcessNewActionsJob extends MonitoredJob implements ShouldQueue
     public function handleJob()
     {
         $newActions = \App::make('\App\Services\NewActionsService');
-        $newActions->updateFirstPartyEmailStatuses($this->dateRange);
+        #$newActions->updateFirstPartyEmailStatuses($this->dateRange); // no first party for now
         $newActions->updateThirdPartyEmailStatuses( $this->dateRange );
         $newActions->updateAttributionRecordTruths( $this->dateRange );
     }

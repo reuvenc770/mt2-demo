@@ -320,7 +320,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             AND 
             lpft.updated_at between :start AND :end
             AND 
-            party = 1";
+            lpft.party = 1";
     }
 
     public function deployDateSyncCheck($deployId, $date) {
