@@ -33,8 +33,6 @@ class ExportDeployCombineJob extends MonitoredJob {
         $this->jobName = self::BASE_NAME . $deployNames;
 
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
-
-        JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     /**
