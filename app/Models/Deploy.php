@@ -124,7 +124,7 @@ class Deploy extends Model
     public function createDeployName() {
         // of the form ID_ESPACCOUNTNAME_EMAILCLASS_ADVERTISER
 
-        $id = isset($this->attributes['id']) ? $this->attributes['id'] : 0;
+        $id = isset($this->attributes['id']) ? $this->attributes['id'] : 'EMPTY-DEPLOY';
         $espName = $this->espAccount ? $this->espAccount->getName() : 'NONE';
         $emailClass = $this->listProfileCombine ? $this->listProfileCombine->getEmailClassShortName() : 'NONE';
         $advertiser = $this->offer ? $this->offer->getAdvertiserName() : 'NONE';
