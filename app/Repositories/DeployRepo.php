@@ -90,6 +90,7 @@ class DeployRepo implements Mt2Export
 
     public function updateOrCreate($data)
     {
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
     }
 
@@ -97,6 +98,7 @@ class DeployRepo implements Mt2Export
 
     public function update($data, $id)
     {
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
         return $this->deploy->find($id)->update($data);
     }
 
