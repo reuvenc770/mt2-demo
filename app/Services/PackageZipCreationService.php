@@ -325,9 +325,6 @@ class PackageZipCreationService {
 
             return "{$e->getMessage()} is not a valid URL. Please check template {$templateId} and creative {$creativeId}";
         }
-        catch (\Exception $e) {
-            dd($e);
-        }
     }
 
 
@@ -741,31 +738,31 @@ TXT;
     private function validate($deploy) {
         if (!$deploy->creative || $deploy->creative->returnApprovalAndStatus() !== 'allowed') {
             // we lose information this way, though
-            throw new ValidationException('Creative is not permitted. Check approval and status.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - Creative is not permitted. Check approval and status.');
         }
         elseif (!$deploy->from || $deploy->from->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('From line is not permitted. Check approval and status.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - From line is not permitted. Check approval and status.');
         }
         elseif (!$deploy->subject || $deploy->subject->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('Subject line is not permitted. Check approval and status.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - Subject line is not permitted. Check approval and status.');
         }
         elseif (!$deploy->offer || $deploy->offer->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('Offer is not permitted. Check approval and status.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - Offer is not permitted. Check approval and status.');
         }
         elseif (!$deploy->contentDomain || !$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
-            throw new ValidationException('Content domain not permitted. Check status, type, and esp account.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - Content domain not permitted. Check status, type, and esp account.');
         }
         elseif ('' === $deploy->contentDomain->domain_name) {
-            throw new ValidationException('Content domain url is empty.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - Content domain url is empty.');
         }
         elseif (!$deploy->espAccount) {
-            throw new ValidationException('ESP Account does not exist.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - ESP Account does not exist.');
         }
         elseif (!$deploy->mailingTemplate ) {
-            throw new ValidationException('Mailing template does not exist.');
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - Mailing template does not exist.');
         }
         elseif (!$this->offerRepo->offerCanBeMailedOnDay($deploy->offer->id, $deploy->send_date)) {
-            throw new ValidationException("Offer cannot be sent on {$deploy->send_date}.");
+            throw new ValidationException('DeployID: ' . $deploy->id . ' - Offer cannot be sent on {$deploy->send_date}.');
         }
     }
 
