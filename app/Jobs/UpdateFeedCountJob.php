@@ -25,9 +25,7 @@ class UpdateFeedCountJob extends MonitoredJob
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->tracking = $tracking;
-        parent::__construct($this->jobName,$runtimeThreshold,$tracking);
-        JobTracking::startAggregationJob($this->jobName, $this->tracking);
+        parent::__construct($this->jobName, $runtimeThreshold, $tracking);
     }
 
     /**

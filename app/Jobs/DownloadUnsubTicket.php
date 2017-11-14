@@ -29,7 +29,7 @@ class DownloadUnsubTicket extends MonitoredJob implements ShouldQueue
         $this->data = $data;
         $this->maxAttempts = config('jobs.maxAttempts');
         $this->tracking = $tracking;
-        JobTracking::startEspJob($jobname ,$this->apiName, $this->espAccountId, $this->tracking);
+        #JobTracking::startEspJob($jobname ,$this->apiName, $this->espAccountId, $this->tracking);
     }
 
     public function handleJob()
