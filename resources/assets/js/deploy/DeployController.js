@@ -639,18 +639,21 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.createPackagesFailed = function ( response ) {
-        var enc = new TextDecoder();
-        var arr = new Uint8Array( response.data );
-        var str = enc.decode( arr );
-        
-        $log.info( str );
+        var errorMessage = '';
 
-        var data = angular.fromJson( str );
+        if ( typeof( response ) == 'object' ) {
+            errorMessage = response.data.message;
+        } else {
+            var enc = new TextDecoder();
+            var arr = new Uint8Array( response.data );
+            var str = enc.decode( arr );
+            var data = angular.fromJson( str );
 
-        $log.info( data );
+            errorMessage = data.message;
+        }
 
         modalService.setModalLabel( 'Create Packages Error' );
-        modalService.setModalBody( data.message );
+        modalService.setModalBody( errorMessage );
         modalService.launchModal();
     };
 
