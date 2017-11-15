@@ -641,15 +641,15 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.createPackagesFailed = function ( response ) {
         var errorMessage = '';
 
-        if ( typeof( response ) == 'object' ) {
-            errorMessage = response.data.message;
-        } else {
+        if ( response.data instanceof ArrayBuffer ) {
             var enc = new TextDecoder();
             var arr = new Uint8Array( response.data );
             var str = enc.decode( arr );
             var data = angular.fromJson( str );
 
             errorMessage = data.message;
+        } else {
+            errorMessage = response.data.message;
         }
 
         modalService.setModalLabel( 'Create Packages Error' );
