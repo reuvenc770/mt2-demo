@@ -197,6 +197,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators --daysBack=5 --runtime-threshold=60s')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto --daysBack=5 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5 --runtime-threshold=1m')->hourly()->sendOutputTo($filePath); //job class: RetrieveTrackingDataJob
+        $schedule->command('reports:downloadCakeConversions -d 1 --runtime-threshold=5m')->hourly()->sendOutputTo($filePath); //job class: AttributionConversionJob 
         $schedule->command('process:cfsStats')->cron('0 */4 * * *'); //command PopulateCfsStatsTable , job DataProcessingJob, Job name like: ProcessCfsStats
 
 
