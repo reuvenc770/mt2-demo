@@ -19,6 +19,7 @@ class ProcessRawContentServerStats {
     private $deployRepo;
     private $jobName;
     const LIMIT = 10000;
+    const CMP_START_DID = 2000000;
 
     public function __construct(ContentServerStatsRawRepo $csRepo, 
         ListProfileFlatTableRepo $lpRepo, 
@@ -56,7 +57,7 @@ class ProcessRawContentServerStats {
                         $deployId = $row->deploy_id;
                     }
 
-                    if ($deployId) {
+                    if ($deployId && $deployId > self::CMP_START_DID) {
                         // Need esp_account_id, offer_id, cake_vertical_id
                         $deploy = $this->deployRepo->getDeploy($deployId);
                         
