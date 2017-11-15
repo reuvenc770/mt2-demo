@@ -736,33 +736,49 @@ TXT;
 
 
     private function validate($deploy) {
-        if (!$deploy->creative || $deploy->creative->returnApprovalAndStatus() !== 'allowed') {
-            // we lose information this way, though
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - Creative is not permitted. Check approval and status.');
+        $messageStart = "DeployID: {$deploy->id} - ";
+
+        if (!$deploy->creative) {
+            throw new ValidationException($messageStart . "Creative does not exist.");
         }
-        elseif (!$deploy->from || $deploy->from->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - From line is not permitted. Check approval and status.');
+        elseif ($deploy->creative->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "Creative {$deploy->creative->id} is not permitted. Check approval and status.");
         }
-        elseif (!$deploy->subject || $deploy->subject->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - Subject line is not permitted. Check approval and status.');
+        elseif (!$deploy->from) {
+            throw new ValidationException($messageStart . "From does not exist.");
         }
-        elseif (!$deploy->offer || $deploy->offer->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - Offer is not permitted. Check approval and status.');
+        elseif ($deploy->from->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "From {$deploy->from->id} line is not permitted. Check approval and status.");
         }
-        elseif (!$deploy->contentDomain || !$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - Content domain not permitted. Check status, type, and esp account.');
+        elseif (!$deploy->subject) {
+            throw new ValidationException($messageStart . "Subject does not exist.");
+        }
+        elseif ($deploy->subject->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "Subject {$deploy->subject->id} line is not permitted. Check approval and status.");
+        }
+        elseif (!$deploy->offer) {
+            throw new ValidationException($messageStart . "Offer does not exist.");
+        }
+        elseif ($deploy->offer->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "Offer {$deploy->offer->id} is not permitted. Check approval and status.");
+        }
+        elseif (!$deploy->contentDomain) {
+            throw new ValidationException($messageStart . "Content domain does not exist.");
+        }
+        elseif (!$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
+            throw new ValidationException($messageStart . "Content domain {$deploy->contentDomain->id} not permitted. Check status, type, and esp account.");
         }
         elseif ('' === $deploy->contentDomain->domain_name) {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - Content domain url is empty.');
+            throw new ValidationException($messageStart . "Content domain {$deploy->contentDomain->id} url is empty.");
         }
         elseif (!$deploy->espAccount) {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - ESP Account does not exist.');
+            throw new ValidationException($messageStart . "ESP Account does not exist.");
         }
         elseif (!$deploy->mailingTemplate ) {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - Mailing template does not exist.');
+            throw new ValidationException($messageStart . "Mailing template does not exist.");
         }
         elseif (!$this->offerRepo->offerCanBeMailedOnDay($deploy->offer->id, $deploy->send_date)) {
-            throw new ValidationException('DeployID: ' . $deploy->id . ' - Offer cannot be sent on {$deploy->send_date}.');
+            throw new ValidationException($messageStart . "Offer {$deploy->offer->id} cannot be sent on {$deploy->send_date}.");
         }
     }
 
