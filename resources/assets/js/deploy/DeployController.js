@@ -638,6 +638,25 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.startPolling();
     };
 
+    self.createPackagesFailed = function ( response ) {
+        var errorMessage = '';
+
+        if ( response.data instanceof ArrayBuffer ) {
+            var enc = new TextDecoder();
+            var arr = new Uint8Array( response.data );
+            var str = enc.decode( arr );
+            var data = angular.fromJson( str );
+
+            errorMessage = data.message;
+        } else {
+            errorMessage = response.data.message;
+        }
+
+        modalService.setModalLabel( 'Create Packages Error' );
+        modalService.setModalBody( errorMessage );
+        modalService.launchModal();
+    };
+
     self.successCheckPackageStatus = function (response){
         var count = response.data.length;
         if(count == 0){
