@@ -37,4 +37,8 @@ class MD5AdvertiserSuppressListRepo {
         }
         
     }
+
+    public function getEmailsSuppressedForAdvertisers($emails, $advertiserIds) {
+        return $this->model->where('')
+    }
 }

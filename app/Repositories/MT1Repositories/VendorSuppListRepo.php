@@ -34,4 +34,12 @@ class VendorSuppListRepo {
                     ->select('email_addr as email_address')
                     ->first();
     }
+
+    public function getEmailsSuppressedForLists(array $emails,  array $lists) {
+        return $this->model
+                    ->whereIn('email_addr', $emails)
+                    ->whereIn('list_id', $lists)
+                    ->select('email_addr')
+                    ->get();
+    }
 }
