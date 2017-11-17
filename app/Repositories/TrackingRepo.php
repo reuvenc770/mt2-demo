@@ -187,15 +187,13 @@ class TrackingRepo
                 "d.offer_id",
                 'co.vertical_id',
                 DB::raw('IFNULL(e.email_domain_id, 0) as email_domain_id'),
-                DB::raw('COUNT(IF(action_id = 2, 1, 0)) as clicks'), 
-                DB::raw('SUM(IF(action_id = 3, 1, 0)) as conversions'),
-                DB::raw('MAX(datetime) as last_datetime'),
+                DB::raw('IF(action_id = 2, 1, 0) as clicks'),
+                DB::raw('IF(action_id = 3, 1, 0) as conversions'),
                 'd.party')
             ->where("cake_actions.id", '>', $startPoint)
             ->join("$dataSchema.deploys as d", $table . '.deploy_id', '=', 'd.id')
             ->join("$dataSchema.cake_offers as co", $table.'.cake_offer_id', '=', 'co.id')
             ->leftJoin("$dataSchema.emails as e", $table.'.email_id', '=', 'e.id')
-            ->groupBy('email_id', 'deploy_id', 'date', 'co.vertical_id')
             ->take($limit)
             ->orderBy('cake_actions.id', 'asc')
             ->get();

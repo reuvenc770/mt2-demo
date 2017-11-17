@@ -66,6 +66,7 @@ class ListProfileActionAggregationService implements IEtl {
 
         // Part 2: Conversions
         $cakeStartPoint = $this->etlPickupRepo->getLastInsertedForName(self::CAKE_JOB_NAME);
+        echo "Starting Cake insert into LPFT with $cakeStartPoint" . PHP_EOL;
         $conversions = $this->cakeRepo->getEmailSortedCakeActions($cakeStartPoint, self::CAKE_LIMIT);
 
         while (count($conversions) > 0) {
@@ -73,12 +74,11 @@ class ListProfileActionAggregationService implements IEtl {
                 $this->flatTableRepo->insertBatchConversions($conv);
                 $cakeStartPoint = $conv->id;
             }
-
+            echo "Starting Cake insert into LPFT with $cakeStartPoint" . PHP_EOL;
             $conversions = $this->cakeRepo->getEmailSortedCakeActions($cakeStartPoint, self::CAKE_LIMIT);
         }
         
         $this->flatTableRepo->cleanUpBatchConversions();
-
         $this->etlPickupRepo->updatePosition(self::CAKE_JOB_NAME, $cakeStartPoint);
     }
 
