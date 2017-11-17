@@ -80,7 +80,7 @@ return [
         ],
         'ListProfiles' => [
             'queueName' => 'ListProfile',
-            'canModify' => true,
+            'canModify' => false,
             'processName' => 'ListProfiles_'
         ],
 

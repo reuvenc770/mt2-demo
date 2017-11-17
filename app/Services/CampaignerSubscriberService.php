@@ -31,12 +31,14 @@ class CampaignerSubscriberService
     public function pullUnsubsEmailsByLookback($lookback){
         try {
             $reportData = $this->createUnsubReport($lookback);
+            $hbData = $this->createHardBounceReport($lookback);
+
         } catch ( \Exception $e ) {
             throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
         }
 
-        if($reportData){
-            $this->dispatch(new DownloadUnsubTicket($this->api->getApiName(), $this->api->getEspAccountId(), $reportData, str_random(16)));
+        if($reportData || $hbData){
+            $this->dispatch(new DownloadUnsubTicket($this->api->getApiName(), $this->api->getEspAccountId(), $reportData, $hbData, str_random(16)));
         }
         return null;
 
@@ -49,13 +51,26 @@ class CampaignerSubscriberService
 
     }
 
+    public function insertHardBounces($data) {
+        foreach ($data as $entry) {
+            Suppression::recordRawHardBounce($this->api->getEspAccountId(),$entry['email'],0, Carbon::today()->toDateString());
+        }
+    }
+
 
     private function createUnsubReport( $lookback )
     {
-        $manager = new ContactManagement();
         $searchQuery = $this->api->buildUnsubSearchQuery($lookback);
+        return $this->createReport($searchQuery);
+    }
 
+    private function createHardBounceReport($lookback) {
+        $searchQuery = $this->api->buildHardBounceSearchQuery($lookback);
+        return $this->createReport($searchQuery);
+    }
 
+    private function createReport($searchQuery) {
+        $manager = new ContactManagement();
         $report = new RunReport($this->api->getAuth(), $searchQuery);
 
         $reportHandle = $manager->RunReport($report);

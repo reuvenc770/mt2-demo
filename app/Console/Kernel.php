@@ -227,8 +227,8 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Maro 2 Maro' )->cron('0 10,22 * * * *')->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 2 Maro' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 10,22 * * * *');
-        $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        #$schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 10,22 * * * *');
+        #$schedule->command( 'reports:downloadDeliverables Bronto:delivered 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 10,22 * * * *');
         #$schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
@@ -268,12 +268,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import link 2 --runtime-threshold=1h')->cron('0 */2 * * * *');
         $schedule->command('mt1Import feed --runtime-threshold=1m')->cron('0 * * * * *');
         $schedule->command('mt1Import offerTrackingLink --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOffer --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeVertical --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOfferMap --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import vendorSuppressionInfo --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import vendorSuppressionInfo --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *');  //all mt1 above
 
