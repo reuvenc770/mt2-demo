@@ -287,11 +287,7 @@ class DeployController extends Controller
         $username = $request->get("username");
         $data = $request->except("username");
         $filePath = false;
-        $ran = str_random(10);
-        $reportCard = CacheReportCard::makeNewReportCard("Deploys-{$username}-{$ran}");
         $deploys = [];
-
-        $reportCard->setOwner($username);
 
         foreach($data as $deployId) {
             $deploys[] = Deploy::find($deployId);
@@ -310,7 +306,12 @@ class DeployController extends Controller
             Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
         }
 
-        $this->dispatch((new ExportDeployCombineJob($deploys, $reportCard, str_random(16), 5000))->onQueue(self::LIST_PROFILE_QUEUE));
+        foreach ($deploys as $d) {
+            $ran = str_random(10);
+            $reportCard = CacheReportCard::makeNewReportCard("Deploys-{$username}-{$ran}");
+            $reportCard->setOwner($username);
+            $this->dispatch((new ExportDeployCombineJob([$d], $reportCard, str_random(16), 5000))->onQueue(self::LIST_PROFILE_QUEUE));
+        }        
         
         //Update deploy status to pending
         $this->deployService->deployPackages($data);
