@@ -323,7 +323,10 @@ class PackageZipCreationService {
             $templateId = $deploy->template_id;
             $creativeId = $deploy->creative_id;
 
-            return "{$e->getMessage()} is not a valid URL. Please check template {$templateId} and creative {$creativeId}";
+            throw new ValidationException("{$e->getMessage()} is not a valid URL. Please check template {$templateId} and creative {$creativeId}");
+        }
+        catch (ValidationException $e) {
+            throw new ValidationException($e->getMessage());
         }
     }
 

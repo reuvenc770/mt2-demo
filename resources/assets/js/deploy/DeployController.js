@@ -198,8 +198,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.createPackages = function () {
-       var packageIds = self.selectedRows;
+        var packageIds = self.selectedRows;
         DeployApiService.deployPackages(packageIds, _config.userName, self.createPackageSuccess, self.createPackagesFailed)
+        self.selectedRows = [];
     };
 
     self.searchDeploys = function() {
