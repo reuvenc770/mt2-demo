@@ -639,7 +639,7 @@
                                     <select name="url_format" id="url_format" class="form-control" ng-required="true"
                                             ng-model="deploy.currentDeploy.url_format">
                                         <option value="">URL Format</option>
-                                        <option value="long">long</option>
+                                        <!-- <option value="long">long</option> -->
                                         <option value="short">short</option>
                                         <option value="encrypt">encrypt</option>
                                     </select>
