@@ -380,7 +380,7 @@ class ListProfileExportService {
         $miscListCount = count($miscLists);
 
         $offerNames = [];
-        $offerLists = $this->mt1SuppServ->getSuppressionLists($offersSuppressed);
+        $offerList = $this->mt1SuppServ->getSuppressionLists($offersSuppressed);
 
         foreach ($offersSuppressed as $oId) {
             $offerNames[] = $this->offerRepo->getOfferName($oId);

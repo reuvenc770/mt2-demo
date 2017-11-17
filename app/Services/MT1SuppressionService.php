@@ -110,18 +110,26 @@ class MT1SuppressionService implements IFeedSuppression {
         $plaintextOutput = [];
         $md5Output = [];
 
-        $this->md5Repo->
-
-        foreach ($this->plaintextRepo->getEmailsSuppressedForLists($emailAddresses, $splitTypes->plaintext) as $e) {
-            $plaintextOutput[] = $e->email_addr;
+        if (count($splitTypes->md5) > 0) {
+            foreach ($this->md5Repo->getEmailsSuppressedForLists($emailAddresses, $splitTypes->md5) as $e) {
+                $md5Output[] = $e->email_addr;
+            }
         }
 
-        return array_unique(array_merge($md5Output, $plaintextOutput));
+        $emailAddresses = array_diff($emailAddresses, $md5Output);
+        
+        if (count($splitTypes->plaintext) > 0) {
+            foreach ($this->plaintextRepo->getEmailsSuppressedForLists($emailAddresses, $splitTypes->plaintext) as $e) {
+                $plaintextOutput[] = $e->email_addr;
+            }
+        }
+        
+        return array_merge($md5Output, $plaintextOutput);
     }
 
     private function setOfferListTypes(array $offerList) {
         // split the offers between MD5 and non-md5 lookups
-        $output['md5' => [], 'plaintext' => []];
+        $output = ['md5' => [], 'plaintext' => []];
 
         foreach ($offerList as $listId) {
             if (!isset($this->listIdTypeCache[$listId])) {

@@ -39,7 +39,7 @@ class VendorSuppListRepo {
         return $this->model
                     ->whereIn('email_addr', $emails)
                     ->whereIn('list_id', $lists)
-                    ->select('email_addr')
+                    ->selectRaw('distinct email_addr')
                     ->get();
     }
 }
