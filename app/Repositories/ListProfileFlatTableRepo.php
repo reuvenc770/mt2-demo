@@ -128,8 +128,8 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 has_conversion = IF(VALUES(has_conversion) > 0, VALUES(has_conversion), has_conversion),
                 deliveries = deliveries,
                 opens = opens,
-                clicks = VALUES(clicks),
-                conversions = VALUES(conversions),
+                clicks = clicks + VALUES(clicks),
+                conversions = conversion + VALUES(conversions),
                 created_at = created_at,
                 email_domain_group_id = email_domain_group_id,
                 has_esp_open = has_esp_open,
@@ -320,7 +320,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             AND 
             lpft.updated_at between :start AND :end
             AND 
-            party = 1";
+            lpft.party = 1";
     }
 
     public function deployDateSyncCheck($deployId, $date) {

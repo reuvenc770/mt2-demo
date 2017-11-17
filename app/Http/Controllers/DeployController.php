@@ -12,6 +12,7 @@ use App\Services\EspApiAccountService;
 use App\Services\MailingTemplateService;
 use App\Services\DomainService;
 use Illuminate\Http\Request;
+use App\Exceptions\ValidationException;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Response;
@@ -293,33 +294,37 @@ class DeployController extends Controller
             $deploys[] = Deploy::find($deployId);
         }
 
-        //Only one package is selected return the filepath and make it a download response
-        if (count($deploys) === 1) {
-            $filePath = $this->packageService->createPackage($data);
-        }
-        else {
-            //more then 1 package selection create the packages on the FTP and kick off the OPS file job
-            foreach ($deploys as $deploy) {
-                $this->packageService->uploadPackage($deploy->id);
+        try {
+            //Only one package is selected return the filepath and make it a download response
+            if (count($deploys) === 1) {
+                $filePath = $this->packageService->createPackage($data);
+            }
+            else {
+                //more then 1 package selection create the packages on the FTP and kick off the OPS file job
+                foreach ($deploys as $deploy) {
+                    $this->packageService->uploadPackage($deploy->id);
+                }
+
+                Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
             }
 
-            Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
-        }
+            foreach ($deploys as $d) {
+                $ran = str_random(10);
+                $reportCard = CacheReportCard::makeNewReportCard("Deploys-{$username}-{$ran}");
+                $reportCard->setOwner($username);
+                $this->dispatch((new ExportDeployCombineJob([$d], $reportCard, str_random(16), 5000))->onQueue(self::LIST_PROFILE_QUEUE));
+            }        
+            
+            //Update deploy status to pending
+            $this->deployService->deployPackages($data);
 
-        foreach ($deploys as $d) {
-            $ran = str_random(10);
-            $reportCard = CacheReportCard::makeNewReportCard("Deploys-{$username}-{$ran}");
-            $reportCard->setOwner($username);
-            $this->dispatch((new ExportDeployCombineJob([$d], $reportCard, str_random(16), 5000))->onQueue(self::LIST_PROFILE_QUEUE));
-        }        
-        
-        //Update deploy status to pending
-        $this->deployService->deployPackages($data);
-
-        if($filePath){
-            return response()->download($filePath);
+            if($filePath){
+                return response()->download($filePath);
+            }
+            return response()->json(['success' => true] );
+        } catch ( ValidationException $e ) {
+            return response()->json( [ 'status' => false , 'message' => $e->getMessage() ] , 422 );
         }
-        return response()->json(['success' => true] );
     }
 
 
