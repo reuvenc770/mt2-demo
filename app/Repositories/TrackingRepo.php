@@ -175,7 +175,7 @@ class TrackingRepo
         return $this->report->select('user_agent_string')->where('clickDate', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))->get();
     }
 
-    public function getEmailSortedCakeActions($startPoint, $limit) {
+    public function getSortedCakeActions($startPoint, $limit) {
         $dataSchema = config('database.connections.mysql.database');
         $table = $this->report->getTable();
         
