@@ -303,7 +303,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:aggregateActions --runtime-threshold=6h')->cron('0 0,14 * * * *'); // Job name: ListProfileAggregation, job class: DataProcessingJob
         $schedule->command('listprofile:contentServerRawStats --runtime-threshold=5m')->hourly(); // Job name: ProcessContentServerRawStats, job class: DataProcessingJob
         $schedule->command('listprofile:getRecordAgentData 2 --runtime-threshold=40m')->hourly(); // Job name: ContentServerDeviceData, job class: DataProcessingJob
-        $schedule->command('listprofile:baseTables --runtime-threshold=1h')->cron('0 3,12,16 * * 1-6 *'); // Job name like: ListProfileExport%, job class: ListProfileBaseExportJob
+        $schedule->command('listprofile:baseTables --runtime-threshold=1h')->cron('0 3,16 * * * *'); // Job name like: ListProfileExport%, job class: ListProfileBaseExportJob
         $schedule->command('listprofile:validateRedshift 1')->cron('0 6 * * * *'); // command RedshiftDataConsistencyValidation, Job names like: DataValidation & upper-case entity, job class: RedshiftDataValidationJob
 
         /**
