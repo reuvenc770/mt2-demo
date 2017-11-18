@@ -76,13 +76,20 @@ class MT1SuppressionService implements IFeedSuppression {
      */
 
     public function getSuppressionLists(array $advertiserIds) {
-        $output = [];
+        $output = ['md5' => [], 'plaintext' => [], 'count' => 0];
 
         foreach ($advertiserIds as $advertiserId) {
-            $output[] = $this->getAdvertiserList($advertiserId);
+            $list = $this->getAdvertiserList($advertiserId);
+            if (1 == $list->md5) {
+                $output['md5'][] = $list->id;
+            }
+            else {
+                $output['plaintext'][] = $list->id;
+            }
+            $output['count']++;
         }
 
-        return $output;
+        return (object)$output;
     }
 
     /**
@@ -105,13 +112,12 @@ class MT1SuppressionService implements IFeedSuppression {
     }
 
 
-    public function suppressedByOffers(array $emailAddresses, array $offerList) {
-        $splitTypes = $this->setOfferListTypes($offerList);
+    public function suppressedByOffers(array $emailAddresses, $splitTypes) {
         $plaintextOutput = [];
         $md5Output = [];
 
         if (count($splitTypes->md5) > 0) {
-            foreach ($this->md5Repo->getEmailsSuppressedForLists($emailAddresses, $splitTypes->md5) as $e) {
+            foreach ($this->md5Repo->getEmailsSuppressedForAdvertisers($emailAddresses, $splitTypes->md5) as $e) {
                 $md5Output[] = $e->email_addr;
             }
         }
