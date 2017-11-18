@@ -42,15 +42,18 @@ class ExportDeployCombineJob extends MonitoredJob {
      */
     public function handleJob() {
         $service = \App::make('\App\Services\ListProfileExportService');
+        $count = 0;
 
         foreach ($this->deploys as $deploy) {
             if ($deploy->list_profile_combine_id > 0) {
                 $entry = new ReportEntry($deploy->name);
                 $entry = $service->createDeployExport($deploy, $entry);
                 $this->reportCard->addEntry($entry);
+                $count += $entry->getOriginalTotal();
             }
         }
 
         $this->reportCard->mail();
+        return $count;
     }
 }
