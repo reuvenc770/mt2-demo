@@ -448,7 +448,7 @@ class ListProfileExportService {
                         $reportEntry->increaseFinalRecordCount();
                     }
 
-
+                    $batchHash = [];
                     $batchHash[$row->email_address] = 0;
                     $batchCount = 1;
                 }
