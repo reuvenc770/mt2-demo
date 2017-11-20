@@ -449,7 +449,7 @@ class ListProfileExportService {
                     }
 
                     $batchHash = [];
-                    $batchHash[$row->email_address] = 0;
+                    $batchHash[$row->email_address] = $row;
                     $batchCount = 1;
                 }
             }
