@@ -32,11 +32,9 @@ class SuppressionRepo
             . $pdo->quote($data['esp_account_id']) . ','
             . $pdo->quote($data['esp_internal_id']) . ','
             . $pdo->quote($data['date']) . ','
-            . $pdo->quote($data['reason_id']) . ','
-            . $pdo->quote($data['created_at']) . ','
-            . $pdo->quote($data['updated_at']) . ')';
+            . $pdo->quote($data['reason_id']) . ')';
 
-        DB::statement("INSERT INTO suppressions (email_address, type_id, esp_account_id, esp_internal_id, date, reason_id , created_at, updated_at)
+        DB::statement("INSERT INTO suppressions (email_address, type_id, esp_account_id, esp_internal_id, date, reason_id)
             VALUES
 
             $str
@@ -46,10 +44,8 @@ class SuppressionRepo
             type_id = type_id,
             esp_account_id = esp_account_id,
             esp_internal_id = esp_internal_id,
-            date = date, values(date),
-            reason_id = reason_id,
-            created_at = created_at,
-            updated_at = values(updated_at) ");
+            date = date,
+            reason_id = reason_id");
     }
 
     public function getRecordsByDateEspType($typeId, $espAccountId, $date){
