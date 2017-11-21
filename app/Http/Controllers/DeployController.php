@@ -300,11 +300,6 @@ class DeployController extends Controller
                 $filePath = $this->packageService->createPackage($data);
             }
             else {
-                //more then 1 package selection create the packages on the FTP and kick off the OPS file job
-                foreach ($deploys as $deploy) {
-                    $this->packageService->uploadPackage($deploy->id);
-                }
-
                 Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
             }
 
