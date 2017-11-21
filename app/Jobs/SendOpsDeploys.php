@@ -12,6 +12,7 @@ use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use League\Csv\Writer;
 use Illuminate\Support\Facades\Storage;
+use Maknz\Slack\Facades\Slack;
 
 class SendOpsDeploys extends Job implements ShouldQueue
 {
@@ -21,8 +22,10 @@ class SendOpsDeploys extends Job implements ShouldQueue
     protected $deploys;
     protected $username;
     protected $packageService;
+    protected $userService;
 
     CONST JOB_NAME = "SendOpsDeploys";
+    const SLACK_CHANNEL = '#cmp_hard_start_errors';
 
     public function __construct($deploys, $tracking, $username)
     {
@@ -42,8 +45,32 @@ class SendOpsDeploys extends Job implements ShouldQueue
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
         $this->packageService = \App::make( \App\Services\PackageZipCreationService::class );
-        foreach($this->deploys as $deployId) {
-            $this->packageService->uploadPackage($deployId);
+        $this->userService = \App::make( \App\Services\UserService::class );
+        foreach(explode( ',' , $this->deploys ) as $deployId) {
+            try {
+                $this->packageService->uploadPackage($deployId);
+            } catch ( \Exception $e ) {
+                \Log::error( $e );
+                $error = $e->getMessage();
+
+                Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys Error ({$this->username}):\n{$error}" ); 
+
+                $user = $this->userService->findByUsername( $this->username );
+
+                if ( is_null( $user ) ) {
+                    Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys Error:\nFailed to find email for user '{$this->username}'. No notification was sent for failed package creation." ); 
+
+                    continue;
+                }
+
+                $email = $user->first()->email;
+
+                \Mail::raw( $error , function ( $message ) use ( $email , $deployId ) {
+                    $message->to($email);
+                    $message->subject("Error Creating Deployment Package - {$deployId}");
+                    $message->priority(1);
+                });
+            }
         }
 
         $records = $service->getdeployTextDetailsForDeploys($this->deploys);
