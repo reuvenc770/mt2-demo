@@ -18,7 +18,7 @@ class CreativeRepo {
     }
 
     public function prepareTableForSync() {
-        $this->model->truncate();
+        #$this->model->truncate();
     }
 
     public function getCreativeOfferClickRate($offerId) {
