@@ -323,6 +323,8 @@ class DeployController extends Controller
             }
             return response()->json(['success' => true] );
         } catch ( ValidationException $e ) {
+            return response()->json( [ 'status' => false , 'message' => 'Validation error: ' . $e->getMessage() ] , 422 );
+        } catch (\Exception $e) {
             return response()->json( [ 'status' => false , 'message' => $e->getMessage() ] , 422 );
         }
     }
