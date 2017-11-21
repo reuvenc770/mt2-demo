@@ -186,6 +186,8 @@ class DeployService
 
                 $errors['deploy_id'] = $deployId;
                 $errorCollection[] = [$e->getMessage()];
+
+                continue;
           }   
 
           $newDeploy = $this->deployRepo->duplicateDomainToDate($deployId, $futureDate);
