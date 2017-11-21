@@ -46,8 +46,6 @@ class SendOpsDeploys extends Job implements ShouldQueue
         $userService = \App::make( \App\Services\UserService::class );
         foreach(explode( ',' , $this->deploys ) as $deployId) {
             try {
-                throw new \Exception( 'Test Fail' );
-
                 $packageService->uploadPackage($deployId);
             } catch ( \Exception $e ) {
                 \Log::error( $e );
