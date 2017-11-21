@@ -21,8 +21,6 @@ class SendOpsDeploys extends Job implements ShouldQueue
     protected $tracking;
     protected $deploys;
     protected $username;
-    protected $packageService;
-    protected $userService;
 
     CONST JOB_NAME = "SendOpsDeploys";
     const SLACK_CHANNEL = '#cmp_hard_start_errors';
@@ -44,21 +42,23 @@ class SendOpsDeploys extends Job implements ShouldQueue
     {
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
-        $this->packageService = \App::make( \App\Services\PackageZipCreationService::class );
-        $this->userService = \App::make( \App\Services\UserService::class );
+        $packageService = \App::make( \App\Services\PackageZipCreationService::class );
+        $userService = \App::make( \App\Services\UserService::class );
         foreach(explode( ',' , $this->deploys ) as $deployId) {
             try {
-                $this->packageService->uploadPackage($deployId);
+                throw new \Exception( 'Test Fail' );
+
+                $packageService->uploadPackage($deployId);
             } catch ( \Exception $e ) {
                 \Log::error( $e );
                 $error = $e->getMessage();
 
-                Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys Error ({$this->username}):\n{$error}" ); 
+                Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys-{$deployId} Error ({$this->username}):\n{$error}" ); 
 
-                $user = $this->userService->findByUsername( $this->username );
+                $user = $userService->findByUsername( $this->username );
 
                 if ( is_null( $user ) ) {
-                    Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys Error:\nFailed to find email for user '{$this->username}'. No notification was sent for failed package creation." ); 
+                    Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys-{$deployId} Error:\nFailed to find email for user '{$this->username}'. No notification was sent for failed package creation." ); 
 
                     continue;
                 }
