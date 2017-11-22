@@ -285,7 +285,9 @@ class DeployController extends Controller
 
     public function deployPackages(Request $request)
     {
-        $username = $request->get("username");
+        $user = \Sentinel::getUser();
+        $username = $user->username;
+
         $data = $request->except("username");
         $filePath = false;
         $deploys = [];
