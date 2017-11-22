@@ -273,7 +273,7 @@ class DeployController extends Controller
                 $data[$index]['deployment_status'] = 0;
             }
             
-            if ( !is_numeric( $current['user_id'] ) ){
+            if ( !isset( $current['user_id'] ) ){
                 $user = \Sentinel::getUser();
                 if ($user) {
                     $data[$index]['user_id'] = $user->id;
