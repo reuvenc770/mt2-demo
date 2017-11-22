@@ -421,6 +421,10 @@ TXT;
                     $text = '';
 
                     foreach ($node->childNodes as $child) {
+                        if ( !method_exists( $child , 'getAttribute' ) ) { 
+                            continue;
+                        }
+                        
                         $text .= $child->getAttribute('title');
                     }
                     $prevText = $text;
