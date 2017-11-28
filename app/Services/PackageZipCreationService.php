@@ -265,7 +265,7 @@ class PackageZipCreationService {
                     $this->nameLinkId = $link->id;
                 }
                 else {
-                    $token = "{{URL" . $linkNumber . "}}";
+                    $token = "{{URL" . ($linkNumber - 1) . "}}"; // As per current logic
                 }
 
                 if (strpos($fullHtml, $token) !== false) {
