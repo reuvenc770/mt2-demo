@@ -76,6 +76,7 @@ class FeedRepo implements Mt2Export, IAwsRepo {
             ->leftJoin( 'cake_verticals' , 'feeds.vertical_id' , '=' , 'cake_verticals.id' )
             ->leftJoin( 'feed_types' , 'feeds.type_id' , '=' , 'feed_types.id' )
             ->leftJoin( 'countries' , 'feeds.country_id' , '=' , 'countries.id' )
+            ->leftJoin( 'email_oversight_feeds' , 'feeds.id' , '=' , 'email_oversight_feeds.feed_id' )
             ->select(
                 'feeds.id' ,
                 'clients.name as clientName' ,
@@ -89,6 +90,7 @@ class FeedRepo implements Mt2Export, IAwsRepo {
                 'feed_types.name as feedType' ,
                 'countries.abbr as country' ,
                 'feeds.source_url' ,
+                'email_oversight_feeds.list_id as email_oversight_list_id' ,
                 'feeds.created_at' ,
                 'feeds.updated_at'
             );
@@ -212,6 +214,11 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         if ( isset( $searchData['source_url'] ) ) {
             $query->where('feeds.source_url' , 'LIKE' , '%'.$searchData['source_url'].'%' );
         }
+
+        if ( isset( $searchData['email_oversight_enabled'] ) && $searchData['email_oversight_enabled'] == 1 ) {
+            $query->where('email_oversight_feeds.list_id' , '<>' , 'NULL' );
+        }
+
          return $query;
     }
 

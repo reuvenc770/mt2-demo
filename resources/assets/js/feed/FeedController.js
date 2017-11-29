@@ -177,7 +177,8 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
             "country" : self.search.country || undefined,
             "feed_type_id" : self.search.feed_type_id || undefined,
             "party" : self.search.party || undefined,
-            "source_url" : self.search.source_url || undefined
+            "source_url" : self.search.source_url || undefined ,
+            "email_oversight_enabled" : self.search.email_oversight_enabled || undefined
         };
 
         self.queryPromise = FeedApiService.searchFeeds( self.paginationCount , searchObj , self.sort , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );

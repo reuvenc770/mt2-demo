@@ -141,6 +141,14 @@
                         </div>
                     </div>
 
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <md-checkbox name="email_oversight" class="col-xs-12" ng-model="feed.search.email_oversight_enabled" ng-true-value="1">Email Oversight Enabled</md-checkbox>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="pull-right">
@@ -171,6 +179,7 @@
                     <th md-column md-order-by="feedType" class="md-table-header-override-whitetext">Feed Type</th>
                     <th md-column md-order-by="party" class="md-table-header-override-whitetext">Party</th>
                     <th md-column class="md-table-header-override-whitetext">Source URL</th>
+                    <th md-column class="md-table-header-override-whitetext">Email Oversight List ID</th>
                     <th md-column md-order-by="created_at" class="md-table-header-override-whitetext">Created</th>
                     <th md-column md-order-by="updated_at" class="md-table-header-override-whitetext">Updated</th>
                 </tr>
@@ -205,13 +214,14 @@
                     <td md-cell ng-bind="record.feedType" nowrap></td>
                     <td md-cell ng-bind="record.party"></td>
                     <td md-cell ng-bind="record.source_url"></td>
+                    <td md-cell ng-bind="record.email_oversight_list_id"></td>
                     <td md-cell nowrap ng-bind="::app.formatDate( record.created_at )"></td>
                     <td md-cell nowrap ng-bind="::app.formatDate( record.updated_at )"></td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="14">
+                    <td colspan="15">
                         <md-content class="md-mt2-zeta-theme">
                             <md-table-pagination md-limit="feed.paginationCount" md-limit-options="feed.paginationOptions" md-page="feed.currentPage" md-total="@{{feed.feedTotal}}" md-on-paginate="feed.loadFeeds" md-page-select></md-table-pagination>
                         </md-content>
