@@ -35,4 +35,7 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'emailoversight' => [
+        'token' => env( 'EMAIL_OVERSIGHT_API_TOKEN' ) ,
+    ] ,
 ];
