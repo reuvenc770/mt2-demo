@@ -9,7 +9,6 @@ use App\Repositories\TrackingRepo;
 use App\Repositories\EtlPickupRepo;
 use DB;
 
-
 class ListProfileActionAggregationService implements IEtl {
 
     private $actionsRepo;
@@ -17,6 +16,9 @@ class ListProfileActionAggregationService implements IEtl {
     private $cakeRepo;
     private $etlPickupRepo;
     const JOB_NAME = 'PopulateListProfileFlatTable';
+    const MAIN_LIMIT = 10000;
+    const CAKE_LIMIT = 50000;
+    const CAKE_JOB_NAME = 'CakeActions';
     
     public function __construct(EmailActionsRepo $actionsRepo, TrackingRepo $cakeRepo,  ListProfileFlatTableRepo $flatTableRepo, EtlPickupRepo $etlPickupRepo) {
         $this->actionsRepo = $actionsRepo;
@@ -34,8 +36,7 @@ class ListProfileActionAggregationService implements IEtl {
         while ($startPoint < $endPoint) {
             
             // limit of ~10k rows to prevent memory allocation issues and maximize bulk inserts
-            $limit = 10000;
-            $segmentEnd = $this->actionsRepo->nextNRows($startPoint, $limit);
+            $segmentEnd = $this->actionsRepo->nextNRows($startPoint, self::MAIN_LIMIT);
 
             // If we've overshot, $segmentEnd will be null
             $segmentEnd = $segmentEnd ? $segmentEnd : $endPoint;
@@ -63,15 +64,22 @@ class ListProfileActionAggregationService implements IEtl {
 
         $this->etlPickupRepo->updatePosition(self::JOB_NAME, $endPoint);
 
-
         // Part 2: Conversions
-        $conversions = $this->cakeRepo->getCakeDataForListProfiles();
+        $cakeStartPoint = $this->etlPickupRepo->getLastInsertedForName(self::CAKE_JOB_NAME);
+        echo "Starting Cake insert into LPFT with $cakeStartPoint" . PHP_EOL;
+        $conversions = $this->cakeRepo->getSortedCakeActions($cakeStartPoint, self::CAKE_LIMIT);
 
-        $conversions->each(function($data, $id) {
-            $this->flatTableRepo->insertBatchConversions($data);
-        }, 50000);
+        while (count($conversions) > 0) {
+            foreach ($conversions as $conv) {
+                $this->flatTableRepo->insertBatchConversions($conv);
+                $cakeStartPoint = $conv->id;
+            }
+            echo "Starting Cake insert into LPFT with $cakeStartPoint" . PHP_EOL;
+            $conversions = $this->cakeRepo->getSortedCakeActions($cakeStartPoint, self::CAKE_LIMIT);
+        }
         
         $this->flatTableRepo->cleanUpBatchConversions();
+        $this->etlPickupRepo->updatePosition(self::CAKE_JOB_NAME, $cakeStartPoint);
     }
 
     public function load() {}
@@ -96,7 +104,8 @@ class ListProfileActionAggregationService implements IEtl {
             . $pdo->quote($row->has_click) . ','
             . $pdo->quote($row->deliveries) . ',' 
             . $pdo->quote($row->opens) . ',' 
-            . $pdo->quote($row->clicks) . ', NOW(), NOW())';
+            . $pdo->quote($row->clicks) . ','
+            . $pdo->quote($row->party) . ', NOW(), NOW())';
     }
 }
 

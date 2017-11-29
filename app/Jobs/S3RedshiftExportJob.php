@@ -39,8 +39,6 @@ class S3RedshiftExportJob extends MonitoredJob {
         $this->updateNotificationTally( $entity );
 
         parent::__construct($this->jobName,$runtimeThreshold,$this->tracking);
-
-        JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     public function handleJob() {

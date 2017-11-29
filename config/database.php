@@ -55,7 +55,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
             'options'   => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
         ],
         'reporting_data' => [
@@ -67,7 +67,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
         'dima_data' => [
             'driver'    => 'mysql',
@@ -78,7 +78,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
         'mt1supp' => [
             'driver'    => 'mysql',
@@ -133,7 +133,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
 
         // Read-only handles from slave db
@@ -148,7 +148,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
 
         'slave_reports' => [
@@ -161,7 +161,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
 
         'slave_attribution' => [
@@ -174,7 +174,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
 
         'list_profile' => [
@@ -186,7 +186,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
 
         'list_profile_export_tables' => [
@@ -198,7 +198,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
 
         'suppression' => [
@@ -210,7 +210,7 @@ return [
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
-            'strict'    => false,
+            #'strict'    => true,
         ],
 
         'legacy_data_sync' => [
@@ -232,7 +232,8 @@ return [
             'username'  => env('REDSHIFT_USER', ''),
             'password'  => env('REDSHIFT_PW', ''),
             'port' => env('REDSHIFT_PORT', ''),
-            'charset' => 'utf8'
+            'charset' => 'utf8',
+            #'strict' => true
         ]
 
     ],

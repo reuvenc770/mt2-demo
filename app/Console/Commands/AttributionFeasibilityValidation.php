@@ -16,7 +16,7 @@ class AttributionFeasibilityValidation extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:validate';
+    protected $signature = 'attribution:validate {--runtime-threshold=default}';
 
     /**
      * The console command description.
@@ -42,7 +42,7 @@ class AttributionFeasibilityValidation extends Command
     public function handle(EtlPickupRepo $pickupRepo) {
         $startPoint = $pickupRepo->getLastInsertedForName('AttributionValidation');
 
-        $job = new AttributionValidationJob($startPoint, str_random(16));
+        $job = new AttributionValidationJob($startPoint, str_random(16), $this->option('runtime-threshold'));
         $this->dispatch($job);
     }
 }

@@ -57,14 +57,39 @@ class MT1SuppressionService implements IFeedSuppression {
 
     public function setAdvertiser ( $advertiserId ) {
         $this->advertiserId = $advertiserId;
+        $this->list = $this->getAdvertiserList($advertiserId);
+    }
 
+    private function getAdvertiserList($advertiserId) {
         $listResult = $this->advertiser->getSuppressionListId( $advertiserId );
 
         if ( $listResult->count() <= 0 ) {
             throw new \Exception( "Advertiser {$advertiserId} is missing list." );
         }
 
-        $this->list = $listResult->first(); 
+        return $listResult->first(); 
+    }
+
+    /**
+     *  @param Int[] $advertiserIds
+     *  @return Object[]
+     */
+
+    public function getSuppressionLists(array $advertiserIds) {
+        $output = ['md5' => [], 'plaintext' => [], 'count' => 0];
+
+        foreach ($advertiserIds as $advertiserId) {
+            $list = $this->getAdvertiserList($advertiserId);
+            if (1 == $list->md5) {
+                $output['md5'][] = $list->id;
+            }
+            else {
+                $output['plaintext'][] = $list->id;
+            }
+            $output['count']++;
+        }
+
+        return (object)$output;
     }
 
     /**
@@ -84,6 +109,52 @@ class MT1SuppressionService implements IFeedSuppression {
         } else {
             return $this->plaintextRepo->isSuppressed( $record , $this->list->id );
         }
+    }
+
+
+    public function suppressedByOffers(array $emailAddresses, $splitTypes) {
+        $plaintextOutput = [];
+        $md5Output = [];
+
+        if (count($splitTypes->md5) > 0) {
+            foreach ($this->md5Repo->getEmailsSuppressedForAdvertisers($emailAddresses, $splitTypes->md5) as $e) {
+                $md5Output[] = $e->email_addr;
+            }
+        }
+
+        $emailAddresses = array_diff($emailAddresses, $md5Output);
+        
+        if (count($splitTypes->plaintext) > 0) {
+            foreach ($this->plaintextRepo->getEmailsSuppressedForLists($emailAddresses, $splitTypes->plaintext) as $e) {
+                $plaintextOutput[] = $e->email_addr;
+            }
+        }
+        
+        return array_merge($md5Output, $plaintextOutput);
+    }
+
+    private function setOfferListTypes(array $offerList) {
+        // split the offers between MD5 and non-md5 lookups
+        $output = ['md5' => [], 'plaintext' => []];
+
+        foreach ($offerList as $listId) {
+            if (!isset($this->listIdTypeCache[$listId])) {
+                $this->listIdTypeCache[$listId] = $this->getSuppressionType($listId);
+            }
+
+            if ('md5' === $this->listIdTypeCache[$listId]) {
+                if (!isset($this->listOfferCache[$listId])) {
+                    $this->listOfferCache[$listId] = $this->offerListRepo->getOfferForList($listId);
+                }
+
+                $output['md5'][] = $this->listOfferCache[$listId];
+            }
+            else {
+                $output['plaintext'][] = $listId;
+            }
+        }
+
+        return (object)$output;
     }
 
     /**

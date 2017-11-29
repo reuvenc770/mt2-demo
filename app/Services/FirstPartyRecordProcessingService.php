@@ -3,16 +3,19 @@
 namespace App\Services;
 use App\Repositories\FirstPartyRecordDataRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
+use App\Repositories\EspWorkflowLogRepo;
 use App\Services\Interfaces\IFeedPartyProcessing;
 use App\Services\Interfaces\IPostingStrategy;
 use App\Services\AbstractReportService;
 use Carbon\Carbon;
+use App\DataModels\RecordProcessingReportUpdate;
 
 class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
     private $espApiService;
     private $emailRepo;
     private $statsRepo;
     private $recordDataRepo;
+    private $workflowLogRepo;
 
     private $emailCache = [];
     private $targetId;
@@ -23,16 +26,18 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
     public function __construct(AbstractReportService $espApiService, 
         FeedDateEmailBreakdownRepo $statsRepo, 
         FirstPartyRecordDataRepo $recordDataRepo,
-        IPostingStrategy $postingStrategy) {
+        IPostingStrategy $postingStrategy,
+        EspWorkflowLogRepo $workflowLogRepo) {
 
         $this->espApiService = $espApiService;
         $this->statsRepo = $statsRepo;
         $this->recordDataRepo = $recordDataRepo;
         $this->postingStrategy = $postingStrategy;
         $this->processingDate = Carbon::today()->format('Y-m-d');
+        $this->workflowLogRepo = $workflowLogRepo;
     }
 
-    public function processPartyData(array $records) {
+    public function processPartyData(array $records, RecordProcessingReportUpdate $reportUpdate) {
         $postingRecords = $this->postingStrategy->prepareForPosting($records, $this->targetId);
 
         foreach($postingRecords as $record) {
@@ -44,9 +49,15 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
                 'target_list' => $this->targetId,
                 'status_received' => $result
             ]);
+
+            $this->recordDataRepo->insert($record->mapToRecordData());
+
+            $record->uniqueStatus = $this->recordDataRepo->isUnique($record->emailId, $this->feedId) ? 'unique' : 'duplicate';
+            $reportUpdate->incrementUniqueStatus($record);
         }
 
-        $this->updateStats($records);
+        $this->recordDataRepo->insertStored();
+        $this->statsRepo->updateProcessedData($reportUpdate);
     }
 
     public function setTargetId($targetId) {
@@ -59,47 +70,6 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
 
     public function setWorkflowId($workflowId) {
         $this->workflowId = $workflowId;
-    }
-
-    private function updateStats($records) {
-        // We need to add them to first_party_record_data
-        $uniqueCount = 0;
-        $duplicateCount = 0;
-
-        $statuses = [];
-
-        foreach($records as $record) {
-            $domainGroupId = $record->domainGroupId;
-            $this->recordDataRepo->insert($record->mapToRecordData());
-            $filename = $record->file;
-
-            // Note structure
-            if (!isset($statuses[$record->feedId])) {
-                $statuses[$record->feedId] = [];
-            }
-
-            if (!isset($statuses[$record->feedId][$domainGroupId])) {
-                $statuses[$record->feedId][$domainGroupId] = [];
-            }
-
-            if (!isset( $statuses[$record->feedId][$domainGroupId][$filename])) {
-                $statuses[$record->feedId][$domainGroupId][$filename] = [
-                    'unique' => 0,
-                    'non-unique' => 0,
-                    'duplicate' => 0
-                ];
-            }
-
-            if ($this->recordDataRepo->isUnique($record->emailId, $this->feedId)) {
-                $statuses[$record->feedId][$domainGroupId][$filename]['unique']++;
-            }
-            else {
-                $statuses[$record->feedId][$domainGroupId][$filename]['duplicate']++;
-            }
-        }
-
-        $this->recordDataRepo->insertStored();
-        $this->statsRepo->massUpdateValidEmailStatus($statuses);
     }
 
 }

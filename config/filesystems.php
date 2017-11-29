@@ -53,6 +53,11 @@ return [
             'root'   => base_path() . '/resources/views' ,
         ],
 
+        'config' => [
+            'driver' => 'local',
+            'root'   => base_path() . '/config'
+        ],
+
         'routePartials' => [
             'driver'    => 'local' ,
             'root'      => app_path() . '/Http/RoutePartials'
@@ -60,7 +65,7 @@ return [
 
         'sprintUnsubCampaignFTP' => [
             'driver'   => 'ftp',
-            'host'     => env( 'SPRINT_CAMPAIGN_FTP_HOST' ) , 
+            'host'     => env( 'SPRINT_CAMPAIGN_FTP_HOST' ) ,
             'username' => env( 'SPRINT_CAMPAIGN_FTP_USER' ) ,
             'password' => env( 'SPRINT_CAMPAIGN_FTP_PASS' ) ,
         ],
@@ -98,7 +103,7 @@ return [
             'username' => env('ZX_FTP_USER'),
             'password' => env('ZX_FTP_PASSWORD')
         ],
-        
+
         'SystemFtp' => [
             'driver' => 'ftp',
             'host' => env('MAIN_SYSTEM_FTP_HOST'),

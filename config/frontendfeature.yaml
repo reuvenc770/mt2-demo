@@ -1,0 +1,686 @@
+-
+    id: 1
+    name: Basic
+    page_id: 1
+    description: 'Log in and view own profile.'
+    created_at: '2017-08-31 17:32:12'
+    updated_at: '2017-08-31 17:35:00'
+-
+    id: 2
+    name: 'System Authentication'
+    page_id: 1
+    description: 'Reset own password and request a password reset.'
+    created_at: '2017-08-31 17:34:52'
+    updated_at: '2017-08-31 17:34:58'
+-
+    id: 3
+    name: 'Admin Access'
+    page_id: 1
+    description: 'Manage users and roles, view permissions, update navigation menu, and retrieve notification templates.'
+    created_at: '2017-08-31 17:56:28'
+    updated_at: '2017-08-31 17:56:28'
+-
+    id: 4
+    name: 'View ESP API Accounts Page'
+    page_id: 2
+    description: 'View full list of ESP API accounts.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 5
+    name: 'Add New ESP API Account'
+    page_id: 2
+    description: 'Add a new ESP API account.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 6
+    name: 'Edit ESP API Account'
+    page_id: 2
+    description: 'Edit an existing ESP API account.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 7
+    name: 'Toggle Stats of ESP API Account'
+    page_id: 2
+    description: 'Enable and disable actions of an ESP API account.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 8
+    name: 'Toggle Suppression of ESP API Account'
+    page_id: 2
+    description: 'Enable and disable suppression of an ESP API account.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 9
+    name: 'Toggle Status of ESP API Account'
+    page_id: 2
+    description: 'Activate and deactivate an ESP API account.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 10
+    name: 'View Feeds Page'
+    page_id: 3
+    description: 'View and search through full list of feeds.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 11
+    name: 'Add New Feed'
+    page_id: 3
+    description: 'Add a new feed.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 12
+    name: 'Edit Feed'
+    page_id: 3
+    description: 'Edit an existing feed.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 13
+    name: 'Reattribute Records of Feed'
+    page_id: 3
+    description: 'Reattribute non-unique records of a feed.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 14
+    name: 'Create Feed Suppression'
+    page_id: 3
+    description: 'Create a unique feed suppression.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 15
+    name: 'Reset Feed Password'
+    page_id: 3
+    description: 'Reset a feed''s password.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 16
+    name: 'Export Feeds List'
+    page_id: 3
+    description: 'Export list of all feeds into CSV file.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 17
+    name: 'View Feeds'' Field Order'
+    page_id: 3
+    description: 'View a feeds'' field name order as it appears in the CSV file.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 18
+    name: 'Edit Feeds'' Field Order'
+    page_id: 3
+    description: 'Edit a feeds'' field name order as it appears in the CSV file.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 19
+    name: 'View Clients Page'
+    page_id: 28
+    description: 'View full list of clients.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 20
+    name: 'Add New Client'
+    page_id: 28
+    description: 'Add a new client.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 21
+    name: 'Edit Client'
+    page_id: 28
+    description: 'Edit an existing client.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 22
+    name: 'View Feed Groups Page'
+    page_id: 29
+    description: 'View full list of feed groups.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 23
+    name: 'Add New Feed Group'
+    page_id: 29
+    description: 'Add a new feed group.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 24
+    name: 'Edit Feed Group'
+    page_id: 29
+    description: 'Edit an existing feed group.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 25
+    name: 'Use Bulk Suppression'
+    page_id: 12
+    description: 'Suppress emails by manually entering emails or by uploading a file.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 26
+    name: 'Use Email & EID Lookup'
+    page_id: 7
+    description: 'Look up record details by email or EID.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 27
+    name: 'Suppress Records in Email & EID Lookup'
+    page_id: 7
+    description: 'Suppress email records during email and EID lookup.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 28
+    name: 'Use Append EID'
+    page_id: 32
+    description: 'Retrieve information associated to an EID.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 29
+    name: 'Use Source URL Search'
+    page_id: 31
+    description: 'Search records by Source URLs.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 30
+    name: 'View Cake Affiliates/Redirect'
+    page_id: 34
+    description: 'View full list of cake affiliates and the redirect domains.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 31
+    name: 'Add/Edit Cake Affliiate/Redirect'
+    page_id: 34
+    description: 'Add or edit a cake affiliate and redirect domain.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 33
+    name: 'View ESP Accounts Page'
+    page_id: 25
+    description: 'View full list of ESP accounts.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 34
+    name: 'Add New ESP Account'
+    page_id: 25
+    description: 'Add a new ESP account.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 35
+    name: 'Edit ESP Account'
+    page_id: 25
+    description: 'Edit an existing ESP account.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 36
+    name: 'Configure an ESP Account''s Field Mapping'
+    page_id: 25
+    description: 'Customize an ESP account''s CSV field order.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 37
+    name: 'Upload ESP Account''s Field Order'
+    page_id: 25
+    description: 'Upload an ESP account''s CSV field order.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 38
+    name: 'View DBAs Page'
+    page_id: 17
+    description: 'View and search full list of DBAs.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 39
+    name: 'Add New DBA'
+    page_id: 17
+    description: 'Add a new DBA.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 40
+    name: 'Edit DBA'
+    page_id: 17
+    description: 'Edit an existing DBA.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 41
+    name: 'Toggle DBA Status'
+    page_id: 17
+    description: 'Activate and deactivate a DBA.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 42
+    name: 'Delete DBA'
+    page_id: 17
+    description: 'Delate a DBA.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 43
+    name: 'View Proxies Page'
+    page_id: 18
+    description: 'View full list of proxies.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 44
+    name: 'Add New Proxy'
+    page_id: 18
+    description: 'Add a new proxy.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 45
+    name: 'Edit Proxy'
+    page_id: 18
+    description: 'Edit an existing proxy.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 46
+    name: 'Toggle Proxy Status'
+    page_id: 18
+    description: 'Activate and deactivate a proxy.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 47
+    name: 'Delete Proxy'
+    page_id: 18
+    description: 'Delete a proxy.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 48
+    name: 'View Registrar Page'
+    page_id: 19
+    description: 'View full list of registrars.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 49
+    name: 'Add New Registrar'
+    page_id: 19
+    description: 'Add a new registrar.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 50
+    name: 'Edit Registrar'
+    page_id: 19
+    description: 'Edit an existing registrar.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 51
+    name: 'Toggle Registrar Status'
+    page_id: 19
+    description: 'Activate and deactivate a registrar.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 52
+    name: 'Delete Registrar'
+    page_id: 19
+    description: 'Delete a registrar.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 53
+    name: 'View Mail/Content Domains Page'
+    page_id: 21
+    description: 'View and search full list of mailing and content domains.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 54
+    name: 'Add New Mail/Content Domain'
+    page_id: 21
+    description: 'Add a new mailing or content domain.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 55
+    name: 'Edit Mail/Content Domain'
+    page_id: 21
+    description: 'Edit an existing mailing or content domain.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 56
+    name: 'Toggle Mail/Content Domain Status'
+    page_id: 21
+    description: 'Activate and deactivate status of mailing and content domains.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 57
+    name: 'View Mailing Templates Page'
+    page_id: 20
+    description: 'View full list of mailing templates.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 58
+    name: 'Add New Mailing Template'
+    page_id: 20
+    description: 'Add a new mailing template.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 59
+    name: 'Edit Mailing Template'
+    page_id: 20
+    description: 'Edit an existing mailing template.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 60
+    name: 'View ISP Groups Page'
+    page_id: 26
+    description: 'View full list of ISP groups.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 61
+    name: 'Add New ISP Group'
+    page_id: 26
+    description: 'Add a new ISP group.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 62
+    name: 'Edit ISP Group'
+    page_id: 26
+    description: 'Edit an existing ISP group.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 63
+    name: 'Toggle ISP Group Status'
+    page_id: 26
+    description: 'Activate and deactivate ISP group.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 64
+    name: 'View ISP Domains Page'
+    page_id: 27
+    description: 'View and search full list of ISP domains.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 65
+    name: 'Add New ISP Domain'
+    page_id: 27
+    description: 'Add a new ISP domain.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 66
+    name: 'Edit ISP Domain'
+    page_id: 27
+    description: 'Edit an existing ISP domain.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 67
+    name: 'View Attributions Page'
+    page_id: 15
+    description: 'View list of attribution models.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 68
+    name: 'Add New Attribution Model'
+    page_id: 15
+    description: 'Add a new attribution model.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 70
+    name: 'Edit Attribution Model'
+    page_id: 15
+    description: 'Edit an attribution model''s levels'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 71
+    name: 'Import/Copy Attribution Model'
+    page_id: 15
+    description: 'Copy attribution levels from another existing model.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 72
+    name: 'Set Attribution Model Live'
+    page_id: 15
+    description: 'Set an attribution model live.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 73
+    name: 'Run Attribution'
+    page_id: 15
+    description: 'Run attribution on a model.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 74
+    name: 'Sync Attribution Levels With MT1'
+    page_id: 15
+    description: 'Sync an attribution model''s levels with MT1.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 76
+    name: 'View Attribution Projections'
+    page_id: 15
+    description: 'View attribution projection reports.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 77
+    name: 'View CPM Pricing Page'
+    page_id: 35
+    description: 'View full list of CPM pricings.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 78
+    name: 'Add New CPM Pricing'
+    page_id: 35
+    description: 'Add a new CPM pricing.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 79
+    name: 'Edit CPM Pricing'
+    page_id: 35
+    description: 'Edit a CPM pricing.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 80
+    name: 'View List Profiles/List Combines Page'
+    page_id: 8
+    description: 'View all list profiles and list combines.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 81
+    name: 'Add New List Profile'
+    page_id: 8
+    description: 'Add a new list profile.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 83
+    name: 'Edit/Copy List Profile'
+    page_id: 8
+    description: 'Edit and copy an existing list profile to a new list profile.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 84
+    name: 'Delete List Profile'
+    page_id: 8
+    description: 'Delete a list profile.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 85
+    name: 'Create List Combines'
+    page_id: 8
+    description: 'Create a new list combine.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 86
+    name: 'Edit List Combine'
+    page_id: 8
+    description: 'Edit an existing list combine.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 87
+    name: 'Export List Combine'
+    page_id: 8
+    description: 'Export a list combine into FTP.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 88
+    name: 'View Deploys Page'
+    page_id: 23
+    description: 'View and search full list of deploys.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 89
+    name: 'Add New Deploy'
+    page_id: 23
+    description: 'Add a new deploy.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 90
+    name: 'Edit/Copy Deploy'
+    page_id: 23
+    description: 'Edit or copy an existing deploy.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 91
+    name: 'Preview Deploy'
+    page_id: 23
+    description: 'Preview creative of selected deploy(s).'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 92
+    name: 'View HTML of Deploys'
+    page_id: 23
+    description: 'View raw HTML of selected deploy(s).'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 93
+    name: 'Copy Deploys for Future Scheduling'
+    page_id: 23
+    description: 'Copy selected deploy(s), including original deploy information, and schedule for different send date.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 95
+    name: 'Deploy Packages/Send Zips to FTP'
+    page_id: 23
+    description: 'Deploy a package and select multiple deploys as individual zip files and save to FTP.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 96
+    name: 'Upload Deploy List File'
+    page_id: 23
+    description: 'Upload a CSV file of deploys.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 97
+    name: 'Export Deploys to CSV'
+    page_id: 23
+    description: 'Export selected deploys to a CSV file.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 98
+    name: 'View Amp Reports'
+    page_id: 24
+    description: 'View amp reports via amp portal.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 99
+    name: 'View Amp Report Users'
+    page_id: 24
+    description: 'View list of amp report users via amp portal.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 100
+    name: 'Clear Cache of List Pages'
+    page_id: 1
+    description: 'Clear cache and refresh list pages.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 101
+    name: 'View Seed List'
+    page_id: 33
+    description: 'View full list of email seeds.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 102
+    name: 'Add New Seed'
+    page_id: 33
+    description: 'Add a new email seed.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'
+-
+    id: 103
+    name: 'Delete Seed'
+    page_id: 33
+    description: 'Delete email seed.'
+    created_at: '2017-10-12 16:00:55'
+    updated_at: '2017-10-12 16:00:55'

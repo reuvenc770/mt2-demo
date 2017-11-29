@@ -42,9 +42,7 @@ class DeployService
 
     public function getModel($searchData = null)
     {
-
         return $this->deployRepo->getModel($searchData);
-
     }
 
     public function insertDeploy($data)
@@ -59,7 +57,7 @@ class DeployService
     }
 
     protected function takeDeploySnapshot ( $deployId ) {
-        $this->dispatch( \App::make( \App\Jobs\CpmDeploySnapshotJob::class , [
+        $this->dispatch( \App::make( \App\Jobs\DeploySnapshotJob::class , [
             $deployId , 
             str_random( 16 )
         ] ) );

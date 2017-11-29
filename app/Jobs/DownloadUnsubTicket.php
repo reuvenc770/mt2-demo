@@ -16,34 +16,42 @@ class DownloadUnsubTicket extends MonitoredJob implements ShouldQueue
     protected $tracking;
     protected $apiName;
     protected $espAccountId;
-    protected $data;
+    protected $unsubData;
+    private $hbData;
     protected $maxAttempts;
 
-    public function __construct($apiName, $espAccountId, $data, $tracking){
+    public function __construct($apiName, $espAccountId, $unsubData, $hbData, $tracking){
 
         $jobname = self::JOB_NAME."_".$apiName."_".$espAccountId;
         parent::__construct($jobname,null,$tracking);
 
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
-        $this->data = $data;
+        $this->unsubData = $unsubData;
+        $this->hbData = $hbData;
         $this->maxAttempts = config('jobs.maxAttempts');
         $this->tracking = $tracking;
-        JobTracking::startEspJob($jobname ,$this->apiName, $this->espAccountId, $this->tracking);
     }
 
     public function handleJob()
     {
         JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
-        $data = $subscriptionService->getUnsubReport($this->data['ticketId'], $this->data['count']);
+        $unsubs = $subscriptionService->getUnsubReport($this->unsubData['ticketId'], $this->unsubData['count']);
+        $hbs = $subscriptionService->getUnsubReport($this->hbData['ticketId'], $this->hbData['count']);
 
-        if($data){
-                $subscriptionService->insertUnsubs($data);
-        } else {
+        if($unsubs){
+            $subscriptionService->insertUnsubs($unsubs);
+        } 
+
+        if ($hbs) {
+            $subscriptionService->insertHardBounces($hbs);
+        }
+
+        if (!$unsubs && !$hbs) {
             $this->release(60);
         }
-        return count($data);
+        return count($unsubs) + count($hbs);
     }
 
 }

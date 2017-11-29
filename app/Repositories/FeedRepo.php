@@ -69,6 +69,11 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         }
     }
 
+    public function create ( $data ) {
+        unset( $data[ 'id' ] );
+        $this->feed->create( $data );
+    }
+
     public function getModel( $searchData ) {
         $query = $this->feed
             ->join( 'clients' , 'feeds.client_id' , '=' , 'clients.id' )
@@ -304,7 +309,7 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         $party = $this->feed->where( 'id' , $id )->pluck( 'party' )->first();
 
         if ( count( $party ) !== 1 ) {
-            return null;
+            return 0;
         }
 
         return $party;

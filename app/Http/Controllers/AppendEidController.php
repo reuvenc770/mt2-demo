@@ -12,6 +12,7 @@ class AppendEidController extends Controller
 {
     use DispatchesJobs;
     private $appendEidService;
+    const TIME_THRESHOLD = '1h';
 
     public function __construct(AppendEidService $service)
     {
@@ -26,12 +27,18 @@ class AppendEidController extends Controller
 
         $fileName = $request->input("fileName");
         $email = $request->input("email");
-        $includeFeed = (bool)$request->input('feed');
-        $includeFields = (bool)$request->input('fields');
-        $includeSuppression = (bool)$request->input('suppress');
         $dateFolder = date('Ymd');
-        $path = storage_path() . "/app/files/uploads/appendEID/$dateFolder/$fileName";
-        $this->dispatch(new AppendEidEmail($path,$fileName,$includeFeed,$includeFields,$includeSuppression));
+        $inputPath = storage_path() . "/app/files/uploads/appendEID/$dateFolder/$fileName";
+        $outputPath = storage_path() . "/app/files/processed/appendEID/$fileName";
+        $tracking = str_random(16);
+
+        $options = (object)[
+            'includeFeed' => (bool)$request->input('feed'),
+            'includeFields' => (bool)$request->input('fields'),
+            'includeSuppression' =>(bool)$request->input('suppress')
+        ];
+        
+        $this->dispatch(new AppendEidEmail($inputPath, $outputPath, $fileName, $options, $email, $tracking, self::TIME_THRESHOLD));
 
 
         return response()->json(["success" => true]);

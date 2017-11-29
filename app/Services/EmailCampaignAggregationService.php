@@ -64,20 +64,20 @@ class EmailCampaignAggregationService extends AbstractEtlService {
     private function mapToEmailCampaignsTable($row) {
 
         // check if open actions are done subsequent to that?
-        $firstSectionOpen = $this->getFirstItem($row->esp_first_open_datetimes);
-        $lastSectionOpen = $this->getFirstItem($row->esp_last_open_datetimes);
+        $firstSectionOpen = $this->getFirstItem($row->esp_first_open_datetimes, null);
+        $lastSectionOpen = $this->getFirstItem($row->esp_last_open_datetimes, null);
 
-        $firstSectionClick = $this->getFirstItem($row->esp_first_click_datetimes);
-        $lastSectionClick = $this->getFirstItem($row->esp_last_click_datetimes);
+        $firstSectionClick = $this->getFirstItem($row->esp_first_click_datetimes, null);
+        $lastSectionClick = $this->getFirstItem($row->esp_last_click_datetimes, null);
 
-        if ('' === $firstSectionOpen) {
+        if (null === $firstSectionOpen) {
             $firstSectionOpen = $firstSectionClick;
         }
 
         return [
             'email_id' => $row->email_id,
             'campaign_id' => $row->deploy_id,
-            'last_status' => $this->getFirstItem($row->statuses),
+            'last_status' => $this->getFirstItem($row->statuses, ''),
             'esp_first_open_datetime' => $firstSectionOpen,
             'esp_last_open_datetime' => $lastSectionOpen,
             'esp_total_opens' => $row->opens_counted,
@@ -88,13 +88,14 @@ class EmailCampaignAggregationService extends AbstractEtlService {
         ];
     }
 
-    private function getFirstItem($string) {
+
+    private function getFirstItem($string, $default) {
         $array = explode(',', $string);
         if (sizeof($array) > 0) {
             return $array[0];
         }
         else {
-            return '';
+            return $default;
         }
     }
     

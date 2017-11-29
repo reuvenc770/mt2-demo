@@ -27,11 +27,19 @@ class VendorSuppListRepo {
         ] )->count() > 0;
     }
 
-    public function getSuppressed($emailAddress, $listid) {
+    public function getSuppressed($emailAddress, $listId) {
         return $this->model
                     ->where('email_addr', $emailAddress)
                     ->whereRaw("vendorSuppressionListID = $listId")
                     ->select('email_addr as email_address')
                     ->first();
+    }
+
+    public function getEmailsSuppressedForLists(array $emails,  array $lists) {
+        return $this->model
+                    ->whereIn('email_addr', $emails)
+                    ->whereIn('list_id', $lists)
+                    ->selectRaw('distinct email_addr')
+                    ->get();
     }
 }

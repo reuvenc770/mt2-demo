@@ -66,6 +66,7 @@ class AttributionConversionJob extends Job implements ShouldQueue
             $cakeService->updateConversionsFromAPI( $this->currentDate );
         } while ( $this->currentDate !== $this->dateRange[ 'end' ] ); 
         
+        /*
         $this->dispatch( new AttributionAggregatorJob(
             AttributionAggregatorService::RUN_STANDARD ,
             $this->dateRange ,
@@ -73,6 +74,7 @@ class AttributionConversionJob extends Job implements ShouldQueue
             null ,
             $this->modelId
         ) );
+         */
 
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
     }

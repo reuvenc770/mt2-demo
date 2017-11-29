@@ -44,4 +44,11 @@ mt2App.service( 'UserApiService' , function ( $http , $log ) {
             "data" : request
         } ).then( successCallback , failureCallback );
     }
+
+    self.deleteAccount = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + id
+        } ).then( successCallback , failureCallback );
+    };
 } );

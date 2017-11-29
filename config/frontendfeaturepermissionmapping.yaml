@@ -1,0 +1,834 @@
+-
+    frontend_feature_id: 1
+    permission_id: 1
+-
+    frontend_feature_id: 1
+    permission_id: 7
+-
+    frontend_feature_id: 1
+    permission_id: 8
+-
+    frontend_feature_id: 1
+    permission_id: 9
+-
+    frontend_feature_id: 1
+    permission_id: 10
+-
+    frontend_feature_id: 1
+    permission_id: 11
+-
+    frontend_feature_id: 1
+    permission_id: 12
+-
+    frontend_feature_id: 1
+    permission_id: 45
+-
+    frontend_feature_id: 2
+    permission_id: 2
+-
+    frontend_feature_id: 2
+    permission_id: 3
+-
+    frontend_feature_id: 2
+    permission_id: 4
+-
+    frontend_feature_id: 2
+    permission_id: 5
+-
+    frontend_feature_id: 2
+    permission_id: 6
+-
+    frontend_feature_id: 3
+    permission_id: 22
+-
+    frontend_feature_id: 3
+    permission_id: 23
+-
+    frontend_feature_id: 3
+    permission_id: 24
+-
+    frontend_feature_id: 3
+    permission_id: 38
+-
+    frontend_feature_id: 3
+    permission_id: 39
+-
+    frontend_feature_id: 3
+    permission_id: 40
+-
+    frontend_feature_id: 3
+    permission_id: 78
+-
+    frontend_feature_id: 3
+    permission_id: 79
+-
+    frontend_feature_id: 3
+    permission_id: 80
+-
+    frontend_feature_id: 3
+    permission_id: 81
+-
+    frontend_feature_id: 3
+    permission_id: 82
+-
+    frontend_feature_id: 3
+    permission_id: 101
+-
+    frontend_feature_id: 3
+    permission_id: 102
+-
+    frontend_feature_id: 3
+    permission_id: 103
+-
+    frontend_feature_id: 3
+    permission_id: 104
+-
+    frontend_feature_id: 3
+    permission_id: 105
+-
+    frontend_feature_id: 3
+    permission_id: 106
+-
+    frontend_feature_id: 3
+    permission_id: 107
+-
+    frontend_feature_id: 3
+    permission_id: 282
+-
+    frontend_feature_id: 3
+    permission_id: 283
+-
+    frontend_feature_id: 3
+    permission_id: 284
+-
+    frontend_feature_id: 3
+    permission_id: 285
+-
+    frontend_feature_id: 3
+    permission_id: 341
+-
+    frontend_feature_id: 3
+    permission_id: 342
+-
+    frontend_feature_id: 3
+    permission_id: 343
+-
+    frontend_feature_id: 3
+    permission_id: 344
+-
+    frontend_feature_id: 3
+    permission_id: 345
+-
+    frontend_feature_id: 3
+    permission_id: 346
+-
+    frontend_feature_id: 3
+    permission_id: 347
+-
+    frontend_feature_id: 3
+    permission_id: 348
+-
+    frontend_feature_id: 3
+    permission_id: 349
+-
+    frontend_feature_id: 4
+    permission_id: 13
+-
+    frontend_feature_id: 4
+    permission_id: 44
+-
+    frontend_feature_id: 5
+    permission_id: 14
+-
+    frontend_feature_id: 5
+    permission_id: 60
+-
+    frontend_feature_id: 5
+    permission_id: 328
+-
+    frontend_feature_id: 6
+    permission_id: 15
+-
+    frontend_feature_id: 6
+    permission_id: 61
+-
+    frontend_feature_id: 6
+    permission_id: 62
+-
+    frontend_feature_id: 6
+    permission_id: 328
+-
+    frontend_feature_id: 7
+    permission_id: 336
+-
+    frontend_feature_id: 8
+    permission_id: 337
+-
+    frontend_feature_id: 9
+    permission_id: 338
+-
+    frontend_feature_id: 9
+    permission_id: 339
+-
+    frontend_feature_id: 10
+    permission_id: 25
+-
+    frontend_feature_id: 10
+    permission_id: 44
+-
+    frontend_feature_id: 11
+    permission_id: 26
+-
+    frontend_feature_id: 11
+    permission_id: 70
+-
+    frontend_feature_id: 12
+    permission_id: 27
+-
+    frontend_feature_id: 12
+    permission_id: 71
+-
+    frontend_feature_id: 12
+    permission_id: 72
+-
+    frontend_feature_id: 13
+    permission_id: 27
+-
+    frontend_feature_id: 13
+    permission_id: 71
+-
+    frontend_feature_id: 13
+    permission_id: 310
+-
+    frontend_feature_id: 14
+    permission_id: 27
+-
+    frontend_feature_id: 14
+    permission_id: 71
+-
+    frontend_feature_id: 14
+    permission_id: 311
+-
+    frontend_feature_id: 15
+    permission_id: 27
+-
+    frontend_feature_id: 15
+    permission_id: 71
+-
+    frontend_feature_id: 15
+    permission_id: 329
+-
+    frontend_feature_id: 16
+    permission_id: 313
+-
+    frontend_feature_id: 17
+    permission_id: 287
+-
+    frontend_feature_id: 18
+    permission_id: 287
+-
+    frontend_feature_id: 18
+    permission_id: 288
+-
+    frontend_feature_id: 19
+    permission_id: 44
+-
+    frontend_feature_id: 19
+    permission_id: 276
+-
+    frontend_feature_id: 20
+    permission_id: 277
+-
+    frontend_feature_id: 20
+    permission_id: 279
+-
+    frontend_feature_id: 21
+    permission_id: 278
+-
+    frontend_feature_id: 21
+    permission_id: 280
+-
+    frontend_feature_id: 21
+    permission_id: 303
+-
+    frontend_feature_id: 22
+    permission_id: 44
+-
+    frontend_feature_id: 22
+    permission_id: 268
+-
+    frontend_feature_id: 23
+    permission_id: 69
+-
+    frontend_feature_id: 23
+    permission_id: 269
+-
+    frontend_feature_id: 23
+    permission_id: 272
+-
+    frontend_feature_id: 24
+    permission_id: 69
+-
+    frontend_feature_id: 24
+    permission_id: 270
+-
+    frontend_feature_id: 24
+    permission_id: 273
+-
+    frontend_feature_id: 24
+    permission_id: 274
+-
+    frontend_feature_id: 25
+    permission_id: 17
+-
+    frontend_feature_id: 25
+    permission_id: 46
+-
+    frontend_feature_id: 25
+    permission_id: 57
+-
+    frontend_feature_id: 25
+    permission_id: 58
+-
+    frontend_feature_id: 25
+    permission_id: 115
+-
+    frontend_feature_id: 26
+    permission_id: 16
+-
+    frontend_feature_id: 26
+    permission_id: 91
+-
+    frontend_feature_id: 26
+    permission_id: 115
+-
+    frontend_feature_id: 27
+    permission_id: 90
+-
+    frontend_feature_id: 27
+    permission_id: 91
+-
+    frontend_feature_id: 27
+    permission_id: 115
+-
+    frontend_feature_id: 28
+    permission_id: 46
+-
+    frontend_feature_id: 28
+    permission_id: 266
+-
+    frontend_feature_id: 28
+    permission_id: 294
+-
+    frontend_feature_id: 29
+    permission_id: 69
+-
+    frontend_feature_id: 29
+    permission_id: 292
+-
+    frontend_feature_id: 29
+    permission_id: 295
+-
+    frontend_feature_id: 30
+    permission_id: 44
+-
+    frontend_feature_id: 30
+    permission_id: 350
+-
+    frontend_feature_id: 31
+    permission_id: 351
+-
+    frontend_feature_id: 31
+    permission_id: 352
+-
+    frontend_feature_id: 33
+    permission_id: 44
+-
+    frontend_feature_id: 33
+    permission_id: 244
+-
+    frontend_feature_id: 33
+    permission_id: 239
+-
+    frontend_feature_id: 34
+    permission_id: 286
+-
+    frontend_feature_id: 34
+    permission_id: 245
+-
+    frontend_feature_id: 35
+    permission_id: 246
+-
+    frontend_feature_id: 35
+    permission_id: 247
+-
+    frontend_feature_id: 35
+    permission_id: 240
+-
+    frontend_feature_id: 36
+    permission_id: 304
+-
+    frontend_feature_id: 36
+    permission_id: 306
+-
+    frontend_feature_id: 36
+    permission_id: 307
+-
+    frontend_feature_id: 37
+    permission_id: 46
+-
+    frontend_feature_id: 37
+    permission_id: 308
+-
+    frontend_feature_id: 38
+    permission_id: 44
+-
+    frontend_feature_id: 38
+    permission_id: 151
+-
+    frontend_feature_id: 39
+    permission_id: 152
+-
+    frontend_feature_id: 39
+    permission_id: 188
+-
+    frontend_feature_id: 40
+    permission_id: 153
+-
+    frontend_feature_id: 40
+    permission_id: 189
+-
+    frontend_feature_id: 40
+    permission_id: 190
+-
+    frontend_feature_id: 41
+    permission_id: 317
+-
+    frontend_feature_id: 42
+    permission_id: 191
+-
+    frontend_feature_id: 43
+    permission_id: 44
+-
+    frontend_feature_id: 43
+    permission_id: 154
+-
+    frontend_feature_id: 44
+    permission_id: 155
+-
+    frontend_feature_id: 44
+    permission_id: 178
+-
+    frontend_feature_id: 45
+    permission_id: 156
+-
+    frontend_feature_id: 45
+    permission_id: 179
+-
+    frontend_feature_id: 45
+    permission_id: 180
+-
+    frontend_feature_id: 46
+    permission_id: 315
+-
+    frontend_feature_id: 47
+    permission_id: 181
+-
+    frontend_feature_id: 48
+    permission_id: 44
+-
+    frontend_feature_id: 48
+    permission_id: 157
+-
+    frontend_feature_id: 49
+    permission_id: 158
+-
+    frontend_feature_id: 49
+    permission_id: 183
+-
+    frontend_feature_id: 50
+    permission_id: 159
+-
+    frontend_feature_id: 50
+    permission_id: 184
+-
+    frontend_feature_id: 50
+    permission_id: 185
+-
+    frontend_feature_id: 51
+    permission_id: 316
+-
+    frontend_feature_id: 52
+    permission_id: 186
+-
+    frontend_feature_id: 53
+    permission_id: 44
+-
+    frontend_feature_id: 53
+    permission_id: 164
+-
+    frontend_feature_id: 53
+    permission_id: 169
+-
+    frontend_feature_id: 53
+    permission_id: 170
+-
+    frontend_feature_id: 53
+    permission_id: 249
+-
+    frontend_feature_id: 53
+    permission_id: 250
+-
+    frontend_feature_id: 54
+    permission_id: 165
+-
+    frontend_feature_id: 54
+    permission_id: 173
+-
+    frontend_feature_id: 55
+    permission_id: 166
+-
+    frontend_feature_id: 55
+    permission_id: 174
+-
+    frontend_feature_id: 55
+    permission_id: 175
+-
+    frontend_feature_id: 56
+    permission_id: 176
+-
+    frontend_feature_id: 57
+    permission_id: 44
+-
+    frontend_feature_id: 57
+    permission_id: 160
+-
+    frontend_feature_id: 58
+    permission_id: 161
+-
+    frontend_feature_id: 58
+    permission_id: 163
+-
+    frontend_feature_id: 58
+    permission_id: 193
+-
+    frontend_feature_id: 58
+    permission_id: 291
+-
+    frontend_feature_id: 59
+    permission_id: 162
+-
+    frontend_feature_id: 59
+    permission_id: 163
+-
+    frontend_feature_id: 59
+    permission_id: 194
+-
+    frontend_feature_id: 59
+    permission_id: 195
+-
+    frontend_feature_id: 59
+    permission_id: 291
+-
+    frontend_feature_id: 60
+    permission_id: 44
+-
+    frontend_feature_id: 60
+    permission_id: 251
+-
+    frontend_feature_id: 61
+    permission_id: 252
+-
+    frontend_feature_id: 61
+    permission_id: 258
+-
+    frontend_feature_id: 62
+    permission_id: 253
+-
+    frontend_feature_id: 62
+    permission_id: 259
+-
+    frontend_feature_id: 62
+    permission_id: 260
+-
+    frontend_feature_id: 63
+    permission_id: 261
+-
+    frontend_feature_id: 64
+    permission_id: 44
+-
+    frontend_feature_id: 64
+    permission_id: 254
+-
+    frontend_feature_id: 65
+    permission_id: 255
+-
+    frontend_feature_id: 65
+    permission_id: 262
+-
+    frontend_feature_id: 66
+    permission_id: 256
+-
+    frontend_feature_id: 66
+    permission_id: 263
+-
+    frontend_feature_id: 66
+    permission_id: 264
+-
+    frontend_feature_id: 67
+    permission_id: 44
+-
+    frontend_feature_id: 67
+    permission_id: 139
+-
+    frontend_feature_id: 68
+    permission_id: 69
+-
+    frontend_feature_id: 68
+    permission_id: 140
+-
+    frontend_feature_id: 68
+    permission_id: 142
+-
+    frontend_feature_id: 68
+    permission_id: 147
+-
+    frontend_feature_id: 68
+    permission_id: 149
+-
+    frontend_feature_id: 68
+    permission_id: 230
+-
+    frontend_feature_id: 68
+    permission_id: 340
+-
+    frontend_feature_id: 68
+    permission_id: 145
+-
+    frontend_feature_id: 70
+    permission_id: 145
+-
+    frontend_feature_id: 70
+    permission_id: 143
+-
+    frontend_feature_id: 70
+    permission_id: 144
+-
+    frontend_feature_id: 70
+    permission_id: 146
+-
+    frontend_feature_id: 70
+    permission_id: 149
+-
+    frontend_feature_id: 70
+    permission_id: 340
+-
+    frontend_feature_id: 71
+    permission_id: 148
+-
+    frontend_feature_id: 71
+    permission_id: 149
+-
+    frontend_feature_id: 72
+    permission_id: 232
+-
+    frontend_feature_id: 73
+    permission_id: 233
+-
+    frontend_feature_id: 74
+    permission_id: 238
+-
+    frontend_feature_id: 76
+    permission_id: 208
+-
+    frontend_feature_id: 76
+    permission_id: 224
+-
+    frontend_feature_id: 77
+    permission_id: 44
+-
+    frontend_feature_id: 77
+    permission_id: 330
+-
+    frontend_feature_id: 78
+    permission_id: 333
+-
+    frontend_feature_id: 78
+    permission_id: 214
+-
+    frontend_feature_id: 79
+    permission_id: 335
+-
+    frontend_feature_id: 79
+    permission_id: 214
+-
+    frontend_feature_id: 80
+    permission_id: 35
+-
+    frontend_feature_id: 80
+    permission_id: 44
+-
+    frontend_feature_id: 80
+    permission_id: 299
+-
+    frontend_feature_id: 81
+    permission_id: 36
+-
+    frontend_feature_id: 81
+    permission_id: 69
+-
+    frontend_feature_id: 81
+    permission_id: 86
+-
+    frontend_feature_id: 81
+    permission_id: 272
+-
+    frontend_feature_id: 83
+    permission_id: 37
+-
+    frontend_feature_id: 83
+    permission_id: 52
+-
+    frontend_feature_id: 83
+    permission_id: 69
+-
+    frontend_feature_id: 83
+    permission_id: 88
+-
+    frontend_feature_id: 83
+    permission_id: 272
+-
+    frontend_feature_id: 84
+    permission_id: 89
+-
+    frontend_feature_id: 85
+    permission_id: 300
+-
+    frontend_feature_id: 86
+    permission_id: 85
+-
+    frontend_feature_id: 86
+    permission_id: 305
+-
+    frontend_feature_id: 86
+    permission_id: 309
+-
+    frontend_feature_id: 87
+    permission_id: 301
+-
+    frontend_feature_id: 88
+    permission_id: 44
+-
+    frontend_feature_id: 88
+    permission_id: 207
+-
+    frontend_feature_id: 88
+    permission_id: 209
+-
+    frontend_feature_id: 88
+    permission_id: 291
+-
+    frontend_feature_id: 88
+    permission_id: 298
+-
+    frontend_feature_id: 89
+    permission_id: 169
+-
+    frontend_feature_id: 89
+    permission_id: 214
+-
+    frontend_feature_id: 89
+    permission_id: 215
+-
+    frontend_feature_id: 89
+    permission_id: 216
+-
+    frontend_feature_id: 89
+    permission_id: 217
+-
+    frontend_feature_id: 89
+    permission_id: 219
+-
+    frontend_feature_id: 89
+    permission_id: 223
+-
+    frontend_feature_id: 89
+    permission_id: 234
+-
+    frontend_feature_id: 89
+    permission_id: 331
+-
+    frontend_feature_id: 90
+    permission_id: 169
+-
+    frontend_feature_id: 90
+    permission_id: 214
+-
+    frontend_feature_id: 90
+    permission_id: 215
+-
+    frontend_feature_id: 90
+    permission_id: 216
+-
+    frontend_feature_id: 90
+    permission_id: 217
+-
+    frontend_feature_id: 90
+    permission_id: 220
+-
+    frontend_feature_id: 90
+    permission_id: 221
+-
+    frontend_feature_id: 90
+    permission_id: 223
+-
+    frontend_feature_id: 90
+    permission_id: 234
+-
+    frontend_feature_id: 90
+    permission_id: 331
+-
+    frontend_feature_id: 91
+    permission_id: 241
+-
+    frontend_feature_id: 92
+    permission_id: 242
+-
+    frontend_feature_id: 93
+    permission_id: 243
+-
+    frontend_feature_id: 95
+    permission_id: 235
+-
+    frontend_feature_id: 95
+    permission_id: 236
+-
+    frontend_feature_id: 96
+    permission_id: 46
+-
+    frontend_feature_id: 96
+    permission_id: 210
+-
+    frontend_feature_id: 96
+    permission_id: 211
+-
+    frontend_feature_id: 97
+    permission_id: 212
+-
+    frontend_feature_id: 98
+    permission_id: 167
+-
+    frontend_feature_id: 99
+    permission_id: 314
+-
+    frontend_feature_id: 100
+    permission_id: 318
+-
+    frontend_feature_id: 101
+    permission_id: 325
+-
+    frontend_feature_id: 102
+    permission_id: 326
+-
+    frontend_feature_id: 103
+    permission_id: 327

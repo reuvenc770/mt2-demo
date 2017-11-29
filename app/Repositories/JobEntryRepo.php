@@ -12,6 +12,7 @@ namespace App\Repositories;
 use App\Models\JobEntry;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class JobEntryRepo
 {
@@ -36,28 +37,41 @@ class JobEntryRepo
      * @return JobEntry
      */
     public function startEspJobReturnObject($jobName, $espName, $accountName, $tracking){
-        return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),[
+            'job_name' => $jobName,
             'account_name'=> $espName,
             'account_number' => $accountName,
-            'tracking' => $tracking]);
+            'tracking' => $tracking,
+            'time_fired' => Carbon::now()->toDateTimeString(),
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+        ]);
     }
 
     public function startAggregateJobReturnObject($jobName, $tracking){
-        return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
-            'tracking' => $tracking]);
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),[
+            'job_name' => $jobName,
+            'tracking' => $tracking,
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+            'time_fired' => Carbon::now()
+        ]);
     }
 
     public function startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking) {
         return $this->entry->updateOrCreate(array('tracking' => $tracking),[
             'job_name' => $jobName . $startDate . '::' . $endDate,
             'account_name' => 'cake',
-            'tracking' => $tracking
+            'tracking' => $tracking,
+            'attempts' => 0,
+            'status' => JobEntry::ONQUEUE,
+            'time_fired' => Carbon::now()
         ]);
     }
 
     public function getJobByTracking($tracking){
         try{
-            return $this->entry->where('tracking',$tracking)->firstOrFail();
+            return $this->entry->where('tracking',$tracking)->first();
         } catch(\Exception $e){
             Log::error($e->getMessage());
         }
@@ -176,6 +190,45 @@ class JobEntryRepo
                             AND status IN(3,8,9,10)
                             #AND runtime_seconds_threshold !=0
                             ORDER BY id DESC
+                          ");
+    }
+
+    public function retrieveBadJobsConsolidated($daterange){
+        return DB::select("SELECT
+                            'error' AS type,
+                            'RUNTIME ERROR' as message,
+                            CONCAT(LEFT(job_name,60),' . . .') AS JobName,
+                            COUNT(time_fired) AS incidents,
+                            CONCAT(CAST(JSON_EXTRACT(diagnostics, \"$.errors\") AS CHAR(255) ),' . . . ')  AS errors,
+                            MAX(id) AS max_job_entries_id
+                            FROM job_entries
+                            WHERE time_fired ".$daterange."
+                            AND status=10
+                            GROUP BY type,message,JobName,errors
+
+                           UNION
+
+                           SELECT
+                            CASE
+                            WHEN status=9 THEN 'warning'
+                            ELSE 'error'
+                            END AS type,
+                            CASE
+                            WHEN status=9 THEN 'RUNTIME WARNING'
+                            WHEN status=10 THEN 'RUNTIME ERROR'
+                            WHEN status=3 THEN 'FAILED'
+                            WHEN status=8 THEN 'ACCEPTANCE TEST FAILED'
+                            END as message,
+                            CONCAT(LEFT(job_name,60),' . . .') AS JobName,
+                            COUNT(time_fired) AS incidents,
+                            CONCAT(CAST(JSON_EXTRACT(diagnostics, \"$.errors\") AS CHAR(255) ),' . . . ')  AS errors,
+                            MAX(id) AS max_job_entries_id
+                            FROM job_entries
+                            WHERE time_fired ".$daterange."
+                            AND status IN(3,8,9,10)
+                            GROUP BY type,message,JobName,errors
+
+                            ORDER BY incidents DESC
                           ");
     }
 

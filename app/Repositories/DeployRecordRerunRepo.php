@@ -24,7 +24,9 @@ class DeployRecordRerunRepo {
                     ->join('esp_accounts AS eac', 'd.esp_account_id', '=', 'eac.id')
                     ->join('esps AS e', 'eac.esp_id', '=', 'e.id')
                     ->where('e.name', '<>', 'EmailDirect')
-                    ->where('e.name', '<>', 'Aweber') //deliberately ignored - might want to separate this job by esp at some point
+                    ->where('e.name', '<>', 'Aweber')//if we need one more we change it. 
+                    ->where('e.name', '<>', 'Bronto')
+                    ->where('enable_stats', '=', 1)
                     ->select('e.name')
                     ->distinct()
                     ->get();

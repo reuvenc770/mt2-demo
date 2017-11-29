@@ -17,6 +17,10 @@ class ListProfileBaseTableRepo {
         return $this->model;
     }
 
+    public function getSegmentedOrderedModel ($min, $limit) {
+        return $this->model->orderBy('email_id')->where('email_id', '>', $min)->take($limit);
+    }
+
     public function insert($row) {
         $this->model->insert($row);
     }

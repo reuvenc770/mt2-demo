@@ -73,7 +73,16 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
-        return $this->deploy->create($data);
+        # TODO: setting some default values for now due to strict mode
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
+        $data['deploy_name'] = '';
+        $data['external_deploy_id'] = '';
+        $data['deployment_status'] = 0;
+        $obj = $this->deploy->create($data);
+        $deployName = $obj->createDeployName();
+        $obj->deploy_name = $deployName;
+        $obj->save();
+        return $obj;
     }
 
     public function getDeploy($id)
@@ -85,6 +94,7 @@ class DeployRepo implements Mt2Export
 
     public function updateOrCreate($data)
     {
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
     }
 
@@ -92,6 +102,7 @@ class DeployRepo implements Mt2Export
 
     public function update($data, $id)
     {
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
         return $this->deploy->find($id)->update($data);
     }
 
@@ -142,7 +153,16 @@ class DeployRepo implements Mt2Export
 
     public function massInsert($data){
         foreach($data as $row){
-            $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
+            # TODO: temp fix for getting around strict mode
+            $row['send_date'] = Carbon::parse($row['send_date'])->toDateString();
+            $row['deploy_name'] = '';
+            $row['external_deploy_id'] = '';
+            $row['deployment_status'] = 0;
+            $obj = $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
+
+            $deployName = $obj->createDeployName();
+            $obj->deploy_name = $deployName;
+            $obj->save();
         }
         return true;
     }
@@ -234,7 +254,7 @@ class DeployRepo implements Mt2Export
     public function validateDeploy($deploy,$copyToFutureBool = true){
         $errors = array();
         if (isset($deploy['esp_account_id']) && $deploy['esp_account_id'] !=='' ) {
-            $count = DB::select("Select count(*) as count from esp_accounts where id = :id and status = 1", ['id' => $deploy['esp_account_id']])[0];
+            $count = DB::select("Select count(*) as count from esp_accounts where id = :id and enable_stats = 1", ['id' => $deploy['esp_account_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "ESP Account ID/Name is invalid or deactivated";
             }
@@ -395,7 +415,7 @@ class DeployRepo implements Mt2Export
 
 
     public function getDeploysForToday($date){
-        return $this->deploy->where('send_date',$date)->get();
+        return $this->deploy->where('send_date',$date)->whereRaw("id > 2000000")->get();
     }
     //TODO: maybe move..  Seems
     public function getDeploysFromProfileAndOffer($listProfileId, $offerId){

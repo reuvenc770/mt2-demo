@@ -42,7 +42,7 @@ class RetrieveTrackingDataJob extends MonitoredJob implements ShouldQueue
 
        parent::__construct($fullJobName,$runtimeThreshold,$tracking);
 
-       JobTracking::startTrackingJob($fullJobName, $this->startDate, $this->endDate, $this->tracking);
+       #JobTracking::startTrackingJob($fullJobName, $this->startDate, $this->endDate, $this->tracking);
     }
 
     /**

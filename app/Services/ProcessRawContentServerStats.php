@@ -19,6 +19,7 @@ class ProcessRawContentServerStats {
     private $deployRepo;
     private $jobName;
     const LIMIT = 10000;
+    const CMP_START_DID = 2000000;
 
     public function __construct(ContentServerStatsRawRepo $csRepo, 
         ListProfileFlatTableRepo $lpRepo, 
@@ -56,7 +57,7 @@ class ProcessRawContentServerStats {
                         $deployId = $row->deploy_id;
                     }
 
-                    if ($deployId) {
+                    if ($deployId && $deployId > self::CMP_START_DID) {
                         // Need esp_account_id, offer_id, cake_vertical_id
                         $deploy = $this->deployRepo->getDeploy($deployId);
                         
@@ -64,14 +65,16 @@ class ProcessRawContentServerStats {
                             $espAccountId = $deploy->esp_account_id;
                             $offerId = $deploy->offer_id;
                             $cakeVerticalId = $this->deployRepo->getCakeVerticalId($deployId);
+                            $party = $deploy->party ?: 0;
                         }
                         else {
                             // could not find deploy
                             $espAccountId = 0;
                             $offerId = 0;
                             $cakeVerticalId = 0;
+                            $party = 0;
                         }
-                        $insertData[] = $this->mapToTable($row, $deployId, $espAccountId, $offerId, $cakeVerticalId);
+                        $insertData[] = $this->mapToTable($row, $deployId, $espAccountId, $offerId, $cakeVerticalId, $party);
                     }
                     else {
                         // Deploy id could not be found from link
@@ -100,7 +103,7 @@ class ProcessRawContentServerStats {
         $this->jobName = $jobName;
     }
 
-    private function mapToTable($row, $deployId, $espAccountId, $offerId, $cakeVerticalId) {
+    private function mapToTable($row, $deployId, $espAccountId, $offerId, $cakeVerticalId, $party) {
         $pdo = DB::connection()->getPdo();
 
         return '('
@@ -117,7 +120,8 @@ class ProcessRawContentServerStats {
             . $row->has_cs_open . ','
             . $row->has_cs_open . ',' # has_open
             . $row->has_cs_click . ','
-            . $row->has_cs_click . ')'; # has_click
+            . $row->has_cs_click . ',' # has_click
+            . $party . ')'; 
     }
 
 }

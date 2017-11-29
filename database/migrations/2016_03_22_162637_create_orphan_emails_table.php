@@ -21,6 +21,8 @@ class CreateOrphanEmailsTable extends Migration
             $table->integer('campaign_id')->unsigned()->default(0);
             $table->tinyInteger('action_id')->unsigned()->default(0);
             $table->dateTime('datetime');
+            $table->index(['email_address', 'deploy_id'], 'email_deploy');
+            $table->index('esp_internal_id', 'esp_internal_id');
             $table->timestamps();
         });
     }

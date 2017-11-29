@@ -30,75 +30,71 @@ class AppendEidService
         $this->suppressionRepo = $suppressionRepo;
     }
 
-    public function createFile($file, $includeFeed, $includeFields, $includeSuppression)
+    public function createFile($inputPath, $outputPath, \StdClass $appendOptions)
     {
-        $reader = Reader::createFromPath($file);
 
-        $rows = $reader->fetchAssoc(["email"]);
-        $csvData = array();
+        $f = fopen($inputPath, 'r+');
+        $reader = Reader::createFromStream($f);
         $feedName = null;
         $fieldData = array();
-        $stats = null;
+
+        if (file_exists($outputPath)) {
+            unlink($outputPath);
+        }
         
-        try {
-            foreach ($rows as $row) {
-                $rowResult = array();
-                $rowIsActive = !($this->suppressionRepo->isSuppressed($row['email']));
+        $output = fopen($outputPath, 'a');
 
-                if($rowIsActive || $includeSuppression) {
-                    $emailReturn = $this->emailRepo->getEmailId($row['email']);
-                    $emailExists = count($emailReturn);
-                    if ($emailExists) {
-                        $emailId = $emailReturn[0]->id;
-                        $rowResult = ["email" => $row['email'], 'email_id' => $emailId];
+        // The three properties available in $appendOptions
+        $header = $this->returnCsvHeader($appendOptions->includeFeed, $appendOptions->includeFields, $appendOptions->includeSuppression);
 
-                        if ($includeFeed) {
-                            $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
-                            $feedName = $feedId ? $this->feedRepo->fetch($feedId)->name : "##NOFEEDID##";
-                            $rowResult["feedname"] = $feedName;
-                        }
+        $this->appendRow($output, $header);
 
-                        if ($includeFields) {
-                            $fieldData = $this->recordData->getRecordDataFromEid($emailId);
-                            $fieldData = $fieldData ? $fieldData->toArray() : array_fill(0, 21, '');
-                            $rowResult = array_merge($rowResult, $fieldData);
-                        }
+        foreach ($reader as $id => $row) {
+            $email = $row[0];
+            $rowResult = array();
+            $rowIsActive = !($this->suppressionRepo->isSuppressed($email));
 
-                        if ($includeSuppression) {
-                            $value = $rowIsActive ? "A" : "U";
-                            $rowResult = array_merge($rowResult, ['status' => "$value"]);
-                        }
-                        
-                        if ($rowIsActive || $includeSuppression) {
-                            $csvData[] = $rowResult;
-                        }
+            if($rowIsActive || $appendOptions->includeSuppression) {
+                $emailReturn = $this->emailRepo->getEmailId($email);
+                $emailExists = count($emailReturn);
+
+                // Non-extant emails are deliberately excluded
+                if ($emailExists) {
+                    $emailId = $emailReturn[0]->id;
+                    $rowResult = ["email" => $email, 'email_id' => $emailId];
+
+                    if ($appendOptions->includeFeed) {
+                        $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
+                        $feedName = $feedId ? $this->feedRepo->fetch($feedId)->name : "##NOFEEDID##";
+                        $rowResult["feedname"] = $feedName;
+                    }
+
+                    if ($appendOptions->includeFields) {
+                        $fieldData = $this->recordData->getRecordDataFromEid($emailId);
+                        $fieldData = $fieldData ? $fieldData->toArray() : array_fill(0, 21, '');
+                        $rowResult = array_merge($rowResult, $fieldData);
+                    }
+
+                    if ($appendOptions->includeSuppression) {
+                        $value = $rowIsActive ? "A" : "U";
+                        $rowResult = array_merge($rowResult, ['status' => "$value"]);
+                    }
+                    
+                    if ($rowIsActive || $appendOptions->includeSuppression) {
+                        $this->appendRow($output, $rowResult);
                     }
                 }
             }
-        } catch (\Exception $e) {
-            Log::info($e);
         }
 
-        return $this->createCsv($csvData,$includeFeed,$includeFields,$includeSuppression);
+        fclose($output);
     }
 
-    public function createCsv($data,$includeFeed,$includeFields,$includeSuppression)
-    {
-
-        $writer = Writer::createFromFileObject(new \SplTempFileObject());
-        $schema = $this->returnCsvHeader($includeFeed,$includeFields,$includeSuppression);
-
-        $writer->insertOne($schema);
-
-        foreach ($data as $row) {
-            $writer->insertOne($row);
-        }
-
-        return $writer->__toString();
+    private function appendRow($file, array $row) {
+        fputcsv($file, $row);
     }
 
-
-    private function returnCsvHeader($includeFeed,$includeFields, $includeSuppression)
+    private function returnCsvHeader($includeFeed, $includeFields, $includeSuppression)
     {
         $header = array("email_address","eid");
         if($includeFeed){

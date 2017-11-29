@@ -2,34 +2,39 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
+use App\Jobs\MonitoredJob;
 use App\Services\AppendEidService;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Mail;
 use Storage;
-class AppendEidEmail extends Job implements ShouldQueue
+use File;
+use Mail;
+
+class AppendEidEmail extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    private $filePath;
-    private $includeFeed;
-    private $includeFields;
-    private $includeSuppression;
+    private $inputPath;
+    private $outputPath;
+    private $options;
     private $fileName;
-    public function __construct($filePath,$fileName,$feed,$fields,$suppression)
+    protected $jobName;
+    private $email;
+    
+    const NAME_BASE = "AppendEidEmailJob";
+
+    public function __construct($inputPath, $outputPath, $fileName, $options, $email, $tracking, $threshold)
     {
-        $this->filePath = $filePath;
-        $this->includeFeed = $feed;
-        $this->includeFields = $fields;
-        $this->includeSuppression = $suppression;
+        $this->inputPath = $inputPath;
+        $this->outputPath = $outputPath;
         $this->fileName = $fileName;
+        $this->email = $email;
+        $this->options = $options;
+
+        $jobName = self::NAME_BASE . '-' . $fileName;
+        parent::__construct($jobName, $threshold, $tracking);
     }
 
     /**
@@ -37,10 +42,17 @@ class AppendEidEmail extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AppendEidService $service)
+    protected function handleJob()
     {
+        $service = \App::make(\App\Services\AppendEidService::class);
         $ftpPath = "/APPENDEID/{$this->fileName}";
-        $csv = $service->createFile($this->filePath, $this->includeFeed, $this->includeFields, $this->includeSuppression);
-        Storage::disk('SystemFtp')->put($ftpPath,$csv);
+        $service->createFile($this->inputPath, $this->outputPath, $this->options);
+        $stream = File::get($this->outputPath);
+        Storage::disk('SystemFtp')->put($ftpPath, $stream);
+        
+        Mail::raw("Append EID completed for {$this->fileName}. File is located at {$ftpPath}", function ($message) {
+            $message->subject('Append EID completed');
+            $message->to($this->email);
+        });
     }
 }

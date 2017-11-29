@@ -47,6 +47,7 @@ class CreateInvalidEmailInstancesTable extends Migration
             $table->index('feed_id', 'feed_id');
             $table->index('invalid_reason_id', 'invalid_reason_id');
             $table->index('created_at', 'created_at');
+            $table->index('email_address', 'email_address');
         });
 
         Schema::create('invalid_reasons', function (Blueprint $table) {

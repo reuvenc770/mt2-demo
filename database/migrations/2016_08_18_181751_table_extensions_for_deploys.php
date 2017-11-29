@@ -14,7 +14,7 @@ class TableExtensionsForDeploys extends Migration
         // A number of common tables in MT2 need to be extended to include functionality that deploys require
 
         Schema::table('offers', function($table) {
-            $table->string('unsub_link')->default('')->after('offer_payout_type_id');
+            $table->string('unsub_link', 1000)->default('')->after('offer_payout_type_id');
             $table->char('exclude_days', 7)->default('NNNNNNN')->after('unsub_link');
         });
 

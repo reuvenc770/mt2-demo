@@ -41,6 +41,7 @@ class RedoLpFlatTable extends Migration
             $table->smallInteger('opens')->unsigned()->default(0);
             $table->smallInteger('clicks')->unsigned()->default(0);
             $table->smallInteger('conversions')->unsigned()->default(0);
+            $table->smallInteger('party')->unsigned()->default(0);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
@@ -49,6 +50,7 @@ class RedoLpFlatTable extends Migration
             $table->index(['deploy_id', 'date'], 'deploy_date');
             $table->index('date', 'date');
             $table->index('updated_at', 'updated_at');
+            $table->index(['party', 'updated_at'], 'party_order');
         });
     }
 

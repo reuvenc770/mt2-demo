@@ -1,6 +1,6 @@
 
 <div ng-init="role.loadPermissionTree()">
-    <div ivh-treeview="role.permissionTree" ivh-treeview-on-cb-change="role.updateSelectedPermissions()"></div>
+    <div ivh-treeview="role.permissionTree" ivh-treeview-on-cb-change="role.updateSelectedPermissions()" ivh-treeview-node-tpl="role.customTreeTemplate"></div>
     <div class="has-error">
         <div class="help-block" ng-show="role.formErrors.permissions">
             <div ng-repeat="error in role.formErrors.permissions">

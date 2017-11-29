@@ -24,7 +24,7 @@ class CreateEmailAction extends Migration
         Schema::create('email_domains', function (Blueprint $table) {
             $table->increments('id');
             $table->smallInteger('domain_group_id')->unsigned()->default(0);
-            $table->string('domain_name', 40)->default('');
+            $table->string('domain_name', 100)->default('');
             $table->unique('domain_name');
             $table->index('domain_group_id');
         });

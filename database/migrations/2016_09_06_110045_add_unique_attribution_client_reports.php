@@ -27,8 +27,5 @@ class AddUniqueAttributionClientReports extends Migration
      */
     public function down()
     {
-        Schema::connection( 'attribution' )->table( 'attribution_client_reports' , function ( Blueprint $table ) {
-            $table->dropUnique( 'id_date_unique' );
-        } );
     }
 }

@@ -93,8 +93,10 @@ class EmailDomainRepo implements IAwsRepo {
             $domain = $this->emailDomainModel->updateOrCreate([
                 'domain_name' => strtolower($emailParts[1])
             ], [
+                'id' => null,
                 'domain_name' => strtolower($emailParts[1]),
-                'domain_group_id' => 0
+                'domain_group_id' => 0,
+                'is_suppressed' => 0
             ]);
 
             return $domain;

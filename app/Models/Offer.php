@@ -55,4 +55,15 @@ class Offer extends Model {
     public function cakeOffers() {
         return $this->belongsToMany('App\Models\CakeOffer', 'mt_offer_cake_offer_mappings', 'offer_id', 'cake_offer_id');
     }
+
+    public function getAdvertiserName() {
+        $advertiser = $this->advertiser;
+
+        if ($advertiser) {
+            return $advertiser->name;
+        }
+        else {
+            return '';
+        }
+    }
 }

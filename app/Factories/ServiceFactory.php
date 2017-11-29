@@ -9,6 +9,7 @@
 namespace App\Factories;
 use App;
 use Aws;
+use Illuminate\Support\Facades\Redis;
 
 class ServiceFactory
 {
@@ -123,7 +124,8 @@ class ServiceFactory
             $canonicalDataRepo = App::make(\App\Repositories\EmailRepo::class);
             $checkClasses = [
                 'AttributionRecordTruthRepo',
-                'ThirdPartyEmailStatusRepo'
+                'ThirdPartyEmailStatusRepo',
+                'EmailFeedAssignmentRepo'
             ];
 
             $model = App::make(\App\Models\AttributionExpirationSchedule::class);
@@ -182,5 +184,23 @@ class ServiceFactory
         $testingStrategy = "App\\Services\\RedshiftDataValidationStrategies\\{$testingStrategy}RedshiftDataValidation";
 
         return new $testingStrategy($cmpRepo, $redshiftRepo);
+    }
+
+    public static function createSupervisorService() {
+        $httpClient = new \GuzzleHttp\Client( ['auth' => [ config( 'supervisor.auth.user' ) , config( 'supervisor.auth.pass' ) ]] );
+        $client = new \fXmlRpc\Client('http://127.0.0.1:9001/RPC2', 
+            new \fXmlRpc\Transport\HttpAdapterTransport(
+                new \Http\Message\MessageFactory\GuzzleMessageFactory(), 
+                new \Http\Adapter\Guzzle6\Client($httpClient)));
+
+        $connector = new \Supervisor\Connector\XmlRpc($client);
+        $supervisor = new \Supervisor\Supervisor($connector);
+
+        return new \App\Services\SupervisorWorkerService($supervisor);
+    }
+
+    public static function createQueueService () {
+        $redis = Redis::connection('queue');
+        return new \App\Services\RedisQueueService($redis);
     }
 }

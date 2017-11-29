@@ -59,6 +59,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
 
     private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
+        $dob = (!$row['dob'] || ('0000-00-00' === $row['dob'])) ? 'NULL' : $pdo->quote($row['dob']);
 
         return '('
             . $pdo->quote($row['email_id']) . ','
@@ -74,7 +75,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
             . $pdo->quote($row['state']) . ','
             . $pdo->quote($row['zip']) . ','
             . $pdo->quote($row['country']) . ','
-            . $pdo->quote($row['dob']) . ','
+            . $dob . ','
             . $pdo->quote($row['gender']) . ','
             . $pdo->quote($row['phone']) . ','
             . $pdo->quote($row['mobile_phone']) . ','
@@ -159,6 +160,9 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                     ->toArray();
     }
 
+    public function validExists(array $row) {
+        return $row;
+    }
 
     public function maxId() {
         return $this->model->orderBy('id', 'desc')->first()['id'];

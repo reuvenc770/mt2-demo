@@ -2,17 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-
 use DB;
 use Log;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
 use App\Factories\APIFactory;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Exceptions\JobException;
 use App\Exceptions\JobAlreadyQueuedException;
 use Carbon\Carbon;
@@ -21,9 +15,8 @@ use App\Models\BrontoReport;
 use App\Repositories\StandardApiReportRepo;
 use App\Exceptions\JobCompletedException;
 
-class RetrieveDeliverableReports extends Job implements ShouldQueue
+class RetrieveDeliverableReports extends MonitoredJob
 {
-    use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
     CONST JOB_NAME = "RetrieveDeliverableReports";
 
@@ -35,6 +28,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected $reportService;
     protected $standardReportRepo;
     public $defaultQueue;
+    protected $rowCount = 0;
+    protected $runtimeThreshold;
 
     public $processState;
     protected $defaultProcessState = [
@@ -64,6 +59,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->maxAttempts = config('jobs.maxAttempts');
         $this->tracking = $tracking;
         $this->defaultQueue = $defaultQueue;
+        $this->runTimeThreshold = $this->getCurrentFilterRuntimeThreshold($runtimeThreshold);
         $this->reportService = APIFactory::createAPIReportService( $this->apiName,$this->espAccountId );
         $this->standardReportRepo = new StandardApiReportRepo(new StandardReport());
 
@@ -75,8 +71,10 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             }
         } else {
             $this->processState = $this->defaultProcessState;
+            $this->processState['date'] = $this->date;
         }
 
+        parent::__construct($this->getJobName(),$this->runtimeThreshold,$this->tracking);
         $this->initJobEntry();
     }
 
@@ -85,20 +83,20 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle () {
+    public function handleJob() {
         if(isset($this->processState['retryFailures']) && $this->processState['retryFailures'] >= 5){
-            $this->failed();
-            exit;
+            throw new \Exception("ERROR: 5 process retries failed");
+            return;
         }
         try {
             $this->startJobEntry();
             $filterName = $this->currentFilter();
             $this->$filterName();
         } catch (JobCompletedException $e) {
-            // killing an attempt at a rerun
-            //Log::notice($e->getMessage());//I dont think we need to log this
+            JobTracking::addDiagnostic(array('warnings' => 'job completed exception thrown'),$this->tracking);
             exit;
         } catch (JobAlreadyQueuedException $e) {
+            JobTracking::addDiagnostic(array('warnings' => 'job already queued exception thrown'),$this->tracking);
             Log::notice($e->getMessage());
             exit;
         } catch ( JobException $e ) {
@@ -114,6 +112,9 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             throw $e;
         }
+
+        return $this->rowCount;
+
     }
 
     protected function jobSetup () {
@@ -124,7 +125,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $this->queueNextJob( $this->defaultQueue );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function startTicket () {
@@ -142,7 +142,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $this->queueNextJob( $this->defaultQueue , 60 );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function checkTicketStatus () {
@@ -153,7 +152,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $this->queueNextJob( 'fileDownloads' );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function downloadTicketFile () { 
@@ -164,7 +162,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $this->queueNextJob( $this->defaultQueue );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function getCampaigns () {
@@ -179,7 +176,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->queueNextJob( $this->defaultQueue );
         });
         $rowCount = count($campaigns);
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
     
     protected function getDeliverableCampaigns() {
@@ -194,7 +191,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->queueNextJob( $this->defaultQueue );
         });
         $rowCount = count($campaigns);
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
 
     protected function getSplitDeliverableCampaigns() {
@@ -213,7 +210,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             }
         });
         $rowCount = count($campaigns);
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
 
     protected function getRerunCampaigns () {
@@ -233,7 +230,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->queueNextJob( $this->defaultQueue );
         });
         $rowCount = count($deploys);
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
     }
 
     protected function getRawCampaigns () {
@@ -249,8 +246,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         });
 
         $rowCount = count( $rawCampaigns );
+        $this->rowCount = $rowCount;
 
-        $this->changeJobEntry( JobEntry::SUCCESS , $rowCount );
     }
 
     protected function getBrontoRerunCampaigns() {
@@ -286,7 +283,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             }
         });
         $rowCount = count($deploys);
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
 
     protected function splitTypes () {
@@ -298,14 +296,16 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         }
-
-        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function savePaginatedRecords () {
-
         $rowCount = 0;
-        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        $monthAgo = Carbon::today()->subDays(31);
+
+        # "lt()" is understood as "earlier than" rather than "less than/since"
+        # pick the earlier of either the start date or 31 days ago
+        $startDate = Carbon::parse($this->date)->lt($monthAgo) ? $date : $monthAgo->toDateString();
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId, $startDate);
         
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
@@ -322,8 +322,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         }
+        $this->rowCount = $rowCount;
 
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function savePaginatedAWeberRecords () {
@@ -346,7 +346,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $forceSaveOfLeftOvers = true;
             $this->reportService->savePage( $this->processState,$forceSaveOfLeftOvers);
         }
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
     
     protected function saveOpenAWeberRecords(){
@@ -354,7 +355,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->reportService->generateOpenRecordData($this->processState);
         $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
         $rowCount = $this->reportService->savePage( $this->processState);
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+        $this->rowCount = $rowCount;
+
     }
 
 
@@ -388,17 +390,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             }
         }
 
+        $this->rowCount = $rowCount;
 
-
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function saveRecords () {
         if (isset($this->standardReportRepo)) {
             $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
             $total = $this->reportService->saveRecords( $this->processState, $map );
-
-            $this->changeJobEntry( JobEntry::SUCCESS, $total );
+            $this->rowCount = $total;
         }
         else {
             echo "StandardReportRepo not set. ESP account id " . $this->espAccountId . PHP_EOL;
@@ -417,8 +417,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState['recordType'] = $this->processState[ 'typeList' ][0];
         $this->processState[ 'typeIndex' ] = 0;
         $this->queueNextJob( $this->defaultQueue );
-
-        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function synchronousSaveTypeRecords () {
@@ -426,8 +424,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             Log::error( 'typeList not available.' );
             Log::error( $this->getJobInfo() );
 
-            $this->changeJobEntry( JobEntry::FAILED );
-
+            throw new \Exception( 'typeList not available.' );
             return;
         }
 
@@ -442,24 +439,23 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         }
 
         $this->queueNextJob( $this->defaultQueue );
-
-        $this->changeJobEntry( JobEntry::SUCCESS, $total );
+        $this->rowCount = $total;
     }
 
     protected function cleanUp () {
         $this->reportService->cleanUp( $this->processState );
-
-        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function queueNextJob ( $queue = null , $delay = null) {
+        
         $job = new RetrieveDeliverableReports(
             $this->apiName ,
             $this->espAccountId ,
             $this->date ,
             str_random( 16 ) ,
             $this->processState,
-            $this->defaultQueue
+            $this->defaultQueue,
+            $this->runtimeThreshold
         );
    
         if ( !is_null( $delay ) ) { $job->delay( $delay ); }
@@ -474,8 +470,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             ->where('deploy_id', $this->processState['campaign']->external_deploy_id)
             ->delete();
         $rowTotal = 1;
-
-        $this->changeJobEntry( JobEntry::SUCCESS, $rowTotal );
+        $this->rowCount = $rowTotal;
     }
 
     protected function currentFilter () {
@@ -490,16 +485,16 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         return $this->currentFilter;
     }
 
-    protected function currentFilterRunTimeThreshold() {
-        if ( is_null( $this->currentFilterRuntimeThreshold ) ) {
+    protected function getCurrentFilterRuntimeThreshold($lastRuntimeThreshold) {
             $filters = config( 'espdeliverables.' . $this->apiName . '.pipes' );
             $pipe = $this->processState[ 'pipe' ];
             $filterIndex = $this->processState[ 'currentFilterIndex' ];
 
-            $this->currentFilterRuntimeThreshold = $filters[ $pipe ][ $filterIndex ]['runtimeThreshold'];
-        }
-
-        return $this->currentFilterRuntimeThreshold;
+            if(isset($filters[ $pipe ][ $filterIndex ]['runtimeThreshold'])){
+               return $filters[ $pipe ][ $filterIndex ]['runtimeThreshold'];
+            }else{
+               return $lastRuntimeThreshold;
+            }
     }
 
     protected function releaseJob ( JobException $e ) {
@@ -510,7 +505,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
     protected function initJobEntry () {
         $campaignId = 0;
-        if(isset($this->processState['campaign'])){
+        if(isset($this->processState['campaign']) && null !== $this->processState['campaign']->esp_internal_id){
            $campaignId = $this->processState['campaign']->esp_internal_id;
         }
 
@@ -526,12 +521,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             }
         }
 
-        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
+        $campaignId = $campaignId ?: 0;
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 
     protected function startJobEntry () {
-        JobTracking::changeJobState(JobEntry::RUNNING , $this->tracking);
 
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . $this->tracking . "\n";
     }
@@ -575,7 +569,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         if ('rerun' === $this->processState['pipe']) {
             $rerun = '-rerun';
         }
-        return self::JOB_NAME . '::' . $this->currentFilter() . $this->reportService->getUniqueJobId( $this->processState ). "::". $type . $rerun;
+        return self::JOB_NAME . '::' . $this->apiName. '::'. $this->espAccountId . '::' . $this->currentFilter() . $this->reportService->getUniqueJobId( $this->processState ). "::". $type . $rerun;
     }
 
     protected function getJobInfo () {
@@ -590,3 +584,4 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::FAILED );
     }
 }
+

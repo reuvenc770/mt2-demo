@@ -1,0 +1,25 @@
+-
+    id: 1
+    name: Data
+    rank: 1
+    glyth: glyphicon-folder-open
+-
+    id: 2
+    name: Deploys
+    rank: 2
+    glyth: glyphicon-plane
+-
+    id: 3
+    name: Reporting
+    rank: 3
+    glyth: glyphicon-piggy-bank
+-
+    id: 4
+    name: Operations
+    rank: 4
+    glyth: glyphicon-blackboard
+-
+    id: 5
+    name: Admin
+    rank: 5
+    glyth: glyphicon-user

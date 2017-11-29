@@ -38,4 +38,29 @@ class ListProfileCombine extends Model
     public function deploys () {
         return $this->hasMany( 'App\Models\Deploy' );
     }
+
+    public function getEmailClassShortName() {
+        $names = [];
+
+        $mapping = [
+            'Yahoo' => 'YAH',
+            'Gmail' => "GM",
+            'AOL' => 'AOL',
+            'Hotmail' => "HOT",
+            'YahooUK' => "YAHUK",
+            'HotmailUK' => "HOTUK",
+            'AOLUK' => 'AOLUK'
+        ];
+
+        foreach ($this->listProfiles as $lp) {
+            if ($lp->domainGroups) {
+                foreach ($lp->domainGroups as $dg) {
+                    $names[] = $dg->name;
+                }
+            }
+            
+        }
+        # Unique and divided by a pipe
+        return implode('|', array_unique($names));
+    }
 }

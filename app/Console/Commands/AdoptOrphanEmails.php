@@ -47,12 +47,11 @@ class AdoptOrphanEmails extends Command
         $end = $repo->getMaxId();
 
         while ($start < $end) {
-            $segmentSize = 5000;
+            $segmentSize = 10000;
             $segmentEnd = $repo->nextNRows($start, $segmentSize);
             $segmentEnd = $segmentEnd ?: $end;
 
-            $orphans = $repo->getOrphansBetweenIds($start, $segmentEnd);
-            $job = new Orphanage($orphans, str_random(16));
+            $job = new Orphanage($start, $segmentEnd, str_random(16));
             $job->onQueue('orphanage');
             $this->dispatch($job);
 

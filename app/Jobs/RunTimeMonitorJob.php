@@ -30,13 +30,14 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
     protected $date_range;
     protected $report;
     protected $mode;
+    protected $reportType;
 
     /**
      * @param null $mode, "monitor" or "resolve"
      * @param null $date1, integer indicating days back or start datetime, format YYYYMMDDhhmmss
      * @param null $date2, end datetime, format YYYYMMDDhhmmss
      */
-    public function __construct($mode,$runtimeThreshold,$date1,$date2=null)
+    public function __construct($mode,$runtimeThreshold,$date1,$date2=null,$reportType)
     {
 
         parent::__construct(self::JOB_NAME.'_'.Carbon::now(),$runtimeThreshold);
@@ -52,6 +53,8 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
         }
         JobTracking::addDiagnostic(array('notices'=>array('mode = '.$mode)),$this->tracking);
 
+        //valid reportTypes are full and consolidated
+        $this->reportType = $reportType;
 
         //report structure
         $this->report = array(
@@ -124,7 +127,7 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 
         JobTracking::addDiagnostic(array('summary' => $this->report['summary']),$this->tracking);
 
-        $badjobs = JobTracking::retrieveBadJobs($this->date_range);
+        $badjobs = $this->reportType=='consolidated' ? JobTracking::retrieveBadJobsConsolidated($this->date_range) :  JobTracking::retrieveBadJobs($this->date_range);
         foreach($badjobs AS $job){
             $this->report[$job->type.'s'][] = (array) $job;
         }

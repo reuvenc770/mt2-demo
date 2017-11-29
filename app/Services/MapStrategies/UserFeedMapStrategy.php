@@ -19,7 +19,7 @@ class UserFeedMapStrategy implements IMapStrategy {
             'frequency' => $row['upl_freq'],
             'type_id' => $row['clientTypeId'] ?: 1,
             'country_id' => $this->getMt2CountryId($row['countryID']),
-            'created_at' => $row['create_datetime'],
+            'created_at' => $row['overall_updated'],
             'updated_at' => $row['overall_updated']
             // don't have vertical information yet
         ];

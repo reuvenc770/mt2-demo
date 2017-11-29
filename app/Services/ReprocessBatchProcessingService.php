@@ -28,6 +28,8 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
         $this->userConfig = $userConfig;
         $this->publicKeyConfig = $publicKeyConfig;
         $this->privateKeyConfig = $privateKeyConfig;
+
+        $this->connectToServer();
     }
 
     public function setFile ( $filePath , $feedId , $party ) {
@@ -36,17 +38,15 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
             'feedId' => $feedId ,
             'party' => $party 
         ];
-
-        Redis::connection( 'cache' )->executeRaw( [ 'SETNX' , self::REDIS_LOCK_KEY_PREFIX . trim( $filePath ) , getmypid() ] );
     }
 
     public function fireAlert ( $message ) {
         Slack::to( $this->slackChannel )->send( $message );
     }
 
-    public function loadNewFilePaths () {
-        $this->connectToServer();
-    }
+    public function loadNewFilePaths () {}
+
+    protected function lockExists () { return false; }
 
     protected function connectToServer () {
         if ( !$this->systemService->connectionExists() ) { 
@@ -60,10 +60,6 @@ class ReprocessBatchProcessingService extends RemoteFeedFileService {
         }   
     }
     
-    protected function columnMatchCheck ( $lineColumns ) {
-        #columns have a chance to not match. parsing is overridden in this class
-    }
-
     protected function columnMatchCheck ( $lineColumns ) {
         #columns have a chance to not match. parsing is overridden in this class
     }

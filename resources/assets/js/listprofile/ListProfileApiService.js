@@ -3,7 +3,7 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
 
     self.pagerApiUrl = '/api/pager/ListProfile';
     self.baseApiUrl = '/api/listprofile';
-    self.offerSearch = '/api/offer/search?searchTerm=';
+    self.offerSearch = '/api/offer/lpsearch?searchTerm=';
     self.getCombineUrl = '/api/listprofile/listcombine/combineonly';
     self.createCombineUrl = '/api/listprofile/listcombine/create';
     self.exportCombineUrl = '/api/listprofile/listcombine/export';

@@ -34,7 +34,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             lower_case_md5, upper_case_md5, email_domain_id, 
             email_domain_group_id, offer_id, cake_vertical_id, has_esp_open, 
             has_open, has_esp_click, has_click, deliveries, opens,
-            clicks, created_at, updated_at) VALUES $insertString
+            clicks, party, created_at, updated_at) VALUES $insertString
 
             ON DUPLICATE KEY UPDATE
                 email_id = email_id,
@@ -61,6 +61,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 opens = opens + VALUES(opens),
                 clicks = clicks + VALUES(clicks),
                 conversions = conversions,
+                party = VALUES(party),
                 created_at = created_at,
                 updated_at = VALUES(updated_at)");
     }
@@ -90,7 +91,8 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     private function prepareConversionData($row) {
         $conversionFlag = ((int)$row->conversions) > 0 ? 1 : 0;
         $clickFlag = ((int)$row->clicks) > 0 ? 1 : 0;
-        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->esp_account_id}', '{$row->offer_id}', '{$row->vertical_id}', '$clickFlag', '$clickFlag', '$conversionFlag', '$conversionFlag', '{$row->clicks}', '{$row->conversions}', NOW(), NOW())";
+        $party = (int)$row->party ?: 0;
+        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->esp_account_id}', '{$row->email_domain_id}' , '{$row->offer_id}', '{$row->vertical_id}', '$clickFlag', '$clickFlag', '$conversionFlag', '$conversionFlag', '{$row->clicks}', '{$row->conversions}', {$party}, NOW(), NOW())";
     }
 
 
@@ -101,7 +103,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             $inserts = implode(',', $this->batchData);
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table 
-                (email_id, deploy_id, date, esp_account_id, offer_id, cake_vertical_id, has_tracking_click, has_click, has_tracking_conversion, has_conversion, clicks, conversions, created_at, updated_at)
+                (email_id, deploy_id, date, esp_account_id, email_domain_id, offer_id, cake_vertical_id, has_tracking_click, has_click, has_tracking_conversion, has_conversion, clicks, conversions, party, created_at, updated_at)
 
                 VALUES $inserts
 
@@ -111,7 +113,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 esp_account_id = values(esp_account_id),
                 date = date,
                 email_address = email_address,
-                email_domain_id = email_domain_id,
+                email_domain_id = values(email_domain_id),
                 email_domain_group_id = email_domain_group_id,
                 offer_id = values(offer_id),
                 cake_vertical_id = values(cake_vertical_id),
@@ -126,13 +128,14 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 has_conversion = IF(VALUES(has_conversion) > 0, VALUES(has_conversion), has_conversion),
                 deliveries = deliveries,
                 opens = opens,
-                clicks = VALUES(clicks),
-                conversions = VALUES(conversions),
+                clicks = clicks + VALUES(clicks),
+                conversions = conversion + VALUES(conversions),
                 created_at = created_at,
                 email_domain_group_id = email_domain_group_id,
                 has_esp_open = has_esp_open,
                 has_esp_click = has_esp_click,
                 has_conversion = has_conversion,
+                party = VALUES(party),
                 created_at = created_at,
                 updated_at = NOW()");
 
@@ -147,7 +150,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table
             (email_id, deploy_id, date, email_address, lower_case_md5, upper_case_md5, 
-                email_domain_id, esp_account_id, offer_id, cake_vertical_id, has_cs_open, has_open, has_cs_click, has_click)
+                email_domain_id, esp_account_id, offer_id, cake_vertical_id, has_cs_open, has_open, has_cs_click, has_click, party)
 
             VALUES $inserts
 
@@ -178,21 +181,20 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             has_open = IF(VALUES(has_cs_open) > 0, 1, has_open),
             has_cs_click = IF(VALUES(has_cs_click) > 0, 1, has_cs_click),
             has_click = IF(VALUES(has_cs_click) > 0, 1, has_click),
+            party = VALUES(party),
             updated_at = NOW()");
         }
     }
 
     public function extractForS3Upload($startPoint) {
         $dataSchema = config('database.connections.mysql.database');
-        #return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("list_profile_flat_table.updated_at > $startPoint");
-        return $this->flatTable->whereRaw("updated_at > $startPoint")->selectRaw("*, 3 as party"); // temporary until lpft is optimized for the above query
+        return $this->flatTable->whereRaw("list_profile_flat_table.updated_at > $startPoint");
     }
 
     public function extractAllForS3() {
         // This will be the current default
         $dataSchema = config('database.connections.mysql.database');
-        #return $this->flatTable->join("$dataSchema.deploys as d", "list_profile_flat_table.deploy_id", '=', 'd.id')->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
-        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY")->selectRaw("*, 3 as party"); // See above
+        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
     }
 
     public function specialExtract($data) {}
@@ -245,7 +247,6 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     
     public function getThirdPartyEmailStatusExtractQuery () {
-        $mt2DataDb = config('database.connections.mysql.database');
         $listProfileDb = config('database.connections.list_profile.database');
 
         return "SELECT
@@ -259,7 +260,6 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             CONCAT( lpft.date , ' 00:00:00' ) as `datetime`
         FROM
             {$listProfileDb}.list_profile_flat_table lpft
-            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
         WHERE
             (
                 lpft.has_open = 1
@@ -267,11 +267,10 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 OR lpft.has_conversion = 1
             )
             AND lpft.updated_at between :start AND :end
-            AND d.party = 3";
+            AND party = 3";
     }
 
     public function getRecordTruthsExtractQuery () {
-        $mt2DataDb = config('database.connections.mysql.database');
         $listProfileDb = config('database.connections.list_profile.database');
         $attrDb = config('database.connections.attribution.database');
 
@@ -281,7 +280,6 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             1 AS `has_action`
         FROM
             {$listProfileDb}.list_profile_flat_table lpft
-            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
             INNER JOIN {$attrDb}.attribution_record_truths art ON lpft.email_id = art.email_id
         WHERE
             (
@@ -290,13 +288,12 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 OR lpft.has_conversion = 1
             )
             AND lpft.updated_at between :start AND :end
-            AND d.party = 3
+            AND party = 3
         GROUP BY
             lpft.email_id";
     }
 
     public function getFirstPartyActionStatusQuery() {
-        $mt2DataDb = config('database.connections.mysql.database');
         $lpDB = config('database.connections.list_profile.database');
 
         return "SELECT
@@ -311,7 +308,6 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             lpft.date as `date`
         FROM
             {$lpDB}.list_profile_flat_table lpft
-            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
             INNER JOIN {$lpDB}.list_profile_combines lpc ON d.list_profile_combine_id = lpc.id
             INNER JOIN {$lpDB}.list_profile_feeds lpf ON lpc.list_profile_id = lpf.list_profile_id
         WHERE
@@ -324,7 +320,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             AND 
             lpft.updated_at between :start AND :end
             AND 
-            d.party = 1";
+            lpft.party = 1";
     }
 
     public function deployDateSyncCheck($deployId, $date) {

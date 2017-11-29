@@ -48,9 +48,21 @@ class OfferRepo {
             ->select( "id" , "name" )->orderBy('name')->get();
     }
 
-    public function fuzzySearchBack($term){
-        return $this->offer->whereRaw("(name like '%$term%' AND is_approved = 1 AND status = 'A') OR (name like '%$term%' AND name like '%SUPPRESSION%')")
-            ->select("id","name")->orderBy('name')->get();
+    public function fuzzySearchBack($term, $day = null) {
+        if (null !== $day) {
+            return $this->offer
+                        ->whereRaw("(name like '%$term%' AND is_approved = 1 AND status = 'A' AND SUBSTR( exclude_days, {$day} , 1 ) = 'N' ) OR (name like '%$term%' AND name like '%SUPPRESSION%' AND SUBSTR( exclude_days, {$day} , 1 ) = 'N' )")
+                        ->select("id","name")
+                        ->orderBy('name')
+                        ->get();
+        }
+        else {
+            return $this->offer
+                        ->whereRaw("(name like '%$term%' AND is_approved = 1 AND status = 'A') OR (name like '%$term%' AND name like '%SUPPRESSION%')")
+                        ->select("id","name")
+                        ->orderBy('name')
+                        ->get();
+        }
     }
 
     public function searchByDay($day){

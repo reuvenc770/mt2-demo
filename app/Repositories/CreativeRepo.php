@@ -17,7 +17,9 @@ class CreativeRepo {
         $this->model->updateOrCreate(['id' => $data['id']], $data);
     }
 
-    public function prepareTableForSync() {}
+    public function prepareTableForSync() {
+        #$this->model->truncate();
+    }
 
     public function getCreativeOfferClickRate($offerId) {
         $schema = config("database.connections.reporting_data.database");
@@ -49,6 +51,7 @@ class CreativeRepo {
             ->where('ocm.offer_id', $offerId)
             ->where('creatives.status', 'A')
             ->where('creatives.is_approved', 1)
+            ->orderBy( 'creatives.id' , 'desc' )
             ->get();
     }
 

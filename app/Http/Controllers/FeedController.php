@@ -80,7 +80,7 @@ class FeedController extends Controller
     {
         Flash::success( 'Feed was successfully saved.' );
 
-        $this->feedService->updateOrCreate( $request->all() );
+        $this->feedService->create( $request->all() );
     }
 
     /**

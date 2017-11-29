@@ -130,7 +130,7 @@ class RemoteFeedFileService {
             $count = 0;
             foreach ( explode( "\n" , $newFileString ) as $newFile ) {
                 if (
-                    $newFileString !== ''
+                    $newFile !== ''
                     && strpos( $newFile , "find:" ) !== 0 #contention issue caused by another process
                     && $count < 20
                 ) {
@@ -146,6 +146,25 @@ class RemoteFeedFileService {
                 }
             }
         }
+    }
+
+    public function getAllFilesFromDir ( $directory ) {
+        $fileList = [];
+
+        $newFileString = $this->systemService->getRecentFiles( $directory , [ '-type f' , '-print' ] );
+        $matches = [];
+        
+        foreach ( explode( "\n" , $newFileString ) as $newFile ) {
+            if (
+                $newFile !== '' #empty line check
+                && strpos( $newFile , "find:" ) !== 0 #contention issue caused by another process
+                && preg_match( '/^.*\/$/' , $newFile , $matches ) === 0 #directory check
+            ) {
+                $fileList []= $newFile;
+            }
+        }
+
+        return $fileList;
     }
 
     public function addToFileList ( $file , $feedId , $party ) {
@@ -260,11 +279,21 @@ class RemoteFeedFileService {
         }
     }
 
-    protected function extractData ( $csvLine ) {
-        $reader = Reader::createFromString( trim( $csvLine ) );
+    protected function extractData ( $csvline ) {
+        $csvToSave = $csvline;
 
-        if ( strpos( $csvLine , "\t" ) !== false ) {
+        if ( 'ISO-8859-15' === mb_detect_encoding( $csvline , 'ASCII,UTF-8,ISO-8859-15' , true) ) {
+            $csvToSave = iconv( 'ISO-8859-15' , 'UTF-8' , $csvline );
+        }
+
+        $reader = Reader::createFromString( trim( $csvToSave ) );
+
+        if ( strpos( $csvToSave , "\t" ) !== false ) {
             $reader->setDelimiter( "\t" );
+        }
+        
+        if ( strpos( $csvToSave , '|' ) !== false ) {
+            $reader->setDelimiter( '|' );
         }
 
         return $reader->stripBOM( true )->fetchOne();

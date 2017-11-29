@@ -12,21 +12,26 @@ use App\Services\EspApiAccountService;
 use App\Services\MailingTemplateService;
 use App\Services\DomainService;
 use Illuminate\Http\Request;
+use App\Exceptions\ValidationException;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Response;
 use League\Csv\Reader;
 use Artisan;
 use App\Models\Deploy;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class DeployController extends Controller
 {
+    use DispatchesJobs;
+
     protected $deployService;
     protected $packageService;
     protected $combineService;
     protected $espApiService;
     protected $mailingTemplateService;
     protected $domainService;
+    const LIST_PROFILE_QUEUE = 'ListProfile';
 
     public function __construct(DeployService $deployService, PackageZipCreationService $packageService, ListProfileCombineService $combineService, EspApiAccountService $espApiService, MailingTemplateService $mailingTemplateService, DomainService $domainService )
     {
@@ -231,6 +236,43 @@ class DeployController extends Controller
             if ( !is_numeric( $current['content_domain_id'] ) ){
                 $data[ $index ]['content_domain_id'] = $this->domainService->getDomainIdByTypeAndName( 2 , $current['content_domain_id'] );
             }
+
+            if (!isset($current['external_deploy_id'])) {
+                $data[$index]['external_deploy_id'] = '';
+            }
+
+            if (!isset($current['offer_id'])) {
+                $data[$index]['offer_id'] = 0;
+            }
+
+            if (!isset($current['creative_id'])) {
+                $data[$index]['creative_id'] = 0;
+            }
+
+            if (!isset($current['from_id'])) {
+                $data[$index]['from_id'] = 0;
+            }
+
+            if (!isset($current['subject_id'])) {
+                $data[$index]['subject_id'] = 0;
+            }
+
+            if (!isset($current['cake_affiliate_id'])) {
+                $data[$index]['cake_affiliate_id'] = 0;
+            }
+
+            if (!isset($current['url_format'])) {
+                $data[$index]['url_format'] = 'short';
+            }
+
+            if (!isset($current['notes'])) {
+                $data[$index]['notes'] = '';
+            }
+            
+            if (!isset($current['deployment_status'])) {
+                $data[$index]['deployment_status'] = 0;
+            }
+
         }
 
         return response()->json(['success' => $this->deployService->massUpload($data)]);
@@ -246,38 +288,45 @@ class DeployController extends Controller
         $username = $request->get("username");
         $data = $request->except("username");
         $filePath = false;
-        $ran = str_random(10);
-        $reportCard = CacheReportCard::makeNewReportCard("Deploys-{$username}-{$ran}");
         $deploys = [];
-
-        $reportCard->setOwner($username);
 
         foreach($data as $deployId) {
             $deploys[] = Deploy::find($deployId);
         }
 
-        //Only one package is selected return the filepath and make it a download response
-        if (count($deploys) === 1) {
-            $filePath = $this->packageService->createPackage($data);
-        }
-        else {
-            //more then 1 package selection create the packages on the FTP and kick off the OPS file job
-            foreach ($deploys as $deploy) {
-                $this->packageService->uploadPackage($deploy->id);
+        try {
+            //Only one package is selected return the filepath and make it a download response
+            if (count($deploys) === 1) {
+                $filePath = $this->packageService->createPackage($data);
+            }
+            else {
+                //more then 1 package selection create the packages on the FTP and kick off the OPS file job
+                foreach ($deploys as $deploy) {
+                    $this->packageService->uploadPackage($deploy->id);
+                }
+
+                Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
             }
 
-            Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
-        }
+            foreach ($deploys as $d) {
+                $ran = str_random(10);
+                $reportCard = CacheReportCard::makeNewReportCard("Deploys-{$username}-{$ran}");
+                $reportCard->setOwner($username);
+                $this->dispatch((new ExportDeployCombineJob([$d], $reportCard, str_random(16), 5000))->onQueue(self::LIST_PROFILE_QUEUE));
+            }        
+            
+            //Update deploy status to pending
+            $this->deployService->deployPackages($data);
 
-        $this->dispatch(new ExportDeployCombineJob($deploys, $reportCard, str_random(16), 5000));
-        
-        //Update deploy status to pending
-        $this->deployService->deployPackages($data);
-
-        if($filePath){
-            return response()->download($filePath);
+            if($filePath){
+                return response()->download($filePath);
+            }
+            return response()->json(['success' => true] );
+        } catch ( ValidationException $e ) {
+            return response()->json( [ 'status' => false , 'message' => 'Validation error: ' . $e->getMessage() ] , 422 );
+        } catch (\Exception $e) {
+            return response()->json( [ 'status' => false , 'message' => $e->getMessage() ] , 422 );
         }
-        return response()->json(['success' => true] );
     }
 
 

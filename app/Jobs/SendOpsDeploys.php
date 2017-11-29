@@ -26,7 +26,7 @@ class SendOpsDeploys extends Job implements ShouldQueue
         $this->deploys = $deploys;
         $this->tracking = $tracking;
         $this->username = $username;
-        JobTracking::startEspJob(self::JOB_NAME,"", "", $this->tracking);
+        JobTracking::startEspJob(self::JOB_NAME . '-' . $deploys,"", "", $this->tracking);
     }
 
     /**

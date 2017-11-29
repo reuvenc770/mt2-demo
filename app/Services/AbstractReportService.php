@@ -83,7 +83,7 @@ abstract class AbstractReportService implements IDataService  {
 
     public function parseSubID($deploy_id){
         $return = isset(explode("_", $deploy_id)[0]) ? explode("_", $deploy_id)[0] : "";
-        return $return;
+        return intval($return);
     }
 
     protected function returnInfoForEmail($email) {

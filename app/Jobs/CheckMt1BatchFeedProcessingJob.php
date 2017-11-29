@@ -61,7 +61,8 @@ class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
         $findOptions = [
             '-type f' ,
             '-mtime -1' ,
-            '-mmin +45' ,
+            '-mmin +10' , #older than 10 minutes
+            '-mmin -120' , #up to 2 hours old
             ' -not -path "/home/mt1/*"' ,
             "\( -name '*.csv' -o -name '*.txt' \)" ,
             '-print' 
@@ -74,7 +75,7 @@ class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
 
             if ( $newFileString = $this->remote->getRecentFiles( '/home/' . $currentFeedName , $findOptions ) ) {
                 Slack::to( self::SLACK_CHANNEL )->send( "Found Orange Feed Files which were not migrated to MT1 folders. File List:\n" . $newFileString ); 
-
+/*
                 foreach ( explode( "\n" , $newFileString ) as $orangeFile ) {
                     if ( $orangeFile !== '' ) {
                         if ( !$this->remote->directoryExists( '/home/mt1/' . $currentFeedName ) ) {
@@ -86,6 +87,7 @@ class CheckMt1BatchFeedProcessingJob extends MonitoredJob {
                         $output = $this->remote->moveFile( $orangeFile , $newPath );
                     }
                 }
+*/
             }
         }
     }

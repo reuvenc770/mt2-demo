@@ -120,67 +120,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
             . $pdo->quote($row['other_fields']) . ')';
     }
 
-    public function batchUpdateDeviceData($row) {
-        $pdo = DB::connection()->getPdo();
-
-        if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
-            $this->cleanupDeviceData();
-
-            $this->batchDeviceUpdateData = ['('
-                . $pdo->quote($row['email_id']) . ','
-                . $pdo->quote($row['feed_id']) . ','
-                . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ','
-                . $pdo->quote($row['carrier']) . ')'];
-                
-            $this->batchDeviceUpdateCount = 1;
-        }
-        else {
-            $this->batchDeviceUpdateData[] = '('
-                . $pdo->quote($row['email_id']) . ','
-                . $pdo->quote($row['feed_id']) . ','
-                . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ','
-                . $pdo->quote($row['carrier']) . ')';
-
-            $this->batchDeviceUpdateCount++;
-        }
-    }
-
-    public function cleanupDeviceData() {
-        if ($this->batchDeviceUpdateCount > 0) {
-            $data = implode(',', $this->batchDeviceUpdateData);
-        
-            DB::statement("INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, device_type, device_name, carrier)
-                VALUES
-            
-                $data
-            
-                ON DUPLICATE KEY UPDATE
-                email_id = email_id,
-                first_name = first_name,
-                last_name = last_name,
-                address = address,
-                address2 = address2,
-                city = city,
-                state = state,
-                zip = zip,
-                country = country,
-                gender = gender,
-                ip = ip,
-                phone = phone,
-                source_url = source_url,
-                dob = dob,
-                device_type = values(device_type),
-                device_name = values(device_name),
-                carrier = values(carrier),
-                capture_date = capture_date,
-                subscribe_date = subscribe_date,
-                other_fields = other_fields");
-
-            $this->batchDeviceUpdateData = [];
-        }
-
+    public function update($match, $data) {
+        $this->model->where($match)->update($data);
     }
 
     public function extractForS3Upload($startPoint) {
@@ -391,6 +332,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 $row['other_fields'] = '{}';
                 // sensible default
                 $row['attribution_status'] = 'POA';
+                $row['gender'] = ($row['gender'] === '' ? 'UNK' : $row['gender']);
                 $this->batchInsert($row);
             }
         }
@@ -486,7 +428,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         if ($result) {
             $isDeliverable = (int)($result->last_action_type === 'None');
             return ($result->last_action_type === $obj->last_action_type)
-                && $isDeliverable = $obj->is_deliverable
+                && $isDeliverable === (int)$obj->is_deliverable
                 && ($result->subscribe_date === $obj->subscribe_date);
         }
         else {

@@ -19,5 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Page extends Model
 {
-    //
+    public function features() {
+        return $this->hasMany('App\Models\FrontendFeature');
+    }
 }

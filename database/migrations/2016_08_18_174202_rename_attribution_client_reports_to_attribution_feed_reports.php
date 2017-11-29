@@ -25,6 +25,5 @@ class RenameAttributionClientReportsToAttributionFeedReports extends Migration
      */
     public function down()
     {
-        Schema::connection('attribution')->rename( 'attribution_feed_reports' , 'attribution_client_reports' );
     }
 }

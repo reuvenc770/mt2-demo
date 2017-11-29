@@ -4,11 +4,13 @@ namespace App\Services\Validators;
 
 use App\Services\Interfaces\IValidate;
 use App\Exceptions\ValidationException;
+use App\Repositories\StateRepo;
 
 class CountryAndStateValidator implements IValidate {
 
     private $state;
     private $country;
+    private $repo;
 
     const US_ALIASES = ['UNITED STATES', 'US', 'USA', 'UNITEDSTATES', 'unitedstates'];
     const CA_ALIASES = ['CANADA', 'CA'];
@@ -20,7 +22,9 @@ class CountryAndStateValidator implements IValidate {
 
     const CA_PROVINCES = ['AB', 'BC', 'MB', 'NB', 'NF', 'NS', 'NT', 'ON', 'PE', 'QC', 'SK', 'YT'];
 
-    public function __construct() {}
+    public function __construct(StateRepo $repo) {
+        $this->repo = $repo;
+    }
 
     public function getRequiredData() {
         return ['state', 'country'];
@@ -39,8 +43,11 @@ class CountryAndStateValidator implements IValidate {
         if (in_array($this->country, self::US_ALIASES)) {
             $this->country = 'US';
 
-            if (!in_array($this->state, self::US_STATES)) {
-                $this->state = '';
+            if (in_array($this->state, self::US_STATES)) {
+                // do nothing
+            }
+            else {
+                $this->state = $this->repo->convertFullNameToAbbrev($this->state); // returns '' if not found
             }
         }
 
@@ -50,6 +57,9 @@ class CountryAndStateValidator implements IValidate {
 
         elseif (in_array($this->state, self::CA_PROVINCES)) {
             throw new ValidationException("Canadian province detected: {$this->state}");
+        }
+        elseif ('' !== $this->state && !in_array($this->state, self::US_STATES)) {
+            $this->state = '';
         }
     }
 
