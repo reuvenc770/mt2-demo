@@ -127,6 +127,24 @@ class SuppressionService implements IFeedSuppression
         return true;
     }
 
+    public function recordGlobalSuppressionByReason( $email , $date , $reasonId ){
+        $globalRecord = [ 
+            "email_address" => $email,
+            "suppress_datetime" => $date,
+            "type_id" => $this->getTypeByReason( $reasonId ),
+            "reason_id" => $reasonId
+        ];
+
+        try{
+            $this->globalRepo->updateOrCreate( $globalRecord );
+        } catch (\Exception $e) {
+            Log::error($e->getMessage(). ": while trying to record global suppression");
+            throw new \Exception($e);
+        }
+
+        return true;
+    }
+
     public function getAllSuppressionsSinceDate($date){
         return $this->repo->getAllSinceDate($date);
     }
