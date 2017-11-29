@@ -34,6 +34,9 @@ class SuppressionRedshiftDataValidation {
         $stmt = $pdo->prepare($query);
         $stmt->execute();
 
+        maybe an md5 of all values ... but how?
+        would have to md5() in batches .. small ones
+
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $this->redshiftRepo->insertIfNotNew($row);
         }
