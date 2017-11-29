@@ -67,7 +67,7 @@ class JobEntryService
             $job->attempts = $job->attempts + 1;
             $job->save();
         }
-        else if($state == JobEntry::SKIPPED || $state == JobEntry::RUNNING_ACCEPTANCE_TEST){
+        else if($state == JobEntry::SKIPPED || $state == JobEntry::RUNNING_ACCEPTANCE_TEST || $state === JobEntry::WAITING){
             $job->status = $state;
             $job->save();
         }
