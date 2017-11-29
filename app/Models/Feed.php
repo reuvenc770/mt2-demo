@@ -74,4 +74,8 @@ class Feed extends Model {
     public function fileFields () {
         return $this->hasOne( 'App\Models\RecordProcessingFileField' );
     }
+
+    public function emailOversightListId () {
+        return $this->hasOne( 'App\Models\EmailOversightFeed' );
+    }
 }
