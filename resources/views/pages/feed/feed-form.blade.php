@@ -190,4 +190,10 @@
         </div>
     </div>
 
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Email Oversight List ID</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="email_oversight_list_id" value="" placeholder="Email Oversight List ID" ng-model="feed.current.email_oversight_list_id" />
+        </div>
+    </div>
 </div>

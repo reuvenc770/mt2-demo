@@ -15,7 +15,8 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         frequency: "" ,
         type_id: "" ,
         country_id: 1 ,
-        source_url: ""
+        source_url: "" ,
+        email_oversight_list_id : ""
     };
     self.search = {};
 

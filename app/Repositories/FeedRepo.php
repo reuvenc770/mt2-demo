@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Feed;
+use App\Models\EmailOversightFeed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\Mt2Export;
@@ -31,7 +32,13 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     }
 
     public function fetch($id) {
-        return $this->feed->find($id);
+        return $this->feed->where( 'id' , $id )
+            ->leftJoin( 'email_oversight_feeds' , 'feeds.id' , '=' , 'email_oversight_feeds.feed_id' ) 
+            ->select(
+                'feeds.*' , 
+                'email_oversight_feeds.list_id as email_oversight_list_id' 
+            )
+            ->first();
     }
 
     public function isActive($id) {
@@ -57,17 +64,57 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     }
 
     public function updateOrCreate( $data , $id = null ) {
+        $emailOversightListId = 0;
+        if (
+            isset( $data[ 'email_oversight_list_id' ] )
+            && 0 < (int)$data[ 'email_oversight_list_id' ] 
+        ) {
+            $emailOversightListId  = (int)$data[ 'email_oversight_list_id' ];
+        }
+
+        if ( isset( $data[ 'email_oversight_list_id' ] ) ) {
+            unset( $data[ 'email_oversight_list_id' ] );
+        }
+
         if ($id) {
-            $this->feed->updateOrCreate(['id' => $id], $data);
+            $feed = $this->feed->updateOrCreate(['id' => $id], $data);
         }
         else {
-            $this->feed->updateOrCreate(['id' => $data['id']], $data);
+            $feed = $this->feed->updateOrCreate(['id' => $data['id']], $data);
+        }
+
+        $this->changeEmailOversightListId( $feed , $emailOversightListId );
+    }
+
+    protected function changeEmailOversightListId ( Feed $feed , $emailOversightListId ) {
+        if ( 0 < $emailOversightListId ) {
+            $m = new EmailOversightFeed();            
+            $m->feed_id = $feed->id;
+            $m->list_id = $emailOversightListId;
+            $m->save();
+        } else {
+            $m = EmailOversightFeed::find( $feed->id );            
+            $m->delete();
         }
     }
 
     public function create ( $data ) {
+        $emailOversightListId = 0;
+        if (
+            isset( $data[ 'email_oversight_list_id' ] )
+            && 0 < (int)$data[ 'email_oversight_list_id' ] 
+        ) {
+            $emailOversightListId  = (int)$data[ 'email_oversight_list_id' ];
+        }
+
+        if ( isset( $data[ 'email_oversight_list_id' ] ) ) {
+            unset( $data[ 'email_oversight_list_id' ] );
+        }
+
         unset( $data[ 'id' ] );
-        $this->feed->create( $data );
+        $feed = $this->feed->create( $data );
+
+        $this->changeEmailOversightListId( $feed , $emailOversightListId );
     }
 
     public function getModel( $searchData ) {
