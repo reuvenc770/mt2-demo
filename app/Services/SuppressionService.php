@@ -153,6 +153,10 @@ class SuppressionService implements IFeedSuppression
         $reason = $this->repo->getReasonById($reason);
         return $reason->suppression_type;
     }
+
+    public function getReasonIdFromSubstring ( $message ) {
+        return $this->repo->getReasonIdFromSubstring( $message );
+    }
     
     public function getReasonCode($esp_account_id, $type_id){
         $reason = $this->repo->getReasonByAccountType($esp_account_id,$type_id);

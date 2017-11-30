@@ -82,6 +82,14 @@ class SuppressionRepo
         return $this->suppressionReason->find($reason);
     }
 
+    public function getReasonIdFromSubstring ( $message ) {
+        $result = $this->suppressionReason->where( 'display_status' , 'LIKE' , "%{$message}%" )->first();
+
+        if ( !is_null( $result ) ) {
+            return $result->id;
+        }
+    }
+
     public function getAllSinceDate($date){
         return $this->suppressionModel
                     ->selectRaw('distinct(email_address)')

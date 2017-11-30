@@ -64,7 +64,7 @@ class EmailOversightApiService {
         $reasonId = 0;
 
         if ( isset( $this->invalidCodeSuppTypeMap[ $validationResponse->ResultId ] ) ) {
-            $reasonId = $this->invalidCodeSuppTypeMap[ $validationResponse->ResultId ];
+            $reasonId = Suppression::getReasonIdFromSubstring( 'Oversight - ' . $validationResponse->Result );
         }
 
         Suppression::recordSuppressionByReason( $email , $date , $reasonId );
