@@ -155,7 +155,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('supervisor:optimize --runtime-threshold=1h')->everyFiveMinutes();
         $schedule->command('ipv6:warn --runtime-threshold=1h')->daily();
-        $schedule->command('emailOversight:clearCache --minAge=15')->cron('0 0 0 */15 * *');
+        $schedule->command('emailOversight:clearCache --minAge=15')->daily();
 
         /**
          * Orphan Adoption
