@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreateEmailOversightCachesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('email_oversight_valid_caches', function (Blueprint $table) {
+            $table->string( 'email' );
+            $table->date( 'created_at' );
+
+            $table->unique( 'email' );
+            $table->index( 'created_at' );
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('email_oversight_valid_caches');
+    }
+}

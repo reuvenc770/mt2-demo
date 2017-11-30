@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Services\API\EmailOversightApi;
+use App\Repositories\EmailOversightValidCacheRepo;
 use App\Facades\Suppression;
 use Carbon\Carbon;
 
 class EmailOversightApiService {
     protected $api;
+    protected $cache;
 
     protected $validCodes = [ 1 , 11 ];
     protected $invalidCodeSuppTypeMap = [
@@ -23,11 +25,19 @@ class EmailOversightApiService {
         20 => 65
     ];
 
-    public function __construct ( EmailOversightApi $api ) {
+    public function __construct ( EmailOversightApi $api , EmailOversightValidCacheRepo $cache ) {
         $this->api = $api;
+        $this->cache = $cache;
     }
 
     public function verifyEmail ( $listId , $email ) {
+        if ( $this->cache->emailExists( $email ) ) {
+            return true;
+        }
+
+        /**
+         * The record should not be previously suppressed; waste of credits.
+         */
         $response = $this->api->verifyEmail( $listId , $email );
 
         if ( in_array( $response->ResultId , $this->validCodes ) ) {

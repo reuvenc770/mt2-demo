@@ -131,6 +131,7 @@ class Kernel extends ConsoleKernel
         Commands\UploadIPv6DB::class,
         Commands\WarnOldIPv6::class ,
         Commands\CakeConversionCommand::class,
+        Commands\ClearEmailOversightValidCacheCommand::class,
 ];
 
     /**
@@ -154,6 +155,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('supervisor:optimize --runtime-threshold=1h')->everyFiveMinutes();
         $schedule->command('ipv6:warn --runtime-threshold=1h')->daily();
+        $schedule->command('emailOversight:clearCache --minAge=15')->cron('0 0 0 */15 * *');
 
         /**
          * Orphan Adoption
