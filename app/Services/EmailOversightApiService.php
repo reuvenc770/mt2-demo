@@ -25,6 +25,8 @@ class EmailOversightApiService {
         20 => 65
     ];
 
+    protected $lastResultMessage;
+
     public function __construct ( EmailOversightApi $api , EmailOversightValidCacheRepo $cache ) {
         $this->api = $api;
         $this->cache = $cache;
@@ -40,13 +42,21 @@ class EmailOversightApiService {
          */
         $response = $this->api->verifyEmail( $listId , $email );
 
+        $this->lastResultMessage = $response->Result;
+
         if ( in_array( $response->ResultId , $this->validCodes ) ) {
+            $this->cache->cacheEmail( $email );
+
             return true;
         }
 
         $this->suppressEmail( $email , $response );
 
         return false;
+    }
+
+    public function getLastMessage () {
+        return $this->lastResultMessage;
     }
 
     protected function suppressEmail ( $email , $validationResponse ) {

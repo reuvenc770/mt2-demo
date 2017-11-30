@@ -16,6 +16,7 @@ use App\Services\Validators\IpValidator;
 use App\Services\Validators\GenderValidator;
 use App\Services\Validators\PhoneValidator;
 use App\Services\Validators\SourceUrlValidator;
+use App\Services\Validators\EmailOversightApiValidator;
 
 // Suppression
 use App\Services\GlobalSuppressionService;
@@ -49,7 +50,8 @@ class FeedProcessingFactory
             ->registerValidator(App::make(SourceUrlValidator::class))
             ->registerValidator(App::make(CaptureDateValidator::class))
             ->registerValidator(App::make(CountryAndStateValidator::class))
-            ->registerValidator(App::make(PhoneValidator::class));
+            ->registerValidator(App::make(PhoneValidator::class))
+            ->registerValidator(App::make(EmailOversightApiValidator::class));
 
         // Set up the rest - suppression, processing
         if (1 === $party && $feedId) {
