@@ -6,7 +6,7 @@ use App\Jobs\MonitoredJob;
 
 class ClearEmailOversightValidCacheJob extends MonitoredJob
 {
-    protected $jobName = "ClearEmailOversightValidCacheJob";
+    protected $jobName = "ClearEmailOversightValidCacheJob-";
     protected $minimumAgeInDays;
     protected $tracking;
 
