@@ -105,7 +105,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             }
         }
         else {
-            $typeList = ['opens', 'clicks', 'complaints'];
+            $typeList = ['opens', 'clicks'];
         }
         return $typeList;
     }
