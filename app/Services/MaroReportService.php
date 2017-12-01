@@ -103,15 +103,9 @@ class MaroReportService extends AbstractReportService implements IDataService
             if (1 == $processState['campaign']->clicks) {
                 $typeList[] = 'clicks';
             }
-            if (1 == $processState['campaign']->unsubs) {
-                $typeList[] = 'unsubscribes';
-            }
-            if (1 == $processState['campaign']->bounces) {
-                $typeList[] = 'bounces';
-            }
         }
         else {
-            $typeList = ['opens', 'clicks', 'complaints', 'unsubscribes', 'bounces'];
+            $typeList = ['opens', 'clicks', 'complaints'];
         }
         return $typeList;
     }
