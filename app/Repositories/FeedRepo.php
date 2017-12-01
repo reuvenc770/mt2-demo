@@ -72,7 +72,7 @@ class FeedRepo implements Mt2Export, IAwsRepo {
             $emailOversightListId  = (int)$data[ 'email_oversight_list_id' ];
         }
 
-        if ( isset( $data[ 'email_oversight_list_id' ] ) ) {
+        if ( isset( $data[ 'email_oversight_list_id' ] ) || is_null( $data[ 'email_oversight_list_id' ] ) ) {
             unset( $data[ 'email_oversight_list_id' ] );
         }
 
@@ -88,13 +88,18 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
     protected function changeEmailOversightListId ( Feed $feed , $emailOversightListId ) {
         if ( 0 < $emailOversightListId ) {
-            $m = new EmailOversightFeed();            
-            $m->feed_id = $feed->id;
-            $m->list_id = $emailOversightListId;
-            $m->save();
+            if ( is_null( EmailOversightFeed::find( $feed->id ) ) ) {
+                $m = new EmailOversightFeed();            
+                $m->feed_id = $feed->id;
+                $m->list_id = $emailOversightListId;
+                $m->save();
+            }
         } else {
             $m = EmailOversightFeed::find( $feed->id );            
-            $m->delete();
+
+            if ( !is_null( $m ) ) {
+                $m->delete();
+            }
         }
     }
 
