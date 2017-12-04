@@ -153,7 +153,7 @@ class Kernel extends ConsoleKernel
          *  Maintenance
          */
         $schedule->command('supervisor:optimize --runtime-threshold=1h')->everyFiveMinutes(); //groupKnow Medium, priority Medium-High 
-        $schedule->command('ipv6:warn --runtime-threshold=1h')->daily(); //groupKnow Low, priority Low
+        $schedule->command('ipv6:warn --runtime-threshold=1h')->daily(); //groupKnow Low, priority Low, note: Need to ask Rob where to get the file. Location is not mentioned in job file.
 
         /**
          * Orphan Adoption
