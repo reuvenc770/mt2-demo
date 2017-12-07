@@ -6,21 +6,20 @@ use App\Exceptions\JobException;
 use App\Facades\DeployActionEntry;
 use App\Repositories\ReportRepo;
 use App\Services\AbstractReportService;
-use App\Services\API\MailerLiteApi;
+use App\Services\API\InfusionSoftApi;
 use App\Services\EmailRecordService;
 use App\Services\Interfaces\IDataService;
 use Illuminate\Support\Facades\Event;
-use Carbon\Carbon;
 
 
 /**
- * Class MailerLiteReportService
+ * Class InfusionSoftReportService
  * @package App\Services
  */
-class MailerLiteReportService extends AbstractReportService implements IDataService
+class InfusionSoftReportService extends AbstractReportService implements IDataService
 {
     /**
-     * MailerLiteReportService constructor.
+     * InfusionSoftReportService constructor.
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
@@ -28,29 +27,28 @@ class MailerLiteReportService extends AbstractReportService implements IDataServ
     const DELIVERABLE_LOOKBACK = 2;
 
     /**
-     * MailerLiteReportService constructor.
+     * InfusionSoftReportService constructor.
      * @param ReportRepo $reportRepo
-     * @param MailerLiteApi $api
+     * @param InfusionSoftApi $api
      * @param EmailRecordService $emailRecord
      */
-    public function __construct(ReportRepo $reportRepo, MailerLiteApi $api, EmailRecordService $emailRecord)
+    public function __construct(ReportRepo $reportRepo, InfusionSoftApi $api, EmailRecordService $emailRecord)
     {
         parent::__construct($reportRepo, $api, $emailRecord);
     }
 
     /**
      * @param $date
-     * @return \SimpleXMLElement
+     * @return array
      * @throws \Exception
      */
     public function retrieveApiStats($date)
     {
-        $this->api->setDate($date);
         return $this->api->sendApiRequest();
     }
 
     /**
-     * @param $xmlData
+     * @param $data
      */
     public function insertApiRawStats($data)
     {
@@ -70,28 +68,24 @@ class MailerLiteReportService extends AbstractReportService implements IDataServ
      */
     public function mapToStandardReport($report)
     {
-        /**
-            WE NEED DEPLOY ID SOMEHOW
-        */
-        $deployId = 0;
         return [
             'campaign_name' => $report['name'],
             'external_deploy_id' => $deployId,
             'm_deploy_id' => $deployId,
             'esp_account_id' => $report['esp_account_id'],
             'esp_internal_id' => $report['internal_id'],
-            'datetime' => $report['datetime_send'],
-            'subject' => $report['name'],
+            'datetime' => $report['published_datetime'],
+            'subject' => '',
             'from' => '',
             'from_email' => '',
-            'e_sent' => $report['total_recipients'],
-            'delivered' => $report['total_recipients'],
+            'e_sent' => $report['completed_contact_count'],
+            'delivered' => $report['active_contact_count'],
             'bounced' => 0,
             'optouts' => 0,
-            'e_opens' => $report['opened'],
-            'e_opens_unique' => $report['opened'],
-            'e_clicks' => $report['clicked'],
-            'e_clicks_unique' => $report['clicked'],
+            'e_opens' => 0,
+            'e_opens_unique' => 0,
+            'e_clicks' => 0,
+            'e_clicks_unique' => 0,
         ];
     }
 
@@ -102,16 +96,17 @@ class MailerLiteReportService extends AbstractReportService implements IDataServ
     public function mapToRawReport($report, $espAccountId)
     {
         return [
-            'internal_id' => $report->id,
-            'name' => $report->name,
-            'type' => $report->type,
-            'total_recipients' => $report->total_recipients,
-            'datetime_created' => $record->date_created,
-            'datetime_send' => $record->date_send,
-            'status' => $record->status,
-            'opened' => $record->opened->count,
-            'clicked' => $record->clicked->count,
-            'esp_account_id' => $espAccountId
+            'internal_id' => $report[''],
+            'esp_account_id' => $espAccountId,
+            'name' => $report[''],
+            'datetime_created' => $report[''],
+            'time_zone' => $report[''],
+            'published_datetime' => $report[''],
+            'published_time_zone' => $report[''],
+            'published_status' => $report[''],
+            'active_contact_count' => $report[''],
+            'completed_contact_count' => $report[''],
+            'error_message' => $report['']
         ];
     }
 
@@ -194,10 +189,4 @@ class MailerLiteReportService extends AbstractReportService implements IDataServ
     {
         //TODO Remove if unneeded
     }
-
-    /**
-     * @param $messageId
-     * @param $recordType
-     * @param $isRerun
-     */
 }

@@ -41,5 +41,9 @@ class MailerLiteApi extends EspBaseAPI
         $this->date = $date;
     }
 
+    public function addContact($info) {
+        
+    }
+
     
 }

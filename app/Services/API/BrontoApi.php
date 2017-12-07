@@ -146,7 +146,8 @@ class BrontoApi extends EspBaseAPI
             while (1 != 2) {
                 $filter['readDirection'] = "NEXT";
                 $secondSet = $this->brontoObject->readRecentOutboundActivities(new readRecentOutboundActivities($filter))->getReturn();
-                $records = array_merge($firstSet, $secondSet);
+                $records = array_me
+                rge($firstSet, $secondSet);
             }
         } catch (\SoapFault $e) {
             if ($e->getMessage() == "116: End of result set.") {

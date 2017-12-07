@@ -240,4 +240,11 @@ class EspApiAccountRepo
         $history = $this->espCustomIdHistory->where( 'esp_account_id' , $espAccountId )->orderBy('created_at','desc')->get();
         return $history->pluck('created_at','custom_id');
     }
+
+    public function setKeys($id, $key1, $key2) {
+        $this->espAccount->where('id', $id)->update([
+            'key_1' => $key1,
+            'key_2' => $key2
+        ]);
+    }
 }

@@ -56,7 +56,7 @@ class RetrieveApiReports extends MonitoredJob implements ShouldQueue
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
         $count = 0;
         try {
-            $reportService = APIFactory::createAPIReportService( $this->apiName , $this->espAccountId );
+            $reportService = APIFactory::createApiReportService( $this->apiName , $this->espAccountId );
 
             if ( !is_null( $this->apiLimit ) ) {
                 $reportService->setRetrieveApiLimit( $this->apiLimit );
