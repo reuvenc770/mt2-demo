@@ -472,7 +472,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
-    public function addContactToLists($emailAddress, array $lists) {}
+    public function addContactToLists(array $contactInfo) {}
 
     public function addContact($record, $listId) {
         $this->api->addContact($record, $listId);

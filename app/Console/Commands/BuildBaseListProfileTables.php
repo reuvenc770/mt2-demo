@@ -11,7 +11,6 @@ use Cache;
 class BuildBaseListProfileTables extends Command
 {
     use DispatchesJobs;
-    protected $name = 'StartProfileExports';
     const QUEUE = 'ListProfile';
 
     /**

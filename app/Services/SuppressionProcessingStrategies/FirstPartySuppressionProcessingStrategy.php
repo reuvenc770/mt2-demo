@@ -11,10 +11,17 @@ class FirstPartySuppressionProcessingStrategy implements ISuppressionProcessingS
     private $onlineListRepo;
     private $onlineListMap;
     private $apiService;
+    private $postingStrategy;
+    private $suppressionListIds = [];
 
-    public function __construct(FirstPartyOnlineSuppressionListRepo $onlineListRepo, AbstractReportService $apiService) {
+    public function __construct(FirstPartyOnlineSuppressionListRepo $onlineListRepo, AbstractReportService $apiService, IPostingStrategy $postingStrategy) {
         $this->onlineListRepo = $onlineListRepo;
         $this->apiService = $apiService;
+        $this->postingStrategy = $postingStrategy;
+    }
+
+    public function setSuppressionListIds(array $suppressionListIds) {
+        $this->suppressionListIds = $suppressionListIds;
     }
 
     public function setFeedId($feedId) {
@@ -25,26 +32,21 @@ class FirstPartySuppressionProcessingStrategy implements ISuppressionProcessingS
         }
     }
 
-    public function processSuppression($emailAddress, $suppressionListIds) {
-        $onlineLists = $this->formatLists($suppressionListIds);
-        $this->apiService->addContactToLists($emailAddress, $onlineLists);
-
-        /**
-            Need to set email template stuff here for SimplyJobs
-        */
-
+    public function processSuppression($emailAddress) {
+        $contactInfo = $this->formatLists($emailAddress, $this->suppressionListIds);
+        $this->apiService->addContactToLists($contactInfo);
     }
 
-    private function formatLists($listString) {
+    private function formatLists($emailAddress, $listString) {
         $listArray = explode(',', $listString);
-        $output = [];
+        $targetIds = [];
 
         foreach ($listArray as $list) {
             if (isset($this->onlineListMap[$list])) {
-                $output[] = $this->onlineListMap[$list];
+                $targetIds[] = $this->onlineListMap[$list];
             }
         }
 
-        return $output;
+        return $this->postingStrategy->prepareForSuppressionPosting($emailAddress, $targetIds);
     }
 }
