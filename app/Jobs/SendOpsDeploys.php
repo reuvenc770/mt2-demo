@@ -12,6 +12,8 @@ use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use League\Csv\Writer;
 use Illuminate\Support\Facades\Storage;
+use Maknz\Slack\Facades\Slack;
+
 class SendOpsDeploys extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -19,7 +21,9 @@ class SendOpsDeploys extends Job implements ShouldQueue
     protected $tracking;
     protected $deploys;
     protected $username;
+
     CONST JOB_NAME = "SendOpsDeploys";
+    const SLACK_CHANNEL = '#cmp_hard_start_errors';
 
     public function __construct($deploys, $tracking, $username)
     {
@@ -37,6 +41,36 @@ class SendOpsDeploys extends Job implements ShouldQueue
     public function handle(DeployService $service)
     {
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+
+        $packageService = \App::make( \App\Services\PackageZipCreationService::class );
+        $userService = \App::make( \App\Services\UserService::class );
+        foreach(explode( ',' , $this->deploys ) as $deployId) {
+            try {
+                $packageService->uploadPackage($deployId);
+            } catch ( \Exception $e ) {
+                \Log::error( $e );
+                $error = $e->getMessage();
+
+                Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys-{$deployId} Error ({$this->username}):\n{$error}" ); 
+
+                $user = $userService->findByUsername( $this->username );
+
+                if ( is_null( $user ) ) {
+                    Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys-{$deployId} Error:\nFailed to find email for user '{$this->username}'. No notification was sent for failed package creation." ); 
+
+                    continue;
+                }
+
+                $email = $user->first()->email;
+
+                \Mail::raw( $error , function ( $message ) use ( $email , $deployId ) {
+                    $message->to($email);
+                    $message->subject("Error Creating Deployment Package - {$deployId}");
+                    $message->priority(1);
+                });
+            }
+        }
+
         $records = $service->getdeployTextDetailsForDeploys($this->deploys);
         $writer = Writer::createFromFileObject(new \SplTempFileObject());
         $writer->insertOne($service->getHeaderRow());
