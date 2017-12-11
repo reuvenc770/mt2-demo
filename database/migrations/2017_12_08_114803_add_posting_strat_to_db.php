@@ -23,7 +23,7 @@ class AddPostingStratToDb extends Migration
      */
     public function down() {
         Schema::table('esp_data_exports', function($table) {
-            $table->dropColumn('posting_string_name');
+            $table->dropColumn('posting_class_name');
         });
     }
 }
