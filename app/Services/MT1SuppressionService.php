@@ -133,30 +133,6 @@ class MT1SuppressionService implements IFeedSuppression {
         return array_merge($md5Output, $plaintextOutput);
     }
 
-    private function setOfferListTypes(array $offerList) {
-        // split the offers between MD5 and non-md5 lookups
-        $output = ['md5' => [], 'plaintext' => []];
-
-        foreach ($offerList as $listId) {
-            if (!isset($this->listIdTypeCache[$listId])) {
-                $this->listIdTypeCache[$listId] = $this->getSuppressionType($listId);
-            }
-
-            if ('md5' === $this->listIdTypeCache[$listId]) {
-                if (!isset($this->listOfferCache[$listId])) {
-                    $this->listOfferCache[$listId] = $this->offerListRepo->getOfferForList($listId);
-                }
-
-                $output['md5'][] = $this->listOfferCache[$listId];
-            }
-            else {
-                $output['plaintext'][] = $listId;
-            }
-        }
-
-        return (object)$output;
-    }
-
     /**
      *  @param String $emailAddress
      *  @param Int $listId
@@ -165,7 +141,7 @@ class MT1SuppressionService implements IFeedSuppression {
 
     public function emailSuppressedForList($emailAddress, $listId) {
         if (!isset($this->listIdTypeCache[$listId])) {
-            $this->listIdTypeCache[$listId] = $this->getSuppressionType($listId);
+            $this->listIdTypeCache[$listId] = $this->suppListRepo->getSuppressionType($listId);
         }
 
         if ('md5' === $this->listIdTypeCache[$listId]) {
