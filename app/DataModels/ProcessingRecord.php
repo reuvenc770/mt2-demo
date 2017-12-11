@@ -10,7 +10,7 @@ class ProcessingRecord {
     const FIELDS = ['emailId', 'feedId', 'emailAddress', 'isSuppressed', 'firstName', 'lastName', 
     'address', 'address2', 'city', 'state', 'zip', 'country', 'dob', 'gender', 'phone', 'captureDate',
     'ip', 'sourceUrl', 'otherFields', 'uniqueStatus', 'newEmail', 'domainId', 'valid',
-    'invalidReason', 'domainGroupId', 'attrStatus', 'processDateTime', 'processDate', 'otherFieldsJson', 'otherFields'];
+    'invalidReason', 'domainGroupId', 'attrStatus', 'processDateTime', 'processDate'];
 
     private $emailId;
     private $feedId;
@@ -30,8 +30,8 @@ class ProcessingRecord {
     private $captureDate = null;
     private $ip;
     private $sourceUrl;    
-    private $otherFields = [];
-    private $otherFieldsJson = '';
+    private $other = [];
+    private $otherJson = '';
     private $attrStatus;
     private $processDateTime;
     private $file = '';
@@ -84,8 +84,8 @@ class ProcessingRecord {
         $this->captureDate = $record->capture_date; // Validation / correction of this value is performed in the CaptureDateValidator
         $this->ip = $record->ip;
         $this->sourceUrl = $record->source_url;
-        $this->otherFieldsJson = $record->other_fields ?: '{}';
-        $this->otherFields = json_decode($record->other_fields, true);
+        $this->otherJson = $record->other_fields ?: '{}';
+        $this->other = json_decode($record->other_fields, true);
         $this->file = $record->realtime === 0 ? $this->stripFile($record->file) : 'Realtime';
     }
 
@@ -148,7 +148,7 @@ class ProcessingRecord {
             'capture_date' => $this->captureDate,
             'source_url' => $this->sourceUrl,
             'ip' => $this->ip,
-            'other_fields' => $this->otherFieldsJson
+            'other_fields' => $this->otherJson
         ];
     }
 
@@ -172,7 +172,7 @@ class ProcessingRecord {
             'source_url' => $this->sourceUrl,
             'ip' => $this->ip,
             'attribution_status' => $this->attrStatus, 
-            'other_fields' => $this->otherFieldsJson
+            'other_fields' => $this->otherJson
         ];
     }
 
@@ -193,6 +193,15 @@ class ProcessingRecord {
             'feed_id' => $this->feedId,
             'subscribe_date' => $this->processDate
         ];
+    }
+
+    public function getOtherFields($field) {
+        if (isset($this->other[$field])) {
+            return $this->other[$field];
+        }
+        else {
+            return '';
+        }
     }
 
 }

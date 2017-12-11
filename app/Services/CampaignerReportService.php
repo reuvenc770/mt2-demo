@@ -483,8 +483,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
 
-    public function addContactToLists($emailAddress, array $lists) {
-        $this->api->addContactToLists($emailAddress, $lists);
+    public function addContactToLists(array $contactInfo) {
+        $this->api->addContactToLists($contactInfo);
     }
 
 

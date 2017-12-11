@@ -57,5 +57,5 @@ class RelevantToolsReportService extends AbstractReportService implements IDataS
         );
     }
 
-    public function addContactToLists($emailAddress, array $lists) {}
+    public function addContactToLists(array $contactInfo) {}
 }

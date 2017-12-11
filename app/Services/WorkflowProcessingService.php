@@ -32,12 +32,9 @@ class WorkflowProcessingService {
 
         $deployIds = $this->stepsRepo->getDeployIds($workflow->id);
         $offerIds = $this->stepsRepo->getOfferIds($workflow->id);
-        $suppressionLists = [];
-
-        foreach ($offerIds as $offerId) {
-            $suppressionLists = array_merge($suppressionLists, $this->offerRepo->getSuppressionListIds($offerId));
-        }
-        $suppressionLists = array_unique($suppressionLists);
+        
+        $suppressionLists = $this->getSuppressionListIds($workflow);
+        $this->processingStrategy->setSuppressionListIds($suppressionLists);
 
         $resource = $this->actionsRepo->getEmailsForDeploys($deployIds, $daysBack);
 
@@ -46,11 +43,21 @@ class WorkflowProcessingService {
             foreach ($offerIds as $offerId) {
                 if ($this->suppService->isSuppressed($emailAddress, $offerId)) {
                     // If suppressed, upload to all lists
-                    $this->processingStrategy->processSuppression($emailAddress, $suppressionLists);
+                    $this->processingStrategy->processSuppression($emailAddress);
                     break;
                 }
             }                    
 
         }
+    }
+
+    public function getSuppressionListIds($workflow) {
+        $suppressionLists = [];
+
+        foreach ($offerIds as $offerId) {
+            $suppressionLists = array_merge($suppressionLists, $this->offerRepo->getSuppressionListIds($offerId));
+        }
+
+        return array_unique($suppressionLists);
     }
 }

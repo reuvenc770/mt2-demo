@@ -38,10 +38,9 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
     }
 
     public function processPartyData(array $records, RecordProcessingReportUpdate $reportUpdate) {
-        $postingRecords = $this->postingStrategy->prepareForPosting($records, $this->targetId);
-
-        foreach($postingRecords as $record) {
-            $result = $this->espApiService->addContactToLists($record->email_address, [$this->targetId]);
+        foreach($records as $record) {
+            $postingRecord = $this->postingStrategy->prepareForPosting($records, $this->targetId);
+            $result = $this->espApiService->addContactToLists($postingRecord);
 
             $this->workflowLogRepo->insert([
                 'workflow_id' => $this->workflowId,

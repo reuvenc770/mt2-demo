@@ -46,6 +46,7 @@ class FeedProcessingService {
         $validatedRecords = [];
 
         foreach($records as $record) {
+            // Set domain info for new emails
             $record = $this->emailDomainService->setRecordDomainInfo($record);
 
             // Setting up the report update object

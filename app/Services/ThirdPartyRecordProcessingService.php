@@ -53,10 +53,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
     public function processPartyData(array $records, RecordProcessingReportUpdate $reportUpdate) {
         $recordsToFlag = [];
-        $lastEmail = '';
 
         foreach ($records as $record) {
-            $lastEmail = $record->emailAddress;
             $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
             $lastActionType = $this->emailStatusRepo->getActionStatus($record->emailId);
             $record = $this->setRecordStatus($record, $currentAttributedFeedId, $lastActionType);
