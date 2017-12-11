@@ -148,7 +148,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 
                     $type = "click";
                     break;
-
+/*
                 case 'unsubscribes' :
                     foreach ($processState['currentPageData'] as $key => $unsub) {
                         Suppression::recordRawUnsub(
@@ -188,7 +188,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                     }
                     $type = "complaint";
                     break;
-
+*/
                 case 'delivered':
                     foreach ($processState['currentPageData'] as $key => $delivered) {
                         $deployId = isset($map[$delivered['campaign_id']]) ? (int)$map[$delivered['campaign_id']] : 0;
