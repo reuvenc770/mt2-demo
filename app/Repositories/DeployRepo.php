@@ -313,10 +313,9 @@ class DeployRepo implements Mt2Export
         }
         //subject ok?
         if (isset($deploy['subject_id']) && $deploy['subject_id']!== '' ) {
-            $dataSchema = config('database.connections.mysql.database');
             $reportSchema = config( 'database.connections.reporting_data.database' );
             $count = DB::select(
-                "SELECT count(*) AS count FROM {$dataSchema}.subjects s INNER JOIN {$reportSchema}.offer_subject_maps osm ON( s.id = osm.subject_id ) WHERE s.id = :id AND s.is_approved = 1 AND s.status = 'A' AND osm.offer_id = :offerid",
+                "SELECT count(*) AS count FROM subjects s INNER JOIN {$reportSchema}.offer_subject_maps osm ON( s.id = osm.subject_id ) WHERE s.id = :id AND s.is_approved = 1 AND s.status = 'A' AND osm.offer_id = :offerid",
                 [
                     'id' => $deploy['subject_id'] ,
                     'offerid' => $deploy[ 'offer_id' ]
