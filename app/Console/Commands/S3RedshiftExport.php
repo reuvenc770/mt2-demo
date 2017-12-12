@@ -6,6 +6,14 @@ use Illuminate\Console\Command;
 use App\Jobs\S3RedshiftExportJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
+/**
+ * Export tables to AWS S3 for consumption by Redshift
+ *
+ * This command pushes data export jobs to the queue, one for each entity needed in Redshift.
+ *
+ * @package ListProfile
+ * @uses App.Jobs.S3RedshiftExportJob.html App\Jobs\S3RedshiftExportJob
+ */
 class S3RedshiftExport extends Command
 {
     use DispatchesJobs;
@@ -24,6 +32,9 @@ class S3RedshiftExport extends Command
      */
     protected $description = "Export tables to s3 and redshift";
 
+    /**
+     * Entities to export to AWS S3 as csv files.
+     */
     private $entities = ['EmailDomain', 'EmailFeedAssignment', 'Email', 'Feed', 'ListProfileFlatTable', 
     'RecordData', 'SuppressionGlobalOrange', 'SuppressionListSuppression', 'DomainGroup', 'Client', 'FirstPartyRecordData'];
 

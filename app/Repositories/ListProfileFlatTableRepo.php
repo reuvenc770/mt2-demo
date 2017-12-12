@@ -9,7 +9,13 @@ use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Models\ThirdPartyEmailStatus;
 
 /**
+ * Repository for List Profile Flat Table
  *
+ * @package ListProfile
+ * @link App.Models.ListProfileFlatTable.html uses App\Models\ListProfileFlatTable
+ * @uses App.Models.ThirdPartyEmailStatus.html#constant_OPENER App\Models\ThirdPartyEmailStatus::OPENER
+ * @uses App.Models.ThirdPartyEmailStatus.html#constant_CLICKER App\Models\ThirdPartyEmailStatus::CLICKER
+ * @uses App.Models.ThirdPartyEmailStatus.html#constant_CONVERTER App\Models\ThirdPartyEmailStatus::CONVERTER
  */
 class ListProfileFlatTableRepo implements IAwsRepo {
   

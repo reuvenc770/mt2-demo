@@ -7,6 +7,12 @@ use App\Factories\ServiceFactory;
 use Cache;
 use Mail;
 
+/**
+ * 
+ * @category ListProfile
+ * @uses App.Services.S3RedshiftExportService.html \App\Services\S3RedshiftExportService
+ * @uses App.Factories.ServiceFactory.html \App\Factories\ServiceFactory
+ */
 class S3RedshiftExportJob extends MonitoredJob {
 
     const TALLY_KEY = 'ListProfileReadiness';

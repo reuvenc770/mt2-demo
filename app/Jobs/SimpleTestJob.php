@@ -11,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 /**
  * Class SimpleTestJob
- * @package App\Jobs
+ *
  * an example class for a monitored job.
  * The acceptanceTest method is optional, will be executed if it exists.
  * JOB_NAME and $runtimeSecondsThreshold MUST be defined.
@@ -38,7 +38,11 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return integer, rows affected.
+     * example of invoking exception at different layer,
+     * stranding the job at running status => added job status update  in handle() catch fixes this.
+     * JobTracking::tripUp();
+     *
+     * @return integer rows affected.
      */
     public function handleJob()
     {
@@ -46,9 +50,6 @@ class SimpleTestJob extends MonitoredJob implements ShouldQueue
         //do job specific stuff
         echo $this->foo ? "simulating successful acceptance test\n" : "simulating failed acceptance test\n";
 
-        //example of invoking exception at different layer,
-        //stranding the job at running status => added job status update  in handle() catch fixes this.
-        //JobTracking::tripUp();
 
         return 0;
     }

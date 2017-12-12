@@ -5,6 +5,15 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\RedshiftRepositories\ListProfileFlatTableRepo;
 use App\Jobs\VacuumRedshiftJob;
+
+/**
+ * Optimize tables in Redshift
+ * 
+ * Pushes job onto queue for running optimization on Redshift.
+ *
+ * @package ListProfile
+ * @uses App.Jobs.VacuumRedshiftJob.html App\Jobs\VacuumRedshiftJob
+ */
 class VacuumRedshift extends Command
 {
     use DispatchesJobs;

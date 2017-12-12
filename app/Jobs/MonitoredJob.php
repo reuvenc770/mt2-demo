@@ -13,25 +13,51 @@ use App\Console\Commands\Traits\UseTracking;
 use Log;
 
 /**
- * Class MonitoredJob
- * @package App\Jobs
  * Parent class for Jobs. Handles common config and tasks including PID locking,
  * status changes, and acceptance test execution
+ *
+ * @package JobTracking 
  */
 abstract class MonitoredJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
     use UseTracking;
 
+    /**
+     * Job tracking ID
+     *
+     * @var string
+     */
     protected $tracking;
+
+    /**
+     * Name of Job
+     *
+     * @var string
+     */
     protected $jobName;
+
+    /**
+     * Diagnostics from the job in form of JSON object.
+     *
+     * @var string
+     */
     protected $diagnostics;
+
+    /**
+     * Longest expected runtime of the job  
+     *
+     * @var integer
+     */
     protected $runtimeSecondsThreshold;
 
     /**
-     * @param $jobName
-     * @param $runtimeThreshold
+     * Create a new MonitoredJob instance.
+     *
+     * Tracking is generated if not provided. $jobName and $this->runtimeSecondsThreshold are required.
+     *
+     * @param string $jobName
+     * @param string $runtimeThreshold
      * @param null $tracking
-     * tracking is generated if not provided. $jobName and $this->runtimeSecondsThreshold are required.
      */
     public function __construct($jobName,$runtimeThreshold=null,$tracking=null) {
 
@@ -50,8 +76,10 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
 
     /**
      * Job is PID locked during execution on $jobName.
-     * $this->handleJob() defined in the subclass executes the job-specific tasks.
      *
+     * $this->handleJob() defined in the subclass executes the job-specific tasks.
+     * 
+     * @return void
      */
     public function handle() {
 
@@ -95,10 +123,18 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
         }
     }
 
+    /**
+     * Job Failure Callback
+     *
+     * @return void
+     */
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
 
+    /**
+     * Required method to override.
+     */
     protected function handleJob() {}
 
     /**
@@ -119,7 +155,9 @@ abstract class MonitoredJob extends Job implements ShouldQueue {
 
     /**
      * validates runtimeThreshold and converts to seconds
+     *
      * examples of valid values: 2h (2 hours), 45m (45 minutes), 368s (368 seconds), 3292 (3292 seconds)
+     *
      * @param $runtimeThreshold
      * @return integer
      * @throws \Exception

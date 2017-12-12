@@ -6,7 +6,7 @@
  * Time: 12:49 PM
  */
 
-namespace app\Providers;
+namespace App\Providers;
 use App;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AWeberEmailActionsService;

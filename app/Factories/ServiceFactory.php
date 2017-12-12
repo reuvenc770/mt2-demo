@@ -11,8 +11,21 @@ use App;
 use Aws;
 use Illuminate\Support\Facades\Redis;
 
+/**
+ * Factory Class for serving special/dynamic services
+ *
+ * @package Factories
+ */
 class ServiceFactory
 {
+    /**
+     * Dynamically creates services based on the name passed in.
+     *
+     * There are times when we want to create models for a remote legacy system. This detects what is available and resolves the object for you.
+     *
+     * @param string $serviceName Name of service to create.
+     * @return mixed
+     */
     public static function createModelService($serviceName)
     {
         $formattedName = studly_case($serviceName);
@@ -28,7 +41,12 @@ class ServiceFactory
         }
     }
 
-
+    /**
+     * Dynamically creates ScheduledFilterService w/ different models based on the model name passed in.
+     *
+     * @param string $modelName Type of Filter to create.
+     * @return App\Services\ScheduledFilterService
+     */
     public static function createFilterService($modelName){
         $casedName = ucfirst($modelName);
         $formattedName = "App\\Models\\Attribution{$casedName}Schedule";
@@ -42,7 +60,12 @@ class ServiceFactory
         }
     }
 
-
+    /**
+     * Dynamically creates an AttributionService based on the model ID passed in.
+     *
+     * @param integer $modelId Model ID to tie the service to.
+     * @return App\Services\AttributionService
+     */
     public static function createAttributionService($modelId) {
         $truthModel = "App\\Models\\AttributionRecordTruth";
         $truthRepo = "App\\Repositories\\AttributionRecordTruthRepo";
@@ -67,11 +90,20 @@ class ServiceFactory
         return new $service($truth, $level, $etlPickup);
     }
 
-
+    /**
+     * Creates AttributionBatchService.
+     *
+     * @returns App\Services\AttributionBatchService
+     */
     public static function createAttributionBatchService() {
         return App::make(\App\Services\AttributionBatchService::class);
     }
 
+    /**
+     * Creates StandardReportService.
+     *
+     * @returns App\Services\StandardReportService
+     */
     public static function createStandardReportService () {
         return new App\Services\StandardReportService( App::make( App\Repositories\StandardReportRepo::class ) );
     }

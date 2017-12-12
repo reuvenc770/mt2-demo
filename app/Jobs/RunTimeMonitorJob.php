@@ -14,12 +14,13 @@ use \Exception;
 
 /**
  * Class RunTimeMonitorJob
- * @package App\Jobs
+ *
  * Two modes of operation: "monitor" mode analyzes the job_entries table for monitored jobs
  * fired during the specified datetime range that are approaching or have exceeded their
  * specified runtime threshold and updates their respective statuses accordingly. "resolved"
  * mode will set failed job statuses to RESOLVED in order to remove them from the failed job
  * reporting.
+ *
  */
 class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 {
@@ -34,8 +35,8 @@ class RunTimeMonitorJob extends MonitoredJob implements ShouldQueue
 
     /**
      * @param null $mode, "monitor" or "resolve"
-     * @param null $date1, integer indicating days back or start datetime, format YYYYMMDDhhmmss
-     * @param null $date2, end datetime, format YYYYMMDDhhmmss
+     * @param null $date1 integer indicating days back or start datetime, format YYYYMMDDhhmmss
+     * @param null $date2 end datetime, format YYYYMMDDhhmmss
      */
     public function __construct($mode,$runtimeThreshold,$date1,$date2=null,$reportType)
     {
