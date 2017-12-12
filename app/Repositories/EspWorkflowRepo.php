@@ -17,4 +17,12 @@ class EspWorkflowRepo {
     public function getActiveWorkflows() {
         return $this->model->where('status', 1)->get();
     }
+
+    public function getActiveWorkflowFeeds() {
+        return $this->model
+                    ->join('esp_workflow_feeds as ewf', 'esp_workflows.id', '=', 'ewf.esp_workflow_id')
+                    ->where('status', 1)
+                    ->selectRaw('distinct feed_id')
+                    ->get();
+    }
 }
