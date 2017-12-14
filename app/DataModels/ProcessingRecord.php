@@ -77,7 +77,7 @@ class ProcessingRecord {
         $this->city = substr($record->city, 0, 50);
         $this->state = $record->state;
         $this->zip = substr($record->zip, 0, 5);
-        $this->country = substr($record->country, 255);
+        $this->country = substr($record->country, 0 , 255);
         $this->dob = $record->dob ?: null;
         $this->gender = $record->gender;
         $this->phone = substr($record->phone, 0, 10);
