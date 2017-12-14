@@ -32,7 +32,6 @@ class WorkflowProcessingService {
 
         $deployIds = $this->stepsRepo->getDeployIds($workflow->id);
         $offerIds = $this->stepsRepo->getOfferIds($workflow->id);
-        $this->processingStrategy->setTargetId($workflow->esp_suppression_list);
 
         $resource = $this->actionsRepo->getEmailsForDeploys($deployIds, $daysBack);
 
