@@ -51,7 +51,7 @@ class MT1SuppressionService implements IFeedSuppression {
         $this->list = $this->getAdvertiserList($advertiserId);
     }
 
-    public function getAdvertiserList($advertiserId) {
+    private function getAdvertiserList($advertiserId) {
         $listResult = $this->advertiser->getSuppressionListId($advertiserId);
 
         if ( $listResult->count() <= 0 ) {
