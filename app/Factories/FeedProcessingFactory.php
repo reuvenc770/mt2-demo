@@ -176,7 +176,7 @@ class FeedProcessingFactory
         $className = $exportInfo->posting_class_name;
 
         if(class_exists("\\App\Services\\PostingStrategies\\{$className}PostingStrategy")) {
-            $postingStrategy = App::make("\\App\\Services\\PostingStrategies\\{$className}PostingStrategy");
+            return App::make("\\App\\Services\\PostingStrategies\\{$className}PostingStrategy");
         }
         else {
             throw new \Exception("$feedId does not have a valid posting strategy");
