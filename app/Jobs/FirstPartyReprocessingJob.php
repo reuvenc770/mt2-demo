@@ -24,7 +24,7 @@ class FirstPartyReprocessingJob extends MonitoredJob {
     }
 
     public function handleJob() {
-        $workflowRelation = EspWorkflowFeed::where('feed_id', $feed->id)->espWorkflow;
+        $workflowRelation = EspWorkflowFeed::where('feed_id', $feed->feed_id)->espWorkflow;
 
         if ($workflowRelation) {
             $workflow = $workflowRelation->first();

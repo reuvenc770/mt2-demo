@@ -157,7 +157,7 @@ class FeedProcessingFactory
 
         $espAccount = EspApiAccount::getAccount($workflow->esp_account_id);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
-        $exportInfo = EspDataExport::where('feed_id', $feed->id)->first();
+        $exportInfo = EspDataExport::where('feed_id', $feed->feed_id)->first();
 
         if ($exportInfo){
             $postingStrategy = self::createPostingStrategy($exportInfo);
