@@ -54,7 +54,8 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
                 'workflow_id' => $this->workflowId,
                 'email_id' => $record->emailId,
                 'target_list' => $this->targetId,
-                'status_received' => $result
+                'status_received' => $result,
+                'binary_status' => 1, # true for now during testing. In the future, the posting strategy should be able to decode the $result and set 0 or 1 here.
             ]);
 
             $this->recordDataRepo->insert($record->mapToRecordData());
