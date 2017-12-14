@@ -45,4 +45,8 @@ class EspWorkflowStepRepo {
 
         return $output;
     }
+
+    public function getWorkflow($id) {
+        return $this->model->where('esp_workflow_id', $id)->get();
+    }
 }

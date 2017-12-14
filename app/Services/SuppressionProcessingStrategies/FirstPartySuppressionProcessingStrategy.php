@@ -3,50 +3,26 @@
 namespace App\Services\SuppressionProcessingStrategies;
 
 use App\Services\Interfaces\ISuppressionProcessingStrategy;
-use App\Repositories\FirstPartyOnlineSuppressionListRepo;
 use App\Services\AbstractReportService;
+use App\Services\Interfaces\IPostingStrategy;
 
 class FirstPartySuppressionProcessingStrategy implements ISuppressionProcessingStrategy {
-
-    private $onlineListRepo;
-    private $onlineListMap;
     private $apiService;
     private $postingStrategy;
-    private $suppressionListIds = [];
+    private $lists = [];
 
-    public function __construct(FirstPartyOnlineSuppressionListRepo $onlineListRepo, AbstractReportService $apiService, IPostingStrategy $postingStrategy) {
-        $this->onlineListRepo = $onlineListRepo;
+    public function __construct(AbstractReportService $apiService, IPostingStrategy $postingStrategy) {
         $this->apiService = $apiService;
         $this->postingStrategy = $postingStrategy;
     }
 
-    public function setSuppressionListIds(array $suppressionListIds) {
-        $this->suppressionListIds = $suppressionListIds;
-    }
-
-    public function setFeedId($feedId) {
-        $result = $this->onlineListRepo->getForFeedId($feedId);
-
-        foreach ($result as $row) {
-            $this->onlineListMap[$row->suppression_list_id] = $row->target_list;
-        }
+    public function setTargets(array $lists) {
+        $this->lists = $lists;
     }
 
     public function processSuppression($emailAddress) {
-        $contactInfo = $this->formatLists($emailAddress, $this->suppressionListIds);
+        $contactInfo = $this->postingStrategy->prepareForSuppressionPosting($emailAddress, [$this->lists]);
         $this->apiService->addContactToLists($contactInfo);
     }
 
-    private function formatLists($emailAddress, $listString) {
-        $listArray = explode(',', $listString);
-        $targetIds = [];
-
-        foreach ($listArray as $list) {
-            if (isset($this->onlineListMap[$list])) {
-                $targetIds[] = $this->onlineListMap[$list];
-            }
-        }
-
-        return $this->postingStrategy->prepareForSuppressionPosting($emailAddress, $targetIds);
-    }
 }
