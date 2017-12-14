@@ -147,14 +147,14 @@ class MT1SuppressionService implements IFeedSuppression {
 
         $output = [];
 
-        if (count($splitTypes->md5) > 0) {
-            foreach ($this->md5Repo->getEmailsSuppressedForAdvertisers($emailAddresses, $splitTypes->md5) as $e) {
+        if (count($this->splitTypes->md5) > 0) {
+            foreach ($this->md5Repo->getEmailsSuppressedForAdvertisers($emailAddresses, $this->splitTypes->md5) as $e) {
                 $output[$e->email_addr] = $e->advertisers;
             }
         }
         
-        if (count($splitTypes->plaintext) > 0) {
-            foreach ($this->plaintextRepo->getEmailsSuppressedForLists($emailAddresses, $splitTypes->plaintext) as $e) {
+        if (count($this->splitTypes->plaintext) > 0) {
+            foreach ($this->plaintextRepo->getEmailsSuppressedForLists($emailAddresses, $this->splitTypes->plaintext) as $e) {
                 if (isset($output[$e->email_addr])) {
                     $tmp = $output[$e->email_addr];
                     $output[$e->email_addr] = array_merge($tmp, $this->transformListsToOffers($e->lists));
