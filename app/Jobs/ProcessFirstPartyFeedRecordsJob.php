@@ -21,13 +21,12 @@ class ProcessFirstPartyFeedRecordsJob extends MonitoredJob {
         $rawService = \App::make(\App\Services\RawFeedEmailService::class);
         $pickupRepo = \App::make(\App\Repositories\EtlPickupRepo::class);
         $records = $rawService->getFirstPartyRecordsFromFeed($this->startPoint, $this->feedId);
+        $maxId = $rawService->getMaxIdPulled();
 
         if (count($records) > 0) {
             $service = FeedProcessingFactory::createService(self::PARTY, $this->feedId);
             $records = $service->suppress($records);
             $service->process($records);
-
-            $maxId = $service->getLastProcessedId();
             $pickupRepo->updateOrCreate($this->jobName, $maxId);
         }
         
