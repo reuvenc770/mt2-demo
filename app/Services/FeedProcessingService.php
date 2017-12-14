@@ -3,13 +3,11 @@
 namespace App\Services;
 use App\Services\Interfaces\IValidate;
 use App\Services\Interfaces\IFeedPartyProcessing;
-use App\Services\Interfaces\IFeedSuppression;
 use App\Exceptions\ValidationException;
 use App\DataModels\ProcessingRecord;
 use App\Services\EmailService;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Services\EmailDomainService;
-use App\Services\Interfaces\ISuppressionProcessingStrategy;
 use App\Models\InvalidReason;
 use App\Repositories\InvalidEmailInstanceRepo;
 use Log;
@@ -18,9 +16,10 @@ use App\DataModels\RecordProcessingReportUpdate;
 class FeedProcessingService {
     
     private $validators = [];
-    private $suppressors = [];
+    
+
     private $processor;
-    private $suppStrategy;
+    
     private $reportUpdate;
 
     private $emailService;
@@ -103,22 +102,11 @@ class FeedProcessingService {
         return $this; // reurns $this to enable chaining
     }
 
-
-    public function registerSuppression(IFeedSuppression $service) {
-        $this->suppressors[] = $service;
-        return $this;
-    }
-
-
     public function registerProcessing(IFeedPartyProcessing $service) {
         $this->processor = $service;
     }
 
-    public function setSuppressionProcessingStrategy(ISuppressionProcessingStrategy $suppStrategy) {
-        $this->suppStrategy = $suppStrategy;
-    }
-
-
+    
     public function validate(ProcessingRecord $record) {
         try {
             foreach ($this->validators as $validator) {
@@ -146,44 +134,8 @@ class FeedProcessingService {
         return $record;
     }
 
-    /**
-     *  Set suppression status.
-     *  This is obviously a bit more complicated than the simple per-item lookup,
-     *  but hopefully this is significantly faster
-     *  Assumes an array of ProcessingRecords
-     */
-
     public function suppress($records) {
-
-        $emails = [];
-        $suppressed = [];
-        $finalRecords = [];
-
-        // Build out list of email addresses to check
-        foreach($records as $record) {
-            $emails[] = $record->emailAddress;
-        }
-
-        // Run each suppression check
-        foreach($this->suppressors as $suppressor) {
-            foreach($suppressor->returnSuppressedEmails($emails) as $supp) {
-                $suppressed[strtolower($supp->email_address)] = true;
-                $this->suppStrategy->processSuppression($supp->email_address);
-            }
-        }
-
-        // Update status
-        foreach ($records as $record) {
-            if (isset($suppressed[strtolower($record->emailAddress)])) {
-                $record->isSuppressed = true;
-            }
-            else {
-                $record->isSuppressed = false;
-            }
-            $finalRecords[] = $record;
-        }
-
-        return $finalRecords;
+        return $this->processor->suppress($records);
     }
 
 

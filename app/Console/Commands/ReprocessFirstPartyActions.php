@@ -42,10 +42,10 @@ class ReprocessFirstPartyActions extends Command
     public function handle(EspWorkflowRepo $repo) {
         $lookBack = $this->argument('lookback') ?: self::DEFAULT_LOOKBACK;
 
-        $activeWorkflows = $repo->getActiveWorkflows();
+        $feeds = $repo->getActiveWorkflowFeeds();
 
-        foreach ($activeWorkflows as $workflow) {
-            $job = new FirstPartyReprocessingJob($workflow, $lookBack, str_random(16), $this->option('runtime-threshold'));
+        foreach ($feeds as $feed) {
+            $job = new FirstPartyReprocessingJob($feed, $lookBack, str_random(16), $this->option('runtime-threshold'));
             $this->dispatch($job);
         }
         
