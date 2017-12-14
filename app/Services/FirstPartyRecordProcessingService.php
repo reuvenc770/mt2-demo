@@ -91,7 +91,7 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
         $emails = [];
         $suppressed = [];
         $finalRecords = [];
-        $espTargetAssoc = $this->stepsService->createOfferTargetListMap($this->workflowId);
+        $espTargetAssoc = $this->stepsService->createWorkflowOfferTargetListMap($this->workflowId);
 
         // Build out list of email addresses to check
         foreach($records as $record) {
