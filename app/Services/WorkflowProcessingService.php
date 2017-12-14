@@ -41,8 +41,8 @@ class WorkflowProcessingService {
             foreach ($offerIds as $offerId) {
                 if ($this->suppService->isSuppressed($emailAddress, $offerId)) {
                     // If suppressed, upload to specified list
-                    $listId = $this->suppService->getAdvertiserList($offerId);
-                    $this->processingStrategy->setTargets([$listId]);
+                    $list = $this->suppService->getAdvertiserList($offerId);
+                    $this->processingStrategy->setTargets([$list->id]);
                     $this->processingStrategy->processSuppression($emailAddress);
                 }
             }                    
