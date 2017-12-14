@@ -209,6 +209,11 @@ class DataProcessingFactory {
                 $mt2Name = 'SuppressionGlobalOrange';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case ('ImportMt1DomainSuppression'):
+                $mt1Name = 'EmailDomain';
+                $mt2Name = 'EmailDomain';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }

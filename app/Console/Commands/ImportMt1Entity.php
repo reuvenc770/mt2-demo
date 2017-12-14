@@ -125,6 +125,9 @@ class ImportMt1Entity extends Command
             case "globalSuppression":
                 return "ImportMt1GlobalSuppression";
 
+            case "domainSuppression":
+                return "ImportMt1DomainSuppression";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }
