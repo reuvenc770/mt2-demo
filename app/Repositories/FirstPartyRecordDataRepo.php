@@ -81,6 +81,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
 
     private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
+        $dob = $row['dob'] ? $pdo->quote($row['dob']) : 'NULL'; 
 
         return '('
             . $pdo->quote($row['email_id']) . ','
@@ -97,7 +98,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
             . $pdo->quote($row['ip']) . ','
             . $pdo->quote($row['phone']) . ','
             . $pdo->quote($row['source_url']) . ','
-            . $pdo->quote($row['dob']) . ','
+            . $dob . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
             . 'NOW(), "None", NULL, NULL, NULL,'
             . $pdo->quote($row['other_fields']) // other fields empty for now
