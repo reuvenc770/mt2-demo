@@ -61,6 +61,10 @@ class EmailDomainRepo implements IAwsRepo {
         return $this->emailDomainModel->find($id);
     }
 
+    public function updateOrCreate($data) {
+        return $this->emailDomainModel->updateOrCreate(['id' => $data['id']], $data);
+    }
+
     public function updateRow($id, $groupData){
         return $this->emailDomainModel->find( $id )->update( $groupData);
     }
