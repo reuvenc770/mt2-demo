@@ -7,7 +7,6 @@ use App\Repositories\RepoInterfaces\Mt1Import;
 use Carbon\Carbon;
 
 class EmailDomainRepo implements Mt1Import {
-    const LAST_ID_FIELD = 'LastSuppressedEmailDomainId';
     const DEFAULT_LOOKBACK = 7;
 
     protected $model;
@@ -17,24 +16,27 @@ class EmailDomainRepo implements Mt1Import {
     }
 
     public function pullForSync ( $lookback = null ) {
+        if ( !$this->isValidLookback( $lookback ) ) {
+            throw new \Exception( "EmailDomainRepo - lookback value '{$lookback}' invalid." );
+        }
+
         $queryObj = $this->model->where( 'suppressed' , 1 );
 
+        $currentLookback = $lookback?: self::DEFAULT_LOOKBACK;
 
-        if ( $this->useLookback( $lookback ) ) {
-            $currentLookback = $lookback?: self::DEFAULT_LOOKBACK;
+        $dateRange = [
+            Carbon::now()->subDays( $currentLookback )->toDateString() ,
+            Carbon::now()->toDateString()
+        ];
 
-            $dateRange = [
-                Carbon::now()->subDays( $currentLookback )->toDateString() ,
-                Carbon::now()->toDateString()
-            ];
-
-            $queryObj->whereBetween( 'dateSupp' , $dateRange );
-        }
+        $queryObj->whereBetween( 'dateSupp' , $dateRange );
 
         return $queryObj;
     }
 
-    protected function useLookback ( $lookback ) {
+    public function insertToMt1 ( $data ) {}
+
+    protected function isValidLookback ( $lookback ) {
         return ( is_null( $lookback ) || ( is_numeric( $lookback ) && $lookback > 0 ) );
     }
 }
