@@ -178,7 +178,19 @@ class DeployService
     public function copyToFutureDate($data){
         $errorCollection = array();
         foreach($data['deploy_ids'] as $deployId){
-          $newDeploy = $this->deployRepo->duplicateDomainToDate($deployId, $data['future_date']);
+          try {
+              $dateObj = Carbon::parse( $data['future_date'] );
+              $futureDate = $dateObj->toDateTimeString();
+          } catch ( \Exception $e ) { 
+              \Log::error( $e );
+
+                $errors['deploy_id'] = $deployId;
+                $errorCollection[] = [$e->getMessage()];
+
+                continue;
+          }   
+
+          $newDeploy = $this->deployRepo->duplicateDomainToDate($deployId, $futureDate);
             $copyToFutureBool = true; //this lets the validator know I am passing a list profile id vs name
             $errors = $this->deployRepo->validateDeploy($newDeploy->toArray(),$copyToFutureBool);
             if(count($errors) == 0){

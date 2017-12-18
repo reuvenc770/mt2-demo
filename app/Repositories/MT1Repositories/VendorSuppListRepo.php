@@ -39,7 +39,8 @@ class VendorSuppListRepo {
         return $this->model
                     ->whereIn('email_addr', $emails)
                     ->whereIn('list_id', $lists)
-                    ->selectRaw('distinct email_addr')
+                    ->selectRaw('email_addr, group_concat(list_id) as lists')
+                    ->groupBy('email_addr')
                     ->get();
     }
 }

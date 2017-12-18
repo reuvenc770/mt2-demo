@@ -15,8 +15,6 @@ class VacuumRedshiftJob extends MonitoredJob  {
     }
 
     public function handleJob() {
-                $this->repo->optimizeDb();
-
+        $this->repo->optimizeDb();
     }
-
 }

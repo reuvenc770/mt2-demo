@@ -428,7 +428,7 @@ class ListProfileExportService {
                 else {
                     // check these emails
 
-                    if (count($offerList) > 0) {
+                    if ($offerList->count > 0) {
                         $suppressed = $this->mt1SuppServ->suppressedByOffers(array_keys($batchHash), $offerList);
                     }
                     else {

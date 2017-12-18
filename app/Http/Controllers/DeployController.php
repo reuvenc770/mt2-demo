@@ -272,7 +272,16 @@ class DeployController extends Controller
             if (!isset($current['deployment_status'])) {
                 $data[$index]['deployment_status'] = 0;
             }
-
+            
+            if (!isset($current['user_id'])) {
+                $user = \Sentinel::getUser();
+                if ($user) {
+                    $data[$index]['user_id'] = $user->id;
+                }
+                else {
+                    $data[$index]['user_id'] = 0;
+                }
+            }
         }
 
         return response()->json(['success' => $this->deployService->massUpload($data)]);
@@ -285,7 +294,9 @@ class DeployController extends Controller
 
     public function deployPackages(Request $request)
     {
-        $username = $request->get("username");
+        $user = \Sentinel::getUser();
+        $username = $user->username;
+
         $data = $request->except("username");
         $filePath = false;
         $deploys = [];
@@ -300,11 +311,6 @@ class DeployController extends Controller
                 $filePath = $this->packageService->createPackage($data);
             }
             else {
-                //more then 1 package selection create the packages on the FTP and kick off the OPS file job
-                foreach ($deploys as $deploy) {
-                    $this->packageService->uploadPackage($deploy->id);
-                }
-
                 Artisan::call('deploys:sendToOps', ['deploysCommaList' => join(",", $data), 'username' => $username]);
             }
 

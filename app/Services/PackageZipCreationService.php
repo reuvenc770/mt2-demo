@@ -265,7 +265,7 @@ class PackageZipCreationService {
                     $this->nameLinkId = $link->id;
                 }
                 else {
-                    $token = "{{URL" . $linkNumber . "}}";
+                    $token = "{{URL" . ($linkNumber - 1) . "}}"; // As per current logic
                 }
 
                 if (strpos($fullHtml, $token) !== false) {
@@ -421,6 +421,10 @@ TXT;
                     $text = '';
 
                     foreach ($node->childNodes as $child) {
+                        if ( !method_exists( $child , 'getAttribute' ) ) { 
+                            continue;
+                        }
+                        
                         $text .= $child->getAttribute('title');
                     }
                     $prevText = $text;
