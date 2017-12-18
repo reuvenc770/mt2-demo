@@ -45,4 +45,17 @@ class EspWorkflowStepRepo {
 
         return $output;
     }
+
+    public function getWorkflow($id) {
+        return $this->model->where('esp_workflow_id', $id)->get();
+    }
+
+    public function getEspSuppressionList($workflowId, $offerId) {
+        return $this->model
+                    ->where('esp_workflow_id', $workflowId)
+                    ->where('offer_id', $offerId)
+                    ->selectRaw('distinct esp_suppression_list')
+                    ->first()
+                    ->esp_suppression_list;
+    }
 }

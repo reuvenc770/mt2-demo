@@ -28,6 +28,7 @@ use App\Services\FirstPartyRecordProcessingService;
 use App\Services\ThirdPartyRecordProcessingService;
 
 use App\Models\EspDataExport;
+use App\Models\EspWorkflowFeed;
 
 
 class FeedProcessingFactory
@@ -69,25 +70,22 @@ class FeedProcessingFactory
     }
 
     private static function setUpFirstPartyService(&$service, $feedId) {
-        $suppression = App::make(MT1SuppressionService::class);
-        $suppression->setFeedId($feedId);
-        $service->registerSuppression($suppression);
-
         $exportInfo = EspDataExport::where('feed_id', $feedId)->first();
-        $workflow = EspWorkflowFeed::where('feed_id', $feedId)->first();
-
+        
         if ($exportInfo){
-            $className = $exportInfo->posting_class_name;
-
-            if(class_exists("\\App\Services\\PostingStrategies\\{$className}PostingStrategy")) {
-                $postingStrategy = App::make("\\App\\Services\\PostingStrategies\\{$className}PostingStrategy");
-            }
-            else {
-                throw new \Exception("$feedId does not have a valid posting strategy");
-            }
+            $postingStrategy = self::createPostingStrategy($exportInfo);
         }
         else {
             throw new \Exception("$feedId does not have a posting strategy");
+        }
+
+        $workflowFeed = EspWorkflowFeed::where('feed_id', $feedId)->first();
+
+        if ($workflowFeed && $workflowFeed->espWorkflow) {
+            $workflow = $workflowFeed->espWorkflow;
+        }
+        else {
+            throw new \Exception("$feedId does not have a workflow");
         }
 
         $espAccount = EspApiAccount::getAccount($exportInfo->esp_account_id);
@@ -96,22 +94,25 @@ class FeedProcessingFactory
         $reportRepo = App::make(\App\Repositories\FeedDateEmailBreakdownRepo::class);
         $dataRepo = App::make(\App\Repositories\FirstPartyRecordDataRepo::class);
         $logRepo = App::make(\App\Repositories\EspWorkflowLogRepo::class);
-        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy, $logRepo);
+        $stepsService = App::make(\App\Services\EspWorkflowStepService::class);
+        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy, $logRepo, $stepsService);
 
         $suppStrategyName = 'App\\Services\\SuppressionProcessingStrategies\\FirstPartySuppressionProcessingStrategy';
-        $suppStrategy = new $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService, $postingStrategy);
-        $suppStrategy->setFeedId($feedId);
-
-        // Need to pass in suppression lists used for this processing strategy
-        $workflowProcessingService = self::createWorkflowProcessingService($workflow);
-        $suppressionLists = $workflowProcessingService->getSuppressionListIds($workflow);
-        
-        $suppStrategy->setSuppressionLists($suppressionLists);
-        $service->setSuppressionProcessingStrategy($suppStrategy);
+        $suppStrategy = new $suppStrategyName($apiService, $postingStrategy);
+        $processingService->setSuppressionProcessingStrategy($suppStrategy);
 
         $processingService->setFeedId($feedId);
         $processingService->setTargetId($exportInfo->target_list);
-        $processingService->setWorkflowId($workflow->esp_workflow_id);
+        $processingService->setWorkflowId($workflow->id);
+
+        $espStepsRepo = App::make(\App\Repositories\EspWorkflowStepRepo::class);
+        $offerIds = $espStepsRepo->getOfferIds($workflow->id);
+
+        $suppression = App::make(MT1SuppressionService::class);
+        $lists = $suppression->getSuppressionLists($offerIds);
+        $suppression->setOffersWithTypes($lists);
+        $processingService->registerSuppression($suppression);
+
         $service->registerProcessing($processingService);
 
         return $service;
@@ -119,11 +120,6 @@ class FeedProcessingFactory
 
 
     private static function setUpThirdPartyService(&$service) {
-        // Add suppression
-        $service->registerSuppression(App::make(GlobalSuppressionService::class));
-        $suppStrategy = App::make(\App\Services\SuppressionProcessingStrategies\ThirdPartySuppressionProcessingStrategy::class);
-        $service->setSuppressionProcessingStrategy($suppStrategy);
-
         // Add Attribution to Processing
         $eventType = 'expiration';
         $filterService = ServiceFactory::createFilterService($eventType);
@@ -137,29 +133,54 @@ class FeedProcessingFactory
             App::make(\App\Services\EmailFeedAssignmentService::class),
             App::make(\App\Services\AttributionRecordTruthService::class)
         );
+
+        // Add suppression
+        $processingService->registerSuppression(App::make(GlobalSuppressionService::class));
+        $suppStrategy = App::make(\App\Services\SuppressionProcessingStrategies\ThirdPartySuppressionProcessingStrategy::class);
+        $processingService->setSuppressionProcessingStrategy($suppStrategy);
+
         $service->registerProcessing($processingService);
 
         return $service;
     }
 
-    public static function createWorkflowProcessingService($workflow) {
-
+    public static function createWorkflowProcessingService($feed, $workflow) {
         $actionsRepo = App::make(\App\Repositories\EmailActionsRepo::class);
         $offerRepo = App::make(\App\Repositories\OfferRepo::class);
         $stepsRepo = App::make(\App\Repositories\EspWorkflowStepRepo::class);
-        $suppService = App::make(\App\Services\MT1SuppressionService::class);
 
-        // get a feed id
-        // currently a hack - should redo how these are stored
-        // This would be a good place to update actions ... but we don't know how
-        $feedId = $workflow->feeds->first()->id;
+        $offerIds = $stepsRepo->getOfferIds($workflow->id);
+
+        $suppression = App::make(MT1SuppressionService::class);
+        $lists = $suppression->getSuppressionLists($offerIds);
+        $suppression->setOffersWithTypes($lists);
 
         $espAccount = EspApiAccount::getAccount($workflow->esp_account_id);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
-        $suppStrategy = new FirstPartySuppressionProcessingStrategy(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
-        $suppStrategy->setFeedId($feedId);
+        $exportInfo = EspDataExport::where('feed_id', $feed->feed_id)->first();
+
+        if ($exportInfo){
+            $postingStrategy = self::createPostingStrategy($exportInfo);
+        }
+        else {
+            throw new \Exception("$feedId does not have a posting strategy");
+        }
+
+        $suppStrategy = new FirstPartySuppressionProcessingStrategy($apiService, $postingStrategy);
 
         return new \App\Services\WorkflowProcessingService($actionsRepo, $stepsRepo, $offerRepo, $suppService, $suppStrategy);
+    }
+
+
+    private static function createPostingStrategy(EspDataExport $exportInfo) {
+        $className = $exportInfo->posting_class_name;
+
+        if(class_exists("\\App\Services\\PostingStrategies\\{$className}PostingStrategy")) {
+            return App::make("\\App\\Services\\PostingStrategies\\{$className}PostingStrategy");
+        }
+        else {
+            throw new \Exception("$feedId does not have a valid posting strategy");
+        }
     }
 
 }

@@ -59,11 +59,12 @@ class ProcessFeedRecords extends Command
         $hoursBack = $this->option('rerun');
 
         if (1 === $party) {
+            $feedId = $this->option('feed');
+
             if (!$feedId) {
                 throw new Exception("First party feeds needs a feed id specified.");
             }
 
-            $feedId = $this->option('feed');
             $name = self::NAME_BASE . '-' . $feedId;
             
             if (!is_null($this->option('rerun'))) {

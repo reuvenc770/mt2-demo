@@ -8,6 +8,7 @@ use App\Services\ListProfileScheduleService;
 use App\Jobs\ExportDeployCombineJob;
 use Carbon\Carbon;
 use App\DataModels\CacheReportCard;
+use App\DataModels\NoUserCacheReportCard;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Cache;
 use DB;
@@ -64,7 +65,13 @@ class ListProfileBaseExportJob extends MonitoredJob {
                 foreach($deploys as $deploy) {
                     $runId = str_random(10);
                     $username = $deploy->user ? $deploy->user->username : 'no_user';
-                    $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$deploy->id}-{$runId}");
+                    
+                    if ($deploy->user) {
+                        $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$deploy->id}-{$runId}");
+                    } else {
+                        $reportCard = NoUserCacheReportCard::makeNewReportCard("{$username}-{$deploy->id}-{$runId}");
+                    }
+                    
                     $this->dispatch((new ExportDeployCombineJob([$deploy], $reportCard, str_random(16),$this->runtimeSecondsThreshold))->onQueue(self::QUEUE));
                 }
  

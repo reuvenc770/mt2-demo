@@ -48,14 +48,18 @@ class MD5AdvertiserSuppressListRepo {
         $suppressed = $this->model
                     ->whereIn('advertiser_id', $advertiserIds)
                     ->whereIn('md5sum', array_keys($md5s))
-                    ->selectRaw('distinct md5sum')
+                    ->selectRaw('md5sum, group_concat(advertiser_id) as advertisers')
+                    ->groupBy('md5sum')
                     ->get();
 
         $output = [];
 
         foreach ($suppressed as $sup) {
+            // need to map back to email address
             $emailAddress = $md5s[$sup->md5sum];
-            $output[] = (object)['email_addr' => $emailAddress];
+            $obj = (object)['email_addr' => $emailAddress];
+            $obj->advertisers = explode(',', $sup->advertisers);
+            $output[] = $obj;
         }
 
         return $output;

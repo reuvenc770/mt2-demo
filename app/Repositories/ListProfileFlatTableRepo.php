@@ -129,7 +129,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 deliveries = deliveries,
                 opens = opens,
                 clicks = clicks + VALUES(clicks),
-                conversions = conversion + VALUES(conversions),
+                conversions = conversions + VALUES(conversions),
                 created_at = created_at,
                 email_domain_group_id = email_domain_group_id,
                 has_esp_open = has_esp_open,

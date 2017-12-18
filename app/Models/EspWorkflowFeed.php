@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-class EspWorkflowFeed {
+use Illuminate\Database\Eloquent\Model;
+
+class EspWorkflowFeed extends Model {
     protected $guarded = [''];
 
-    public function workflow() {
-        return $this->belongsTo('App\Models\Workflow');
+    public function espWorkflow() {
+        return $this->belongsTo('App\Models\EspWorkflow');
     }
 
     public function feed() {

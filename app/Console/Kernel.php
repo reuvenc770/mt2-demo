@@ -257,12 +257,16 @@ class Kernel extends ConsoleKernel
          *  MT1 data sync jobs
          *  Job names like: ImportMt1, job class DataProcessingJob
          */
-        $schedule->command('mt1Import offer --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import advertiser --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import creative --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import from --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import subject --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
-        #$schedule->command('mt1Import deploy --runtime-threshold=1m')->cron('0 * * * * *');
+        #$schedule->command('mt1Import offer --runtime-threshold=20m')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import advertiser --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import creative --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import from --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import subject --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import offer --runtime-threshold=20m')->cron('*/30 * * * * *');
+        $schedule->command('mt1Import advertiser --runtime-threshold=1m')->cron('*/30 * * * * *');
+        $schedule->command('mt1Import creative --runtime-threshold=2h')->cron('*/30 * * * * *');
+        $schedule->command('mt1Import from --runtime-threshold=1h')->cron('*/30 * * * * *');
+        $schedule->command('mt1Import subject --runtime-threshold=2h')->cron('*/30 * * * * *');
         $schedule->command('mt1Import offerCreativeMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap --runtime-threshold=1h')->dailyAt(self::MT1_SYNC_TIME);
         #$schedule->command('mt1Import offerSubjectMap --runtime-threshold=2h')->dailyAt(self::MT1_SYNC_TIME);
@@ -271,12 +275,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import link 2 --runtime-threshold=1h')->cron('0 */2 * * * *');
         $schedule->command('mt1Import feed --runtime-threshold=1m')->cron('0 * * * * *');
         $schedule->command('mt1Import offerTrackingLink --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
-        #$schedule->command('mt1Import mailingTemplate --runtime-threshold=30s')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOffer --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeVertical --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOfferMap --runtime-threshold=5m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import client --runtime-threshold=1m')->dailyAt(self::MT1_SYNC_TIME);
-        #$schedule->command('mt1Import vendorSuppressionInfo --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap --runtime-threshold=10m')->dailyAt(self::MT1_SYNC_TIME);
         #$schedule->command('mt1Import globalSuppression --runtime-threshold=2h')->cron('45 */4 * * * *');  //all mt1 above
 
@@ -369,7 +371,7 @@ class Kernel extends ConsoleKernel
          *  Data consistency jobs
          *  Job names like DataValidation followed by lower case entity (middle item)
          */
-        $schedule->command("dataValidation emails exists --runtime-threshold=1h")->dailyAt(self::MT1_SYNC_TIME); //command DataConsistencyValidation, job class DataConsistencyValidationJob, job name DataValidation-%  and two below
+        #$schedule->command("dataValidation emails exists --runtime-threshold=1h")->dailyAt(self::MT1_SYNC_TIME); //command DataConsistencyValidation, job class DataConsistencyValidationJob, job name DataValidation-%  and two below
         $schedule->command("dataValidation emailFeedInstances exists --runtime-threshold=30m")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value --runtime-threshold=30m")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("newActions:process --hoursBack=2 --runtime-threshold=20m")->cron("30 * * * * *"); //command: ProcessNewActionsCommand, job class: ProcessNewActionsJob, Job name like: ProcessNewActions%
