@@ -72,7 +72,7 @@ class EmailDomainRepo implements IAwsRepo {
     public function getDomainAndClassInfo($email) {
         $emailParts = explode('@', $email);
         if (isset($emailParts[1])) {
-            $lowerDomain = strtolower($emailParts[1]); // not explicitly necessary - mysql string comparisons are case insensitive
+            $lowerDomain = strtolower($emailParts[1]); // not explicitly necessary - we are using a collation that is case insensitive
             return $this->emailDomainModel
                         ->selectRaw('email_domains.id as domain_id, IFNULL(domain_group_id, 0) as domain_group_id, lower(dg.name) as domain_group_name')
                         ->leftJoin('domain_groups as dg', 'email_domains.domain_group_id', '=', 'dg.id')
