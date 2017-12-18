@@ -49,7 +49,7 @@ class DeployService
     {
         $deploy = $this->deployRepo->insert($data);
 
-        if ( $deploy ) {
+        if ( false ){ #$deploy ) {
             $this->takeDeploySnapshot( $deploy->id );
         }
 
