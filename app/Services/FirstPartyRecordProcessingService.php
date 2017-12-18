@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\DataModels\RecordProcessingReportUpdate;
 use App\Services\Interfaces\IFeedSuppression;
 use App\Services\Interfaces\ISuppressionProcessingStrategy;
+use App\Services\ExportSetupStrategies\AbstractExportSetupStrategy;
 
 class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
     private $espApiService;
@@ -20,9 +21,9 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
     private $recordDataRepo;
     private $workflowLogRepo;
     private $stepsService;
+    private $setupStrategy;
 
     private $emailCache = [];
-    private $targetId = '';
     private $feedId;
     private $workflowId = 0;
     private $processingDate;
@@ -34,7 +35,8 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
         FirstPartyRecordDataRepo $recordDataRepo,
         IPostingStrategy $postingStrategy,
         EspWorkflowLogRepo $workflowLogRepo,
-        EspWorkflowStepService $stepsService) {
+        EspWorkflowStepService $stepsService,
+        AbstractExportSetupStrategy $setupStrategy) {
 
         $this->espApiService = $espApiService;
         $this->statsRepo = $statsRepo;
@@ -43,33 +45,43 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
         $this->processingDate = Carbon::today()->format('Y-m-d');
         $this->workflowLogRepo = $workflowLogRepo;
         $this->stepsService = $stepsService;
+        $this->setupStrategy = $setupStrategy;
     }
 
     public function processPartyData(array $records, RecordProcessingReportUpdate $reportUpdate) {
         foreach($records as $record) {
-            $postingRecord = $this->postingStrategy->prepareForPosting($records, $this->targetId);
-            $result = $this->espApiService->addContactToLists($postingRecord);
+
+            if ($this->setupStrategy->canExport($record)) {
+                $recordTargetId = $this->setupStrategy->getTargetId($record);
+                $postingRecord = $this->postingStrategy->prepareForPosting($records, $recordTargetId);
+                $result = $this->espApiService->addContactToLists($postingRecord);
+                $binaryStatus = $this->postingStrategy->interpretResult($result);
+                $wasExported = 1;
+            }
+            else {
+                // Records that cannot be uploaded due for various reasons
+                $recordTargetId = '';
+                $result = 0;
+                $binaryStatus = 0;
+                $wasExported = 0;
+            }
 
             $this->workflowLogRepo->insert([
                 'workflow_id' => $this->workflowId,
                 'email_id' => $record->emailId,
-                'target_list' => $this->targetId,
+                'target_list' => $recordTargetId,
                 'status_received' => $result,
-                'binary_status' => 1, # true for now during testing. In the future, the posting strategy should be able to decode the $result and set 0 or 1 here.
+                'binary_status' => $binaryStatus, 
+                'was_exported' => $wasExported
             ]);
-
-            $this->recordDataRepo->insert($record->mapToRecordData());
 
             $record->uniqueStatus = $this->recordDataRepo->isUnique($record->emailId, $this->feedId) ? 'unique' : 'duplicate';
             $reportUpdate->incrementUniqueStatus($record);
+            $this->recordDataRepo->insert($record->mapToRecordData());
         }
 
         $this->recordDataRepo->insertStored();
         $this->statsRepo->updateProcessedData($reportUpdate);
-    }
-
-    public function setTargetId($targetId) {
-        $this->targetId = $targetId;
     }
 
     public function setFeedId($feedId) {

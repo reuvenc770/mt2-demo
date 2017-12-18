@@ -95,14 +95,16 @@ class FeedProcessingFactory
         $dataRepo = App::make(\App\Repositories\FirstPartyRecordDataRepo::class);
         $logRepo = App::make(\App\Repositories\EspWorkflowLogRepo::class);
         $stepsService = App::make(\App\Services\EspWorkflowStepService::class);
-        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy, $logRepo, $stepsService);
+
+        $exportStrategy = self::setupExportStrategy($exportInfo);
+
+        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy, $logRepo, $stepsService, $exportStrategy);
 
         $suppStrategyName = 'App\\Services\\SuppressionProcessingStrategies\\FirstPartySuppressionProcessingStrategy';
         $suppStrategy = new $suppStrategyName($apiService, $postingStrategy);
         $processingService->setSuppressionProcessingStrategy($suppStrategy);
 
         $processingService->setFeedId($feedId);
-        $processingService->setTargetId($exportInfo->target_list);
         $processingService->setWorkflowId($workflow->id);
 
         $espStepsRepo = App::make(\App\Repositories\EspWorkflowStepRepo::class);
@@ -175,8 +177,19 @@ class FeedProcessingFactory
     private static function createPostingStrategy(EspDataExport $exportInfo) {
         $className = $exportInfo->posting_class_name;
 
-        if(class_exists("\\App\Services\\PostingStrategies\\{$className}PostingStrategy")) {
+        if(class_exists("\\App\\Services\\PostingStrategies\\{$className}PostingStrategy")) {
             return App::make("\\App\\Services\\PostingStrategies\\{$className}PostingStrategy");
+        }
+        else {
+            throw new \Exception("$feedId does not have a valid posting strategy");
+        }
+    }
+
+    private static function setupExportStrategy(EspDataExport $exportInfo) {
+        $className = $exportInfo->posting_class_name;
+
+        if(class_exists("\\App\\Services\\ExportSetupStrategies\\{$className}ExportSetupStrategy")) {
+            return App::make("\\App\\Services\\ExportSetupStrategies\\{$className}ExportSetupStrategy");
         }
         else {
             throw new \Exception("$feedId does not have a valid posting strategy");
