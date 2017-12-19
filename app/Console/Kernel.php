@@ -131,7 +131,6 @@ class Kernel extends ConsoleKernel
         Commands\UploadIPv6DB::class,
         Commands\WarnOldIPv6::class,
         Commands\PullEmails::class,
-        Commands\WarnOldIPv6::class ,
         Commands\CakeConversionCommand::class,
 ];
 

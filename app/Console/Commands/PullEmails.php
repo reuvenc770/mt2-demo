@@ -44,7 +44,6 @@ class PullEmails extends Command
      */
     public function handle()
     {
-        //
 	$this->feedId = explode(",",$this->argument( 'feedId' ));
         $runtime = $this->option('runtime-threshold');
         $tracking = str_random(16);
@@ -52,8 +51,5 @@ class PullEmails extends Command
 	$this->enddate = $this->argument( 'enddate' );
         $job = new PullEmailsJob($this->feedId, $this->startdate, $this->enddate, $tracking,$runtime);
         $this->dispatch($job);
-
-
     }
 }
-

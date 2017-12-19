@@ -248,13 +248,13 @@ class RawFeedEmailRepo {
         return $output;
     }
     public function getPullEmails($feedId,$startdate,$enddate) {
-
         $records = $this->rawEmail
 		    ->selectRaw("email_address, source_url, ip, capture_date")
                     ->whereIn('feed_id', $feedId)
 		    ->whereBetween('created_at', [$startdate,$enddate])
                     ->orderBy('id')
                     ->get();
+
 	return $records->toArray();
     }
     protected function formatRecord ( $record ) {
