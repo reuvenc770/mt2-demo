@@ -58,7 +58,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
             // make this optional
             Cache::decrement($this->cacheTagName, 1);
 
-            if ((int)Cache::get($this->cacheTagName) <= 0) {
+            if ((int)Cache::get($this->cacheTagName) === 0) {
                 $date = Carbon::today()->toDateString();
                 $deploys = $deployRepo->getDeploysForToday($date);
 
