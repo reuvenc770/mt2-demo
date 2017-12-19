@@ -50,10 +50,12 @@ class RawFeedEmailService {
 
         return $output;
     }
+    
     public function getPullEmails($feedId,$startdate,$enddate) {
         $records = $this->rawRepo->getPullEmails($feedId,$startdate,$enddate);
         return $records;
     }
+    
     public function getMaxIdPulled() {
         return $this->maxId;
     }
