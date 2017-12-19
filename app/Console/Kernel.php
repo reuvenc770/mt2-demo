@@ -129,7 +129,8 @@ class Kernel extends ConsoleKernel
         Commands\ProcessYamlFiles::class,
         Commands\OptimizeWorkers::class,
         Commands\UploadIPv6DB::class,
-        Commands\WarnOldIPv6::class
+        Commands\WarnOldIPv6::class,
+        Commands\PullEmails::class,
 ];
 
     /**

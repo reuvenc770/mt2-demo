@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Services;
-
 use App\Repositories\RawFeedEmailRepo;
 use App\Repositories\InvalidEmailInstanceRepo;
 use App\DataModels\ProcessingRecord;
@@ -50,7 +49,10 @@ class RawFeedEmailService {
 
         return $output;
     }
-
+    public function getPullEmails($feedId,$startdate,$enddate) {
+        $records = $this->rawRepo->getPullEmails($feedId,$startdate,$enddate);
+        return $records;
+    }
     public function getMaxIdPulled() {
         return $this->maxId;
     }
