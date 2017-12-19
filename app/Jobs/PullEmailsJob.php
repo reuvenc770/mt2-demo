@@ -33,9 +33,9 @@ class PullEmailsJob extends MonitoredJob
     public function __construct($feedId, $startdate, $enddate, $tracking,$runtimeThreshold)
     {
         $this->tracking = $tracking;
-	$this->feedId = $feedId;
-	$this->startdate = $startdate;
-	$this->enddate = $enddate;
+        $this->feedId = $feedId;
+        $this->startdate = $startdate;
+        $this->enddate = $enddate;
         parent::__construct(self::JOB_NAME,$runtimeThreshold,$tracking);
 
     }
@@ -49,10 +49,10 @@ class PullEmailsJob extends MonitoredJob
     {
         $rawService = \App::make(\App\Services\RawFeedEmailService::class);
         $records = $rawService->getPullEmails($this->feedId,$this->startdate, $this->enddate);
-      	$writer = Writer::createFromFileObject(new \SplTempFileObject());
-      	$writer->insertAll($records);
-	$dt = Carbon::now();
-	$datetime = $dt->timestamp;
+        $writer = Writer::createFromFileObject(new \SplTempFileObject());
+        $writer->insertAll($records);
+        $dt = Carbon::now();
+        $datetime = $dt->timestamp;
         Storage::disk("local")->put("FileDownload_{$datetime}.csv", $writer->__toString());
         return count($records);
     }

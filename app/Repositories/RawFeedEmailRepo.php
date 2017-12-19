@@ -249,13 +249,13 @@ class RawFeedEmailRepo {
     }
     public function getPullEmails($feedId,$startdate,$enddate) {
         $records = $this->rawEmail
-		    ->selectRaw("email_address, source_url, ip, capture_date")
+                    ->selectRaw("email_address, source_url, ip, capture_date")
                     ->whereIn('feed_id', $feedId)
-		    ->whereBetween('created_at', [$startdate,$enddate])
+                    ->whereBetween('created_at', [$startdate,$enddate])
                     ->orderBy('id')
                     ->get();
 
-	return $records->toArray();
+        return $records->toArray();
     }
     protected function formatRecord ( $record ) {
         $pdo = \DB::connection()->getPdo();
