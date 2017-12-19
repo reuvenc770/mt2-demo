@@ -51,7 +51,7 @@ class RawFeedEmailService {
         return $output;
     }
     
-    public function getPullEmails($feedId,$startdate,$enddate) {
+    public function getPullEmails( $feedId , $startdate , $enddate ) {
         $records = $this->rawRepo->getPullEmails($feedId,$startdate,$enddate);
         return $records;
     }
