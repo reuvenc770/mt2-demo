@@ -188,7 +188,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     public function extractForS3Upload($startPoint) {
         $dataSchema = config('database.connections.mysql.database');
-        return $this->flatTable->whereRaw("list_profile_flat_table.updated_at > $startPoint");
+        return $this->flatTable->whereRaw("list_profile_flat_table.updated_at >= $startPoint");
     }
 
     public function extractAllForS3() {
