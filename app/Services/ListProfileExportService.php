@@ -33,6 +33,7 @@ class ListProfileExportService {
     const BASE_TABLE_NAME = 'export_';
     const WRITE_THRESHOLD = 50000;
     const READ_THRESHOLD = 50000;
+    const SUPP_BATCH_LIMIT = 1000;
 
     private $rows = [];
     private $rowCount = 0;
@@ -150,14 +151,14 @@ class ListProfileExportService {
         }
     }
 
-    private function batchSuppression($fileName, $row) {
+    private function batchSuppression($fileName, $email) {
         if ($this->suppressedRowCount >= self::WRITE_THRESHOLD) {
             $this->writeBatchSuppression($fileName);
 
-            $this->suppressedRows = [$row->email_address];
+            $this->suppressedRows = [$email];
             $this->suppressedRowCount = 1;
         } else {
-            $this->suppressedRows[] = $row->email_address;
+            $this->suppressedRows[] = $email;
             $this->suppressedRowCount++;
         }
     }
@@ -380,6 +381,7 @@ class ListProfileExportService {
         $miscListCount = count($miscLists);
 
         $offerNames = [];
+        $offerList = $this->mt1SuppServ->getSuppressionLists($offersSuppressed);
 
         foreach ($offersSuppressed as $oId) {
             $offerNames[] = $this->offerRepo->getOfferName($oId);
@@ -397,39 +399,58 @@ class ListProfileExportService {
 
         $count = 0;
 
+        $batchCount = 0;
+        $batchHash = [];
+
         // Run each item against various suppression checks - global, feed, advertiser - and write to file.
         // I've seen cursor() fail on relatively small result sets b/c of memory issues
         // but then succeed on much larger result sets. Using it here because it seems to work.
         foreach ($query->cursor() as $row) {
             if(1 === (int)$row->globally_suppressed){
-                $this->batchSuppression($localCombineFileNameDNM, $row);
+                $this->batchSuppression($localCombineFileNameDNM, $row->email_address);
                 $reportEntry->increaseGlobalSuppressionCount();
             }
             elseif(1 === (int)$row->feed_suppressed){
-                $this->batchSuppression($localCombineFileNameDNM, $row);
+                $this->batchSuppression($localCombineFileNameDNM, $row->email_address);
                 $reportEntry->increaseListSuppressionCount();
             }
             elseif($miscListCount > 0 && $this->miscSuppressionRepo->isSuppressedInLists($row->email_address, $miscLists)) {
-                $this->batchSuppression($localCombineFileNameDNM, $row);
+                $this->batchSuppression($localCombineFileNameDNM, $row->email_address);
                 $reportEntry->increaseMiscSuppressionCount();
             }
             else {
-                $suppressed = false;
+                // This party is batched to improve performance
 
-                foreach ($offersSuppressed as $offerId) {
-                    // handle advertiser suppression here
-                    if ($this->mt1SuppServ->isSuppressed($row, $offerId)) {
-                        $suppressed = true;
-                        $this->batchSuppression($localCombineFileNameDNM, $row);
-                        $reportEntry->incrementOfferSuppression();
-                        break;
-                    }
+                if ($batchCount <= self::SUPP_BATCH_LIMIT) {
+                    $batchHash[$row->email_address] = $row;
+                    $batchCount++;
                 }
+                else {
+                    // check these emails
 
-                if (!$suppressed) {
-                    $row = $this->mapRow($header, $row);
-                    $this->batch($localCombineFileName, $row);
-                    $reportEntry->increaseFinalRecordCount();
+                    if ($offerList->count > 0) {
+                        $suppressed = $this->mt1SuppServ->suppressedByOffers(array_keys($batchHash), $offerList);
+                    }
+                    else {
+                        $suppressed = [];
+                    }
+
+                    foreach ($suppressed as $sup) {
+                        unset($batchHash[$sup]);
+                        $this->batchSuppression($localCombineFileNameDNM, $sup);
+                        $reportEntry->incrementOfferSuppression();
+                    }
+
+                    // These are the remaining unsuppressed records
+                    foreach ($batchHash as $emailAddress => $obj) {
+                        $obj = $this->mapRow($header, $obj);
+                        $this->batch($localCombineFileName, $obj);
+                        $reportEntry->increaseFinalRecordCount();
+                    }
+
+                    $batchHash = [];
+                    $batchHash[$row->email_address] = $row;
+                    $batchCount = 1;
                 }
             }
 

@@ -37,4 +37,31 @@ class MD5AdvertiserSuppressListRepo {
         }
         
     }
+
+    public function getEmailsSuppressedForAdvertisers($emails, $advertiserIds) {
+        $md5s = [];
+
+        foreach($emails as $e) {
+            $md5s[md5($e)] = $e;
+        }
+
+        $suppressed = $this->model
+                    ->whereIn('advertiser_id', $advertiserIds)
+                    ->whereIn('md5sum', array_keys($md5s))
+                    ->selectRaw('md5sum, group_concat(advertiser_id) as advertisers')
+                    ->groupBy('md5sum')
+                    ->get();
+
+        $output = [];
+
+        foreach ($suppressed as $sup) {
+            // need to map back to email address
+            $emailAddress = $md5s[$sup->md5sum];
+            $obj = (object)['email_addr' => $emailAddress];
+            $obj->advertisers = explode(',', $sup->advertisers);
+            $output[] = $obj;
+        }
+
+        return $output;
+    }
 }

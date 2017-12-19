@@ -72,9 +72,7 @@ class SuppressionService implements IFeedSuppression
             "type_id" => $type,
             "reason_id"        => $this->getReasonCode($espId, $type)
         );
-        if($record["esp_internal_id"] == 0){
-            unset($record["esp_internal_id"]);
-        }
+
         return $record;
     }
 

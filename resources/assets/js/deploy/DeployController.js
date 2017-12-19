@@ -198,8 +198,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.createPackages = function () {
-       var packageIds = self.selectedRows;
+        var packageIds = self.selectedRows;
         DeployApiService.deployPackages(packageIds, _config.userName, self.createPackageSuccess, self.createPackagesFailed)
+        self.selectedRows = [];
     };
 
     self.searchDeploys = function() {
@@ -636,6 +637,25 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.selectedRows = [];
         self.loadDeploys();
         self.startPolling();
+    };
+
+    self.createPackagesFailed = function ( response ) {
+        var errorMessage = '';
+
+        if ( response.data instanceof ArrayBuffer ) {
+            var enc = new TextDecoder();
+            var arr = new Uint8Array( response.data );
+            var str = enc.decode( arr );
+            var data = angular.fromJson( str );
+
+            errorMessage = data.message;
+        } else {
+            errorMessage = response.data.message;
+        }
+
+        modalService.setModalLabel( 'Create Packages Error' );
+        modalService.setModalBody( errorMessage );
+        modalService.launchModal();
     };
 
     self.successCheckPackageStatus = function (response){

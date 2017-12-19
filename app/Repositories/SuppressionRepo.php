@@ -24,9 +24,28 @@ class SuppressionRepo
         $this->suppressionReason = $reason;
     }
 
-    public function insertSuppression($arrayData){
-        $this->suppressionModel->updateOrCreate(["email_address" => $arrayData['email_address'],
-            "reason_id" => $arrayData['reason_id']], $arrayData);
+    public function insertSuppression($data){
+        $pdo = DB::getPdo();
+        $str = '('
+            . $pdo->quote($data['email_address']) . ','
+            . $pdo->quote($data['type_id']) . ','
+            . $pdo->quote($data['esp_account_id']) . ','
+            . $pdo->quote($data['esp_internal_id']) . ','
+            . $pdo->quote($data['date']) . ','
+            . $pdo->quote($data['reason_id']) . ')';
+
+        DB::statement("INSERT INTO suppressions (email_address, type_id, esp_account_id, esp_internal_id, date, reason_id)
+            VALUES
+
+            $str
+
+            ON DUPLICATE KEY UPDATE
+            email_address = email_address,
+            type_id = type_id,
+            esp_account_id = esp_account_id,
+            esp_internal_id = esp_internal_id,
+            date = date,
+            reason_id = reason_id");
     }
 
     public function getRecordsByDateEspType($typeId, $espAccountId, $date){

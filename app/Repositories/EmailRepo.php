@@ -107,7 +107,6 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     public function getCurrentAttributedFeedId($emailId) {
         $email = $this->emailModel->find($emailId);
         if (!$email) {
-            // Due to shifting email ids (in MT1), we can sometimes get this situation.
             return null;
         }
     

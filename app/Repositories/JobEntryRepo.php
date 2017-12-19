@@ -71,7 +71,7 @@ class JobEntryRepo
 
     public function getJobByTracking($tracking){
         try{
-            return $this->entry->where('tracking',$tracking)->firstOrFail();
+            return $this->entry->where('tracking',$tracking)->first();
         } catch(\Exception $e){
             Log::error($e->getMessage());
         }

@@ -26,8 +26,6 @@ class OfferSuppressionListRepo {
             ]);
     }
 
-    public function prepareTableForSync() {}
-
     public function getOfferForList($listId) {
         // Just takes the first
         $offer = $this->model

@@ -23,7 +23,7 @@ class SuppressionRedshiftDataValidation {
         $cmpCount = $this->cmpRepo->getCount($lookback);
         $rsCount = $this->redshiftRepo->getCount($lookback);
 
-        return $cmpCount !== $rsCount;
+        return $cmpCount === $rsCount;
     }
 
     public function fix() {

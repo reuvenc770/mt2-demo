@@ -16,7 +16,7 @@ class UpdateSuppression extends Migration
             $table->dropindex(['campaign_id_esp_account_id_email_address']);
             $table->renameColumn('campaign_id', 'esp_internal_id');
             $table->dropColumn('reason');
-            $table->integer('reason_id');
+            $table->integer('reason_id')->after('date');
             $table->index(['email_address', 'reason_id']);
             $table->index(['esp_internal_id', 'esp_account_id', 'email_address']);
         });

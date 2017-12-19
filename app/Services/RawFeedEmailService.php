@@ -21,15 +21,8 @@ class RawFeedEmailService {
 
     public function getMissedRecords($party, $date, $startRawId, $minInvId, $limit) {
         if (3 === $party) {
-            $output = [];
             $records = $this->rawRepo->getThirdPartyUnprocessed($startRawId, $date, $minInvId, $limit);
-
-            foreach ($records as $record) {
-                $this->maxId = max((int)$record->id, $this->maxId);
-                $output[] = new ProcessingRecord($record);
-            } 
-
-            return $output;
+            return $this->handleRecords($records, $startRawId);
         }
         elseif (1 === $party) {
             return $this->rawRepo->getFirstPartyUnprocessed($minId, $date, $minInvId, $feedId);
@@ -37,10 +30,18 @@ class RawFeedEmailService {
     }
 
     public function getThirdPartyRecordsWithChars($startPoint, $startChars) {
+        $records = $this->rawRepo->getThirdPartyRecordsWithChars($startPoint, $startChars);
+        return $this->handleRecords($records, $startPoint);
+    }
+
+    public function getFirstPartyRecordsFromFeed($startPoint, $feedId) {
+        $records = $this->rawRepo->getFirstPartyRecordsFromFeed($startPoint, $feedId);
+        return $this->handleRecords($records, $startPoint);
+    }
+
+    private function handleRecords(array $records, $startPoint) {
         $output = [];
         $this->maxId = (int)$startPoint;
-
-        $records = $this->rawRepo->getThirdPartyRecordsWithChars($startPoint, $startChars);
 
         foreach ($records as $record) {
             $this->maxId = max((int)$record->id, $this->maxId);

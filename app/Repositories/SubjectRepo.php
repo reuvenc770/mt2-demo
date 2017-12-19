@@ -19,7 +19,7 @@ class SubjectRepo {
     }
 
     public function prepareTableForSync() {
-        $this->model->truncate();
+        #$this->model->truncate();
     }
 
     public function getSubjectOfferOpenRate($offerId) {

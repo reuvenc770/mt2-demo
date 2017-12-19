@@ -34,7 +34,7 @@ class JobEntryService
         $espJob = $this->repo->getJobByTracking($tracking);
 
         // start this job only if it hasn't been finished before
-        if ($espJob && (null === $espJob->time_finished || '0000-00-00 00:00:00' === $espJob->time_finished)) {
+        if ($espJob && (null !== $espJob->time_finished || '0000-00-00 00:00:00' !== $espJob->time_finished)) {
             $espJob->status = JobEntry::SUCCESS;
             $espJob->save();
             throw new JobCompletedException("Job $jobName already completed");
@@ -58,16 +58,13 @@ class JobEntryService
             $job->time_finished = Carbon::now();
             $job->save();
         }
-        else if (JobEntry::FAILED !== $job->status && (null !== $job->time_finished) && ('0000-00-00 00:00:00' !== $job->time_finished) && ($job->time_finished >= Carbon::now()->subHour(12))) {
-            throw new JobCompletedException("Job {$job->job_name}, {$tracking} already completed at {$job->time_finished} with status {$job->status}. Attempted rerun at " . Carbon::now());
-        }
         else if($state == JobEntry::RUNNING){
             $job->status = $state;
             $job->time_started = Carbon::now();
             $job->attempts = $job->attempts + 1;
             $job->save();
         }
-        else if($state == JobEntry::SKIPPED || $state == JobEntry::RUNNING_ACCEPTANCE_TEST){
+        else if($state == JobEntry::SKIPPED || $state == JobEntry::RUNNING_ACCEPTANCE_TEST || $state === JobEntry::WAITING){
             $job->status = $state;
             $job->save();
         }

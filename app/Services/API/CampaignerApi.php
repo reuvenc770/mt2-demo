@@ -118,24 +118,34 @@ class CampaignerApi extends EspBaseAPI
 </contactssearchcriteria>";
     }
 
-    public function buildHardbounceSearchQuery ()
-    { 
+    public function buildHardbounceSearchQuery ($lookback) { 
         return "<contactssearchcriteria>
-  <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\"/>
-  <set>Partial</set>
-  <evaluatedefault>True</evaluatedefault>
-  <group>
-    <filter>
-      <filtertype>EmailAction</filtertype>
-      <campaign>
-        <anycampaign></anycampaign>
-      </campaign>
-      <action>
-        <status>Do</status>
-        <operator>HardBounce</operator>
-      </action>
-    </filter>
-  </group>
+   <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\" />
+   <set>Partial</set>
+   <evaluatedefault>True</evaluatedefault>
+   <group>
+      <filter>
+         <filtertype>SearchAttributeValue</filtertype>
+         <systemattributeid>11</systemattributeid>
+         <action>
+            <type>DDMMYY</type>
+            <operator>WithinLastNDays</operator>
+            <value>{$lookback}</value>
+         </action>
+      </filter>
+   </group>
+   <group>
+      <relation>And</relation>
+      <filter>
+         <filtertype>SearchAttributeValue</filtertype>
+         <systemattributeid>1</systemattributeid>
+         <action>
+            <type>Numeric</type>
+            <operator>EqualTo</operator>
+            <value>3</value>
+         </action>
+      </filter>
+   </group>
 </contactssearchcriteria>";
     }
 
@@ -204,7 +214,10 @@ class CampaignerApi extends EspBaseAPI
         return $total;
     }
 
-    public function addContactToLists($emailAddress, $suppressionLists) {
+    public function addContactToLists(array $contactInfo) {
+        $emailAddress = $contactInfo['email'];
+        $suppressionLists = $contactInfo['listIds'];
+        
         $contactManager = new ContactManagement();
         $key = new ContactKey(0, $emailAddress);
         $emailId = 0;

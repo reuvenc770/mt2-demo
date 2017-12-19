@@ -21,7 +21,7 @@ class SharePublicatorsUnsubsJob extends MonitoredJob {
         $this->tracking = $tracking;
         $this->lookback = $lookback;
         $this->espId = $espId;
-        JobTracking::startEspJob($this->jobName, $this->espName, '', $tracking);
+        #JobTracking::startEspJob($this->jobName, $this->espName, '', $tracking);
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
     }
 

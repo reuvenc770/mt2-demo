@@ -562,16 +562,21 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         return $xmlBody;
     }
 
-    public function addContactToLists($emailAddress, array $lists) {
+    public function addContactToLists(array $contactInfo) {
+
         foreach ($lists as $listId) {
             try {
-                $this->api->buildRequest('transactional.sendtransaction', [
+                /* 
+                For future reference, this is the BH format. Set this in the IPostingStrategy
+                [
                     'email' => $record->email_address,
                     'external_id' => $record->email_id,
                     'template_id' => $listId,
                     'name' => ($record->first_name . ' ' . $record->last_name)
-                ]);
+                ]
+                */
 
+                $this->api->buildRequest('transactional.sendtransaction', $contactInfo);
                 $this->api->sendApiRequest();
             }
             catch (Exception $e) {

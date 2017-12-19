@@ -33,8 +33,6 @@ class ProcessNewActionsJob extends MonitoredJob implements ShouldQueue
         $this->jobName = self::BASE_JOB_NAME . ":" . json_encode( $dateRange );
 
         parent::__construct($this->jobName,$runtimeThreshold,$tracking);
-
-        JobTracking::startAggregationJob( $this->jobName , $this->tracking );
     }
 
     /**
@@ -45,7 +43,7 @@ class ProcessNewActionsJob extends MonitoredJob implements ShouldQueue
     public function handleJob()
     {
         $newActions = \App::make('\App\Services\NewActionsService');
-        $newActions->updateFirstPartyEmailStatuses($this->dateRange);
+        #$newActions->updateFirstPartyEmailStatuses($this->dateRange); // no first party for now
         $newActions->updateThirdPartyEmailStatuses( $this->dateRange );
         $newActions->updateAttributionRecordTruths( $this->dateRange );
     }

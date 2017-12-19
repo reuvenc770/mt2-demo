@@ -73,7 +73,16 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
-        return $this->deploy->create($data);
+        # TODO: setting some default values for now due to strict mode
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
+        $data['deploy_name'] = '';
+        $data['external_deploy_id'] = '';
+        $data['deployment_status'] = 0;
+        $obj = $this->deploy->create($data);
+        $deployName = $obj->createDeployName();
+        $obj->deploy_name = $deployName;
+        $obj->save();
+        return $obj;
     }
 
     public function getDeploy($id)
@@ -85,6 +94,7 @@ class DeployRepo implements Mt2Export
 
     public function updateOrCreate($data)
     {
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
     }
 
@@ -92,6 +102,7 @@ class DeployRepo implements Mt2Export
 
     public function update($data, $id)
     {
+        $data['send_date'] = Carbon::parse($data['send_date'])->toDateString();
         return $this->deploy->find($id)->update($data);
     }
 
@@ -142,7 +153,16 @@ class DeployRepo implements Mt2Export
 
     public function massInsert($data){
         foreach($data as $row){
-            $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
+            # TODO: temp fix for getting around strict mode
+            $row['send_date'] = Carbon::parse($row['send_date'])->toDateString();
+            $row['deploy_name'] = '';
+            $row['external_deploy_id'] = '';
+            $row['deployment_status'] = 0;
+            $obj = $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
+
+            $deployName = $obj->createDeployName();
+            $obj->deploy_name = $deployName;
+            $obj->save();
         }
         return true;
     }
@@ -293,7 +313,15 @@ class DeployRepo implements Mt2Export
         }
         //subject ok?
         if (isset($deploy['subject_id']) && $deploy['subject_id']!== '' ) {
-            $count = DB::select("Select count(*) as count from subjects where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['subject_id']])[0];
+            $reportSchema = config( 'database.connections.reporting_data.database' );
+            $count = DB::select(
+                "SELECT count(*) AS count FROM subjects s INNER JOIN {$reportSchema}.offer_subject_maps osm ON( s.id = osm.subject_id ) WHERE s.id = :id AND s.is_approved = 1 AND s.status = 'A' AND osm.offer_id = :offerid",
+                [
+                    'id' => $deploy['subject_id'] ,
+                    'offerid' => $deploy[ 'offer_id' ]
+                ]
+            )[0];
+            
             if ($count->count == 0) {
                 $errors[] = "Subject is not active or ID is incorrect";
             }

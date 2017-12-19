@@ -103,15 +103,9 @@ class MaroReportService extends AbstractReportService implements IDataService
             if (1 == $processState['campaign']->clicks) {
                 $typeList[] = 'clicks';
             }
-            if (1 == $processState['campaign']->unsubs) {
-                $typeList[] = 'unsubscribes';
-            }
-            if (1 == $processState['campaign']->bounces) {
-                $typeList[] = 'bounces';
-            }
         }
         else {
-            $typeList = ['opens', 'clicks', 'complaints', 'unsubscribes', 'bounces'];
+            $typeList = ['opens', 'clicks'];
         }
         return $typeList;
     }
@@ -154,7 +148,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 
                     $type = "click";
                     break;
-
+/*
                 case 'unsubscribes' :
                     foreach ($processState['currentPageData'] as $key => $unsub) {
                         Suppression::recordRawUnsub(
@@ -194,7 +188,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                     }
                     $type = "complaint";
                     break;
-
+*/
                 case 'delivered':
                     foreach ($processState['currentPageData'] as $key => $delivered) {
                         $deployId = isset($map[$delivered['campaign_id']]) ? (int)$map[$delivered['campaign_id']] : 0;
@@ -478,7 +472,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
-    public function addContactToLists($emailAddress, array $lists) {}
+    public function addContactToLists(array $contactInfo) {}
 
     public function addContact($record, $listId) {
         $this->api->addContact($record, $listId);

@@ -265,7 +265,7 @@ class PackageZipCreationService {
                     $this->nameLinkId = $link->id;
                 }
                 else {
-                    $token = "{{URL" . $linkNumber . "}}";
+                    $token = "{{URL" . ($linkNumber - 1) . "}}"; // As per current logic
                 }
 
                 if (strpos($fullHtml, $token) !== false) {
@@ -323,10 +323,10 @@ class PackageZipCreationService {
             $templateId = $deploy->template_id;
             $creativeId = $deploy->creative_id;
 
-            return "{$e->getMessage()} is not a valid URL. Please check template {$templateId} and creative {$creativeId}";
+            throw new ValidationException("{$e->getMessage()} is not a valid URL. Please check template {$templateId} and creative {$creativeId}");
         }
-        catch (\Exception $e) {
-            dd($e);
+        catch (ValidationException $e) {
+            throw new ValidationException($e->getMessage());
         }
     }
 
@@ -421,6 +421,10 @@ TXT;
                     $text = '';
 
                     foreach ($node->childNodes as $child) {
+                        if ( !method_exists( $child , 'getAttribute' ) ) { 
+                            continue;
+                        }
+                        
                         $text .= $child->getAttribute('title');
                     }
                     $prevText = $text;
@@ -739,33 +743,49 @@ TXT;
 
 
     private function validate($deploy) {
-        if (!$deploy->creative || $deploy->creative->returnApprovalAndStatus() !== 'allowed') {
-            // we lose information this way, though
-            throw new ValidationException('Creative is not permitted. Check approval and status.');
+        $messageStart = "DeployID: {$deploy->id} - ";
+
+        if (!$deploy->creative) {
+            throw new ValidationException($messageStart . "Creative does not exist.");
         }
-        elseif (!$deploy->from || $deploy->from->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('From line is not permitted. Check approval and status.');
+        elseif ($deploy->creative->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "Creative {$deploy->creative->id} is not permitted. Check approval and status.");
         }
-        elseif (!$deploy->subject || $deploy->subject->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('Subject line is not permitted. Check approval and status.');
+        elseif (!$deploy->from) {
+            throw new ValidationException($messageStart . "From does not exist.");
         }
-        elseif (!$deploy->offer || $deploy->offer->returnApprovalAndStatus() !== 'allowed') {
-            throw new ValidationException('Offer is not permitted. Check approval and status.');
+        elseif ($deploy->from->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "From {$deploy->from->id} line is not permitted. Check approval and status.");
         }
-        elseif (!$deploy->contentDomain || !$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
-            throw new ValidationException('Content domain not permitted. Check status, type, and esp account.');
+        elseif (!$deploy->subject) {
+            throw new ValidationException($messageStart . "Subject does not exist.");
+        }
+        elseif ($deploy->subject->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "Subject {$deploy->subject->id} line is not permitted. Check approval and status.");
+        }
+        elseif (!$deploy->offer) {
+            throw new ValidationException($messageStart . "Offer does not exist.");
+        }
+        elseif ($deploy->offer->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException($messageStart . "Offer {$deploy->offer->id} is not permitted. Check approval and status.");
+        }
+        elseif (!$deploy->contentDomain) {
+            throw new ValidationException($messageStart . "Content domain does not exist.");
+        }
+        elseif (!$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
+            throw new ValidationException($messageStart . "Content domain {$deploy->contentDomain->id} not permitted. Check status, type, and esp account.");
         }
         elseif ('' === $deploy->contentDomain->domain_name) {
-            throw new ValidationException('Content domain url is empty.');
+            throw new ValidationException($messageStart . "Content domain {$deploy->contentDomain->id} url is empty.");
         }
         elseif (!$deploy->espAccount) {
-            throw new ValidationException('ESP Account does not exist.');
+            throw new ValidationException($messageStart . "ESP Account does not exist.");
         }
         elseif (!$deploy->mailingTemplate ) {
-            throw new ValidationException('Mailing template does not exist.');
+            throw new ValidationException($messageStart . "Mailing template does not exist.");
         }
         elseif (!$this->offerRepo->offerCanBeMailedOnDay($deploy->offer->id, $deploy->send_date)) {
-            throw new ValidationException("Offer cannot be sent on {$deploy->send_date}.");
+            throw new ValidationException($messageStart . "Offer {$deploy->offer->id} cannot be sent on {$deploy->send_date}.");
         }
     }
 

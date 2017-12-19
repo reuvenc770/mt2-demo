@@ -35,7 +35,7 @@ class UpdateMissingMaroCampaignsJob extends MonitoredJob
         $this->findOrphanCampaigns = $findOrphanCampaigns;
 
         parent::__construct(self::JOB_NAME,$runtimeThreshold,$tracking);
-        JobTracking::startEspJob( self::JOB_NAME , self::ESP_NAME , $this->espAccountId , $this->tracking );
+        #JobTracking::startEspJob( self::JOB_NAME , self::ESP_NAME , $this->espAccountId , $this->tracking );
     }
 
     /**
