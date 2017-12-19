@@ -57,9 +57,10 @@ class MT1SuppressionService implements IFeedSuppression {
         if ( $listResult->count() <= 0 ) {
             throw new \Exception( "Advertiser {$advertiserId} is missing list." );
         }
+        
+        $listId = $listResult->first()->id;
 
         if (!isset($this->listOfferCache[$listId])) {
-            $listId = $listResult->first()->id;
             $this->listOfferCache[$listId] = $advertiserId;
         }
         
