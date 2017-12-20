@@ -21,6 +21,8 @@ class PullEmailsJob extends MonitoredJob
     private $feedId;
     private $startdate;
     private $enddate;
+    CONST MIN_VALUE = 0;
+    CONST READ_THRESHOLD = 10;
     CONST JOB_NAME = "EmailPull";
     protected $tracking;
    
@@ -48,13 +50,24 @@ class PullEmailsJob extends MonitoredJob
     public function handleJob()
     {
         $rawService = \App::make(\App\Services\RawFeedEmailService::class);
-        $records = $rawService->getPullEmails($this->feedId,$this->startdate, $this->enddate);
-        $writer = Writer::createFromFileObject(new \SplTempFileObject());
-        $writer->insertAll($records);
-        $dt = Carbon::now();
-        $datetime = $dt->timestamp;
-        Storage::disk("local")->put("FileDownload_{$datetime}.csv", $writer->__toString());
-        return count($records);
+        $records = $rawService->getPullEmails($this->feedId,$this->startdate, $this->enddate,self::MIN_VALUE,self::READ_THRESHOLD);
+        $count = $records->count();
+        $maxId = null;
+        $output = [];
+
+        while ($count  > 0) {
+            $resource = $records->cursor();
+            foreach ($resource as $row) {
+                $maxId =  $row->id;
+                $output[] = $row->email_address.','.$row->source_url.','.$row->ip.','.$row->capture_date;
+            }
+           
+            $writer = Writer::createFromFileObject(new \SplTempFileObject());
+            $writer->insertAll($output);
+            Storage::disk("local")->put("FileDownload_sample.csv", $writer->__toString());
+            $records = $rawService->getPullEmails($this->feedId,$this->startdate, $this->enddate,$maxId,self::READ_THRESHOLD);
+            $count = $records->count();
+        }
     }
 }
 

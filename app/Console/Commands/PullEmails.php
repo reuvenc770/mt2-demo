@@ -19,7 +19,6 @@ class PullEmails extends Command
     protected $feedId;
     protected $startdate;
     protected $enddate;
-
     /**
      * The console command description.
      *

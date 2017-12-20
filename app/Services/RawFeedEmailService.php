@@ -10,7 +10,8 @@ class RawFeedEmailService {
     private $rawRepo;
     private $invalidRepo;
     private $maxId = 0;
-    
+    private $min;
+    private $limit;
     public function __construct(RawFeedEmailRepo $rawRepo,
     InvalidEmailInstanceRepo $invalidRepo) {
 
@@ -51,8 +52,8 @@ class RawFeedEmailService {
         return $output;
     }
     
-    public function getPullEmails( $feedId , $startdate , $enddate ) {
-        $records = $this->rawRepo->getPullEmails($feedId,$startdate,$enddate);
+    public function getPullEmails( $feedId , $startdate , $enddate, $min , $limit ) {
+        $records = $this->rawRepo->getPullEmails($feedId,$startdate,$enddate,$min,$limit);
         return $records;
     }
     
@@ -67,6 +68,4 @@ class RawFeedEmailService {
     public function getMinInvalidIdForDate($date) {
         return $this->invalidRepo->getMinIdForDate($date);
     }
-
-
 }

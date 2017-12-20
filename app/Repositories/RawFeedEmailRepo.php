@@ -21,9 +21,9 @@ class RawFeedEmailRepo {
     protected $failed;
     protected $failedFields;
     private $email;
-
     protected $feed;
-
+    private $min;
+    private $limit;
     protected $standardFields = [
         'feed_id' => 0 ,
         'party' => 0 ,
@@ -247,15 +247,14 @@ class RawFeedEmailRepo {
 
         return $output;
     }
-    public function getPullEmails($feedId,$startdate,$enddate) {
-        $records = $this->rawEmail
-                    ->selectRaw("email_address, source_url, ip, capture_date")
+    public function getPullEmails($feedId,$startdate,$enddate,$min,$limit) {
+        return  $this->rawEmail
+                    ->selectRaw("id,email_address, source_url, ip, capture_date")
                     ->whereIn('feed_id', $feedId)
                     ->whereBetween('created_at', [$startdate,$enddate])
                     ->orderBy('id')
-                    ->get();
-
-        return $records->toArray();
+                    ->where('id', '>', $min)   
+                    ->limit($limit);
     }
     protected function formatRecord ( $record ) {
         $pdo = \DB::connection()->getPdo();
