@@ -4,8 +4,12 @@ namespace App\Services\RedshiftDataValidationStrategies;
 
 use DB;
 use PDO;
+use Log;
+use App\Jobs\S3RedshiftExportJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class SuppressionRedshiftDataValidation {
+    use DispatchesJobs;
     
     private $cmpRepo;
     private $redshiftRepo;
@@ -22,23 +26,14 @@ class SuppressionRedshiftDataValidation {
         // Today's data will likely be out of sync
         $cmpCount = $this->cmpRepo->getCount($lookback);
         $rsCount = $this->redshiftRepo->getCount($lookback);
+        Log::info("Global suppression count: CMP: $cmpCount. Redshift: $rsCount");
 
         return $cmpCount === $rsCount;
     }
 
-    public function fix() {
-        $pdo = DB::connection($this->cmpRepo->getConnection())->getPdo();
-        $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-
-        $query = $this->cmpRepo->getAllQuery($this->lookback);
-        $stmt = $pdo->prepare($query);
-        $stmt->execute();
-
-        maybe an md5 of all values ... but how?
-        would have to md5() in batches .. small ones
-
-        while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->redshiftRepo->insertIfNotNew($row);
-        }
+    public function fix() { 
+        $version = 1; // extended
+        $job = new S3RedshiftExportJob('SuppressionGlobalOrange', $version, str_random(16), null, '1h');
+        $this->dispatch($job);
     }
 }

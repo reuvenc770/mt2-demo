@@ -27,10 +27,6 @@ class RecordDataRedshiftDataValidation extends AbstractLargeRedshiftDataValidati
             return true;
         }
     }
-
-    private function deliverableTest($lookback) {}
-
-    private function 
     
 
     public function fix() {

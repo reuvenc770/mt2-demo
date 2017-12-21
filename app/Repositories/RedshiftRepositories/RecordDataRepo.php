@@ -61,7 +61,7 @@ SQL;
     }
 
     public function getRandomSample($number) {
-        // So this is actually quite efficient and fast in redshift
+        // So this is actually quite fast in redshift
         return $this->model->inRandomOrder()->take($number)->get();
     }
 }

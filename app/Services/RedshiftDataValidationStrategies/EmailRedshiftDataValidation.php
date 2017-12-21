@@ -35,6 +35,8 @@ class EmailRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
             $lowest = ((int)min($this->badEmailSegments)) * 1000000; // return that million
             $version = 2; // Special job
             $job = new S3RedshiftExportJob('Email', $version, str_random(16), $lowest);
+        
+            $this->dispatch($job);
         }
     }
 

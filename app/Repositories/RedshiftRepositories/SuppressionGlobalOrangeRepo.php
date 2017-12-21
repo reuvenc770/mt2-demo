@@ -57,11 +57,4 @@ SQL;
                     ->count();
     }
 
-    public function insertIfNotNew(array $row) {
-        $normalizedEmail = strtolower($row['email_address']);
-        if ($this->model->where('email_address', $normalizedEmail)->count() === 0) {
-            DB::connection('redshift')->statement("INSERT INTO suppression_global_orange ")
-        }
-        $this->model->firstOrCreate(['email_address' => $row['email_address']], $row);
-    }
 }

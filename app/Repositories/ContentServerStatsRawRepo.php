@@ -73,7 +73,7 @@ class ContentServerStatsRawRepo {
                 AND
                 r.id <= :end2
                 AND
-                e.id IS NULL
+                e.id = 0
             GROUP BY
                 email_id, link_id, deploy_id, date", [
             ':start' => $start,
