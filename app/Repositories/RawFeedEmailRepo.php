@@ -389,7 +389,7 @@ class RawFeedEmailRepo {
     public function getThirdPartyUnprocessed($minId, $date, $minInvalidId, $limit) {
         // Should test this to see if the lack of safeguards suffices
 
-        return $this->rawEmail
+        $records = $this->rawEmail
                     ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
                     ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
                     ->leftJoin('email_feed_instances as efi', function($join) use ($date) {
@@ -412,7 +412,15 @@ class RawFeedEmailRepo {
                     ->orderBy('raw_feed_emails.id', 'asc')
                     ->take($limit)
                     ->get();
-
+        
+        // need to return this in a PHP array
+        $output = [];
+        
+        foreach($recors as $record) {
+            $output[] = $record;
+        }
+        
+        return $output;
     }
 
     public function getMinId($datetime) {

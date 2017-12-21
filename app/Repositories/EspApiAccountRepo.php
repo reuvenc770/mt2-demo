@@ -82,7 +82,7 @@ class EspApiAccountRepo
     }
 
     public function getAllActiveAccounts(){
-        return $this->espAccount->where([ [ "enable_suppression" , '=' , 1 ] , [ 'enable_stats' , '=' , 1 ]] )->with( 'esp' )->orderBy('account_name')->get();
+        return $this->espAccount->where('enable_stats', '=', 1)->with( 'esp' )->orderBy('account_name')->get();
     }
 
     /**

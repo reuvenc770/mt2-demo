@@ -85,7 +85,7 @@ class FeedDateEmailBreakdownRepo {
                                 full_postal_counts = full_postal_counts + VALUES (full_postal_counts),
                                 bad_ip_addresses = bad_ip_addresses + VALUES(bad_ip_addresses),
                                 other_invalid = other_invalid + VALUES(other_invalid),
-                                suppressed_domains = suppressed_emails + VALUES(suppressed_emails),
+                                suppressed_domains = suppressed_domains + VALUES(suppressed_domains),
                                 phone_counts = phone_counts + VALUES(phone_counts),
                                 unique_emails = unique_emails + VALUES(unique_emails),
                                 feed_duplicates = feed_duplicates + VALUES(feed_duplicates),

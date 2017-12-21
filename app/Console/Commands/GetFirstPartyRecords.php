@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Console\Commands\ProcessFeedRecords;
-use App\Repositories\FeedRepo;
+use App\Repositories\EspWorkflowRepo;
 
 class GetFirstPartyRecords extends Command
 {
@@ -38,13 +38,13 @@ class GetFirstPartyRecords extends Command
      *
      * @return mixed
      */
-    public function handle(FeedRepo $repo) {
-        $feeds = $repo->getFeedsForParty(1);
+    public function handle(EspWorkflowRepo $repo) {
+        $feeds = $repo->getActiveWorkflowFeeds();
 
         foreach($feeds as $feed) {
             $this->call('feedRecords:process', [
                 'party' => 1,
-                '--feed' => $feed->id
+                '--feed' => $feed->feed_id
             ]);
         }
     }

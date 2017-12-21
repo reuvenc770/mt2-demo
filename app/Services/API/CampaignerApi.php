@@ -214,7 +214,10 @@ class CampaignerApi extends EspBaseAPI
         return $total;
     }
 
-    public function addContactToLists($emailAddress, $suppressionLists) {
+    public function addContactToLists(array $contactInfo) {
+        $emailAddress = $contactInfo['email'];
+        $suppressionLists = $contactInfo['listIds'];
+        
         $contactManager = new ContactManagement();
         $key = new ContactKey(0, $emailAddress);
         $emailId = 0;

@@ -174,7 +174,7 @@ class EmailActionsRepo {
             INNER JOIN emails e on ea.email_id = e.id
             INNER JOIN email_domains ed on e.email_domain_id = ed.id
             LEFT JOIN domain_groups dg on ed.domain_group_id = dg.id
-            LEFT JOIN deploys d on ea.deploy_id = d.id
+            INNER JOIN deploys d on ea.deploy_id = d.id
             LEFT JOIN mt_offer_cake_offer_mappings cake_map ON d.offer_id = cake_map.offer_id
             LEFT JOIN cake_offers co ON cake_map.cake_offer_id = co.id
             LEFT JOIN cake_verticals cv ON co.vertical_id = cv.id", 

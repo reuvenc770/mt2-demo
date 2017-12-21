@@ -35,7 +35,7 @@ abstract class AbstractReportService implements IDataService  {
 
     abstract public function mapToStandardReport($data);
 
-    abstract public function addContactToLists($emailAddress, array $lists);
+    abstract public function addContactToLists(array $contactInfo);
 
     public function setRetrieveApiLimit ( $limit ) {
         $this->limit = $limit;
