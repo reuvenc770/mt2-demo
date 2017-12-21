@@ -16,7 +16,7 @@ class CakeConversionCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadCakeConversions {--d|daysBack= : How long ago to pull conversions for. } {--s|startDate= : The starting date for pulling conversions. } {--e|endDate= : The end date for pulling conversions. }';
+    protected $signature = 'reports:downloadCakeConversions {--d|daysBack= : How long ago to pull conversions for. } {--s|startDate= : The starting date for pulling conversions. } {--e|endDate= : The end date for pulling conversions. } {--runtime-threshold=default}';
 
     /**
      * The console command description.

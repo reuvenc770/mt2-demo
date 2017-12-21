@@ -109,7 +109,12 @@ class Url {
     }
 
     public function getQueryParam($param) {
-        return $this->queryValues[$param] ?: '';
+        if (isset($this->queryValues[$param])) {
+            return $this->queryValues[$param];
+        }
+        else {
+            throw new UrlValidationException("URL {$this->url} missing parameter {$param}. Please check creative.");
+        }
     }
 
     public function contains($substr) {

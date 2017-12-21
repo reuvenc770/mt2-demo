@@ -432,13 +432,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $this->api->addContact($contactInfo);
     }
 
-    public function addContactToLists($emailAddress, array $lists)
+    public function addContactToLists(array $contactInfo)
     {
-        $contactInfo = [
-            'email' => $emailAddress,
-            'listIds' => $lists
-        ];
-
         $returned = $this->api->addContact($contactInfo);
 
         if (!$returned) {

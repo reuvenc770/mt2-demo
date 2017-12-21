@@ -29,28 +29,25 @@ class WorkflowProcessingService {
     }
 
     public function process($workflow, $daysBack) {
-
         $deployIds = $this->stepsRepo->getDeployIds($workflow->id);
         $offerIds = $this->stepsRepo->getOfferIds($workflow->id);
-        $suppressionLists = [];
-
-        foreach ($offerIds as $offerId) {
-            $suppressionLists = array_merge($suppressionLists, $this->offerRepo->getSuppressionListIds($offerId));
-        }
-        $suppressionLists = array_unique($suppressionLists);
-
         $resource = $this->actionsRepo->getEmailsForDeploys($deployIds, $daysBack);
 
         foreach($resource->cursor() as $emailAddress) {
             // Run these against all suppression lists
+            $espTargetLists = [];
+
             foreach ($offerIds as $offerId) {
                 if ($this->suppService->isSuppressed($emailAddress, $offerId)) {
-                    // If suppressed, upload to all lists
-                    $this->processingStrategy->processSuppression($emailAddress, $suppressionLists);
-                    break;
+                    // If suppressed, upload to specified list
+                    $espTargetLists[] = $this->stepsRepo->getEspSuppressionList($workflow->id, $offerId);
                 }
-            }                    
+            }
+
+            $this->processingStrategy->setTargets($espTargetLists);
+            $this->processingStrategy->processSuppression($emailAddress);                  
 
         }
     }
+
 }

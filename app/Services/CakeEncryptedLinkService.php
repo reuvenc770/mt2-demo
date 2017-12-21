@@ -23,6 +23,10 @@ class CakeEncryptedLinkService {
         $affiliateId = $params['a'] ?: '';
         $creativeId = $params['c'] ?: '';
 
+        if ( $creativeId === '' || $creativeId === 0 ) {
+            throw new ModelNotFoundException("No encrypted hash found for link '{$link}'. Cake Creative ID is missing.");
+        }
+
         // this will throw an exception if nothing found:
         try {
             $encryptHash = $this->linkRepo->getHash($affiliateId, $creativeId);

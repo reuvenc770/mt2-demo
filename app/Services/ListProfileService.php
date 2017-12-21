@@ -250,9 +250,6 @@ class ListProfileService
 
 
     public function buildProfileTable($id) {
-        /**
-            - Run against hygiene
-         */
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);
         $queryNumber = 1;

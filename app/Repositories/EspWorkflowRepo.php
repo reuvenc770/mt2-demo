@@ -42,4 +42,12 @@ class EspWorkflowRepo {
         $find = $this->model->find($id);
         return $find ? $find->name : '';
     }
+
+    public function getActiveWorkflowFeeds() {
+        return $this->model
+                    ->join('esp_workflow_feeds as ewf', 'esp_workflows.id', '=', 'ewf.esp_workflow_id')
+                    ->where('status', 1)
+                    ->selectRaw('distinct feed_id')
+                    ->get();
+    }
 }

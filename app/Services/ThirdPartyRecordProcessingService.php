@@ -13,6 +13,8 @@ use Carbon\Carbon;
 use App\Events\NewRecords;
 use App\Models\EmailAttributableFeedLatestData;
 use App\DataModels\RecordProcessingReportUpdate;
+use App\Services\Interfaces\IFeedSuppression;
+use App\Services\Interfaces\ISuppressionProcessingStrategy;
 
 class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $emailCache = [];
@@ -24,6 +26,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $filterService;
     private $assignmentService;
     private $truthService;
+    private $suppressors = [];
+    private $suppStrategy;
 
     private $processingDate;
     const DELIV_LIMIT = 90;
@@ -53,10 +57,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
     public function processPartyData(array $records, RecordProcessingReportUpdate $reportUpdate) {
         $recordsToFlag = [];
-        $lastEmail = '';
 
         foreach ($records as $record) {
-            $lastEmail = $record->emailAddress;
             $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
             $lastActionType = $this->emailStatusRepo->getActionStatus($record->emailId);
             $record = $this->setRecordStatus($record, $currentAttributedFeedId, $lastActionType);
@@ -145,9 +147,56 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
             }
             
-            
         }
 
         return $record;
+    }
+
+    /**
+     *  Set suppression status.
+     *  This is obviously a bit more complicated than the simple per-item lookup,
+     *  but hopefully this is significantly faster
+     *  Assumes an array of ProcessingRecords
+     */
+
+    public function suppress($records) {
+        $emails = [];
+        $suppressed = [];
+        $finalRecords = [];
+
+        // Build out list of email addresses to check
+        foreach($records as $record) {
+            $emails[] = $record->emailAddress;
+        }
+
+        // Run each suppression check
+        foreach($this->suppressors as $suppressor) {
+            foreach($suppressor->returnSuppressedEmails($emails) as $supp) {
+                $suppressed[strtolower($supp->email_address)] = true;
+            }
+        }
+
+        // Update status
+        foreach ($records as $record) {
+            if (isset($suppressed[strtolower($record->emailAddress)])) {
+                $record->isSuppressed = true;
+            }
+            else {
+                $record->isSuppressed = false;
+            }
+            $finalRecords[] = $record;
+        }
+
+        return $finalRecords;
+    }
+
+
+    public function registerSuppression(IFeedSuppression $service) {
+        $this->suppressors[] = $service;
+        return $this;
+    }
+
+    public function setSuppressionProcessingStrategy(ISuppressionProcessingStrategy $suppStrategy) {
+        $this->suppStrategy = $suppStrategy;
     }
 }
