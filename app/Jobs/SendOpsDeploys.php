@@ -53,15 +53,14 @@ class SendOpsDeploys extends Job implements ShouldQueue
 
                 Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys-{$deployId} Error ({$this->username}):\n{$error}" ); 
 
-                $user = $userService->findByUsername( $this->username );
+                $email = $service->getDeployOwnerEmail( $deployId );
 
-                if ( is_null( $user ) ) {
-                    Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys-{$deployId} Error:\nFailed to find email for user '{$this->username}'. No notification was sent for failed package creation." ); 
+                if ( $email === false ) {
+                    Slack::to( self::SLACK_CHANNEL )->send( "SendOpsDeploys-{$deployId} Error:\nFailed to find email for user. User missing from deploy. No notification was sent for failed package creation." ); 
 
                     continue;
                 }
 
-                $email = $user->first()->email;
 
                 \Mail::raw( $error , function ( $message ) use ( $email , $deployId ) {
                     $message->to($email);

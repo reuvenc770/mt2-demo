@@ -496,4 +496,13 @@ class DeployRepo implements Mt2Export
         return 0;
     }
 
+    public function getDeployOwnerEmail ( $id ) {
+        $result = $this->deploy->find( $id );
+
+        if ( !is_null( $result ) ) {
+            return $result->user->email;
+        }
+
+        return false;
+    }
 }

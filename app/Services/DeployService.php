@@ -225,4 +225,8 @@ class DeployService
     public function returnCsvHeader(){
         return $this->deployRepo->returnCsvHeader();
     }
+
+    public function getDeployOwnerEmail ( $id ) {
+        return $this->deployRepo->getDeployOwnerEmail( $id );
+    }
 }
