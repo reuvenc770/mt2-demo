@@ -68,6 +68,7 @@ class ListProfileBaseExportJob extends MonitoredJob {
                     
                     if ($deploy->user) {
                         $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$deploy->id}-{$runId}");
+                        $reportCard->setOwner($username);
                     } else {
                         $reportCard = NoUserCacheReportCard::makeNewReportCard("{$username}-{$deploy->id}-{$runId}");
                     }
